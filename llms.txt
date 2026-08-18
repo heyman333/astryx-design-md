@@ -1,0 +1,65 @@
+# Astryx
+
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 212 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+
+Generated from commit `5a0cf74` (2026-08-17) of https://github.com/facebook/astryx.
+
+Key facts:
+
+- Requires React 19+; `react` and `react-dom` are peer dependencies of `@astryxdesign/core`.
+- Install: `npm install @astryxdesign/core @astryxdesign/theme-neutral @stylexjs/stylex` plus `npm install -D @astryxdesign/cli`.
+- Styles are authored in StyleX but overridable with plain `className` (Tailwind, CSS Modules, plain CSS).
+- A theme is a set of CSS custom-property overrides; themes: butter, chocolate, gothic, matcha, neutral, stone, y2k.
+- `astryx swizzle <Name>` ejects a component's source into your project for deep customization.
+- CLI bootstrap for agents: `astryx docs principles --dense`, `astryx docs tokens --dense`, `astryx docs theme --dense`, `astryx component --list`, `astryx component <Name> --dense`.
+- Inputs are controlled: pass `value` + `onChange` (no `defaultValue`/`defaultChecked`). Wrap the app in `<Theme theme={neutralTheme}>` (theme object from `@astryxdesign/theme-*/built`).
+- Layout spacing uses a numeric scale: `gap={4}` / `padding={6}` (steps 0–10), not `gap="md"`. Components have no `style` prop — use `xstyle` or size props (`width`, `maxWidth`).
+
+## Docs
+
+- [README](https://github.com/facebook/astryx/blob/main/README.md): Project overview, install, packages, principles
+- [CLAUDE.md](https://github.com/facebook/astryx/blob/main/CLAUDE.md): AI/agent context — doc standards, StyleX capability matrix, CLI bootstrap commands
+- [CONTRIBUTING](https://github.com/facebook/astryx/blob/main/CONTRIBUTING.md): Contributor guide (Node 22+, pnpm 11)
+- [Wiki](https://github.com/facebook/astryx/wiki): API conventions, design conventions, architecture, research
+- [Docs site](https://astryx.atmeta.com): Published documentation
+- [Storybook](https://facebook.github.io/astryx/storybook/): Live component stories
+
+## Packages
+
+- [@astryxdesign/build](https://github.com/facebook/astryx/blob/main/packages/build/README.md): Build plugins for XDS source builds — babel, PostCSS, and Vite integrations
+- [@astryxdesign/charts](https://github.com/facebook/astryx/blob/main/packages/charts/README.md): Astryx charts — a config-model data visualization library (d3-based). Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version.
+- [@astryxdesign/cli](https://github.com/facebook/astryx/blob/main/packages/cli/README.md): Scaffold projects, browse templates, generate themes, and get agent-ready docs from the command line.
+- [@astryxdesign/core](https://github.com/facebook/astryx/blob/main/packages/core/README.md): The component library. Accessible, themeable React components with built-in spacing, dark mode, and StyleX styling.
+- [@astryxdesign/lab](https://github.com/facebook/astryx/blob/main/packages/lab/README.md): Experimental Astryx components — published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version.
+- [@astryxdesign/richtext](https://github.com/facebook/astryx/blob/main/packages/richtext/README.md): Astryx rich text — a Lexical-based rich text editor and viewer. Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version.
+- [@astryxdesign/vega](https://github.com/facebook/astryx/blob/main/packages/vega/README.md): Astryx Vega wrapper — chart and data visualization components. Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version.
+
+## Components
+
+212 documented components in `packages/core/src/`. Each has a `{Name}.doc.mjs` structured doc with props, anatomy, and best practices. By category:
+
+- Action: Button, ButtonGroup, ContextMenu, ContextMenuItem, DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuDivider, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSubMenu, IconButton, Link, MoreMenu, SegmentedControl, SegmentedControlItem, ToggleButton, ToggleButtonGroup, Toolbar
+- Animation: useEntryAnimation
+- Chat: Chat, ChatComposer, ChatComposerDrawer, ChatComposerInput, ChatComposerTokenElement, ChatDictationButton, ChatLayout, ChatLayoutScrollButton, ChatMessage, ChatMessageBubble, ChatMessageList, ChatMessageMetadata, ChatSendButton, ChatSystemMessage, ChatTokenizedText, ChatToolCalls
+- Container: Card, Carousel, ClickableCard, Collapsible, CollapsibleGroup, SelectableCard
+- Content: Avatar, AvatarStatusDot, AvatarGroup, AvatarGroupOverflow, Blockquote, Citation, Code, CodeBlock, EmptyState, Icon, Kbd, Markdown, Heading, Text, Thumbnail, Timestamp, Token
+- Data Input: Calendar, CheckboxInput, CheckboxList, CheckboxListItem, ComplexSelector, DateInput, DateRangeInput, DateTimeInput, Field, FieldLabel, FieldStatus, FileInput, Indicator, InputGroup, InputGroupText, MultiSelector, NumberInput, PowerSearch, RadioList, RadioListItem, Selector, SelectorOption, Slider, Switch, TextArea, TextInput, TimeInput, Tokenizer, BaseTypeahead, Typeahead, TypeaheadItem
+- Feedback & Status: Badge, Banner, ProgressBar, Skeleton, Spinner, StatusDot
+- Focus: useFocusTrap, useGridFocus, useKeyboardHint, useListFocus, useTreeFocus
+- Interaction: useCollapsible, useHoverCard, useLayer, usePopover, useToast, useTooltip, useClickableContainer, useClipboard, useContainerReveal, useHotkeys, useInputContainer
+- Layout: AppShell, useAppShellMobile, AspectRatio, Center, Divider, FormLayout, Grid, GridSpan, Layout, LayoutContent, LayoutFooter, LayoutHeader, LayoutPanel, Resizable, useResizable, Section, Stack, useOverflow, useScrollLock, useScrollOverflow
+- Media: useImageMode, useMediaQuery
+- Navigation: BreadcrumbItem, Breadcrumbs, MobileNav, NavIcon, NavHeadingMenu, Outline, Pagination, SideNav, SideNavCollapseButton, SideNavHeading, SideNavItem, SideNavSection, Tab, TabList, TabMenu, TopNav, TopNavHeading, TopNavItem, TopNavMegaMenu, TopNavMegaMenuFeaturedCard, TopNavMegaMenuItem, TopNavMenu
+- Overlay: AlertDialog, useImperativeAlertDialog, BottomSheet, BottomSheetSwitcher, CommandPalette, CommandPaletteEmpty, CommandPaletteFooter, CommandPaletteGroup, CommandPaletteInput, CommandPaletteItem, CommandPaletteList, Dialog, DialogHeader, useImperativeDialog, HoverCard, Lightbox, Overlay, Popover, Toast, Tooltip
+- Streaming: useStreamingText
+- Table & List: Item, List, ListItem, MetadataList, MetadataListItem, OverflowList, Table, TableCell, TableHeaderCell, TableRow, useTableColumnResize, useTableColumnSettings, useTableFilterState, useTableFiltering, useTableGroupedRows, useTablePagination, useTableRowExpansion, useTableRowIndex, useTableRowStatus, useTableSelection, useTableSelectionState, useTableSortable, useTableStickyColumns, useTableTreeData, useTableTreeState, TreeList
+- Utility: Layer, LinkProvider, VisuallyHidden, InternationalizationProvider, useTranslator, MediaTheme, SyntaxTheme, Theme, useTheme
+
+## Optional
+
+- [llms-full.txt](llms-full.txt): Full per-component reference — props, types, defaults, and do/don't guidance for every component, generated from the same commit
+- [Themes source](https://github.com/facebook/astryx/tree/main/packages/themes): Seven theme packages (butter, chocolate, gothic, matcha, neutral, stone, y2k)
+- [Example apps](https://github.com/facebook/astryx/tree/main/apps): docsite, example-nextjs, example-nextjs-source, example-nextjs-stylex, example-nextjs-tailwind, example-vite, example-vite-tailwind, sandbox, storybook, template-viewer
+- [Internal tooling](https://github.com/facebook/astryx/tree/main/internal): test utils, eslint plugin, StyleX capability scanner, vibe tests
+- [Security policy](https://github.com/facebook/astryx/blob/main/SECURITY.md): Reporting vulnerabilities
+- [License](https://github.com/facebook/astryx/blob/main/LICENSE): MIT

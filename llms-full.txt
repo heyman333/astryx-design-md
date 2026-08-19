@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `972a316` (2026-08-17) of https://github.com/facebook/astryx.
+Generated from commit `0f4d45f` (2026-08-18) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -2518,6 +2518,7 @@ Props:
 - `label`: string (required) — Accessible label surfaced via aria-label.
 - `isPulsing`: boolean = false — Enables a pulse animation; respects prefers-reduced-motion: reduce.
 - `tooltip`: string — Tooltip text shown on hover to explain the status meaning.
+- `icon`: ReactNode — Optional icon rendered centered inside the dot, painted in currentColor (the variant's ink). Gives the status a non-color mark, so use a different icon per status. Booleans and empty strings are ignored, so `cond && <Icon />` is safe. Same contract as AvatarStatusDot.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
 ## Focus
@@ -3958,7 +3959,7 @@ Props:
 - `sheetId`: string — Unique ID for this sheet inside BottomSheetSwitcher. The switcher opens it when activeSheet matches. Omit isOpen and onOpenChange when sheetId is used.
 - `label`: string (required) — Accessible label for the sheet. Required; the sheet has no built-in heading to derive a name from.
 - `children`: ReactNode (required) — Sheet content, rendered below the grab handle in a scrollable area. If it includes a text-entry control that can bring up the mobile keyboard, use height='tall' and keep the sheet fully expanded while editing.
-- `height`: 'hug' | 'capped' | 'tall' | number | string = 'capped' — How tall the sheet is. Named budgets: 'hug' fits its content up to 92% of the viewport, 'capped' is a scrolling mid-height panel (~62%), and 'tall' is a pinned near-full panel (~92%) for content that streams in. Or pass a number (px) / CSS length for a custom budget. The user can drag between snap points regardless. On shorter viewports the sheet fills the available height. Only a fully expanded 'tall' sheet provides mobile-keyboard accommodation; shorter Tall detents, Hug, Capped, numeric, and CSS-length heights do not move or add keyboard scroll space.
+- `height`: 'hug' | 'capped' | 'tall' | number | string = 'capped' — How tall the sheet is. Named budgets: 'hug' fits its content up to 92% of the viewport, 'capped' is a scrolling mid-height panel (~62%), and 'tall' is a pinned near-full panel (~92%) for content that streams in. Or pass a number (px) / CSS length for a custom budget. The user can drag between snap points regardless. On shorter viewports the sheet fills the available height. Only a fully expanded 'tall' sheet provides mobile-keyboard accommodation: it stays put and scrolls each focused control above the keyboard. Hug, Capped, numeric and CSS-length heights never do, and a Tall sheet stops doing it the moment the user drags it to a shorter detent — resuming when they drag it back. Outside that state the sheet neither moves nor adds keyboard scroll space, and the browser's own focus reveal is left in place; on iOS that reveal can shift the whole page.
 - `hasScrim`: boolean = true — For a standalone BottomSheet, whether to render a scrim, the semi-transparent overlay that covers and blocks the background. true (default) uses showModal(): top layer, focus trap, ::backdrop scrim, body scroll lock, and tap-scrim-to-dismiss when purpose='info', with the background inert. false uses show() with no scrim, leaving the page behind interactive and scrollable. For a multi-step flow, configure hasScrim on BottomSheetSwitcher instead; it owns one shared dialog across every child.
 
 ### BottomSheetSwitcher

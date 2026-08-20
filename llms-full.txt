@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `0f4d45f` (2026-08-18) of https://github.com/facebook/astryx.
+Generated from commit `4aacbbe` (2026-08-19) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -1052,6 +1052,7 @@ Do:
 - Set headingLevelStart to match the page hierarchy, e.g. start at 3 if the markdown sits inside an h2 section.
 - Use contentWidth to keep prose at a readable line length in wide layouts.
 - Use inlinePlugins for custom shorthand patterns like issue refs, diff refs, and mentions instead of preprocessing the markdown string.
+- Pair with Outline and useOutlineFromMarkdown for section navigation: headings render generated id attributes that match the outline item ids, so hash links scroll to their target.
 
 Don't:
 - Use Markdown for hand-authored layouts; use Text and Heading directly when you control the content.
@@ -1295,6 +1296,8 @@ Props:
 - `min`: ISODateString — Minimum selectable date.
 - `max`: ISODateString — Maximum selectable date.
 - `dateConstraints`: Array<(date: Date) => boolean> — Custom constraint functions.
+- `maxRangeSpan`: number — Range mode: max days a range may span, both endpoints counted (7 = a 7-day window). Caps the window from the picked start; before a start is picked every day stays selectable.
+- `minRangeSpan`: number — Range mode: min days a range must span, both endpoints counted (2 forbids a single-day range). Default 1.
 - `focusDate`: ISODateString — Controlled visible month.
 - `onFocusDateChange`: (focusDate: ISODateString) => void — Navigation callback.
 - `handleRef`: React.Ref<CalendarHandle> — Imperative handle for calendar navigation, including navigateTo().
@@ -1490,6 +1493,8 @@ Props:
 - `min`: ISODateString — Minimum selectable date. `ISODateString` is a template literal type (`\`${number}${number}${number}${number}-${number}${number}-${number}${number}\``). Pass a string literal like `"2026-01-28"`, not a runtime string variable. Import it from `@astryxdesign/core/Calendar` or use `as ISODateString` if computing the value dynamically.
 - `max`: ISODateString — Maximum selectable date. Same template literal type as `min`: use a YYYY-MM-DD string literal or cast with `as ISODateString`.
 - `dateConstraints`: Array<(date: Date) => boolean> — Custom constraint functions to disable specific dates.
+- `maxRangeSpan`: number — Maximum days a selected range may span, counting both endpoints (`7` = a 7-day window, start + 6). Once a start is picked, days beyond this distance are disabled so the range cannot stretch past the cap. Rolling window relative to the start — for fixed calendar bounds use `min`/`max`. Constrains selection only; it never rewrites a `value` already wider than the cap (flag that with `status`).
+- `minRangeSpan`: number — Minimum days a selected range must span, counting both endpoints (`2` forbids a single-day range). Once a start is picked, days closer than this are disabled. Defaults to 1 (same-day start and end allowed).
 - `presets`: Array<DateRangePreset> — Preset ranges shown as quick-select options beside the calendar.
 - `hasClear`: boolean = true — Shows a clear button when a range is selected.
 - `placeholder`: string = 'Select date range' — Placeholder text when no range is selected.
@@ -1922,7 +1927,7 @@ Don't:
 
 Props:
 - `label`: string (required) — Label text for accessibility.
-- `options`: SelectorOption[] (required) — Array of items: strings, objects with value/label/icon/disabled, dividers ({type: "divider"}), or sections ({type: "section", title, items}).
+- `options`: SelectorOption[] (required) — Array of items: strings, objects with value/label/description/icon/disabled, dividers ({type: "divider"}), or sections ({type: "section", title, items}).
 - `value`: string — Currently selected value.
 - `onChange`: (value: string) => void — Callback fired when the selection changes.
 - `hasClear`: boolean = false — Shows a clear (×) button when a value is selected. When true, onChange also accepts null to signal the user cleared the selection.
@@ -1941,6 +1946,7 @@ Props:
 - `status`: {type: 'error' | 'warning' | 'success', message?: string} — Validation status with an optional message.
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' for input selectors; 'detached' for ghost selectors — How the status message is placed relative to the input. attached overlaps directly below the bordered input and is only valid for the input variant; ghost selectors detach attached status messages by default. Use tooltip for compact toolbar controls.
 - `renderOption`: (option: SelectorOptionData) => ReactNode — Custom render function for each selectable option in the dropdown. Use this instead of JSX children; dividers and sections are rendered by the selector.
+- `renderValue`: (option: SelectorOptionData) => ReactNode — Custom render function for the selected option inside the closed trigger. The trigger is sized by padding, so it is the size token for a one-line value (28/32/36) and exactly one text line taller for a two-line one (48/52/56) — always on the 4px rhythm, always aligned with the buttons and inputs beside it. Inside an InputGroup the group owns the row height: a SelectorOption folds onto one line and ellipsizes, and any taller node is cut off at the row.
 - `indicatorPosition`: 'start' | 'end' = 'end' — Which edge of the option row carries the selected mark. start reserves a mark column ahead of every label so they stay aligned, the way a native menu does; end is the house convention shared with Typeahead and CommandPalette.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
@@ -2353,6 +2359,7 @@ Props:
 - `label`: ReactNode (required) — Primary label text for the item.
 - `icon`: IconType — Icon displayed before the label. See `astryx docs icons` for valid semantic names.
 - `description`: ReactNode — Secondary description text displayed below the label.
+- `layout`: 'stacked' | 'inline' = 'stacked' — How the label and description sit together. 'stacked' puts the description on its own line; 'inline' keeps both on one line so the row fits a fixed-height host. Inside a Selector trigger the trigger's padding sizes itself to whichever layout you pick, so both land on the 4px rhythm; an InputGroup pins the row height and forces 'inline'.
 - `endContent`: ReactNode — Additional content rendered after the label and description.
 
 ### TypeaheadItem (subcomponent/hook)
@@ -3047,7 +3054,11 @@ Props:
 - `minHeight`: SizeValue — Minimum container height (px or CSS value).
 - `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inner padding on all sides, using the spacing scale (0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10). Matches the padding prop on Stack, Card, LayoutContent, and LayoutPanel. Pass as a JSX number expression e.g. padding={3}.
 - `paddingInline`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline (horizontal) padding, using the spacing scale. Overrides padding on the inline axis when both are set.
+- `paddingInlineStart`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline-start padding, using the spacing scale (left in LTR, right in RTL). Overrides paddingInline and padding on that edge only.
+- `paddingInlineEnd`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline-end padding, using the spacing scale (right in LTR, left in RTL). Overrides paddingInline and padding on that edge only.
 - `paddingBlock`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Block (vertical) padding, using the spacing scale. Overrides padding on the block axis when both are set.
+- `paddingBlockStart`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Block-start (top) padding, using the spacing scale. Overrides paddingBlock and padding on that edge only.
+- `paddingBlockEnd`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Block-end (bottom) padding, using the spacing scale. Overrides paddingBlock and padding on that edge only.
 - `isInline`: boolean = false — Use inline-flex (useful for text/icons).
 - `children`: ReactNode — Content to center.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
@@ -3090,6 +3101,7 @@ Don't:
 
 Props:
 - `direction`: 'vertical' | 'horizontal' | 'horizontal-labels' = 'vertical' — Controls field arrangement. Vertical stacks top-to-bottom, horizontal arranges left-to-right with equal flex-grow, and horizontal-labels uses CSS Grid with labels to the left of inputs (collapses to vertical on narrow viewports <=480px).
+- `defaultOptionality`: 'optional' | 'required' — The state the form treats as its default, so only the exception shows an optional/required indicator. With "optional", only fields marked isRequired show an indicator; with "required", only fields marked isOptional do. A field that restates the default shows nothing. Under "required" the unmarked fields also expose aria-required so screen readers match the visual default — aria-required only, never the native required attribute. Leave unset for today's per-field behavior.
 - `children`: ReactNode — Form fields to arrange. Accepts Astryx inputs (TextInput, Selector, etc.) and Field-wrapped custom controls.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
@@ -3144,6 +3156,9 @@ Props:
 - `start`: ReactNode — Start panel (left in LTR).
 - `end`: ReactNode — End panel (right in LTR).
 - `height`: 'fill' | 'auto' = 'fill' — Height behavior: fill the container or grow with content.
+- `contentWidth`: number | string — Maximum width of the content within each slot (header, content, footer, panels), centered when narrower than the available space. Dividers stay full-bleed. Numbers are pixels, strings are used as-is (e.g. `60ch`). Common page widths: 640 for forms, settings, and text-focused pages; 960 for content pages and wider layouts.
+- `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Padding at the layout's outer edges using the spacing scale.
+- `defaultHasDividers`: boolean — Default divider visibility for LayoutHeader and LayoutFooter children. Headers and footers that don't pass `hasDivider` use this value; when unset, nested layouts inherit from their parent context.
 
 ### Resizable
 
@@ -3198,7 +3213,12 @@ Props:
 - `children`: ReactNode — Content rendered inside the section.
 - `dividers`: Array<'top' | 'bottom' | 'start' | 'end'> — Which sides of the section have divider borders.
 - `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 = 4 — Internal padding using the spacing scale (0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10). Use padding={0} for edge-to-edge content.
+- `paddingInline`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline (horizontal) padding override. Overrides only the inline-axis padding while preserving block padding from `padding` or the container theme default. Accepts the spacing scale (0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10).
+- `paddingInlineStart`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline-start padding override (left in LTR, right in RTL). Overrides paddingInline and padding on that edge only.
+- `paddingInlineEnd`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline-end padding override (right in LTR, left in RTL). Overrides paddingInline and padding on that edge only.
 - `paddingBlock`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Block (vertical) padding override. Overrides only the block-axis padding while preserving inline padding from `padding` or the container theme default. Accepts the spacing scale (0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10).
+- `paddingBlockStart`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Block-start (top) padding, using the spacing scale. Overrides paddingBlock and padding on that edge only.
+- `paddingBlockEnd`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Block-end (bottom) padding, using the spacing scale. Overrides paddingBlock and padding on that edge only.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object.
 
 ### Stack
@@ -3219,7 +3239,11 @@ Props:
 - `gap`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Spacing step (number literal): 0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10. Pass as a JSX number expression e.g. gap={4}, NOT a string like gap="4".
 - `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inner padding on all sides, using the spacing scale. Pass as a JSX number expression e.g. padding={3}.
 - `paddingInline`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline (horizontal) padding. Overrides padding on the inline axis when both are set.
+- `paddingInlineStart`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline-start padding, using the spacing scale (left in LTR, right in RTL). Overrides paddingInline and padding on that edge only.
+- `paddingInlineEnd`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline-end padding, using the spacing scale (right in LTR, left in RTL). Overrides paddingInline and padding on that edge only.
 - `paddingBlock`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Block (vertical) padding. Overrides padding on the block axis when both are set.
+- `paddingBlockStart`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Block-start (top) padding, using the spacing scale. Overrides paddingBlock and padding on that edge only.
+- `paddingBlockEnd`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Block-end (bottom) padding, using the spacing scale. Overrides paddingBlock and padding on that edge only.
 - `isScrollable`: boolean = false — Enables scrollable overflow (overflow: auto).
 - `width`: SizeValue — Width of the stack container. Numbers are treated as pixels, strings are used as-is (e.g., '100%').
 - `height`: SizeValue — Height of the stack container. Numbers are treated as pixels, strings are used as-is (e.g., '100%').
@@ -3242,7 +3266,11 @@ Props:
 - `gap`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Spacing step (number literal): 0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10. Pass as a JSX number expression e.g. gap={4}, NOT a string like gap="4".
 - `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inner padding on all sides, using the spacing scale (0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10). Matches the padding prop on Card, LayoutContent, and LayoutPanel. Pass as a JSX number expression e.g. padding={3}.
 - `paddingInline`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline (horizontal) padding, using the spacing scale. Overrides padding on the inline axis when both are set.
+- `paddingInlineStart`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline-start padding, using the spacing scale (left in LTR, right in RTL). Overrides paddingInline and padding on that edge only.
+- `paddingInlineEnd`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline-end padding, using the spacing scale (right in LTR, left in RTL). Overrides paddingInline and padding on that edge only.
 - `paddingBlock`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Block (vertical) padding, using the spacing scale. Overrides padding on the block axis when both are set.
+- `paddingBlockStart`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Block-start (top) padding, using the spacing scale. Overrides paddingBlock and padding on that edge only.
+- `paddingBlockEnd`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Block-end (bottom) padding, using the spacing scale. Overrides paddingBlock and padding on that edge only.
 - `isScrollable`: boolean = false — Enables scrollable overflow (overflow: auto). Matches isScrollable on LayoutContent and LayoutPanel.
 - `width`: SizeValue — Width of the stack container. Numbers are treated as pixels, strings are used as-is (e.g., '100%').
 - `height`: SizeValue — Height of the stack container. Numbers are treated as pixels, strings are used as-is (e.g., '100%').
@@ -3265,7 +3293,11 @@ Props:
 - `gap`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Spacing step (number literal): 0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10. Pass as a JSX number expression e.g. gap={4}, NOT a string like gap="4".
 - `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inner padding on all sides, using the spacing scale (0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10). Matches the padding prop on Card, LayoutContent, and LayoutPanel. Pass as a JSX number expression e.g. padding={3}.
 - `paddingInline`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline (horizontal) padding, using the spacing scale. Overrides padding on the inline axis when both are set.
+- `paddingInlineStart`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline-start padding, using the spacing scale (left in LTR, right in RTL). Overrides paddingInline and padding on that edge only.
+- `paddingInlineEnd`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline-end padding, using the spacing scale (right in LTR, left in RTL). Overrides paddingInline and padding on that edge only.
 - `paddingBlock`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Block (vertical) padding, using the spacing scale. Overrides padding on the block axis when both are set.
+- `paddingBlockStart`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Block-start (top) padding, using the spacing scale. Overrides paddingBlock and padding on that edge only.
+- `paddingBlockEnd`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Block-end (bottom) padding, using the spacing scale. Overrides paddingBlock and padding on that edge only.
 - `isScrollable`: boolean = false — Enables scrollable overflow (overflow: auto). Matches isScrollable on LayoutContent and LayoutPanel.
 - `width`: SizeValue — Width of the stack container. Numbers are treated as pixels, strings are used as-is (e.g., '100%').
 - `height`: SizeValue — Height of the stack container. Numbers are treated as pixels, strings are used as-is (e.g., '100%').
@@ -3375,7 +3407,7 @@ Returns:
 
 Import: `import {useScrollLock} from '@astryxdesign/core/hooks';`
 
-Locks body scroll when active by pinning the body with position: fixed. This prevents background scrolling behind modals and dialogs, which is necessary for iOS Safari where overscroll-behavior: contain does not work. Restores the original scroll position when unlocked.
+Locks body scroll when active by pinning the body with position: fixed. This prevents background scrolling behind modals and dialogs, which is necessary for iOS Safari where overscroll-behavior: contain does not work. Restores the original scroll position when unlocked. Pinning hides the document scrollbar, so where that scrollbar takes layout space (desktop) the hook holds its gutter open with scrollbar-gutter: stable for the duration of the lock — the page, including any position: fixed chrome, does not shift sideways.
 
 Do:
 - Use when opening full-screen modals or dialogs to prevent background content from scrolling.
@@ -3959,7 +3991,8 @@ Props:
 - `sheetId`: string — Unique ID for this sheet inside BottomSheetSwitcher. The switcher opens it when activeSheet matches. Omit isOpen and onOpenChange when sheetId is used.
 - `label`: string (required) — Accessible label for the sheet. Required; the sheet has no built-in heading to derive a name from.
 - `children`: ReactNode (required) — Sheet content, rendered below the grab handle in a scrollable area. If it includes a text-entry control that can bring up the mobile keyboard, use height='tall' and keep the sheet fully expanded while editing.
-- `height`: 'hug' | 'capped' | 'tall' | number | string = 'capped' — How tall the sheet is. Named budgets: 'hug' fits its content up to 92% of the viewport, 'capped' is a scrolling mid-height panel (~62%), and 'tall' is a pinned near-full panel (~92%) for content that streams in. Or pass a number (px) / CSS length for a custom budget. The user can drag between snap points regardless. On shorter viewports the sheet fills the available height. Only a fully expanded 'tall' sheet provides mobile-keyboard accommodation: it stays put and scrolls each focused control above the keyboard. Hug, Capped, numeric and CSS-length heights never do, and a Tall sheet stops doing it the moment the user drags it to a shorter detent — resuming when they drag it back. Outside that state the sheet neither moves nor adds keyboard scroll space, and the browser's own focus reveal is left in place; on iOS that reveal can shift the whole page.
+- `height`: 'hug' | 'capped' | 'tall' | number | string = 'capped' — How tall the sheet is. Named budgets: 'hug' fits its content up to 92% of the viewport, 'capped' is a scrolling mid-height panel (~62%), and 'tall' is a pinned near-full panel (~92%) for content that streams in. Or pass a number (px) / CSS length for a custom budget. Give snapPoints to let the user drag between heights. On shorter viewports the sheet fills the available height. Only a fully expanded 'tall' sheet provides mobile-keyboard accommodation: it stays put and scrolls each focused control above the keyboard. Hug, Capped, numeric and CSS-length heights never do, and a Tall sheet stops doing it the moment the user drags it to a shorter detent — resuming when they drag it back. Outside that state the sheet neither moves nor adds keyboard scroll space, and the browser's own focus reveal is left in place; on iOS that reveal can shift the whole page.
+- `snapPoints`: ReadonlyArray<number | string> — Extra heights the sheet can rest at when dragged; its own height is always the tallest stop, and omitting this gives a sheet that only opens and closes. Each stop is the sheet's visible height: a number is a viewport fraction (0.5 is half the screen), '50%' the same in CSS, '320px' an absolute length. A stop of a quarter of the sheet or less is a peek — it slides away instead of reflowing, and thins the scrim.
 - `hasScrim`: boolean = true — For a standalone BottomSheet, whether to render a scrim, the semi-transparent overlay that covers and blocks the background. true (default) uses showModal(): top layer, focus trap, ::backdrop scrim, body scroll lock, and tap-scrim-to-dismiss when purpose='info', with the background inert. false uses show() with no scrim, leaving the page behind interactive and scrollable. For a multi-step flow, configure hasScrim on BottomSheetSwitcher instead; it owns one shared dialog across every child.
 
 ### BottomSheetSwitcher
@@ -4355,6 +4388,7 @@ Props:
 - `density`: 'compact' | 'balanced' | 'spacious' = 'balanced' — Spacing density. "compact" uses 4px block padding, "balanced" uses 8px, and "spacious" uses 12px block and inline padding.
 - `labelLines`: number — Max lines before label truncates with ellipsis.
 - `descriptionLines`: number — Max lines before description truncates with ellipsis.
+- `layout`: 'stacked' | 'inline' = 'stacked' — How the label and description sit together. stacked puts the description on its own line below the label; inline keeps both on one line, description ellipsizing first, so the row fits a fixed-height host.
 - `onClick`: (event: MouseEvent) => void — Click handler. Makes the item clickable with button semantics.
 - `interactiveRef`: RefObject<HTMLElement | null> — Ref to a nested control (e.g. a checkbox in startContent) that owns the item's keyboard access and action. The row becomes an enlarged click/tap target that delegates surface clicks to it (useClickableContainer) and renders no invisible button/anchor, so the row adds no second tab stop (WCAG 4.1.2). Mutually exclusive with onClick/href; those are ignored when set.
 - `href`: string — Link URL. Makes the item a link via an invisible anchor element.

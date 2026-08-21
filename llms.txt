@@ -1,8 +1,8 @@
 # Astryx
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 212 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 214 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 
-Generated from commit `4aacbbe` (2026-08-19) of https://github.com/facebook/astryx.
+Generated from commit `5ab0625` (2026-08-21) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -36,7 +36,7 @@ Key facts:
 
 ## Components
 
-212 documented components in `packages/core/src/`. Each has a `{Name}.doc.mjs` structured doc with props, anatomy, and best practices. By category:
+214 documented components in `packages/core/src/`. Each has a `{Name}.doc.mjs` structured doc with props, anatomy, and best practices. By category:
 
 - Action: Button, ButtonGroup, ContextMenu, ContextMenuItem, DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuDivider, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSubMenu, IconButton, Link, MoreMenu, SegmentedControl, SegmentedControlItem, ToggleButton, ToggleButtonGroup, Toolbar
 - Animation: useEntryAnimation
@@ -53,7 +53,8 @@ Key facts:
 - Overlay: AlertDialog, useImperativeAlertDialog, BottomSheet, BottomSheetSwitcher, CommandPalette, CommandPaletteEmpty, CommandPaletteFooter, CommandPaletteGroup, CommandPaletteInput, CommandPaletteItem, CommandPaletteList, Dialog, DialogHeader, useImperativeDialog, HoverCard, Lightbox, Overlay, Popover, Toast, Tooltip
 - Streaming: useStreamingText
 - Table & List: Item, List, ListItem, MetadataList, MetadataListItem, OverflowList, Table, TableCell, TableHeaderCell, TableRow, useTableColumnResize, useTableColumnSettings, useTableFilterState, useTableFiltering, useTableGroupedRows, useTablePagination, useTableRowExpansion, useTableRowIndex, useTableRowStatus, useTableSelection, useTableSelectionState, useTableSortable, useTableStickyColumns, useTableTreeData, useTableTreeState, TreeList
-- Utility: Layer, LinkProvider, VisuallyHidden, InternationalizationProvider, useTranslator, MediaTheme, SyntaxTheme, Theme, useTheme
+- Utilities: useCollator, useLocale, useTranslator
+- Utility: Layer, LinkProvider, VisuallyHidden, InternationalizationProvider, MediaTheme, SyntaxTheme, Theme, useTheme
 
 ## Optional
 

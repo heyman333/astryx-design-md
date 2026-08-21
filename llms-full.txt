@@ -1,10 +1,10 @@
 # Astryx — Full Component Reference
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 212 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 214 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `4aacbbe` (2026-08-19) of https://github.com/facebook/astryx.
+Generated from commit `5ab0625` (2026-08-21) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -4750,6 +4750,50 @@ Props:
 - `indent`: 'sm' | 'md' | 'lg' = 'md' — Indent step per level (spacing-3 / spacing-4 / spacing-6), forwarded to useTableTreeData.
 - `treeColumnKey`: string — Column that carries the indent + expander, forwarded to useTableTreeData. Defaults to the first column.
 
+## Utilities
+
+### useCollator
+
+Import: `import {useCollator} from '@astryxdesign/core';`
+
+Returns the sanctioned locale-aware comparator for custom sorting. The collator is recreated when the provider locale or an option changes.
+
+Do:
+- Reuse collator.compare in custom Table comparators and other user-visible string ordering.
+
+Don't:
+- Construct Intl.Collator directly or call localeCompare; those bypass the provider-backed locale contract.
+
+Parameters:
+- `options`: Intl.CollatorOptions — Optional collation behavior such as numeric ordering, sensitivity, punctuation handling, and case order.
+
+Returns:
+- `collator`: Intl.Collator — A memoized collator bound to the active InternationalizationProvider locale.
+
+### useLocale
+
+Import: `import {useLocale} from '@astryxdesign/core';`
+
+Reads the authoritative Astryx locale. Use it to thread the provider locale into pure formatting helpers and sibling-package APIs; do not derive a second locale from navigator.language or a hardcoded literal.
+
+Do:
+- Pass the returned locale to pure Astryx helpers or package APIs that require an explicit locale.
+
+Don't:
+- Use navigator.language or a hardcoded display locale as a fallback; InternationalizationProvider is the locale source.
+
+Returns:
+- `locale`: Locale — The active InternationalizationProvider BCP 47 locale. Falls back to 'en' when no provider is present.
+
+### useTranslator
+
+Import: `import {useTranslator} from '@astryxdesign/core';`
+
+Returns a translator function that resolves keys against the current locale, provider overrides, and the shipped English fallback catalog. Call inside a component; the returned function can be used anywhere within that component's scope.
+
+Returns:
+- `value`: (key: string, values?: Record<string, string | number | Date>) => string — A stable translator function bound to the current InternationalizationProvider context. Call it with a message key and optional ICU MessageFormat values to get the formatted string in the active locale. Safe to use in render, event handlers, effects, or any code that runs during the parent component's lifecycle.
+
 ## Utility
 
 ### InternationalizationProvider
@@ -4897,12 +4941,3 @@ Don't:
 Props:
 - `children`: ReactNode — Content exposed to assistive technology while hidden from sight.
 - `as`: ElementType = 'span' — HTML tag to render as. Use a block element for live regions.
-
-### useTranslator (subcomponent/hook)
-
-Import: `import {useTranslator} from '@astryxdesign/core';`
-
-Returns a translator function that resolves keys against the current locale, provider overrides, and the shipped English fallback catalog. Call inside a component; the returned function can be used anywhere within that component's scope.
-
-Returns:
-- `value`: (key: string, values?: Record<string, string | number | Date>) => string — A stable translator function bound to the current InternationalizationProvider context. Call it with a message key and optional ICU MessageFormat values to get the formatted string in the active locale. Safe to use in render, event handlers, effects, or any code that runs during the parent component's lifecycle.

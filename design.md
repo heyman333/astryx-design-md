@@ -1,6 +1,6 @@
 # Astryx Design System — Design Overview
 
-> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`4aacbbe`](https://github.com/facebook/astryx/commit/4aacbbedc7c1cf1e80104fdb01a11f613ec45e98) (2026-08-19). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
+> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`5ab0625`](https://github.com/facebook/astryx/commit/5ab06259cd4fc42687a9481df5dc4ebf80b24c71) (2026-08-21). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
 
 ## What Astryx is
 
@@ -51,7 +51,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 
 ## Component library
 
-`@astryxdesign/core` currently documents **212 components** across **171 component groups** and **16 categories**. Each component directory contains the implementation (`{Name}.tsx`), colocated tests, and a `{Name}.doc.mjs` structured doc (props, anatomy, best practices) consumed by the CLI and docsite.
+`@astryxdesign/core` currently documents **214 components** across **174 component groups** and **17 categories**. Each component directory contains the implementation (`{Name}.tsx`), colocated tests, and a `{Name}.doc.mjs` structured doc (props, anatomy, best practices) consumed by the CLI and docsite.
 
 ### Action (19)
 
@@ -301,7 +301,13 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**useTableTreeData**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/useTableTreeData.doc.mjs) *(subcomponent/hook)*
 - [**useTableTreeState**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/useTableTreeState.doc.mjs) *(subcomponent/hook)*
 
-### Utility (9)
+### Utilities (3)
+
+- [**useCollator**](https://github.com/facebook/astryx/blob/main/packages/core/src/i18n/useCollator.doc.mjs) — Returns the sanctioned locale-aware comparator for custom sorting. The collator is recreated when the provider locale or an option changes.
+- [**useLocale**](https://github.com/facebook/astryx/blob/main/packages/core/src/i18n/useLocale.doc.mjs) — Reads the authoritative Astryx locale. Use it to thread the provider locale into pure formatting helpers and sibling-package APIs; do not derive a second locale from navigator.language or a hardcoded literal.
+- [**useTranslator**](https://github.com/facebook/astryx/blob/main/packages/core/src/i18n/useTranslator.doc.mjs) — Returns a translator function that resolves keys against the current locale, provider overrides, and the shipped English fallback catalog. Call inside a component; the returned function can be used anywhere within that component's scope.
+
+### Utility (8)
 
 - [**InternationalizationProvider**](https://github.com/facebook/astryx/blob/main/packages/core/src/i18n/InternationalizationProvider.doc.mjs) — Wraps your app to set the active locale and (optionally) merge additional translation catalogs + per-locale overrides. Astryx components inside the subtree resolve their strings against this context. If no provider is present, components fall back to the shipped English defaults.
 - [**Layer**](https://github.com/facebook/astryx/blob/main/packages/core/src/Layer/Layer.doc.mjs) — Layer utilities provide the app-level provider used by overlay systems. Use LayerProvider at the app root for toast/layer configuration; use higher-level Popover, HoverCard, or Tooltip APIs for most overlay UI.
@@ -311,7 +317,6 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**Theme**](https://github.com/facebook/astryx/blob/main/packages/core/src/theme/Theme.doc.mjs) — Wraps a subtree with a specific Astryx theme. For static production themes, use `astryx theme build` and import the generated CSS plus built theme object for first-paint and SSR performance. Use runtime `defineTheme()` when themes are dynamic or for prototyping.\n\n`defineTheme` accepts a `tokens` object whose keys are CSS custom property names (always prefixed with `--`). Common token names include `--color-accent`, `--color-background-surface`, `--color-background-body`, `--color-text-primary`, `--color-text-secondary`, `--radius-container`, `--spacing-1` through `--spacing-6`. Values can be a string (same for light/dark) or a `[light, dark]` tuple.\n\nExample:\n```ts\nimport {defineTheme} from '@astryxdesign/core/theme';\nconst myTheme = defineTheme({\n  name: 'ocean',\n  tokens: {\n    '--color-accent': ['#0077B6', '#48CAE4'],\n    '--color-background-surface': ['#F0F8FF', '#0A1628'],\n    '--color-text-primary': ['#0A1317', '#FFFFFF'],\n    '--radius-container': '16px',\n  },\n});\n```
 - [**useTheme**](https://github.com/facebook/astryx/blob/main/packages/core/src/theme/useTheme.doc.mjs) — Programmatic access to theme tokens for non-CSS consumers like SVG, canvas, Vega, D3, maps, or chart libraries that need values in JavaScript instead of CSS custom property references.
 - [**VisuallyHidden**](https://github.com/facebook/astryx/blob/main/packages/core/src/VisuallyHidden/VisuallyHidden.doc.mjs) — Renders content in the accessibility tree while hiding it visually. Use for accessible names on icon-only controls, aria-live announcement regions, and supplementary screen-reader context. Deliberately has no styling props; the whole point is to stay invisible.
-- [**useTranslator**](https://github.com/facebook/astryx/blob/main/packages/core/src/i18n/useTranslator.doc.mjs) *(subcomponent/hook)* — Returns a translator function that resolves keys against the current locale, provider overrides, and the shipped English fallback catalog. Call inside a component; the returned function can be used anywhere within that component's scope.
 
 ## Documentation & tooling model
 

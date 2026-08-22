@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `5ab0625` (2026-08-21) of https://github.com/facebook/astryx.
+Generated from commit `0472ec1` (2026-08-22) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -900,18 +900,20 @@ Props:
 
 Import: `import {Blockquote} from '@astryxdesign/core/Blockquote';`
 
-A styled quotation block with an accent-colored left border and secondary text color. Use to highlight quoted content, testimonials, or excerpts.
+A quotation block with a rule on its inline-start edge and secondary text color. Use to highlight quoted content, testimonials, or excerpts. The rule and padding are logical, so they move to the right edge in right-to-left locales.
 
 Do:
 - Use for quoted text, testimonials, or highlighted excerpts from external sources.
 - Provide a cite prop when the source of the quote is known.
+- Pass the source through cite rather than typing it into children, so it renders as a semantic <cite> element that assistive technology can distinguish from the quotation.
 
 Don't:
 - Use for callout boxes or informational notes; use Banner for those.
+- Wrap the attribution in your own <footer>. A <footer> inside a <blockquote> becomes a contentinfo document landmark, and a page with several quotes then reports several page footers.
 
 Props:
 - `children`: ReactNode (required) — Content of the blockquote.
-- `cite`: ReactNode — Optional attribution for the quote. Rendered in a <footer> with <cite>.
+- `cite`: ReactNode — Optional attribution for the quote. Rendered in a <cite> element after the quoted content.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
 ### Citation
@@ -1493,7 +1495,7 @@ Props:
 - `min`: ISODateString — Minimum selectable date. `ISODateString` is a template literal type (`\`${number}${number}${number}${number}-${number}${number}-${number}${number}\``). Pass a string literal like `"2026-01-28"`, not a runtime string variable. Import it from `@astryxdesign/core/Calendar` or use `as ISODateString` if computing the value dynamically.
 - `max`: ISODateString — Maximum selectable date. Same template literal type as `min`: use a YYYY-MM-DD string literal or cast with `as ISODateString`.
 - `dateConstraints`: Array<(date: Date) => boolean> — Custom constraint functions to disable specific dates.
-- `maxRangeSpan`: number — Maximum days a selected range may span, counting both endpoints (`7` = a 7-day window, start + 6). Once a start is picked, days beyond this distance are disabled so the range cannot stretch past the cap. Rolling window relative to the start — for fixed calendar bounds use `min`/`max`. Constrains selection only; it never rewrites a `value` already wider than the cap (flag that with `status`).
+- `maxRangeSpan`: number — Maximum days a selected range may span, counting both endpoints (`7` = a 7-day window, start + 6). Once a start is picked, days beyond this distance are disabled so the range cannot stretch past the cap. Rolling window relative to the start; for fixed calendar bounds use `min`/`max`. Constrains selection only; it never rewrites a `value` already wider than the cap (flag that with `status`).
 - `minRangeSpan`: number — Minimum days a selected range must span, counting both endpoints (`2` forbids a single-day range). Once a start is picked, days closer than this are disabled. Defaults to 1 (same-day start and end allowed).
 - `presets`: Array<DateRangePreset> — Preset ranges shown as quick-select options beside the calendar.
 - `hasClear`: boolean = true — Shows a clear button when a range is selected.
@@ -2064,7 +2066,7 @@ Props:
 - `isLoading`: boolean = false — Puts the textarea in a loading state, showing a spinner inside the input.
 - `placeholder`: string — Placeholder text shown when the textarea is empty.
 - `rows`: number = 3 — Number of visible text rows.
-- `maxLength`: number — Maximum number of characters allowed, counted as user-perceived characters — an emoji or flag sequence counts as one. When set, a character counter (current/max) is displayed inside the input container, anchored to the bottom-right beneath the text. Does not enforce the limit natively; when exceeded the counter turns red and shows a warning icon (a non-color cue), and screen-reader users hear the remaining/over-limit count announced. Consumers validating the limit should count with characterCount (exported from the package) so enforcement matches the displayed count.
+- `maxLength`: number — Maximum number of characters allowed, counted as user-perceived characters: an emoji or flag sequence counts as one. When set, a character counter (current/max) is displayed inside the input container, anchored to the bottom-right beneath the text. Does not enforce the limit natively; when exceeded the counter turns red and shows a warning icon (a non-color cue), and screen-reader users hear the remaining/over-limit count announced. Consumers validating the limit should count with characterCount (exported from the package) so enforcement matches the displayed count.
 - `status`: { type: 'warning' | 'error' | 'success'; message?: string } — Status indicator that applies a colored border and icon. An optional message is displayed in a floating box below the textarea.
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing; tooltip hides the message box and surfaces it in a tooltip on the status icon.
 - `labelTooltip`: string — Tooltip text displayed in an info icon at the end of the label.
@@ -2816,6 +2818,7 @@ Parameters:
 - `delay`: number = 300 — Delay before showing the hover card on hover, in milliseconds.
 - `hideDelay`: number = 200 — Delay before hiding after mouse or focus leaves, in milliseconds.
 - `focusTrigger`: 'auto' | 'always' | 'never' = 'auto' — When focus should open the hover card. auto only attaches focus listeners to naturally focusable elements.
+- `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own; tap always opens; none never opens on touch.
 - `isEnabled`: boolean = true — Whether hover and focus triggers are enabled.
 - `label`: string — Accessible name for the hover card popup. When provided, the popup is exposed as a named role="dialog"; when omitted, it falls back to role="group" (a group may validly be unnamed).
 - `isOpen`: boolean — Controlled open state. true force-shows, false force-hides, undefined lets hover/focus manage visibility.
@@ -2961,6 +2964,7 @@ Parameters:
 - `delay`: number = 200 — Delay before showing on hover, in milliseconds.
 - `hideDelay`: number = 0 — Delay before hiding after mouse or focus leaves, in milliseconds.
 - `focusTrigger`: 'auto' | 'always' | 'never' = 'auto' — When focus should open the tooltip. auto only attaches focus listeners to naturally focusable elements.
+- `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own; tap always opens (an info icon rendered as a button); none never opens on touch.
 - `isEnabled`: boolean = true — Whether hover and focus triggers are enabled.
 - `isOpen`: boolean — Controlled open state. true force-shows, false force-hides, undefined lets hover/focus manage visibility.
 - `isDefaultOpen`: boolean = false — Whether the tooltip should be shown on mount.
@@ -3101,7 +3105,7 @@ Don't:
 
 Props:
 - `direction`: 'vertical' | 'horizontal' | 'horizontal-labels' = 'vertical' — Controls field arrangement. Vertical stacks top-to-bottom, horizontal arranges left-to-right with equal flex-grow, and horizontal-labels uses CSS Grid with labels to the left of inputs (collapses to vertical on narrow viewports <=480px).
-- `defaultOptionality`: 'optional' | 'required' — The state the form treats as its default, so only the exception shows an optional/required indicator. With "optional", only fields marked isRequired show an indicator; with "required", only fields marked isOptional do. A field that restates the default shows nothing. Under "required" the unmarked fields also expose aria-required so screen readers match the visual default — aria-required only, never the native required attribute. Leave unset for today's per-field behavior.
+- `defaultOptionality`: 'optional' | 'required' — The state the form treats as its default, so only the exception shows an optional/required indicator. With "optional", only fields marked isRequired show an indicator; with "required", only fields marked isOptional do. A field that restates the default shows nothing. Under "required" the unmarked fields also expose aria-required so screen readers match the visual default; aria-required only, never the native required attribute. Leave unset for today's per-field behavior.
 - `children`: ReactNode — Form fields to arrange. Accepts Astryx inputs (TextInput, Selector, etc.) and Field-wrapped custom controls.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
@@ -3407,7 +3411,7 @@ Returns:
 
 Import: `import {useScrollLock} from '@astryxdesign/core/hooks';`
 
-Locks body scroll when active by pinning the body with position: fixed. This prevents background scrolling behind modals and dialogs, which is necessary for iOS Safari where overscroll-behavior: contain does not work. Restores the original scroll position when unlocked. Pinning hides the document scrollbar, so where that scrollbar takes layout space (desktop) the hook holds its gutter open with scrollbar-gutter: stable for the duration of the lock — the page, including any position: fixed chrome, does not shift sideways.
+Locks body scroll when active by pinning the body with position: fixed. This prevents background scrolling behind modals and dialogs, which is necessary for iOS Safari where overscroll-behavior: contain does not work. Restores the original scroll position when unlocked. Pinning hides the document scrollbar, so where that scrollbar takes layout space (desktop) the hook holds its gutter open with scrollbar-gutter: stable for the duration of the lock. The page, including any position: fixed chrome, does not shift sideways.
 
 Do:
 - Use when opening full-screen modals or dialogs to prevent background content from scrolling.
@@ -3991,8 +3995,8 @@ Props:
 - `sheetId`: string — Unique ID for this sheet inside BottomSheetSwitcher. The switcher opens it when activeSheet matches. Omit isOpen and onOpenChange when sheetId is used.
 - `label`: string (required) — Accessible label for the sheet. Required; the sheet has no built-in heading to derive a name from.
 - `children`: ReactNode (required) — Sheet content, rendered below the grab handle in a scrollable area. If it includes a text-entry control that can bring up the mobile keyboard, use height='tall' and keep the sheet fully expanded while editing.
-- `height`: 'hug' | 'capped' | 'tall' | number | string = 'capped' — How tall the sheet is. Named budgets: 'hug' fits its content up to 92% of the viewport, 'capped' is a scrolling mid-height panel (~62%), and 'tall' is a pinned near-full panel (~92%) for content that streams in. Or pass a number (px) / CSS length for a custom budget. Give snapPoints to let the user drag between heights. On shorter viewports the sheet fills the available height. Only a fully expanded 'tall' sheet provides mobile-keyboard accommodation: it stays put and scrolls each focused control above the keyboard. Hug, Capped, numeric and CSS-length heights never do, and a Tall sheet stops doing it the moment the user drags it to a shorter detent — resuming when they drag it back. Outside that state the sheet neither moves nor adds keyboard scroll space, and the browser's own focus reveal is left in place; on iOS that reveal can shift the whole page.
-- `snapPoints`: ReadonlyArray<number | string> — Extra heights the sheet can rest at when dragged; its own height is always the tallest stop, and omitting this gives a sheet that only opens and closes. Each stop is the sheet's visible height: a number is a viewport fraction (0.5 is half the screen), '50%' the same in CSS, '320px' an absolute length. A stop of a quarter of the sheet or less is a peek — it slides away instead of reflowing, and thins the scrim.
+- `height`: 'hug' | 'capped' | 'tall' | number | string = 'capped' — How tall the sheet is. Named budgets: 'hug' fits its content up to 92% of the viewport, 'capped' is a scrolling mid-height panel (~62%), and 'tall' is a pinned near-full panel (~92%) for content that streams in. Or pass a number (px) / CSS length for a custom budget. Give snapPoints to let the user drag between heights. On shorter viewports the sheet fills the available height. Only a fully expanded 'tall' sheet provides mobile-keyboard accommodation: it stays put and scrolls each focused control above the keyboard. Hug, Capped, numeric and CSS-length heights never do, and a Tall sheet stops doing it the moment the user drags it to a shorter detent, resuming when they drag it back. Outside that state the sheet neither moves nor adds keyboard scroll space, and the browser's own focus reveal is left in place; on iOS that reveal can shift the whole page.
+- `snapPoints`: ReadonlyArray<number | string> — Extra heights the sheet can rest at when dragged; its own height is always the tallest stop, and omitting this gives a sheet that only opens and closes. Each stop is the sheet's visible height: a number is a viewport fraction (0.5 is half the screen), '50%' the same in CSS, '320px' an absolute length. A stop of a quarter of the sheet or less is a peek: it slides away instead of reflowing, and thins the scrim.
 - `hasScrim`: boolean = true — For a standalone BottomSheet, whether to render a scrim, the semi-transparent overlay that covers and blocks the background. true (default) uses showModal(): top layer, focus trap, ::backdrop scrim, body scroll lock, and tap-scrim-to-dismiss when purpose='info', with the background inert. false uses show() with no scrim, leaving the page behind interactive and scrollable. For a multi-step flow, configure hasScrim on BottomSheetSwitcher instead; it owns one shared dialog across every child.
 
 ### BottomSheetSwitcher
@@ -4081,6 +4085,7 @@ Do:
 - Keep content supplementary; hover cards should enhance understanding without blocking the primary workflow.
 - Provide a dashed underline on text triggers so users know the element is hoverable.
 - Use the hook API (useHoverCard) when you need more control over timing or placement.
+- Leave touchTrigger on auto so a tap opens the card on triggers that do nothing else, and stays out of the way on triggers that perform an action.
 - Prefer placing HoverCard in a block context rather than directly in a <p>, heading, or link. Those placements are supported when necessary through a corrective portal, but the DOM and tab order may differ.
 
 Don't:
@@ -4096,6 +4101,7 @@ Props:
 - `delay`: number = 300 — Show delay in milliseconds.
 - `hideDelay`: number = 200 — Hide delay in milliseconds.
 - `focusTrigger`: 'auto' | 'always' | 'never' = 'auto' — Controls when focus events trigger the hover card.
+- `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own (a button, link, or form control), whose tap belongs to the control. tap always opens. none never opens on touch. A tap-opened card is dismissed by a tap outside it.
 - `isEnabled`: boolean = true — Enables or disables the hover and focus triggers.
 - `label`: string — Accessible name for the hover card popup. When provided, the popup is exposed as a named role="dialog"; when omitted, it falls back to role="group" (a group may validly be unnamed).
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when hover card visibility changes. Called with true when shown and false when hidden.
@@ -4223,6 +4229,7 @@ A short text hint that appears on hover or focus, anchored to a trigger element.
 Do:
 - Keep tooltip content concise: aim for under 140 characters of plain text.
 - Add a tooltip to icon-only buttons and controls that lack a visible label.
+- Set touchTrigger to tap when the trigger is a button whose only job is revealing the tooltip, such as an info icon: touch has no hover, and auto keeps the tap for triggers that perform an action.
 
 Don't:
 - Place interactive elements like links or buttons inside a tooltip; use HoverCard or Popover instead.
@@ -4237,6 +4244,7 @@ Props:
 - `delay`: number = 200 — Show delay in milliseconds.
 - `hideDelay`: number = 0 — Hide delay in milliseconds.
 - `focusTrigger`: 'auto' | 'always' | 'never' = 'auto' — Controls when focus events trigger the tooltip.
+- `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own (a button, link, or form control), whose tap belongs to the control. tap always opens; use it for an info icon rendered as a button, whose only job is to reveal the tooltip. none never opens on touch.
 - `isEnabled`: boolean = true — Enables or disables the tooltip triggers.
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when tooltip visibility changes. Called with true when shown and false when hidden.
 - `hasHoverIndication`: 'auto' | boolean = 'auto' — Shows a dashed underline on the trigger element.

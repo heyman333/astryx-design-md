@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `0472ec1` (2026-08-22) of https://github.com/facebook/astryx.
+Generated from commit `b594d5c` (2026-08-22) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -855,8 +855,10 @@ Do:
 - Pick a size that matches the context: xsm or sm for inline mentions, md or lg for lists and cards, xl for profile headers.
 - Add a status dot when knowing someone's availability matters, like in chat or team views.
 - When wrapping an Avatar in your own Tooltip or HoverCard, set tooltip={false} so the built-in name tooltip does not overlap yours.
+- Give every interactive avatar (href or onClick) a name or alt. It is the control's accessible name, and it warns in development when it is missing.
 
 Don't:
+- Rely on a status label to name an interactive avatar. "Online" says nothing about where the link goes.
 - Use Avatar for logos, product images, or anything that isn't a person or team. Use an image or icon instead.
 - Force a square or custom shape. Avatars are always circular to stay consistent across the system.
 
@@ -866,13 +868,13 @@ Props:
 - `name`: string — User name for initials and alt text.
 - `alt`: string — Alt text (falls back to name).
 - `size`: 'xsm' | 'sm' | 'md' | 'lg' | 'xl' | number = 'md' — Avatar size. Use a named size ('xsm' 20px, 'sm' 24px, 'md' 36px, 'lg' 48px, 'xl' 128px) or a numeric pixel value. Avatar shares Icon's abbreviated scale, but its tiers are larger because avatars align with media rather than glyphs. Inside an AvatarGroup the group's size wins and this prop is ignored.
-- `status`: ReactNode — Corner content for status indicators. A string `label` on the element (as on AvatarStatusDot) is composed into the avatar's accessible name (e.g. "Jane Doe, Online") so screen readers announce the status.
+- `status`: ReactNode — Corner content for status indicators. AvatarStatusDot reports its `label` to the avatar, which composes it into the accessible name (e.g. "Jane Doe, Online") so screen readers announce the status. Reporting goes through context, so it still works when the dot sits inside a wrapper component of your own.
 - `tooltip`: string | boolean = true — Tooltip shown on hover and keyboard focus. Omitted or true shows the avatar's name; a string shows that text instead; false shows no tooltip. Not auto-disabled when wrapped in your own Tooltip/HoverCard. Set tooltip={false} if you supply your own overlay. No tooltip is shown when tooltip is true/omitted and there is no name.
-- `href`: string — When set, the avatar renders as an interactive link (`<a>` or a custom link component) pointing here. This follows the same element-swap rule as Button. Requires a meaningful accessible name via `alt` or `name`. Inside an AvatarGroup, interactive avatars share a single Tab stop and are reached with arrow keys.
+- `href`: string — When set, the avatar renders as an interactive link (`<a>` or a custom link component) pointing here. This follows the same element-swap rule as Button. Requires a meaningful accessible name via `alt` or `name`: an interactive avatar without one warns in development. Inside an AvatarGroup, interactive avatars share a single Tab stop and are reached with arrow keys.
 - `as`: ElementType — Custom link component used when `href` is set (e.g. `next/link`). Overrides the provider-level LinkProvider default. Only applies with `href`.
 - `target`: string — Link target attribute. Only applies with `href`.
 - `rel`: string — Link rel attribute. Only applies with `href`.
-- `onClick`: (e: MouseEvent) => void — Click handler. When set without `href`, the avatar renders as a focusable `<button type="button">`. Requires a meaningful accessible name via `alt` or `name`.
+- `onClick`: (e: MouseEvent) => void — Click handler. When set without `href`, the avatar renders as a focusable `<button type="button">`. Requires a meaningful accessible name via `alt` or `name`: an interactive avatar without one warns in development.
 
 ### AvatarGroup
 
@@ -881,17 +883,18 @@ Import: `import {AvatarGroup} from '@astryxdesign/core/AvatarGroup';`
 AvatarGroup displays multiple avatars in an overlapping row with an optional overflow indicator. Uses a compositional API: pass Avatar children directly so each avatar can carry its own props (status dots, click handlers, etc.).
 
 Do:
-- Set max to limit visible avatars when the list is long; 3-5 is typical.
+- Slice the list yourself and pass only the avatars you want visible; 3-5 is typical. The group renders exactly the children it is given and never slices for you.
 - Use AvatarGroupOverflow for custom overflow content like a popover trigger or "add member" button.
 - Pass status dots, click handlers, or tooltips directly on each Avatar child.
-- Make avatars interactive with href or onClick to link to profiles. Interactive avatars share a single Tab stop; arrow keys move between them, and the group announces a keyboard hint to assistive tech.
+- Make avatars interactive with href or onClick to link to profiles. Interactive avatars share a single Tab stop; arrow keys move between them, and the group announces a keyboard hint to assistive tech. This follows the WAI-ARIA APG roving tabindex technique for managing focus in a composite: https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/#kbd_roving_tabindex
 
 Don't:
 - Don't nest AvatarGroups; use a single group with all avatars.
+- Don't set size on the child avatars. The group's size wins over each child's own size prop, including when the group leaves size at its default, so a child's size is silently ignored inside a group.
 
 Props:
 - `children`: ReactNode (required) — Avatar children, optionally followed by one AvatarGroupOverflow. Consumers handle slicing to the desired visible count.
-- `size`: AvatarSize = 'md' — Size applied to all avatars via context.
+- `size`: AvatarSize = 'md' — Size applied to all avatars via context. This wins over each child Avatar's own size prop, including when it is left at the default, so set the size here rather than on the children.
 - `ref`: React.Ref<HTMLDivElement> — Ref forwarded to the root element.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization.
 - `data-testid`: string — Test selector for automated testing frameworks.
@@ -2635,7 +2638,7 @@ Parameters:
 - `options.itemSelector`: string = '[role="menuitem"]' — Selector for focusable items within the list.
 - `options.boundarySelector`: string — Selector identifying a list boundary, for lists that contain nested lists of the same kind (e.g. a menu with submenu flyouts). When set, item collection and key handling are scoped to this level's own container. Typically '[role="menu"]'.
 - `options.wrap`: boolean = true — Whether arrow navigation wraps around at the ends.
-- `options.onEscape`: () => void — Callback when Escape key is pressed (e.g., close menu).
+- `options.onEscape`: () => void — Callback when Escape key is pressed (e.g., close menu). Supplying it also consumes the key (preventDefault); without it Escape passes through to the surrounding layer.
 - `options.orientation`: 'horizontal' | 'vertical' | 'both' = 'vertical' — Navigation orientation. 'horizontal' uses ArrowLeft/ArrowRight, 'vertical' uses ArrowUp/ArrowDown, 'both' accepts all four arrows.
 - `options.hasHomeEnd`: boolean = true — Whether Home/End jump to the first/last enabled item.
 - `options.isRtl`: boolean = undefined (auto-detect from the container's computed direction) — Whether the list is in a right-to-left context. When true, ArrowLeft/ArrowRight are swapped for horizontal navigation so it follows visual direction. When omitted, auto-detected from the container computed direction on keydown.
@@ -3555,11 +3558,14 @@ Do:
 - Keep labels short and match the page titles they link to: "Settings" not "Application Settings Page".
 - Use the supporting variant in dense UIs like admin panels or sidebars where the breadcrumb should be subtle.
 - Make the last item plain text, not a link; it represents the current page. The component does this automatically when you set isCurrent.
+- The component implements the WAI-ARIA APG Breadcrumb pattern: a labelled nav landmark wrapping an ordered list, with aria-current="page" on the current item. A crumb with a menu additionally implements the APG Menu Button pattern, opening on Enter, Space or ArrowDown and closing on Escape.
+- Give each trail its own label when a page renders more than one, so the nav landmarks stay distinguishable in a screen reader landmark list.
 
 Don't:
 - Use breadcrumbs as the primary navigation. They supplement a sidebar or top nav, not replace it.
 - Show breadcrumbs on top-level pages that have no parent; they add clutter without helping the user.
 - Let the trail grow beyond 5 levels. If you need more, consider simplifying the page hierarchy instead.
+- Mirror a separator the bidi algorithm already mirrors. An angle-quote glyph such as › is Bidi_Mirrored, so it flips under RTL on its own and rtlStyles.mirror would flip it back. An arrow glyph such as → and any Icon separator are not, so those do need rtlStyles.mirror through xstyle.
 
 Props:
 - `children`: ReactNode (required) — BreadcrumbItem elements to render inside the breadcrumb trail.
@@ -4865,6 +4871,7 @@ Provides token overrides for content rendered on inverted surfaces: media overla
 
 Do:
 - Use for any content placed over a dark background (image overlays, video scrims, dark cards) or other inverted surfaces like toasts and tooltips.
+- Prefer mode="auto" when the surface color comes from a theme token. A token named "inverted" is not guaranteed to be inverted, and auto measures what was actually painted instead of trusting the name — including deciding that a surface needs no media context at all.
 - Pair with a background color: MediaTheme flips the token context but does not add a background. Set backgroundColor on the parent element.
 - Themes can customize components on media surfaces via onDark.components and onLight.components in defineTheme(). For example, add a border to ghost buttons on dark surfaces.
 
@@ -4872,7 +4879,8 @@ Don't:
 - Use MediaTheme for app-level dark mode: use Theme with mode="dark" or mode="system" instead. MediaTheme is for local surface inversions, not page-wide color scheme.
 
 Props:
-- `mode`: 'dark' | 'light' (required) — Surface luminance context: dark for content over dark backgrounds (light text, white-tinted interactions), light for content over light backgrounds (dark text, black-tinted interactions).
+- `mode`: 'dark' | 'light' | 'auto' | 'off' (required) — Surface luminance context: dark for content over dark backgrounds (light text, white-tinted interactions), light for content over light backgrounds (dark text, black-tinted interactions), auto to decide from the painted surface — no media context when the ambient text already reads on the surface (3:1), otherwise the side that reads better — and off to turn it off explicitly. The element renders either way, so a surface can switch contexts without remounting children.
+- `fallback`: 'dark' | 'light' = 'dark' — Which side auto uses when the surface cannot be measured: during SSR, on the first client frame, and whenever the backdrop is not knowable from CSS — most often a background-image, whose pixels need sampling (useImageMode) rather than a computed style. Ignored unless mode is auto.
 - `children`: ReactNode (required) — Content to render with inverted token context. Components inherit the correct colors automatically.
 
 ### SyntaxTheme

@@ -1,6 +1,6 @@
 # Astryx Design System — Design Overview
 
-> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`0472ec1`](https://github.com/facebook/astryx/commit/0472ec1904b48c7e0eb1e301dd0a634381b4b11f) (2026-08-22). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
+> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`b594d5c`](https://github.com/facebook/astryx/commit/b594d5c5fc4e3309a4fba9507259d7d6214c3769) (2026-08-22). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
 
 ## What Astryx is
 
@@ -30,10 +30,10 @@ A pnpm monorepo (Node 22+, pnpm 11):
 
 | Package | Version | Description |
 | --- | --- | --- |
-| [`@astryxdesign/build`](https://github.com/facebook/astryx/blob/main/packages/build/README.md) | 0.4.5 | Build plugins for XDS source builds — babel, PostCSS, and Vite integrations |
+| [`@astryxdesign/build`](https://github.com/facebook/astryx/blob/main/packages/build/README.md) | 0.4.6 | Build plugins for XDS source builds — babel, PostCSS, and Vite integrations |
 | [`@astryxdesign/charts`](https://github.com/facebook/astryx/blob/main/packages/charts/README.md) | 0.1.9 (canary) | Astryx charts — a config-model data visualization library (d3-based). Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
-| [`@astryxdesign/cli`](https://github.com/facebook/astryx/blob/main/packages/cli/README.md) | 0.4.5 | Scaffold projects, browse templates, generate themes, and get agent-ready docs from the command line. |
-| [`@astryxdesign/core`](https://github.com/facebook/astryx/blob/main/packages/core/README.md) | 0.4.5 | The component library. Accessible, themeable React components with built-in spacing, dark mode, and StyleX styling. |
+| [`@astryxdesign/cli`](https://github.com/facebook/astryx/blob/main/packages/cli/README.md) | 0.4.6 | Scaffold projects, browse templates, generate themes, and get agent-ready docs from the command line. |
+| [`@astryxdesign/core`](https://github.com/facebook/astryx/blob/main/packages/core/README.md) | 0.4.6 | The component library. Accessible, themeable React components with built-in spacing, dark mode, and StyleX styling. |
 | [`@astryxdesign/lab`](https://github.com/facebook/astryx/blob/main/packages/lab/README.md) | 0.1.9 (canary) | Experimental Astryx components — published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
 | [`@astryxdesign/richtext`](https://github.com/facebook/astryx/blob/main/packages/richtext/README.md) | 0.1.9 (canary) | Astryx rich text — a Lexical-based rich text editor and viewer. Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
 | [`@astryxdesign/vega`](https://github.com/facebook/astryx/blob/main/packages/vega/README.md) | 0.1.3 (canary) | Astryx Vega wrapper — chart and data visualization components. Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |

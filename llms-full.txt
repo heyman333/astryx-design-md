@@ -1,10 +1,10 @@
 # Astryx — Full Component Reference
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 214 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 217 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `b594d5c` (2026-08-22) of https://github.com/facebook/astryx.
+Generated from commit `6759843` (2026-08-23) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -638,6 +638,7 @@ Props:
 - `scrollToTopAction`: () => Promise<void> — Async action fired when user scrolls to top. Use for loading older messages. Wrapped in useTransition: shows a spinner at the top while pending.
 - `density`: 'compact' | 'balanced' | 'spacious' = 'balanced' — Visual density: flows to child messages via context.
 - `gap`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Gap between top-level message rows. Defaults to the selected density; override for LLM event streams or independent rows that need different spacing from density.
+- `align`: 'top' | 'bottom' = 'bottom' — Vertical alignment when the list is shorter than its container. 'bottom' fills free space with a spacer so short conversations sit above the composer; 'top' omits the spacer so messages start at the top. Only affects a non-full list; overflowing lists scroll identically, preserving auto-scroll-to-bottom.
 - `isStreaming`: boolean = false — Whether an assistant message is actively streaming. Marks the log aria-busy so screen readers wait and announce the completed message once instead of re-announcing partial text on every token.
 
 ### ChatMessageMetadata (subcomponent/hook)
@@ -1763,6 +1764,7 @@ Props:
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant for the selector.
 - `variant`: 'input' | 'ghost' = 'input' — Visual trigger style. input is the bordered input treatment for forms; ghost is borderless and matches ghost buttons for toolbar usage.
 - `triggerDisplay`: 'count' | 'labels' | 'badges' = 'count' — How to display selected items in the trigger.
+- `formatTriggerCount`: (count: number) => string — Formats the trigger text when triggerDisplay="count". Receives the selected count and returns the full trigger text.
 - `maxBadges`: number = 3 — Maximum badges to show before "+N". Only for triggerDisplay="badges".
 - `hasSelectAll`: boolean — Whether to show a select-all checkbox.
 - `selectAllLabel`: string = 'Select all' — Label for the select-all checkbox.
@@ -3730,6 +3732,48 @@ Props:
 - `handleRef`: Ref<SideNavImperativeCollapseHandle> — Deprecated. Imperative collapse handle for SideNavCollapseButton instances rendered outside this SideNav; hand both the same controlled collapsible config instead. Separate from `ref`, which continues to expose the root HTMLElement.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 
+### Step
+
+Import: `import {Step} from '@astryxdesign/core/Stepper';`
+
+Props:
+- `step`: number (required) — Zero-based index of this step. Used to derive progress (completed/active/not-started) relative to the parent activeStep.
+- `label`: string (required) — Step label text.
+- `description`: string — Optional description shown below the label for additional context.
+- `children`: ReactNode — Content rendered below the label and description. Useful in vertical steppers for form fields or detailed step content.
+- `status`: 'accent' | 'success' | 'warning' | 'error' — Semantic color for the step. Controls color only and maps to the global Astryx semantic tokens. Leave unset for the progress-derived default coloring.
+- `indicator`: 'auto' | 'number' | 'none' | ReactNode = 'auto' — What to show as the step indicator. 'auto' shows a number until completed then a check, 'number' always shows a numbered badge, 'none' hides it, or pass any ReactNode (e.g. an Icon) for a fully custom indicator.
+- `isDisabled`: boolean = false — Disables interaction and dims the step indicator and label.
+- `isOptional`: boolean = false — Marks the step as optional, appending an "Optional" affordance after the label.
+- `endContent`: ReactNode — Trailing content rendered at the end of the label row.
+- `density`: 'compact' | 'balanced' | 'spacious' — Controls vertical padding of the step. Falls back to the stepper-level density when unset.
+
+### Stepper
+
+Import: `import {Stepper} from '@astryxdesign/core/Stepper';`
+
+Steppers display progress through a sequence of logical and numbered steps. Use them for multi-step workflows like forms, onboarding flows, or checkout processes where users need to see their position and the steps ahead. Rendered as an ordered list (not a navigation landmark).
+
+Do:
+- Keep step labels short and descriptive: "Payment" not "Enter your payment information".
+- Use the vertical orientation for narrow containers or when steps have longer descriptions.
+- Provide onStepClick for non-linear workflows where users may need to revisit earlier steps.
+- Use status only to apply a semantic color (accent/success/warning/error); pass a custom icon for richer indicators.
+
+Don't:
+- Use a stepper for fewer than 3 steps; a simple heading or progress bar works better.
+- Use more than 7 steps; consider grouping related steps or using a different pattern.
+
+Props:
+- `activeStep`: number (required) — Zero-based index of the currently active step. Steps before this index are marked as completed.
+- `children`: ReactNode (required) — Step elements to render in the stepper.
+- `orientation`: 'horizontal' | 'vertical' = 'horizontal' — Layout direction of the stepper.
+- `onStepClick`: (index: number) => void — Called when a step is clicked. Enables non-linear navigation. All non-disabled steps become clickable, including not-started steps.
+- `label`: string = 'Progress' (localized) — Accessible label describing the set of steps (applied to the ordered list). Defaults to a localized "Progress".
+- `density`: 'compact' | 'balanced' | 'spacious' = 'balanced' — Controls the padding of all steps.
+- `indicatorPosition`: 'separated' | 'on-track' = 'separated' — Position of step indicators relative to the connector track.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
+
 ### TabList
 
 Import: `import {TabList} from '@astryxdesign/core/TabList';`
@@ -4074,8 +4118,8 @@ Props:
 - `isOpen`: boolean (required) — Whether the dialog is open.
 - `onOpenChange`: (isOpen: boolean) => unknown (required) — Callback when dialog visibility changes.
 - `children`: ReactNode (required) — Dialog content.
-- `width`: number | string = 400 — Width of the dialog in pixels or any CSS value.
-- `maxHeight`: number | string = '75vh' — Maximum height of the dialog.
+- `width`: number | string = 400 — Preferred width of the dialog in pixels or any CSS value. Standard dialogs clamp to their container and the dynamic viewport with spacing-token gutters so narrow viewports keep content on screen.
+- `maxHeight`: number | string = '75dvh' — Maximum height of the dialog. Defaults to a dynamic viewport value so browser UI changes are reflected where supported.
 - `position`: DialogPosition — Static position for the dialog; centered by default when omitted. Use logical `start`/`end` for inline offsets so positioned dialogs mirror correctly under RTL.
 - `variant`: 'standard' | 'fullscreen' = 'standard' — Dialog variant: fullscreen expands to fill the entire viewport.
 - `purpose`: 'required' | 'form' | 'info' = 'info' — Controls dismissal behavior: required disables Escape and backdrop click; form disables backdrop click after interaction; info allows both.
@@ -4699,6 +4743,7 @@ Props:
 - `getIsItemSelectable`: (item: T) => boolean = () => true — Returns whether a row should show a checkbox. Non-selectable rows render nothing in the selection cell.
 - `getIsItemEnabled`: (item: T) => boolean = () => true — Returns whether a row checkbox is interactive. Disabled rows show a disabled checkbox.
 - `getRowLabel`: (item: T) => string — Derives a human-readable identity for a row; the row checkbox's hidden label becomes `Select ${getRowLabel(item)}` so screen readers announce which row each checkbox selects. Falls back to "Select row" when omitted.
+- `hasRowHighlight`: boolean = true — Paints checked rows with the accent wash. Set false when the surrounding UI already uses row background to mean something else (a row open in a detail panel, say) — the wash is an inline style, so it cannot be overridden from userland. Only the background is dropped: aria-selected is still set on checked rows either way.
 
 ### useTableSelectionState (subcomponent/hook)
 
@@ -4871,7 +4916,7 @@ Provides token overrides for content rendered on inverted surfaces: media overla
 
 Do:
 - Use for any content placed over a dark background (image overlays, video scrims, dark cards) or other inverted surfaces like toasts and tooltips.
-- Prefer mode="auto" when the surface color comes from a theme token. A token named "inverted" is not guaranteed to be inverted, and auto measures what was actually painted instead of trusting the name — including deciding that a surface needs no media context at all.
+- Prefer mode="auto" when the surface color comes from a theme token. A token named "inverted" is not guaranteed to be inverted, and auto measures what was actually painted instead of trusting the name. It can even decide that a surface needs no media context at all.
 - Pair with a background color: MediaTheme flips the token context but does not add a background. Set backgroundColor on the parent element.
 - Themes can customize components on media surfaces via onDark.components and onLight.components in defineTheme(). For example, add a border to ghost buttons on dark surfaces.
 
@@ -4879,8 +4924,8 @@ Don't:
 - Use MediaTheme for app-level dark mode: use Theme with mode="dark" or mode="system" instead. MediaTheme is for local surface inversions, not page-wide color scheme.
 
 Props:
-- `mode`: 'dark' | 'light' | 'auto' | 'off' (required) — Surface luminance context: dark for content over dark backgrounds (light text, white-tinted interactions), light for content over light backgrounds (dark text, black-tinted interactions), auto to decide from the painted surface — no media context when the ambient text already reads on the surface (3:1), otherwise the side that reads better — and off to turn it off explicitly. The element renders either way, so a surface can switch contexts without remounting children.
-- `fallback`: 'dark' | 'light' = 'dark' — Which side auto uses when the surface cannot be measured: during SSR, on the first client frame, and whenever the backdrop is not knowable from CSS — most often a background-image, whose pixels need sampling (useImageMode) rather than a computed style. Ignored unless mode is auto.
+- `mode`: 'dark' | 'light' | 'auto' | 'off' (required) — Surface luminance context: dark for content over dark backgrounds (light text, white-tinted interactions), light for content over light backgrounds (dark text, black-tinted interactions), auto to decide from the painted surface (no media context when the ambient text already reads on the surface at 3:1, otherwise the side that reads better), and off to turn it off explicitly. The element renders either way, so a surface can switch contexts without remounting children.
+- `fallback`: 'dark' | 'light' = 'dark' — Which side auto uses when the surface cannot be measured: during SSR, on the first client frame, and whenever the backdrop is not knowable from CSS, most often a background-image, whose pixels need sampling (useImageMode) rather than a computed style. Ignored unless mode is auto.
 - `children`: ReactNode (required) — Content to render with inverted token context. Components inherit the correct colors automatically.
 
 ### SyntaxTheme
@@ -4917,6 +4962,24 @@ Props:
 - `theme`: DefinedTheme (required) — Theme object to apply. Prefer built theme objects for static production themes; use runtime `defineTheme()` for dynamic themes.
 - `mode`: 'light' | 'dark' | 'system' = 'system' — Color mode. System follows OS preference.
 - `children`: ReactNode (required) — Content to render with the theme.
+
+### useMergedRefs
+
+Import: `import {useMergedRefs} from '@astryxdesign/core/hooks';`
+
+Combines multiple object or callback refs into one stable callback ref. Use it when a component must forward a consumer ref while also attaching internal refs. Unlike calling mergeRefs during render, the callback identity stays stable across unrelated rerenders, so React does not detach and reattach the element.
+
+Do:
+- Use useMergedRefs when one element must receive both a forwarded ref and one or more internal refs.
+
+Don't:
+- Call mergeRefs directly in a JSX ref prop; that creates a new callback on every render and forces unnecessary detach and attach work.
+
+Parameters:
+- `refs`: Array<Ref<T> | undefined> (required) — Up to six refs that should all receive the same element.
+
+Returns:
+- `ref`: RefCallback<T> — A merged callback ref that remains stable until an input ref changes.
 
 ### useTheme
 

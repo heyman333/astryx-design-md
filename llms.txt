@@ -1,8 +1,8 @@
 # Astryx
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 214 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 217 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 
-Generated from commit `b594d5c` (2026-08-22) of https://github.com/facebook/astryx.
+Generated from commit `6759843` (2026-08-23) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -36,7 +36,7 @@ Key facts:
 
 ## Components
 
-214 documented components in `packages/core/src/`. Each has a `{Name}.doc.mjs` structured doc with props, anatomy, and best practices. By category:
+217 documented components in `packages/core/src/`. Each has a `{Name}.doc.mjs` structured doc with props, anatomy, and best practices. By category:
 
 - Action: Button, ButtonGroup, ContextMenu, ContextMenuItem, DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuDivider, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSubMenu, IconButton, Link, MoreMenu, SegmentedControl, SegmentedControlItem, ToggleButton, ToggleButtonGroup, Toolbar
 - Animation: useEntryAnimation
@@ -49,12 +49,12 @@ Key facts:
 - Interaction: useCollapsible, useHoverCard, useLayer, usePopover, useToast, useTooltip, useClickableContainer, useClipboard, useContainerReveal, useHotkeys, useInputContainer
 - Layout: AppShell, useAppShellMobile, AspectRatio, Center, Divider, FormLayout, Grid, GridSpan, Layout, LayoutContent, LayoutFooter, LayoutHeader, LayoutPanel, Resizable, useResizable, Section, Stack, useOverflow, useScrollLock, useScrollOverflow
 - Media: useImageMode, useMediaQuery
-- Navigation: BreadcrumbItem, Breadcrumbs, MobileNav, NavIcon, NavHeadingMenu, Outline, Pagination, SideNav, SideNavCollapseButton, SideNavHeading, SideNavItem, SideNavSection, Tab, TabList, TabMenu, TopNav, TopNavHeading, TopNavItem, TopNavMegaMenu, TopNavMegaMenuFeaturedCard, TopNavMegaMenuItem, TopNavMenu
+- Navigation: BreadcrumbItem, Breadcrumbs, MobileNav, NavIcon, NavHeadingMenu, Outline, Pagination, SideNav, SideNavCollapseButton, SideNavHeading, SideNavItem, SideNavSection, Step, Stepper, Tab, TabList, TabMenu, TopNav, TopNavHeading, TopNavItem, TopNavMegaMenu, TopNavMegaMenuFeaturedCard, TopNavMegaMenuItem, TopNavMenu
 - Overlay: AlertDialog, useImperativeAlertDialog, BottomSheet, BottomSheetSwitcher, CommandPalette, CommandPaletteEmpty, CommandPaletteFooter, CommandPaletteGroup, CommandPaletteInput, CommandPaletteItem, CommandPaletteList, Dialog, DialogHeader, useImperativeDialog, HoverCard, Lightbox, Overlay, Popover, Toast, Tooltip
 - Streaming: useStreamingText
 - Table & List: Item, List, ListItem, MetadataList, MetadataListItem, OverflowList, Table, TableCell, TableHeaderCell, TableRow, useTableColumnResize, useTableColumnSettings, useTableFilterState, useTableFiltering, useTableGroupedRows, useTablePagination, useTableRowExpansion, useTableRowIndex, useTableRowStatus, useTableSelection, useTableSelectionState, useTableSortable, useTableStickyColumns, useTableTreeData, useTableTreeState, TreeList
 - Utilities: useCollator, useLocale, useTranslator
-- Utility: Layer, LinkProvider, VisuallyHidden, InternationalizationProvider, MediaTheme, SyntaxTheme, Theme, useTheme
+- Utility: Layer, LinkProvider, VisuallyHidden, useMergedRefs, InternationalizationProvider, MediaTheme, SyntaxTheme, Theme, useTheme
 
 ## Optional
 

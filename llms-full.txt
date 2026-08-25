@@ -1,10 +1,10 @@
 # Astryx — Full Component Reference
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 217 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 220 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `6759843` (2026-08-23) of https://github.com/facebook/astryx.
+Generated from commit `8d45788` (2026-08-24) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -59,6 +59,10 @@ Props:
 - `tooltip`: string — Tooltip text shown on hover.
 - `onClick`: (e: MouseEvent) => void — Standard click handler (passed through from ButtonHTMLAttributes).
 - `clickAction`: (e: MouseEvent) => void | Promise<void> — Async click handler. Shows loading state while the returned promise is pending.
+- `href`: string — When provided, renders the button as a link element (<a> or custom link component).
+- `as`: ComponentType — Custom link component to use when href is provided (e.g. Next.js Link).
+- `target`: string — HTML target attribute when rendered as a link (e.g. "_blank").
+- `rel`: string — HTML rel attribute when rendered as a link (e.g. "noopener noreferrer").
 
 ### ButtonGroup
 
@@ -70,11 +74,14 @@ Do:
 - Group buttons that perform related actions on the same object, like copy, cut, paste on selected text.
 - Use the same variant for all buttons in a group so they look like a single connected unit.
 - Keep groups small (2–4 buttons). For more actions, use a Toolbar or DropdownMenu instead.
+- Name the group for what its buttons act on. The label is the group\u2019s accessible name and a screen reader reads it before each member.
+- Keep the group a single Tab stop. Arrow keys move between members along the orientation, Home/End jump to the ends, and disabled members are skipped — the WAI-ARIA APG roving tabindex technique: https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/#kbd_roving_tabindex
 
 Don't:
 - Don't mix wildly different actions. A Save button next to a Delete button in the same group is confusing.
 - Don't use ButtonGroup for navigation. Use SegmentedControl or TabList for switching between views.
 - Don't nest ButtonGroups. If you need multiple groups, place them side by side with a gap.
+- Don't disable the group to show that an action is in flight. A disabled member drops focus, so a keyboard user loses their place; leave the group enabled and show progress on the button that started the work.
 
 Props:
 - `children`: ReactNode (required) — Button or IconButton children.
@@ -109,6 +116,7 @@ Props:
 - `menuWidth`: number | string = '160px' — Custom menu width.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size of menu items: controls padding density.
 - `label`: string = 'Context menu' — Accessible name for the menu surface, announced when it opens.
+- `onOpenChange`: (isOpen: boolean) => void — Callback fired when the menu opens or closes.
 - `isDisabled`: boolean = false — When true, right-click shows the native browser context menu instead.
 
 ### DropdownMenu
@@ -134,6 +142,7 @@ Props:
 - `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Position placement relative to the trigger. Logical: start/end resolve against the menu's own inherited direction (RTL mirrors).
 - `alignment`: 'start' | 'center' | 'end' = 'start' — Alignment along the placement axis. Logical: start/end follow the menu's own inherited direction (RTL mirrors).
 - `onClick`: () => void — Callback fired when the trigger button is clicked.
+- `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Position placement for the menu popover relative to the trigger button.
 - `hasChevron`: boolean = true — Whether to show a chevron icon on the trigger button. Set to false for icon-only triggers.
 - `children`: ReactNode — Compound-mode menu content: DropdownMenuItem, DropdownMenuDivider, DropdownMenuSubMenu, and the selectable items. Mutually exclusive with `items`.
 
@@ -190,9 +199,16 @@ Props:
 - `newTabLabel`: string = '(opens in new tab)' — Screen-reader text announcing that an external link opens in a new tab. Override for localization.
 - `target`: string — Where to open linked document. target="_blank" automatically adds noopener noreferrer.
 - `rel`: string — Link relationship tokens. noopener noreferrer are merged automatically for target="_blank".
+- `download`: string | boolean — Causes the browser to download the linked URL. A string specifies the suggested filename.
+- `referrerPolicy`: HTMLAttributeReferrerPolicy — Referrer policy for the link.
 - `onClick`: MouseEventHandler — Click event handler
 - `tooltip`: string — Tooltip text displayed on hover
 - `isStandalone`: boolean = false — Applies base font sizing
+- `size`: '4xs' | '3xs' | '2xs' | 'xsm' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' — Explicit font size override forwarded to Text.
+- `weight`: 'normal' | 'medium' | 'semibold' | 'bold' — Font weight override forwarded to Text.
+- `color`: 'primary' | 'secondary' | 'disabled' | 'placeholder' | 'accent' | 'inherit' = 'accent' — Text color forwarded to Text.
+- `display`: 'inline' | 'block' = 'inline' — Display type for Text.
+- `maxLines`: number = 0 — Maximum lines before truncation.
 - `children`: ReactNode (required) — Link content
 
 ### MoreMenu
@@ -217,6 +233,7 @@ Props:
 - `isDisabled`: boolean = false — Whether the menu trigger is disabled.
 - `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Position of the menu relative to the trigger. Logical: start/end resolve against the menu's own inherited direction (RTL mirrors).
 - `alignment`: 'start' | 'center' | 'end' = 'start' — Alignment along the placement axis. Use 'end' to align the menu with the trigger's trailing edge, which is usually what an overflow menu wants.
+- `onOpenChange`: (isOpen: boolean) => void — Callback fired when the menu opens or closes.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
 ### SegmentedControl
@@ -303,6 +320,7 @@ Props:
 - `gap`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 = 1 — Gap between items within each slot.
 - `orientation`: 'horizontal' | 'vertical' = 'horizontal' — Orientation for keyboard navigation. Controls arrow key direction.
 - `variant`: SectionVariant = 'transparent' — Visual variant passed to Section.
+- `dividers`: Array<'top' | 'bottom' | 'start' | 'end'> — Borders/dividers rendered around the toolbar.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
 
 ### ContextMenuItem (subcomponent/hook)
@@ -861,7 +879,7 @@ Do:
 Don't:
 - Rely on a status label to name an interactive avatar. "Online" says nothing about where the link goes.
 - Use Avatar for logos, product images, or anything that isn't a person or team. Use an image or icon instead.
-- Force a square or custom shape. Avatars are always circular to stay consistent across the system.
+- Use xstyle or className to override shape. Use the shape prop instead so themes can control it globally.
 
 Props:
 - `src`: string — Primary image source URL.
@@ -869,6 +887,7 @@ Props:
 - `name`: string — User name for initials and alt text.
 - `alt`: string — Alt text (falls back to name).
 - `size`: 'xsm' | 'sm' | 'md' | 'lg' | 'xl' | number = 'md' — Avatar size. Use a named size ('xsm' 20px, 'sm' 24px, 'md' 36px, 'lg' 48px, 'xl' 128px) or a numeric pixel value. Avatar shares Icon's abbreviated scale, but its tiers are larger because avatars align with media rather than glyphs. Inside an AvatarGroup the group's size wins and this prop is ignored.
+- `shape`: 'circle' | 'rounded' | 'square' = 'circle' — Shape variant of the avatar. 'circle' (default) stays fully round. 'rounded' uses the element radius token so it matches UI corner rounding and can be set globally via theme. 'square' has no radius. Status dot positioning adapts automatically: 4-o'clock on circle, bottom-right corner on rounded/square.
 - `status`: ReactNode — Corner content for status indicators. AvatarStatusDot reports its `label` to the avatar, which composes it into the accessible name (e.g. "Jane Doe, Online") so screen readers announce the status. Reporting goes through context, so it still works when the dot sits inside a wrapper component of your own.
 - `tooltip`: string | boolean = true — Tooltip shown on hover and keyboard focus. Omitted or true shows the avatar's name; a string shows that text instead; false shows no tooltip. Not auto-disabled when wrapped in your own Tooltip/HoverCard. Set tooltip={false} if you supply your own overlay. No tooltip is shown when tooltip is true/omitted and there is no name.
 - `href`: string — When set, the avatar renders as an interactive link (`<a>` or a custom link component) pointing here. This follows the same element-swap rule as Button. Requires a meaningful accessible name via `alt` or `name`: an interactive avatar without one warns in development. Inside an AvatarGroup, interactive avatars share a single Tab stop and are reached with arrow keys.
@@ -896,6 +915,7 @@ Don't:
 Props:
 - `children`: ReactNode (required) — Avatar children, optionally followed by one AvatarGroupOverflow. Consumers handle slicing to the desired visible count.
 - `size`: AvatarSize = 'md' — Size applied to all avatars via context. This wins over each child Avatar's own size prop, including when it is left at the default, so set the size here rather than on the children.
+- `shape`: 'circle' | 'rounded' | 'square' = 'circle' — Shape applied to all avatars via context, overriding each avatar's own shape prop. Also applied to AvatarGroupOverflow's "+N" indicator.
 - `ref`: React.Ref<HTMLDivElement> — Ref forwarded to the root element.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization.
 - `data-testid`: string — Test selector for automated testing frameworks.
@@ -969,6 +989,7 @@ Props:
 - `container`: 'card' | 'section' = 'card' — Container presentation style. 'card' (default): border and radius with the muted syntax background for a standalone card look. 'section': no border or radius and a transparent background so the block blends into the card or panel it's embedded in.
 - `tokenizer`: (code: string, language: string) => Array<{type: string; start: number; end: number}> — Custom tokenizer override for unsupported languages.
 - `syntaxTheme`: SyntaxThemeDefinition — Per-instance syntax theme override. Shorthand for wrapping the block in <SyntaxTheme theme={...}>. Accepts a preset from @astryxdesign/core/theme/syntax or a theme created with defineSyntaxTheme(). Defaults to the nearest SyntaxTheme ancestor or the theme-level syntax colors.
+- `highlightMode`: 'auto' | 'ranges' | 'spans' = 'auto' — Syntax highlighting rendering mode.
 - `isCollapsible`: boolean = false — Allow collapsing the code body into just the header bar. Starts expanded; the header becomes clickable to toggle. Only shows the toggle when the code exceeds collapsibleThreshold lines.
 - `collapsibleThreshold`: number = 10 — Minimum number of lines before the collapse toggle appears. Below this threshold the code block renders normally even when isCollapsible is true.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
@@ -1076,6 +1097,7 @@ Props:
 - `contentAlign`: 'start' | 'center' = 'start' — Alignment of prose content within the container when contentWidth is narrower than the available space.
 - `inlinePlugins`: MarkdownInlinePlugin[] — Transforms regex matches in parsed text nodes into custom inline React elements. Use for issue refs, diff refs, mentions, and other shorthand patterns. Inline code and fenced code blocks are unaffected.
 - `autolink`: 'gfm' — Opt-in autolinking of bare URLs and emails. 'gfm' applies GitHub-Flavored Markdown autolink-literal rules: bare https?://..., www...., <scheme:url>, <email>, and user@host all become links. Trailing sentence punctuation and unbalanced trailing close-parens are excluded; matches inside code spans, code blocks, existing links, and image alt text are skipped. Default behavior (option unset) is unchanged.
+- `components`: MarkdownComponents — Custom React component overrides for rendered Markdown elements (code, inlineCode, link, heading, paragraph, image, blockquote, hr, citation).
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 - `className`: string — CSS class name for the root element. Prefer xstyle for styling; className is provided for integration with non-StyleX systems.
 - `style`: CSSProperties — Inline styles for the root element. Prefer xstyle for styling; inline styles bypass StyleX optimization.
@@ -1304,7 +1326,7 @@ Props:
 - `dateConstraints`: Array<(date: Date) => boolean> — Custom constraint functions.
 - `maxRangeSpan`: number — Range mode: max days a range may span, both endpoints counted (7 = a 7-day window). Caps the window from the picked start; before a start is picked every day stays selectable.
 - `minRangeSpan`: number — Range mode: min days a range must span, both endpoints counted (2 forbids a single-day range). Default 1.
-- `focusDate`: ISODateString — Controlled visible month.
+- `focusDate`: ISODateString — Controlled visible month. Unset, the calendar opens on the selected date, else on today clamped into the min/max window.
 - `onFocusDateChange`: (focusDate: ISODateString) => void — Navigation callback.
 - `handleRef`: React.Ref<CalendarHandle> — Imperative handle for calendar navigation, including navigateTo().
 - `hasOutsideDays`: boolean = true — Show days from adjacent months.
@@ -1464,6 +1486,7 @@ Props:
 - `numberOfMonths`: 1 | 2 = 1 — Number of months displayed simultaneously in the calendar popover.
 - `weekStartsOn`: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' = 0 — First day of week in the calendar popover. A number (0 = Sunday to 6 = Saturday) or a three-letter day name.
 - `format`: 'date' | 'date_long' | 'date_weekday' | 'system_date' | ((value: ISODateString) => string) = 'date_long' — How the committed date value is displayed. Named values are reused from Timestamp's format vocabulary: 'date' shows 'Mar 21, 2026', 'date_long' shows 'March 21, 2026', 'date_weekday' shows 'Wed, Mar 21, 2026', 'system_date' shows '2026-03-21'. A function receives the ISO value and returns a custom string. Applies only to the committed value, never to text being typed.
+- `nativePicker`: 'touch' | 'always' | 'never' = 'touch' — Which surface draws the date picker. 'touch' (the default) hands a touch device to the browser/OS \u2014 the field becomes an input type=date and the platform draws the picker (the iOS wheel, the Android calendar dialog); 'always' does that wherever the browser supports input type=date; 'never' keeps Astryx's own pickers everywhere (the bottom-sheet picker on a finger, the calendar popover on a mouse). Use 'never' for a field that needs weekStartsOn, numberOfMonths or dateConstraints, none of which a native picker can express. format and placeholder still apply in native mode; min and max are forwarded, but a native picker may not show them (on iOS an out-of-range date can be selected and is refused on commit rather than greyed out).
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
@@ -1549,6 +1572,7 @@ Props:
 - `hasSeconds`: boolean = false — Include seconds in the time portion.
 - `hourFormat`: '12h' | '24h' = '12h' — Hour display format. '12h' shows AM/PM; '24h' uses 24-hour notation.
 - `timeIncrement`: 1 | 5 | 10 | 15 | 30 = 1 — Minutes to add or subtract when using arrow keys in the time input.
+- `timeOptionInterval`: 5 | 10 | 15 | 30 | 60 — Minute cadence for a dropdown of preset times on the time portion. Set it to turn the time field into a combobox listing every valid time at that cadence (60 gives a 12 AM to 11 PM list). Omitted, the time field stays a plain text input and gains no combobox semantics. Typed entry keeps working either way, so a time between two options is still reachable. Independent of timeIncrement, which governs arrow-key stepping.
 - `hasClear`: boolean = false — Shows a clear button when a datetime value is set.
 - `placeholder`: string = 'Select a date' — Placeholder text shown in the date portion when no date is selected.
 - `timePlaceholder`: string = 'Select a time' — Placeholder text shown in the time portion when no time is selected.
@@ -1581,6 +1605,8 @@ Don't:
 Props:
 - `label`: string (required) — Label text for the field (always rendered for accessibility).
 - `inputID`: string (required) — ID for the input element (used for the label htmlFor attribute).
+- `labelID`: string — ID applied to the label element itself for group accessibility.
+- `isGroupLabel`: boolean = false — Renders the label as a span for control groups (radiogroup, checkbox list).
 - `children`: ReactNode (required) — The input or control to render.
 - `isLabelHidden`: boolean = false — Visually hide the label (still accessible to screen readers).
 - `isDisabled`: boolean = false — Whether the associated input is disabled. Propagates disabled styling to the label.
@@ -1764,7 +1790,7 @@ Props:
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant for the selector.
 - `variant`: 'input' | 'ghost' = 'input' — Visual trigger style. input is the bordered input treatment for forms; ghost is borderless and matches ghost buttons for toolbar usage.
 - `triggerDisplay`: 'count' | 'labels' | 'badges' = 'count' — How to display selected items in the trigger.
-- `formatTriggerCount`: (count: number) => string — Formats the trigger text when triggerDisplay="count". Receives the selected count and returns the full trigger text.
+- `formatValue`: (items: {value: string; label: string}[]) => string — Formats the trigger text when triggerDisplay="count" or "labels". Receives the selected items (value plus resolved label); the count is items.length. Not used by triggerDisplay="badges".
 - `maxBadges`: number = 3 — Maximum badges to show before "+N". Only for triggerDisplay="badges".
 - `hasSelectAll`: boolean — Whether to show a select-all checkbox.
 - `selectAllLabel`: string = 'Select all' — Label for the select-all checkbox.
@@ -1783,6 +1809,9 @@ Props:
 - `renderOption`: (option: MultiSelectorOptionData) => ReactNode — Custom render function for each selectable option in the dropdown. Not called for dividers, sections, or the select-all row.
 - `indicatorPosition`: 'start' | 'end' = 'start' — Which edge of the option row carries the checkbox. end pushes it to the far edge of the row, including on the select-all row.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
+- `startIcon`: IconType | ReactNode — Icon displayed at the start of the selector trigger.
+- `hasClear`: boolean = false — Shows a clear button when values are selected.
+- `isDefaultOpen`: boolean = false — Whether the dropdown starts open on mount.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
 
 ### NumberInput
@@ -1792,6 +1821,7 @@ Import: `import {NumberInput} from '@astryxdesign/core/NumberInput';`
 A form input for numeric values with built-in validation, min/max constraints, and step controls. Use NumberInput for quantities, measurements, percentages, and similar inputs.
 
 Do:
+- Let people paste formatted numbers: a pasted 1,234,234,234 is read under the field's locale and commits as 1234234234 on blur. Typing is never intercepted.
 - Set min, max, and step to guide users toward valid values.
 - Show units (e.g. "%" or "GB") so users know what the number represents.
 - Set isWheelEnabled={false} when the input appears in a scrolling surface where wheel gestures should always scroll the page.
@@ -1809,6 +1839,7 @@ Props:
 - `isLabelHidden`: boolean — Visually hide the label (still accessible to screen readers).
 - `description`: string — Description text displayed between the label and input.
 - `isOptional`: boolean — Whether the field is optional (mutually exclusive with isRequired).
+- `onKeyDown`: (e: KeyboardEvent<HTMLInputElement>) => void — Callback fired on keydown events on the input.
 - `isRequired`: boolean — Whether the field is required (mutually exclusive with isOptional).
 - `isDisabled`: boolean — Whether the input is disabled.
 - `isReadOnly`: boolean = false — Makes the input read-only: the value is shown at full opacity and still submits with the form, but cannot be edited. Unlike isDisabled, a read-only input is not dimmed and stays in the tab order. Stepping is off in every form while read-only: arrow keys, the wheel, and the number steppers. isDisabled takes precedence when both are set.
@@ -1866,12 +1897,20 @@ Props:
 - `startIcon`: ReactNode | IconType — Icon to display at the start of the input, before any filter tokens. Forwarded to the internal Tokenizer. Accepts a semantic icon name, an SVG icon component, or a ReactNode directly.
 - `statusVariant`: 'attached' | 'detached' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing.
 - `maxTokenLength`: number = 40 — Max character length for filter value display in tokens.
+- `maxOperatorMenuItems`: number = 10 — Maximum suggestions shown in string and entity value typeaheads. Does not affect the main field search menu or enum value menus.
+- `maxSearchResults`: number = 10 — Max ranked results for a non-empty query. Does not affect a field value editor. Browsing with an empty query shows up to 1,000 fields.
+- `menuWidth`: number — Width in pixels for the main field/search menu. Does not affect field value editors.
 - `popoverSaveButtonLabel`: string = 'Apply' — Label for the save button in the edit popover.
 - `timezoneID`: string — Timezone ID for date formatting (e.g. "America/New_York").
 - `handleRef`: Ref<PowerSearchHandle> — Imperative handle with focusTypeahead() and blurTypeahead() methods.
 - `endContent`: ReactNode — Content to display at the end of the input row. Useful for action buttons or other controls.
 - `resultCount`: number | string — Number of results matching the current filters. When a number, formatted as "N results". When a string, displayed as-is. Changes are announced to screen readers via a polite live region.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size of the search input and tokens.
+- `menuWidth`: number — Maximum width for the operator/value dropdown menu in pixels.
+- `maxOperatorMenuItems`: number — Maximum number of items displayed in the operator dropdown.
+- `tokenOverflowBehavior`: 'none' | 'unfocusedInline' | 'unfocusedLayer' = 'none' — Controls how tokens overflow when the container is too narrow. Forwarded to Tokenizer.
+- `onFocus`: (e: FocusEvent<HTMLInputElement>) => void — Fires when focus enters the search input.
+- `onBlur`: (e: FocusEvent<HTMLInputElement>) => void — Fires when focus leaves the search input.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
 
 ### RadioList
@@ -1953,9 +1992,11 @@ Props:
 - `status`: {type: 'error' | 'warning' | 'success', message?: string} — Validation status with an optional message.
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' for input selectors; 'detached' for ghost selectors — How the status message is placed relative to the input. attached overlaps directly below the bordered input and is only valid for the input variant; ghost selectors detach attached status messages by default. Use tooltip for compact toolbar controls.
 - `renderOption`: (option: SelectorOptionData) => ReactNode — Custom render function for each selectable option in the dropdown. Use this instead of JSX children; dividers and sections are rendered by the selector.
-- `renderValue`: (option: SelectorOptionData) => ReactNode — Custom render function for the selected option inside the closed trigger. The trigger is sized by padding, so it is the size token for a one-line value (28/32/36) and exactly one text line taller for a two-line one (48/52/56) — always on the 4px rhythm, always aligned with the buttons and inputs beside it. Inside an InputGroup the group owns the row height: a SelectorOption folds onto one line and ellipsizes, and any taller node is cut off at the row.
+- `renderValue`: (option: SelectorOptionData) => ReactNode — Custom render function for the selected option inside the closed trigger. The trigger is sized by padding, so it is the size token for a one-line value (28/32/36) and exactly one text line taller for a two-line one (48/52/56), always on the 4px rhythm, always aligned with the buttons and inputs beside it. Inside an InputGroup the group owns the row height: a SelectorOption folds onto one line and ellipsizes, and any taller node is cut off at the row.
 - `indicatorPosition`: 'start' | 'end' = 'end' — Which edge of the option row carries the selected mark. start reserves a mark column ahead of every label so they stay aligned, the way a native menu does; end is the house convention shared with Typeahead and CommandPalette.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
+- `startIcon`: IconType | ReactNode — Icon displayed at the start of the selector trigger.
+- `isLoading`: boolean = false — Shows a loading spinner in the trigger.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 
 ### Slider
@@ -2115,6 +2156,8 @@ Props:
 - `description`: string — Description text displayed between the label and input.
 - `isOptional`: boolean = false — Displays an "Optional" indicator next to the label. Mutually exclusive with isRequired.
 - `isRequired`: boolean = false — Displays a "Required" indicator next to the label and sets aria-required. Mutually exclusive with isOptional.
+- `onEnter`: () => void — Callback fired when the user presses the Enter key.
+- `onKeyDown`: (e: KeyboardEvent<HTMLInputElement>) => void — Callback fired on keydown events on the input.
 - `isDisabled`: boolean = false — Disables the input, preventing interaction and dimming the element.
 - `isReadOnly`: boolean = false — Makes the input read-only: the value is shown at full opacity and still submits with the form, but cannot be edited. Unlike isDisabled, a read-only input is not dimmed and stays in the tab order. isDisabled takes precedence when both are set.
 - `disabledMessage`: string — Explains why the input is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the input focusable via aria-disabled (the field becomes read-only). Use this instead of wrapping a disabled TextInput in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
@@ -2214,6 +2257,7 @@ Props:
 - `labelTooltip`: string — Tooltip text shown on the label.
 - `hasEntriesOnFocus`: boolean = false — Show bootstrap results on focus before typing.
 - `maxMenuItems`: number = 10 — Maximum number of dropdown items to display.
+- `menuWidth`: number — Fixed dropdown width in pixels. The menu never shrinks below its anchor width.
 - `emptySearchResultsText`: string = 'No results found' — Text shown when search returns no results.
 - `hasAutoFocus`: boolean = false — Auto-focus the input on mount.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Input and token size.
@@ -2224,6 +2268,9 @@ Props:
 - `endContent`: ReactNode — Content to display at the end of the input row. Useful for buttons, result counts, or other controls.
 - `handleRef`: React.Ref<TokenizerHandle> — Imperative handle exposing focusInput(), focusFirstToken(), focusLastToken(), clearInput(), and selectAll().
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
+- `tokenOverflowBehavior`: 'none' | 'unfocusedInline' | 'unfocusedLayer' = 'none' — Controls how tokens overflow when the container is too narrow.
+- `onFocus`: (e: FocusEvent<HTMLInputElement>) => void — Fires when focus enters the tokenizer input.
+- `onBlur`: (e: FocusEvent<HTMLInputElement>) => void — Fires when focus leaves the tokenizer input.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value; not an inline style object like style={{}}.
 
 ### Typeahead
@@ -2270,6 +2317,7 @@ Props:
 - `onChangeQuery`: (query: string) => void — Callback fired when the search query text changes.
 - `onOpenChange`: (isOpen: boolean) => void — Callback when the dropdown opens or closes.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
+- `startIcon`: IconType | ReactNode — SVG icon component displayed at the start of the input.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 
 ### BaseTypeahead (subcomponent/hook)
@@ -2295,6 +2343,7 @@ Props:
 - `placeholder`: string = 'Search...' — Input placeholder text.
 - `hasEntriesOnFocus`: boolean = false — Show bootstrap results on focus before typing.
 - `maxMenuItems`: number = 10 — Maximum dropdown items to display.
+- `menuWidth`: number — Fixed dropdown width in pixels. The menu never shrinks below its anchor width.
 - `emptySearchResultsText`: string = 'No results found' — Text shown when search returns no results.
 - `isDisabled`: boolean = false — Whether the input is disabled.
 - `hasAutoFocus`: boolean = false — Auto-focus the input on mount.
@@ -2418,6 +2467,7 @@ Do:
 - Use the card container inside page content and the section container for full-width messages that span the entire page.
 - Make info and success banners dismissable. Keep error banners visible until the user fixes the issue.
 - Keep titles short and scannable: "Payment failed" not "There was a problem processing your most recent payment."
+- Set collapsible={false} when the user needs the content to act on the message, like the list of fields that failed validation. Keep the default toggle when the detail is long enough to bury the banner\u2019s own message.
 - Error and warning banners render as role="alert"; info and success render as role="status". Mount an alert banner in response to an event rather than on first paint, so assistive tech has a change to report.
 
 Don't:
@@ -2435,8 +2485,8 @@ Props:
 - `endContent`: ReactNode — Action content rendered in the header area, end-aligned. Wraps to its own row below the text when the header is too narrow to hold both.
 - `container`: 'card' | 'section' = 'card' — Container type: card has border-radius; section is full-width with no border-radius for page-level use.
 - `elevation`: 'none' | 'low' | 'med' | 'high' = 'none' — Resting shadow depth. Use for a floating banner that hovers above content; `none` is the default inline banner. A `card`-container banner rounds its shadow to match.
-- `children`: ReactNode — Content rendered in the card-background area below the colored header.
-- `defaultIsExpanded`: boolean = false — Whether the content area (children) starts expanded. Only relevant when children are provided.
+- `children`: ReactNode — Content rendered in the card-background area below the colored header. Sits behind an expand/collapse toggle unless `collapsible={false}`.
+- `collapsible`: boolean | {defaultIsOpen?: boolean; isOpen?: boolean; onOpenChange?: (isOpen: boolean) => void} = true — Whether the content area (children) sits behind an expand/collapse toggle in the header. On by default, starting collapsed. `false` opts out: children are always visible with no toggle. `{defaultIsOpen: true}` starts open; `{isOpen, onOpenChange}` is controlled. Takes the same CollapsibleConfig as Collapsible.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
 ### ProgressBar
@@ -2784,7 +2834,7 @@ Parameters:
 - `options.isEnabled`: boolean = true — When false the hook is inert: the container gets no styles and content getters return no styles, so content is always shown. Read on every render, so a component can flip it after mount (e.g. revealOn === "hover").
 
 Returns:
-- `getContainerProps`: (options?: ContainerRevealOptions) => {className?: string; style?: CSSProperties} — Spread onto the container whose hover/focus-within drives the reveal. Accepts hoverDelay (ms the pointer must dwell before the reveal starts — a hover-intent gate like Tooltip's and HoverCard's delay, so a cursor sweeping across a list leaves nothing painted behind it) and forceState ("active" | "inactive") to pin the trigger state when a caller owns it — a motion gate, a scroll, a row whose menu is open. "inactive" still yields to keyboard focus and coarse pointers.
+- `getContainerProps`: (options?: ContainerRevealOptions) => {className?: string; style?: CSSProperties} — Spread onto the container whose hover/focus-within drives the reveal. Accepts hoverDelay (ms the pointer must dwell before the reveal starts: a hover-intent gate like Tooltip's and HoverCard's delay, so a cursor sweeping across a list leaves nothing painted behind it) and forceState ("active" | "inactive") to pin the trigger state when a caller owns it: a motion gate, a scroll, or a row whose menu is open. "inactive" still yields to keyboard focus and coarse pointers.
 - `getContentRevealProps`: (options?: ContentRevealOptions) => {className?: string; style?: CSSProperties} — Spread onto each revealed / concealed child. Accepts isRevealInverted to conceal-on-hover instead of reveal-on-hover, isLayoutPreserved to reserve the layout box while hidden (opacity-only) and avoid layout shift, and forceVisibility ("shown" | "hidden") to pin this one element's appearance whatever the container is doing. "hidden" yields to focus.
 
 ### useHotkeys
@@ -3026,6 +3076,7 @@ Do:
 - Use `fit="cover"` for images and video so the component sizes the child; the child should not repeat `width`/`height`/`objectFit` styles.
 - Pass one child. With `fit` set, every direct child is stretched to fill the box, so put an overlay or caption inside a single wrapper child rather than passing it as a second child.
 - Describe media children with `alt`, or `alt=""` when the image is decorative. AspectRatio adds no role and no accessible name of its own, so the child carries the whole accessible description.
+- For a breakpoint-dependent ratio, override the ratio responsively: pass an `aspectRatio` rule via `xstyle` (StyleX), or override `aspect-ratio` from your own unlayered CSS under a `@media`/`@container` rule — component styles live in the `astryx-base` cascade layer, so unlayered consumer CSS wins. Give an `xstyle` rule a `default` branch alongside the conditional one (`{default: 3, '@container ...': '3 / 2'}`) — with only the conditional branch the ratio is unset outside the query and the box collapses.
 
 Don't:
 - Use for general layout containers; use standard layout components instead.
@@ -3034,7 +3085,7 @@ Don't:
 - Place it in a shrink-to-fit parent such as `inline-flex`, `width: fit-content` or a floated box. It contributes no intrinsic width there and collapses to zero.
 
 Props:
-- `ratio`: number (required) — Aspect ratio as width/height (e.g. 16/9, 1).
+- `ratio`: number (required) — Aspect ratio as width/height (e.g. 16/9, 1). Emitted as a class-level declaration (never inline), so `xstyle` rules or unlayered consumer CSS can override it responsively.
 - `shape`: 'rectangle' | 'ellipse' = 'rectangle' — Container shape. Both respect the `ratio`. `ellipse` clips to an oval (a circle when `ratio={1}`).
 - `fit`: 'cover' | 'contain' | 'center' — How the child is sized inside the ratio box. `cover` fills and crops media, `contain` fills and letterboxes, `center` keeps the natural size centered. When omitted, the child styles itself.
 - `children`: ReactNode (required) — Content positioned absolutely to fill the container.
@@ -3165,7 +3216,7 @@ Props:
 - `start`: ReactNode — Start panel (left in LTR).
 - `end`: ReactNode — End panel (right in LTR).
 - `height`: 'fill' | 'auto' = 'fill' — Height behavior: fill the container or grow with content.
-- `contentWidth`: number | string — Maximum width of the content within each slot (header, content, footer, panels), centered when narrower than the available space. Dividers stay full-bleed. Numbers are pixels, strings are used as-is (e.g. `60ch`). Common page widths: 640 for forms, settings, and text-focused pages; 960 for content pages and wider layouts.
+- `contentWidth`: SizeValue — Maximum width of the content within each slot (header, content, footer, panels), centered when narrower than the available space. Dividers stay full-bleed. Numbers are treated as pixels, strings are used as-is (e.g. `60ch`). Common page widths: 640 for forms, settings, and text-focused pages; 960 for content pages and wider layouts.
 - `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Padding at the layout's outer edges using the spacing scale.
 - `defaultHasDividers`: boolean — Default divider visibility for LayoutHeader and LayoutFooter children. Headers and footers that don't pass `hasDivider` use this value; when unset, nested layouts inherit from their parent context.
 
@@ -3713,8 +3764,8 @@ A sidebar navigation component for organizing application pages with sections, n
 Do:
 - Use sections to group related navigation items and help users scan for their destination.
 - Pair outline and filled icon variants so the selected state is visually distinct.
-- Mark the current page with isSelected — it sets aria-current="page", so the current destination is announced rather than carried by color alone.
-- SideNav renders a navigation landmark, and a collapsible item follows the WAI-ARIA APG Disclosure pattern (https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/): the toggle carries aria-expanded and aria-controls, and the group it owns is inert while collapsed. Keep item labels short — they are the accessible name in both expanded and icon-only modes.
+- Mark the current page with isSelected: it sets aria-current="page", so the current destination is announced rather than carried by color alone.
+- SideNav renders a navigation landmark, and a collapsible item follows the WAI-ARIA APG Disclosure pattern (https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/): the toggle carries aria-expanded and aria-controls, and the group it owns is inert while collapsed. Keep item labels short; they are the accessible name in both expanded and icon-only modes.
 - While the nav is collapsed, an item with children shows them in a submenu flyout. On a device that can hover, pointing at the item opens it after a short delay and moving away closes it; a flyout opened by clicking stays open until it is dismissed. On touch, it opens on tap. Do not put an action in there that has no other route to it.
 
 Don't:
@@ -3782,8 +3833,9 @@ TabList provides tab-style navigation for organizing content into categorized se
 
 Do:
 - Keep tab labels short and descriptive so users can quickly scan available sections.
-- Use TabMenu to group overflow items when horizontal space is limited rather than scrolling tabs off-screen.
+- Leave overflow handling on: a strip narrower than its tabs scrolls, and the selected tab is kept in view. Use TabMenu when you want a curated group of extra options rather than a scrolling strip.
 - When using hasDivider with action buttons alongside tabs, match the Button size to the TabList size (both md, both sm); the divided tab strip reserves space so tabs and same-size buttons align to a shared baseline above the rail.
+- Reach for role="tablist" when the strip switches panels in place, and give each tab a panelId pointing at the panel it opens: that link is how a screen reader gets from a tab to its content. Leave it off for navigation between views.
 
 Don't:
 - Use tabs for sequential steps or workflows; use a stepper or wizard pattern instead.
@@ -3796,7 +3848,9 @@ Props:
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant applied to all child tabs.
 - `layout`: 'hug' | 'fill' = 'hug' — Layout mode for tab sizing. 'hug': each tab hugs its content width. 'fill': tabs stretch equally to fill the container width.
 - `hasDivider`: boolean = false — Whether to show a bottom border divider under the tab list.
-- `children`: ReactNode (required) — Tab and TabMenu items to render inside the nav.
+- `role`: AriaRole — ARIA role for the strip. 'tablist' asks for the WAI-ARIA tabs pattern: role="tablist" / role="tab" and aria-selected, with each tab pointing at the panel it controls via its panelId; only tabs may live in a tablist strip, and an href on a tab is ignored there. Left unset, the strip is a nav landmark marking the current tab with aria-current. Any other value is passed through to the element unchanged.
+- `overflow`: 'auto' | 'scroll' | 'visible' = 'auto' — What happens when the tabs are wider than the strip. 'auto' lets the component choose, which today always scrolls. 'scroll' scrolls the tabs horizontally, with edge fades and arrow affordances for pointers that can hover. 'visible' turns overflow handling off and lets the tabs spill out of the strip. The selected tab is always scrolled back into view.
+- `children`: ReactNode (required) — Tab and TabMenu items to render inside the strip.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 
 ### TopNav
@@ -3900,7 +3954,8 @@ Props:
 - `value`: string (required) — Unique value for this tab, matched against TabListContext.value.
 - `label`: string (required) — Accessible label for this tab. Used as visible text by default, or as aria-label when isLabelHidden is true.
 - `isLabelHidden`: boolean = false — Whether the label is visually hidden. When true, only the icon and endContent are displayed, and label is used as aria-label for accessibility.
-- `href`: string — URL to navigate to; when provided, the tab renders as an anchor element.
+- `href`: string — URL to navigate to; when provided, the tab renders as an anchor element. Ignored in a TabList given an explicit role="tablist".
+- `panelId`: string — Id of the panel this tab controls, wired up as aria-controls where the TabList speaks the tabs pattern. Put the same id on the panel element. No effect under the navigation pattern, and a development warning says so.
 - `as`: LinkComponentType — Custom component to render instead of <a> for link tabs. Overrides the LinkProvider default. Only applies when href is provided.
 - `icon`: ReactNode — Icon element shown when the tab is not selected.
 - `selectedIcon`: ReactNode — Icon element shown when the tab is selected; falls back to icon if not provided.
@@ -4123,6 +4178,7 @@ Props:
 - `position`: DialogPosition — Static position for the dialog; centered by default when omitted. Use logical `start`/`end` for inline offsets so positioned dialogs mirror correctly under RTL.
 - `variant`: 'standard' | 'fullscreen' = 'standard' — Dialog variant: fullscreen expands to fill the entire viewport.
 - `purpose`: 'required' | 'form' | 'info' = 'info' — Controls dismissal behavior: required disables Escape and backdrop click; form disables backdrop click after interaction; info allows both.
+- `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Internal padding of the dialog using the spacing scale step.
 - `isInline`: boolean = false — Renders dialog content inline without the <dialog> element, backdrop, or modal behavior. For documentation previews and showcases only.
 
 ### HoverCard
@@ -4157,6 +4213,7 @@ Props:
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when hover card visibility changes. Called with true when shown and false when hidden.
 - `hasHoverIndication`: 'auto' | boolean = 'auto' — Shows a dashed underline on the trigger element.
 - `isDefaultOpen`: boolean — Whether the hover card should be shown on mount. Still dismissible.
+- `isOpen`: boolean — Controlled open state for the hover card.
 
 ### Lightbox
 
@@ -4180,6 +4237,8 @@ Props:
 - `index`: number — Current index in gallery mode (when media is an array).
 - `onIndexChange`: (index: number) => void — Callback when the gallery index changes via prev/next navigation.
 - `hasZoom`: boolean = false — Enable zoom on double-click, or Enter/Space/+/- via keyboard (images only). When zoomed, drag or use arrow keys to pan.
+- `defaultIndex`: number = 0 — Initial image index in gallery mode for uncontrolled usage.
+- `hasAutoPlay`: boolean = false — Automatically start video playback when a video media item is shown.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be stylex.create() value.
 
 ### Overlay
@@ -4269,6 +4328,7 @@ Props:
 - `uniqueID`: string — Unique identifier for deduplication.
 - `collisionBehavior`: 'overwrite' | 'ignore' = 'overwrite' — Behavior when a toast with matching uniqueID already exists.
 - `onHide`: (reason: "auto" | "manual") => void — Callback fired when the toast is removed.
+- `onDismiss`: (reason: "auto" | "manual") => void (required) — Callback fired when the toast is dismissed.
 
 ### Tooltip
 
@@ -4299,6 +4359,7 @@ Props:
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when tooltip visibility changes. Called with true when shown and false when hidden.
 - `hasHoverIndication`: 'auto' | boolean = 'auto' — Shows a dashed underline on the trigger element.
 - `isDefaultOpen`: boolean — Whether the tooltip should be shown on mount. Still dismissible.
+- `isOpen`: boolean — Controlled open state for the tooltip.
 
 ### CommandPaletteEmpty (subcomponent/hook)
 
@@ -4540,6 +4601,7 @@ Table displays structured data in rows and columns with consistent dimensionalit
 Do:
 - Use density and divider variants to match the information density and scanning needs of your data.
 - Compose rich cell content with Astryx components like Badge, StatusDot, and Avatar via renderCell.
+- In children mode, put every row inside TableHeader, TableBody, or TableFooter. <table> cannot contain a <tr> directly: the HTML parser inserts an implied <tbody> for server-rendered markup and React does not on the client, so unwrapped rows mismatch on hydration.
 - Set explicit width on every column using proportional() or pixel(). proportional(1) gives equal flex distribution with a 120px minimum that prevents columns from collapsing on narrow viewports. Omitting width skips the minimum.
 - Use the data-driven API from React Server Components: proportional(), pixel(), and column definitions without function props are server-safe. Columns using renderCell (or any function prop) need the table wrapped in a "use client" component, since functions cannot cross the server-client boundary.
 
@@ -4561,7 +4623,7 @@ Props:
 - `plugins`: Record<string, TablePlugin<T>> — Named plugins that extend table behavior via the transform pipeline. Converted to an ordered array internally.
 - `rowIndexStart`: number = 1 — ARIA row index (1-based) for the first rendered body row. The row ordinal is an accessibility concern independent of any visible index column, so setting this (or rowCount) makes the table emit aria-rowindex on body rows and aria-rowcount on the table. For a paginated/windowed view, pass the offset of the first visible row (e.g. (page - 1) * pageSize + 1) so aria-rowindex reflects position in the full dataset. Data-driven mode only.
 - `rowCount`: number — Total number of body rows across all pages/windows, used for aria-rowcount so assistive tech can announce "row X of Y" against the full dataset. When omitted but rowIndexStart is set (windowed view with an unknown total), aria-rowcount is set to -1 per the ARIA unknown-count convention. Data-driven mode only.
-- `children`: ReactNode — Children mode: render TableRow/TableCell directly instead of using data-driven rendering.
+- `children`: ReactNode — Children mode: compose the table yourself from TableHeader / TableBody / TableFooter, each holding TableRow and TableCell, instead of using data-driven rendering. The children are passed straight to the <table>, so the section is yours to supply — a TableRow placed directly in Table emits <table><tr>, which is invalid HTML and mismatches on hydration (the parser inserts an implied <tbody> for server-rendered markup; React does not on the client). Data-driven mode renders the sections for you.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 
 ### TreeList
@@ -4612,12 +4674,36 @@ Props:
 - `label`: string (required) — Label text for this metadata item.
 - `icon`: ReactNode — Icon rendered before the label text.
 
+### TableBody (subcomponent/hook)
+
+Import: `import {TableBody} from '@astryxdesign/core/Table';`
+
+Props:
+- `children`: ReactNode (required) — The <tbody> rows.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value: not an inline style object like style={{}}.
+
 ### TableCell (subcomponent/hook)
 
 Import: `import {TableCell} from '@astryxdesign/core/Table';`
 
 Props:
 - `children`: ReactNode — Cell content.
+
+### TableFooter (subcomponent/hook)
+
+Import: `import {TableFooter} from '@astryxdesign/core/Table';`
+
+Props:
+- `children`: ReactNode (required) — The <tfoot> rows.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value: not an inline style object like style={{}}.
+
+### TableHeader (subcomponent/hook)
+
+Import: `import {TableHeader} from '@astryxdesign/core/Table';`
+
+Props:
+- `children`: ReactNode (required) — The <thead> rows.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value: not an inline style object like style={{}}.
 
 ### TableHeaderCell (subcomponent/hook)
 
@@ -4701,6 +4787,7 @@ Props:
 - `variant`: 'pages' | 'count' | 'compact' | 'dots' | 'none' = 'pages' — Visual variant for the pagination controls.
 - `position`: 'below' | 'above' | 'both' | 'none' = 'below' — Where to render pagination controls relative to the table.
 - `align`: 'start' | 'center' | 'end' = 'center' — Horizontal alignment of the pagination controls.
+- `label`: string = 'Table pagination' — Accessible name for the pagination nav landmark. With position='both' the two navs get distinct names — the label suffixed as '(top)' and '(bottom)' — so same-type landmarks stay unique (axe landmark-unique).
 
 ### useTableRowExpansion (subcomponent/hook)
 

@@ -1,6 +1,6 @@
 # Astryx Design System — Design Overview
 
-> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`6759843`](https://github.com/facebook/astryx/commit/6759843deb0aa09ebcb166c82159ccaf9b755265) (2026-08-23). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
+> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`8d45788`](https://github.com/facebook/astryx/commit/8d45788605c4666f4db252ac45bbef584cbfed5f) (2026-08-24). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
 
 ## What Astryx is
 
@@ -30,10 +30,10 @@ A pnpm monorepo (Node 22+, pnpm 11):
 
 | Package | Version | Description |
 | --- | --- | --- |
-| [`@astryxdesign/build`](https://github.com/facebook/astryx/blob/main/packages/build/README.md) | 0.4.7 | Build plugins for XDS source builds — babel, PostCSS, and Vite integrations |
+| [`@astryxdesign/build`](https://github.com/facebook/astryx/blob/main/packages/build/README.md) | 0.5.0 | Build plugins for XDS source builds — babel, PostCSS, and Vite integrations |
 | [`@astryxdesign/charts`](https://github.com/facebook/astryx/blob/main/packages/charts/README.md) | 0.1.9 (canary) | Astryx charts — a config-model data visualization library (d3-based). Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
-| [`@astryxdesign/cli`](https://github.com/facebook/astryx/blob/main/packages/cli/README.md) | 0.4.7 | Scaffold projects, browse templates, generate themes, and get agent-ready docs from the command line. |
-| [`@astryxdesign/core`](https://github.com/facebook/astryx/blob/main/packages/core/README.md) | 0.4.7 | The component library. Accessible, themeable React components with built-in spacing, dark mode, and StyleX styling. |
+| [`@astryxdesign/cli`](https://github.com/facebook/astryx/blob/main/packages/cli/README.md) | 0.5.0 | Scaffold projects, browse templates, generate themes, and get agent-ready docs from the command line. |
+| [`@astryxdesign/core`](https://github.com/facebook/astryx/blob/main/packages/core/README.md) | 0.5.0 | The component library. Accessible, themeable React components with built-in spacing, dark mode, and StyleX styling. |
 | [`@astryxdesign/lab`](https://github.com/facebook/astryx/blob/main/packages/lab/README.md) | 0.1.9 (canary) | Experimental Astryx components — published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
 | [`@astryxdesign/richtext`](https://github.com/facebook/astryx/blob/main/packages/richtext/README.md) | 0.1.9 (canary) | Astryx rich text — a Lexical-based rich text editor and viewer. Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
 | [`@astryxdesign/vega`](https://github.com/facebook/astryx/blob/main/packages/vega/README.md) | 0.1.3 (canary) | Astryx Vega wrapper — chart and data visualization components. Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
@@ -51,7 +51,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 
 ## Component library
 
-`@astryxdesign/core` currently documents **217 components** across **176 component groups** and **17 categories**. Each component directory contains the implementation (`{Name}.tsx`), colocated tests, and a `{Name}.doc.mjs` structured doc (props, anatomy, best practices) consumed by the CLI and docsite.
+`@astryxdesign/core` currently documents **220 components** across **179 component groups** and **17 categories**. Each component directory contains the implementation (`{Name}.tsx`), colocated tests, and a `{Name}.doc.mjs` structured doc (props, anatomy, best practices) consumed by the CLI and docsite.
 
 ### Action (19)
 
@@ -274,7 +274,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 
 - [**useStreamingText**](https://github.com/facebook/astryx/blob/main/packages/core/src/hooks/useStreamingText.doc.mjs) — Smooths bursty streamed text into a steady character-by-character reveal using requestAnimationFrame. Decouples arrival rate from display rate. Advances on word and syntax boundaries to avoid slicing mid-markdown or mid-word, preventing visual glitches with markdown renderers. Animation timing derives from Astryx motion tokens via useTheme when available, with sensible fallbacks outside a theme provider. Snaps to full text when isStreaming becomes false.
 
-### Table & List (26)
+### Table & List (29)
 
 - [**Item**](https://github.com/facebook/astryx/blob/main/packages/core/src/Item/Item.doc.mjs) — A single, flexible item primitive that unifies the "start content + label + description + end content" pattern across Astryx. Use it wherever you need a structured row: dropdown menus, selectors, contact lists, notifications, file browsers, and activity feeds.
 - [**List**](https://github.com/facebook/astryx/blob/main/packages/core/src/List/List.doc.mjs) — A vertical collection of items with consistent spacing, dividers, and optional markers. Supports headers, icons, avatars, badges, and interactive items with click or link behavior. Use it to display ordered or unordered groups of related content.
@@ -284,7 +284,10 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**TreeList**](https://github.com/facebook/astryx/blob/main/packages/core/src/TreeList/TreeList.doc.mjs) — An expandable tree structure for displaying hierarchical data with branch connector lines. Use it for file explorers, nested category browsers, or any interface that visualizes parent-child relationships.
 - [**ListItem**](https://github.com/facebook/astryx/blob/main/packages/core/src/List/ListItem.doc.mjs) *(subcomponent/hook)*
 - [**MetadataListItem**](https://github.com/facebook/astryx/blob/main/packages/core/src/MetadataList/MetadataListItem.doc.mjs) *(subcomponent/hook)*
+- [**TableBody**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/TableBody.doc.mjs) *(subcomponent/hook)*
 - [**TableCell**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/TableCell.doc.mjs) *(subcomponent/hook)*
+- [**TableFooter**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/TableFooter.doc.mjs) *(subcomponent/hook)*
+- [**TableHeader**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/TableHeader.doc.mjs) *(subcomponent/hook)*
 - [**TableHeaderCell**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/TableHeaderCell.doc.mjs) *(subcomponent/hook)*
 - [**TableRow**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/TableRow.doc.mjs) *(subcomponent/hook)*
 - [**useTableColumnResize**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/useTableColumnResize.doc.mjs) *(subcomponent/hook)*

@@ -4,14 +4,14 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `8d45788` (2026-08-24) of https://github.com/facebook/astryx.
+Generated from commit `e3259c9` (2026-08-25) of https://github.com/facebook/astryx.
 
 Key facts:
 
 - Requires React 19+; `react` and `react-dom` are peer dependencies of `@astryxdesign/core`.
 - Install: `npm install @astryxdesign/core @astryxdesign/theme-neutral @stylexjs/stylex` plus `npm install -D @astryxdesign/cli`.
 - Styles are authored in StyleX but overridable with plain `className` (Tailwind, CSS Modules, plain CSS).
-- A theme is a set of CSS custom-property overrides; themes: butter, chocolate, gothic, matcha, neutral, stone, y2k.
+- A theme is a set of CSS custom-property overrides; themes: butter, chocolate, gothic, matcha, neutral, probe, stone, y2k.
 - `astryx swizzle <Name>` ejects a component's source into your project for deep customization.
 - CLI bootstrap for agents: `astryx docs principles --dense`, `astryx docs tokens --dense`, `astryx docs theme --dense`, `astryx component --list`, `astryx component <Name> --dense`.
 - Inputs are controlled: pass `value` + `onChange` (no `defaultValue`/`defaultChecked`). Wrap the app in `<Theme theme={neutralTheme}>` (theme object from `@astryxdesign/theme-*/built`).
@@ -74,8 +74,8 @@ Do:
 - Group buttons that perform related actions on the same object, like copy, cut, paste on selected text.
 - Use the same variant for all buttons in a group so they look like a single connected unit.
 - Keep groups small (2–4 buttons). For more actions, use a Toolbar or DropdownMenu instead.
-- Name the group for what its buttons act on. The label is the group\u2019s accessible name and a screen reader reads it before each member.
-- Keep the group a single Tab stop. Arrow keys move between members along the orientation, Home/End jump to the ends, and disabled members are skipped — the WAI-ARIA APG roving tabindex technique: https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/#kbd_roving_tabindex
+- Name the group for what its buttons act on. The label is the group's accessible name and a screen reader reads it before each member.
+- Keep the group a single Tab stop. Arrow keys move between members along the orientation, Home/End jump to the ends, and disabled members are skipped. This is the WAI-ARIA APG roving tabindex technique: https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/#kbd_roving_tabindex
 
 Don't:
 - Don't mix wildly different actions. A Save button next to a Delete button in the same group is confusing.
@@ -727,7 +727,7 @@ Props:
 - `maxWidth`: SizeValue — Maximum width of the card.
 - `minHeight`: SizeValue — Minimum height of the card.
 - `children`: ReactNode — Content to render inside the card.
-- `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 = 4 — Internal padding using the spacing scale.
+- `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 = the theme's card padding (spacing step 4 with no theme) — Internal padding using the spacing scale. Omit it and the card takes the theme's card padding rather than a step, so passing a step is a decision to override the theme, not a way to restate the default.
 - `variant`: 'default' | 'transparent' | 'muted' | 'blue' | 'cyan' | 'gray' | 'green' | 'orange' | 'pink' | 'purple' | 'red' | 'teal' | 'yellow' = 'default' — Background color variant. `default` uses the standard card background. `transparent` drops the background entirely. `muted` uses the muted background for de-emphasised cards. The non-semantic variants use the corresponding `--color-background-<name>` token.
 - `elevation`: 'none' | 'low' | 'med' | 'high' = 'none' — Resting shadow depth. `none` is flat; `low`/`med`/`high` map to the shadow token scale. Raise a card only when it needs to float above surrounding content.
 
@@ -1486,7 +1486,7 @@ Props:
 - `numberOfMonths`: 1 | 2 = 1 — Number of months displayed simultaneously in the calendar popover.
 - `weekStartsOn`: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' = 0 — First day of week in the calendar popover. A number (0 = Sunday to 6 = Saturday) or a three-letter day name.
 - `format`: 'date' | 'date_long' | 'date_weekday' | 'system_date' | ((value: ISODateString) => string) = 'date_long' — How the committed date value is displayed. Named values are reused from Timestamp's format vocabulary: 'date' shows 'Mar 21, 2026', 'date_long' shows 'March 21, 2026', 'date_weekday' shows 'Wed, Mar 21, 2026', 'system_date' shows '2026-03-21'. A function receives the ISO value and returns a custom string. Applies only to the committed value, never to text being typed.
-- `nativePicker`: 'touch' | 'always' | 'never' = 'touch' — Which surface draws the date picker. 'touch' (the default) hands a touch device to the browser/OS \u2014 the field becomes an input type=date and the platform draws the picker (the iOS wheel, the Android calendar dialog); 'always' does that wherever the browser supports input type=date; 'never' keeps Astryx's own pickers everywhere (the bottom-sheet picker on a finger, the calendar popover on a mouse). Use 'never' for a field that needs weekStartsOn, numberOfMonths or dateConstraints, none of which a native picker can express. format and placeholder still apply in native mode; min and max are forwarded, but a native picker may not show them (on iOS an out-of-range date can be selected and is refused on commit rather than greyed out).
+- `nativePicker`: 'touch' | 'always' | 'never' = 'touch' — Which surface draws the date picker. 'touch' (the default) hands a touch device to the browser/OS: the field becomes an input type=date and the platform draws the picker (the iOS wheel, the Android calendar dialog); 'always' does that wherever the browser supports input type=date; 'never' keeps Astryx's own pickers everywhere (the bottom-sheet picker on a finger, the calendar popover on a mouse). Use 'never' for a field that needs weekStartsOn, numberOfMonths or dateConstraints, none of which a native picker can express. format and placeholder still apply in native mode; min and max are forwarded, but a native picker may not show them (on iOS an out-of-range date can be selected and is refused on commit rather than greyed out).
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
@@ -1796,6 +1796,8 @@ Props:
 - `selectAllLabel`: string = 'Select all' — Label for the select-all checkbox.
 - `hasSearch`: boolean — Whether to show a search input for filtering options. As the user types, the match count (or "No results found") is announced to screen readers via a polite live region. The search field has built-in affordances: a leading magnifier icon and, once a query is typed, a trailing clear (✕) button that resets the query and returns focus to the input.
 - `searchPlaceholder`: string = 'Search...' — Placeholder text for the search input.
+- `emptyText`: ReactNode = 'No options' — Content shown in the dropdown panel when there are no options to show, and announced in a polite live region when the panel opens (a string override is announced verbatim; a richer node falls back to the default text). Not shown while isLoading.
+- `emptySearchText`: ReactNode = 'No results found' — Content shown in the dropdown panel when a search query matches no options, and announced in a polite live region at the same time (a string override is announced verbatim; a richer node falls back to the default text).
 - `isDisabled`: boolean — Disables the selector.
 - `htmlName`: string — The HTML name attribute for form submissions. Renders one hidden input per selected value, like a native multi-select.
 - `disabledMessage`: string — Explains why the selector is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the trigger focusable via aria-disabled (activation stays blocked). Use this instead of wrapping a disabled MultiSelector in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
@@ -1850,8 +1852,8 @@ Props:
 - `labelIcon`: IconType — Icon to display before the label text. See `astryx docs icons` for valid semantic names.
 - `status`: {type: 'error' | 'warning' | 'success', message?: string} — Validation status with optional message.
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing; tooltip hides the message box and surfaces it in a tooltip on the status icon.
-- `min`: number | null — Minimum value allowed.
-- `max`: number | null — Maximum value allowed.
+- `min`: number | null — Minimum value allowed. A smaller entry commits at this value on blur or Enter.
+- `max`: number | null — Maximum value allowed. A larger entry commits at this value on blur or Enter.
 - `step`: number | null = 1 — Step increment for the input.
 - `formatValue`: (value: number) => string — Formats the committed value while the input is not focused. The raw numeric value is shown on focus for editing and the formatted value is exposed through aria-valuetext.
 - `isWheelEnabled`: boolean = true — Whether scrolling the wheel over the focused input steps the value. Disable this when page scrolling should always take priority.
@@ -1979,6 +1981,8 @@ Props:
 - `hasClear`: boolean = false — Shows a clear (×) button when a value is selected. When true, onChange also accepts null to signal the user cleared the selection.
 - `hasSearch`: boolean = false — Whether to show a search input for filtering options. As the user types, the match count (or "No results found") is announced to screen readers via a polite live region. The search field has built-in affordances: a leading magnifier icon and, once a query is typed, a trailing clear (✕) button that resets the query and returns focus to the input.
 - `searchPlaceholder`: string = 'Search...' — Placeholder text for the search input.
+- `emptyText`: ReactNode = 'No options' — Content shown in the dropdown panel when there are no options to show, and announced in a polite live region when the panel opens (a string override is announced verbatim; a richer node falls back to the default text). Not shown while isLoading.
+- `emptySearchText`: ReactNode = 'No results found' — Content shown in the dropdown panel when a search query matches no options, and announced in a polite live region at the same time (a string override is announced verbatim; a richer node falls back to the default text).
 - `placeholder`: string = 'Select...' — Placeholder text shown when no value is selected.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant for the selector.
 - `variant`: 'input' | 'ghost' = 'input' — Visual trigger style. input is the bordered input treatment for forms; ghost is borderless and matches ghost buttons for toolbar usage.
@@ -3076,7 +3080,7 @@ Do:
 - Use `fit="cover"` for images and video so the component sizes the child; the child should not repeat `width`/`height`/`objectFit` styles.
 - Pass one child. With `fit` set, every direct child is stretched to fill the box, so put an overlay or caption inside a single wrapper child rather than passing it as a second child.
 - Describe media children with `alt`, or `alt=""` when the image is decorative. AspectRatio adds no role and no accessible name of its own, so the child carries the whole accessible description.
-- For a breakpoint-dependent ratio, override the ratio responsively: pass an `aspectRatio` rule via `xstyle` (StyleX), or override `aspect-ratio` from your own unlayered CSS under a `@media`/`@container` rule — component styles live in the `astryx-base` cascade layer, so unlayered consumer CSS wins. Give an `xstyle` rule a `default` branch alongside the conditional one (`{default: 3, '@container ...': '3 / 2'}`) — with only the conditional branch the ratio is unset outside the query and the box collapses.
+- For a breakpoint-dependent ratio, override the ratio responsively: pass an `aspectRatio` rule via `xstyle` (StyleX), or override `aspect-ratio` from your own unlayered CSS under a `@media`/`@container` rule; component styles live in the `astryx-base` cascade layer, so unlayered consumer CSS wins. Give an `xstyle` rule a `default` branch alongside the conditional one (`{default: 3, '@container ...': '3 / 2'}`); with only the conditional branch the ratio is unset outside the query and the box collapses.
 
 Don't:
 - Use for general layout containers; use standard layout components instead.
@@ -4054,12 +4058,13 @@ Props:
 
 Import: `import {AlertDialog} from '@astryxdesign/core/AlertDialog';`
 
-AlertDialog asks the user to confirm a destructive or irreversible action before it happens. Use it for things like deleting content, revoking access, or discarding unsaved changes.\n\nIt implements the WAI-ARIA APG [Alert Dialog pattern](https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/): `role="alertdialog"`, a title linked by `aria-labelledby`, a consequence description linked by `aria-describedby`, focus moved into the dialog on open and returned to the trigger on close, and no dismissal by clicking outside. Escape cancels.\n\nFor cases where you want to show an alert without managing open state, use the `useImperativeAlertDialog` hook: call `alert.show(options)` and render `alert.element` in your tree.
+AlertDialog asks the user to confirm a destructive or irreversible action before it happens. Use it for things like deleting content, revoking access, or discarding unsaved changes.\n\nIt implements the WAI-ARIA APG [Alert Dialog pattern](https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/): `role="alertdialog"`, a title linked by `aria-labelledby`, a consequence description linked by `aria-describedby`, focus moved into the dialog on open and returned to the trigger on close, and no dismissal by clicking outside. Escape cancels.\n\nAlertDialog passes its requested width through to Dialog, which clamps the surface to the container and dynamic viewport with token gutters. Generic Dialog footers should wrap, but Dialog does not own action semantics or order; consumer composition controls that. AlertDialog owns its confirmation semantics: above 640px, actions render horizontally and may move onto another row; at 640px and below, the destructive action appears above Cancel and both buttons fill the footer width. Button labels retain their standard single-line behavior. The breakpoint follows available width, not pointer or hover capability. The body scrolls when block space is constrained.\n\nFor cases where you want to show an alert without managing open state, use the `useImperativeAlertDialog` hook: call `alert.show(options)` and render `alert.element` in your tree.
 
 Do:
 - Make the action button label specific: "Delete project" is better than "OK" or "Confirm".
 - Describe what will happen in the description so the user knows the consequences before confirming.
-- Keep the cancel button first: it takes initial focus, so the least destructive choice is the one already selected when the dialog opens.
+- Keep the cancel button as the least-destructive focus target. On narrow screens the destructive action is visually and structurally above Cancel, but Cancel still receives initial focus.
+- Use concise, specific action labels. Above 640px, complete buttons may move onto another row; at 640px and below, the destructive action appears above Cancel and both buttons fill the footer width.
 
 Don't:
 - Use AlertDialog for non-destructive actions; use a standard Dialog instead.
@@ -4076,7 +4081,7 @@ Props:
 - `cancelLabel`: string = 'Cancel' — Cancel button label.
 - `actionVariant`: ButtonVariant = 'destructive' — Action button variant.
 - `isActionLoading`: boolean — Shows loading spinner on the action button.
-- `width`: number | string = 400 — Dialog width.
+- `width`: number | string = 400 — Requested dialog width. Dialog preserves this preferred width and clamps it to the container and dynamic viewport with token gutters.
 - `isInline`: boolean = false — Renders alert dialog content inline without modal behavior. For documentation previews and showcases only. Not being a modal, the inline path renders role="group" instead of role="alertdialog".
 
 ### BottomSheet
@@ -4787,7 +4792,7 @@ Props:
 - `variant`: 'pages' | 'count' | 'compact' | 'dots' | 'none' = 'pages' — Visual variant for the pagination controls.
 - `position`: 'below' | 'above' | 'both' | 'none' = 'below' — Where to render pagination controls relative to the table.
 - `align`: 'start' | 'center' | 'end' = 'center' — Horizontal alignment of the pagination controls.
-- `label`: string = 'Table pagination' — Accessible name for the pagination nav landmark. With position='both' the two navs get distinct names — the label suffixed as '(top)' and '(bottom)' — so same-type landmarks stay unique (axe landmark-unique).
+- `label`: string = 'Table pagination' — Accessible name for the pagination nav landmark. With position='both' the two navs get distinct names (the label suffixed as '(top)' and '(bottom)') so same-type landmarks stay unique (axe landmark-unique).
 
 ### useTableRowExpansion (subcomponent/hook)
 

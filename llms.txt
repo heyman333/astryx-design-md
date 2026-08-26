@@ -2,14 +2,14 @@
 
 > Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 220 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 
-Generated from commit `8d45788` (2026-08-24) of https://github.com/facebook/astryx.
+Generated from commit `e3259c9` (2026-08-25) of https://github.com/facebook/astryx.
 
 Key facts:
 
 - Requires React 19+; `react` and `react-dom` are peer dependencies of `@astryxdesign/core`.
 - Install: `npm install @astryxdesign/core @astryxdesign/theme-neutral @stylexjs/stylex` plus `npm install -D @astryxdesign/cli`.
 - Styles are authored in StyleX but overridable with plain `className` (Tailwind, CSS Modules, plain CSS).
-- A theme is a set of CSS custom-property overrides; themes: butter, chocolate, gothic, matcha, neutral, stone, y2k.
+- A theme is a set of CSS custom-property overrides; themes: butter, chocolate, gothic, matcha, neutral, probe, stone, y2k.
 - `astryx swizzle <Name>` ejects a component's source into your project for deep customization.
 - CLI bootstrap for agents: `astryx docs principles --dense`, `astryx docs tokens --dense`, `astryx docs theme --dense`, `astryx component --list`, `astryx component <Name> --dense`.
 - Inputs are controlled: pass `value` + `onChange` (no `defaultValue`/`defaultChecked`). Wrap the app in `<Theme theme={neutralTheme}>` (theme object from `@astryxdesign/theme-*/built`).
@@ -59,7 +59,7 @@ Key facts:
 ## Optional
 
 - [llms-full.txt](llms-full.txt): Full per-component reference — props, types, defaults, and do/don't guidance for every component, generated from the same commit
-- [Themes source](https://github.com/facebook/astryx/tree/main/packages/themes): Seven theme packages (butter, chocolate, gothic, matcha, neutral, stone, y2k)
+- [Themes source](https://github.com/facebook/astryx/tree/main/packages/themes): Seven theme packages (butter, chocolate, gothic, matcha, neutral, probe, stone, y2k)
 - [Example apps](https://github.com/facebook/astryx/tree/main/apps): docsite, example-nextjs, example-nextjs-source, example-nextjs-stylex, example-nextjs-tailwind, example-vite, example-vite-tailwind, sandbox, storybook, template-viewer
 - [Internal tooling](https://github.com/facebook/astryx/tree/main/internal): test utils, eslint plugin, StyleX capability scanner, vibe tests
 - [Security policy](https://github.com/facebook/astryx/blob/main/SECURITY.md): Reporting vulnerabilities

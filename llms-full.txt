@@ -1,10 +1,10 @@
 # Astryx — Full Component Reference
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 220 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 227 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `e3259c9` (2026-08-25) of https://github.com/facebook/astryx.
+Generated from commit `6f7da5c` (2026-08-27) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -18,6 +18,25 @@ Key facts:
 - Layout spacing uses a numeric scale: `gap={4}` / `padding={6}` (steps 0–10), not `gap="md"`. Components have no `style` prop — use `xstyle` or size props (`width`, `maxWidth`).
 
 Every component below is importable from its subpath (shown per component) and also from the package root `@astryxdesign/core`. Entries marked (subcomponent/hook) compose with their parent component.
+
+## Accessibility
+
+### useAnnounce
+
+Import: `import {useAnnounce} from '@astryxdesign/core/hooks';`
+
+Imperatively announces a message to screen readers through a visually-hidden live region. Use it for state that is only conveyed visually; search result counts, "no results", loading and saved confirmations, validation errors (WCAG 4.1.3 Status Messages). The polite and assertive regions are created empty on first use and stay mounted, which is what makes announcements reliable: most screen readers ignore a live region that is inserted together with its content. Each message is cleared a couple of seconds after it is announced so stale status does not linger in the accessibility tree.
+
+Do:
+- Reach for this instead of hand-rolling an aria-live div; a region rendered with its content usually does not announce at all.
+- Keep "polite" for status and result counts; reserve "assertive" for errors and time-sensitive alerts, since it interrupts whatever the screen reader is saying.
+- Announce the outcome, not the interaction; "12 results" rather than "search ran".
+
+Don't:
+- Announce content that is already visible and correctly labeled in the DOM; that doubles up for screen reader users.
+
+Returns:
+- `announce`: (message: string, politeness?: "polite" | "assertive") => void — Speaks a message through the shared live region. Politeness defaults to "polite"; an empty message clears any lingering status instead of announcing.
 
 ## Action
 
@@ -1325,7 +1344,7 @@ Props:
 - `max`: ISODateString — Maximum selectable date.
 - `dateConstraints`: Array<(date: Date) => boolean> — Custom constraint functions.
 - `maxRangeSpan`: number — Range mode: max days a range may span, both endpoints counted (7 = a 7-day window). Caps the window from the picked start; before a start is picked every day stays selectable.
-- `minRangeSpan`: number — Range mode: min days a range must span, both endpoints counted (2 forbids a single-day range). Default 1.
+- `minRangeSpan`: number — Range mode: min days a range must span, both endpoints counted (2 forbids a single-day range). Clicking the start again commits a one-day range when allowed, or cancels the in-progress selection when the minimum is longer. Default 1.
 - `focusDate`: ISODateString — Controlled visible month. Unset, the calendar opens on the selected date, else on today clamped into the min/max window.
 - `onFocusDateChange`: (focusDate: ISODateString) => void — Navigation callback.
 - `handleRef`: React.Ref<CalendarHandle> — Imperative handle for calendar navigation, including navigateTo().
@@ -1523,7 +1542,7 @@ Props:
 - `max`: ISODateString — Maximum selectable date. Same template literal type as `min`: use a YYYY-MM-DD string literal or cast with `as ISODateString`.
 - `dateConstraints`: Array<(date: Date) => boolean> — Custom constraint functions to disable specific dates.
 - `maxRangeSpan`: number — Maximum days a selected range may span, counting both endpoints (`7` = a 7-day window, start + 6). Once a start is picked, days beyond this distance are disabled so the range cannot stretch past the cap. Rolling window relative to the start; for fixed calendar bounds use `min`/`max`. Constrains selection only; it never rewrites a `value` already wider than the cap (flag that with `status`).
-- `minRangeSpan`: number — Minimum days a selected range must span, counting both endpoints (`2` forbids a single-day range). Once a start is picked, days closer than this are disabled. Defaults to 1 (same-day start and end allowed).
+- `minRangeSpan`: number — Minimum days a selected range must span, counting both endpoints (`2` forbids a single-day range). Once a start is picked, days closer than this are disabled. Clicking the start again commits a one-day range when allowed, or cancels the in-progress selection when the minimum is longer. Defaults to 1 (same-day start and end allowed).
 - `presets`: Array<DateRangePreset> — Preset ranges shown as quick-select options beside the calendar.
 - `hasClear`: boolean = true — Shows a clear button when a range is selected.
 - `placeholder`: string = 'Select date range' — Placeholder text when no range is selected.
@@ -1836,7 +1855,7 @@ Don't:
 Props:
 - `label`: string (required) — Label text for the input (always rendered for accessibility).
 - `value`: number | null | undefined (required) — Current value of the input.
-- `onChange`: (value: number) => void (required) — Callback fired when input value changes (only on valid input).
+- `onChange`: (value: number) => void (required) — Callback fired when a valid text edit commits on blur or Enter, or when a step or clear control changes the value.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant.
 - `isLabelHidden`: boolean — Visually hide the label (still accessible to screen readers).
 - `description`: string — Description text displayed between the label and input.
@@ -2260,8 +2279,9 @@ Props:
 - `isOptional`: boolean = false — Shows an optional indicator on the label.
 - `labelTooltip`: string — Tooltip text shown on the label.
 - `hasEntriesOnFocus`: boolean = false — Show bootstrap results on focus before typing.
-- `maxMenuItems`: number = 10 — Maximum number of dropdown items to display.
+- `maxMenuItems`: number = 10 — Maximum number of search results to display. The hasCreate entry is offered on top of them, so a menu can show one more than this.
 - `menuWidth`: number — Fixed dropdown width in pixels. The menu never shrinks below its anchor width.
+- `minQueryLength`: number = 1 — Minimum query length before the search source is queried. Below it no search runs, and the menu stays closed — unless hasCreate is set, in which case the "Create ..." entry is still offered, being derived from the typed text rather than fetched for it.
 - `emptySearchResultsText`: string = 'No results found' — Text shown when search returns no results.
 - `hasAutoFocus`: boolean = false — Auto-focus the input on mount.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Input and token size.
@@ -2306,6 +2326,7 @@ Props:
 - `isDisabled`: boolean = false — Disables the input.
 - `disabledMessage`: string — Explains why the input is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the field focusable via aria-disabled (activation stays blocked). Use this instead of wrapping a disabled Typeahead in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
 - `maxMenuItems`: number = 10 — Maximum number of dropdown items to display.
+- `minQueryLength`: number = 1 — Minimum query length before the search source is queried. Below it no search runs and the menu stays closed.
 - `status`: {type: 'warning' | 'error' | 'success', message?: string} — Validation status object with type and message for error/warning/success states.
 - `statusVariant`: 'attached' | 'detached' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing.
 - `renderItem`: (item: T) => ReactNode — Custom render function for dropdown items. Default renders TypeaheadItem.
@@ -2348,6 +2369,7 @@ Props:
 - `hasEntriesOnFocus`: boolean = false — Show bootstrap results on focus before typing.
 - `maxMenuItems`: number = 10 — Maximum dropdown items to display.
 - `menuWidth`: number — Fixed dropdown width in pixels. The menu never shrinks below its anchor width.
+- `minQueryLength`: number = 1 — Minimum query length before the search source is queried. Below it no search runs and the menu stays closed.
 - `emptySearchResultsText`: string = 'No results found' — Text shown when search returns no results.
 - `isDisabled`: boolean = false — Whether the input is disabled.
 - `hasAutoFocus`: boolean = false — Auto-focus the input on mount.
@@ -2486,6 +2508,7 @@ Props:
 - `icon`: ReactNode — Override the default status icon.
 - `isDismissable`: boolean = false — Whether the banner can be dismissed by the user.
 - `onDismiss`: () => void — Called when the dismiss button is clicked; banner hides itself regardless of whether this is provided.
+- `dismissLabel`: string — Accessible name and visible tooltip for the dismiss button (pass it already translated). Defaults to "Dismiss <title>" for a string title, so stacked banners are distinguishable; set it when the title is a ReactNode.
 - `endContent`: ReactNode — Action content rendered in the header area, end-aligned. Wraps to its own row below the text when the header is too narrow to hold both.
 - `container`: 'card' | 'section' = 'card' — Container type: card has border-radius; section is full-width with no border-radius for page-level use.
 - `elevation`: 'none' | 'low' | 'med' | 'high' = 'none' — Resting shadow depth. Use for a floating banner that hovers above content; `none` is the default inline banner. A `card`-container banner rounds its shadow to match.
@@ -2649,6 +2672,26 @@ Returns:
 - `focusFirst`: () => void — Focus the first focusable cell in the grid.
 - `focusLast`: () => void — Focus the last focusable cell in the grid.
 
+### useIndicatorFocusRing
+
+Import: `import {useIndicatorFocusRing} from '@astryxdesign/core/hooks';`
+
+Draws the standard focus ring on the indicator of a control whose real input is visually hidden; a checkbox or radio focuses an opacity-0 input, so the ring has to appear on the picture beside it. The ring is painted imperatively on the indicator's own element, which is the only element whose border-radius can shape it, and only on :focus-visible, so pointer clicks stay quiet. Owning it here means a theme-supplied indicator cannot ship a control with no visible focus (WCAG 2.4.7) by ignoring a prop.
+
+Do:
+- Wrap only the indicator in the ref'd element; a wrapper holding label text would ring the whole row.
+- Spread focusProps on the element that contains the hidden input, not on the input itself.
+
+Don't:
+- Ask a themeable indicator to draw its own focus ring; a replacement that ignores the prop leaves the control with no visible focus.
+
+Parameters:
+- `containerRef`: RefObject<HTMLElement | null> (required) — Ref to an element wrapping only the indicator, so its single element child is unambiguously the thing to ring.
+- `isDisabled`: boolean = false — Skip the ring; a disabled control is not focusable.
+
+Returns:
+- `focusProps`: {onFocus: (event: FocusEvent<HTMLElement>) => void; onBlur: () => void} — Spread onto the element that owns the focusable input.
+
 ### useKeyboardHint
 
 Import: `import {useKeyboardHint} from '@astryxdesign/core/hooks';`
@@ -2741,6 +2784,32 @@ Returns:
 - `handleFocus`: (e: React.FocusEvent) => void — Focus handler to attach to the container's onFocus. Keeps the roving tab stop in sync when hasRovingTabIndex is enabled; a no-op otherwise, so always safe to attach.
 - `focusFirst`: () => void — Focus the first enabled visible treeitem.
 - `focusLast`: () => void — Focus the last enabled visible treeitem.
+
+### useTypeahead
+
+Import: `import {useTypeahead} from '@astryxdesign/core/hooks';`
+
+Adds APG type-to-focus search to a collection: printable keystrokes are buffered (resetting after a pause), and the first item whose label starts with the buffer is reported through onMatch. Pressing the same letter repeatedly cycles through the matches rather than filtering deeper. It moves nothing itself; pair it with the collection's own focus management, most often useListFocus or useGridFocus.
+
+Do:
+- Wire onMatch to the focus manager you already have (useListFocus.focusItem) instead of moving focus yourself.
+- Let it see the key event first and fall through to arrow-key navigation only when it returns false.
+- Pass getCurrentIndex so repeated presses of one letter walk through matches instead of sticking on the first.
+
+Don't:
+- Use it on a text input; the field already receives the characters, and typeahead would fight the value.
+
+Parameters:
+- `options`: UseTypeaheadOptions (required) — Configuration object.
+- `options.getItemLabels`: () => ReadonlyArray<string | null | undefined> (required) — Returns the item labels in DOM order. A null or empty entry marks a non-matchable slot and keeps indices aligned with the caller's items.
+- `options.onMatch`: (index: number) => void (required) — Called with the index of the matched item so the caller can focus or select it; typically useListFocus's focusItem.
+- `options.getCurrentIndex`: () => number = () => -1 — The index to search from, usually the focused item, so repeated presses of one letter cycle through matches. A negative value means nothing is current.
+- `options.resetMs`: number = 750 — Milliseconds of inactivity after which the typed buffer resets.
+- `options.isDisabled`: (index: number) => boolean — Whether an index should be skipped, e.g. disabled items.
+
+Returns:
+- `onKeyDown`: (e: React.KeyboardEvent | KeyboardEvent) => boolean — Keydown handler. Returns true when it consumed a printable character, so the caller can stop its own key handling.
+- `reset`: () => void — Clears the pending buffer, e.g. when the collection closes.
 
 ## Interaction
 
@@ -2918,6 +2987,52 @@ Returns:
 - `onClick`: (event: MouseEvent<HTMLElement>) => void — Click handler to attach to the container wrapper.
 - `onMouseUp`: (event: MouseEvent<HTMLElement>) => void — Mouse up handler to attach to the container wrapper.
 
+### useInputStatusIcon
+
+Import: `import {useInputStatusIcon} from '@astryxdesign/core/hooks';`
+
+Builds the on-field status affordance for a bordered input and its accessibility wiring, so every input in the family behaves the same for a given status. The attached variant renders a plain glyph and leaves the text to the message box; the detached variant renders nothing here, because the message box already carries its own icon; the tooltip variant renders a real focusable button whose tooltip is reachable by keyboard, pointer, touch and assistive tech. Use it when building a bordered input, not for field-level messaging.
+
+Do:
+- Render statusIcon inside the input container and merge describedBy into the control's aria-describedby list.
+- Let it decide when nothing should render; pass isInGroup and the variant through rather than branching at the call site.
+
+Don't:
+- Use it to convey the status by icon alone; the tooltip variant is the only one that carries the message, so the others still need a message box.
+
+Parameters:
+- `options`: UseInputStatusIconOptions (required) — Configuration object.
+- `options.status`: InputStatus — The input's status (type plus message), or undefined when there is none.
+- `options.statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status is presented relative to the input.
+- `options.isInGroup`: boolean = false — Whether the input sits inside an InputGroup, which owns status rendering itself.
+- `options.size`: IconSize = 'md' — Size of the on-field icon.
+
+Returns:
+- `statusIcon`: ReactNode — The affordance to render inside the input container: a plain icon, or a focusable info-tip button with its tooltip. Null when no icon should render.
+- `describedBy`: string | undefined — ID to add to the input's aria-describedby, present exactly when a tooltip element is in the DOM, so there is never a dangling reference.
+
+### useInteractiveRole
+
+Import: `import {useInteractiveRole} from '@astryxdesign/core/hooks';`
+
+Resolves what a polymorphic component should render as, in one place: href wins, then onClick, then an interactive trigger context supplied by a parent (Popover, DropdownMenu and friends), then inert. Use it in any component that is sometimes a link, sometimes a button, and sometimes plain content; Token, Thumbnail, Item and ClickableCard all do. Because context is part of the resolution, a component built on it becomes a valid trigger for new surfaces without changing.
+
+Do:
+- Switch on the returned role to pick the element, and render an anchor only for "link" so keyboard and middle-click behavior come from the platform.
+- Pass isDisabled through rather than dropping the href yourself; the hook already keeps disabled links out of the tab order.
+
+Don't:
+- Add another ad-hoc href/onClick precedence check in a component; new trigger contexts are added here so every consumer inherits them.
+
+Parameters:
+- `options`: UseInteractiveRoleOptions (required) — The interactivity inputs the component received.
+- `options.href`: string — URL for navigation. Highest priority: with an href the component is a link.
+- `options.onClick`: ((...args: never[]) => unknown) | null — Click handler. Resolves to a button, ahead of any context-provided role.
+- `options.isDisabled`: boolean = false — When true, href is ignored for role resolution (a disabled link is an anti-pattern), so the role comes from onClick, then context, then inert.
+
+Returns:
+- `role`: 'link' | 'button' | 'inert' — The element the component should render: an anchor, a button, or a non-interactive span/div.
+
 ### useLayer
 
 Import: `import {useLayer} from '@astryxdesign/core/Layer';`
@@ -2947,6 +3062,29 @@ Returns:
 - `isOpen`: boolean — Whether the layer is currently open.
 - `id`: string — Unique ID for aria-describedby or other ARIA relationships.
 - `render`: (children: ReactNode, props: ContextRenderProps | FixedRenderProps) => ReactNode — Render function for the popover element. Pass placement/alignment in context mode or x/y in fixed mode. Placement/alignment are logical: they map to the self-* position-area keyword family, which resolves against the popover's own inherited direction, so RTL contexts mirror automatically in pure CSS. Pass `positioning: "custom"` in context mode to author position styles yourself via `style` (e.g. explicit anchor() insets or an anchor-size() cover): the hook keeps the popover behavior and position-anchor wiring but derives no position styles, including the automatic RTL mirroring, which becomes your responsibility. Pass `offset` (a CSS length; a number is px) in context mode for clearance from the anchor: it applies to both edges of the placement axis, so the gap survives a flip. Layers are flush by default. Context mode first renders an inert `<template>` marker in matching server and client markup. The final layer stays at that JSX position if its parent is safe; otherwise it is portaled to the nearest ancestor outside paragraphs, links, buttons, inline formatting, and structurally restricted containers. The nearest safe host keeps CSS custom properties inheriting live, while the layer preserves direction and writing mode from its JSX position. By default this resolution occurs after hydration so closed-layer DOM remains available; `lazyMount` defers it until `show()` and unmounts the content again on hide while the marker remains. The Popover API promotes the layer to the top layer when shown, so it escapes ancestor clipping and stacking wherever it is hosted. When the layer would overflow the viewport, position-try fallbacks flip it to the opposite side; centered layers additionally slide along the alignment axis (span fallbacks) so they stay on-screen near viewport edges.
+
+### useLongPress
+
+Import: `import {useLongPress} from '@astryxdesign/core/hooks';`
+
+Detects a single-finger press-and-hold and reports where it happened, so touch users can reach affordances that a pointer gets from right-click. iOS Safari never synthesizes a contextmenu event on long-press, which makes this the only touch route into a cursor-positioned surface such as ContextMenu. The press cancels on movement, lift, multi-touch or unmount.
+
+Do:
+- Use the reported point to position the surface you open, so it appears under the finger.
+- Pair it with the pointer contextmenu handler rather than replacing it; this hook only covers touch.
+
+Don't:
+- Use it for the primary action of a control; press-and-hold is undiscoverable as the only way to do something.
+
+Parameters:
+- `options`: UseLongPressOptions (required) — Configuration object.
+- `options.onLongPress`: (point: {x: number; y: number}) => void (required) — Fired with the touch start point once the press is held for delayMs.
+- `options.disabled`: boolean = false — When true, the returned touch handlers are inert.
+- `options.delayMs`: number = 500 — Hold duration before the press fires, in milliseconds.
+- `options.moveCancelPx`: number = 10 — Movement past this distance on either axis cancels the press, treating it as a scroll or drag.
+
+Returns:
+- `handlers`: UseLongPressHandlers — onTouchStart, onTouchMove, onTouchEnd and onTouchCancel to spread onto the target element.
 
 ### usePopover
 
@@ -3457,7 +3595,10 @@ Parameters:
 - `maxSizePx`: number = Infinity — Maximum size in pixels.
 - `collapsible`: boolean = false — Whether dragging below the collapsed threshold collapses the region to zero.
 - `snaps`: number[] — Pixel values to snap to during drag.
-- `autoSaveId`: string — Key for localStorage persistence of size across sessions.
+- `autoSaveId`: string — Key for localStorage persistence of size and collapse state across sessions.
+- `defaultIsCollapsed`: boolean = false — Initial collapse state (uncontrolled). A persisted entry wins over it.
+- `isCollapsed`: boolean — Controlled collapse state. collapse(), expand() and a drag past the threshold then report through onCollapseChange instead of changing state internally.
+- `onCollapseChange`: (isCollapsed: boolean) => void — Called once per collapse state change, via drag or programmatically.
 
 Returns:
 - `size`: number — Current size in pixels.
@@ -3783,7 +3924,7 @@ Props:
 - `footer`: ReactNode — Footer area above the icon bar.
 - `footerIcons`: ReactNode — Footer icon bar. The row cascades a 'sm' size to the interactive children it contains, so its icons and the built-in collapse button come out one height; pass an explicit size on a child to opt out.
 - `collapsible`: boolean | { defaultIsCollapsed?: boolean; isCollapsed?: boolean; onCollapsedChange?: (isCollapsed: boolean) => void; hasButton?: boolean; buttonLabel?: string } = false — Enables collapse behavior. true for uncontrolled with default toggle button, or an object for controlled mode and advanced config (defaultIsCollapsed, isCollapsed + onCollapsedChange, hasButton, buttonLabel). A controlled config can also be passed to a SideNavCollapseButton rendered outside this SideNav, so both share one state.
-- `resizable`: boolean | { defaultWidth?: number; minWidth?: number; maxWidth?: number; autoSaveId?: string; onWidthChange?: (width: number) => void } = false — Enables a resize handle at the inline-end edge. true for defaults (260px initial, 180-480px range), or a ResizableConfig object (defaultWidth, minWidth, maxWidth, autoSaveId for localStorage persistence, onWidthChange). The handle is hidden while collapsed.
+- `resizable`: boolean | { defaultWidth?: number; minWidth?: number; maxWidth?: number; autoSaveId?: string; onWidthChange?: (width: number) => void; defaultIsCollapsed?: boolean; isCollapsed?: boolean; onCollapseChange?: (isCollapsed: boolean) => void } = false — Enables a resize handle at the inline-end edge. true for defaults (260px initial, 180-480px range), or a ResizableConfig object (defaultWidth, minWidth, maxWidth, autoSaveId for localStorage persistence of width and collapse state, onWidthChange). It can also own collapse state (defaultIsCollapsed, isCollapsed + onCollapseChange); when both props carry collapse state, resizable wins and a dev warning names the conflicting keys. The handle is hidden while collapsed.
 - `handleRef`: Ref<SideNavImperativeCollapseHandle> — Deprecated. Imperative collapse handle for SideNavCollapseButton instances rendered outside this SideNav; hand both the same controlled collapsible config instead. Separate from `ref`, which continues to expose the root HTMLElement.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 
@@ -4311,11 +4452,11 @@ Props:
 
 Import: `import {Toast} from '@astryxdesign/core/Toast';`
 
-Toast shows a brief, non-blocking notification to confirm an action or present temporary information. Use it for scenarios where the user needs feedback but not a decision, such as saving, deleting, or changing a status.\n\nFor production use, prefer the `useToast()` hook; it handles positioning, stacking, auto-dismiss, and deduplication via `ToastViewport`. The `Toast` component renders the visual toast element inline and is useful for previews, documentation, and static showcases where the viewport lifecycle is not needed.
+Toast shows a brief, non-blocking notification to confirm an action or present temporary information. Use it for scenarios where the user needs feedback but not a decision, such as saving, deleting, or changing a status.\n\nFor production use, prefer the `useToast()` hook; it handles positioning, stacking, auto-dismiss, and deduplication via `ToastViewport`. Toasts stay within viewport and safe-area gutters, wrap long message content, and enter or exit toward their configured top or bottom edge. Set `isAutoHide: false` explicitly when an action or message must remain available. The `Toast` component renders the visual toast element inline and is useful for previews, documentation, and static showcases where the viewport lifecycle is not needed.
 
 Do:
 - Keep messages short: only a few words that tell the user what happened, like "Changes saved" or "Message sent".
-- Add an undo action in the endContent slot for reversible operations like deleting an item, so the user can recover without navigating away.
+- Add a short undo action in the endContent slot for reversible operations. Set isAutoHide to false when the action must remain available.
 - Use uniqueID to deduplicate toasts that fire from repeated actions, like clicking a save button multiple times.
 - Use error type for failures that need attention but not immediate action; it persists until dismissed so the user won't miss it.
 
@@ -4328,8 +4469,8 @@ Props:
 - `body`: ReactNode (required) — Primary message content.
 - `type`: 'info' | 'error' = 'info' — Toast type controlling background color. Error toasts persist until dismissed.
 - `isAutoHide`: boolean — Whether the toast auto-dismisses. Defaults to true for info, false for error.
-- `autoHideDuration`: number = 5000 — Duration in ms before auto-dismiss.
-- `endContent`: ReactNode — Content rendered at the trailing end (e.g. Undo button, link).
+- `autoHideDuration`: number = 5000 — Duration in ms before auto-dismiss. Timed content must satisfy WCAG 2.2.1.
+- `endContent`: ReactNode — Content rendered at the trailing end (e.g. Undo button, link). Keep action labels short.
 - `uniqueID`: string — Unique identifier for deduplication.
 - `collisionBehavior`: 'overwrite' | 'ignore' = 'overwrite' — Behavior when a toast with matching uniqueID already exists.
 - `onHide`: (reason: "auto" | "manual") => void — Callback fired when the toast is removed.
@@ -4628,7 +4769,7 @@ Props:
 - `plugins`: Record<string, TablePlugin<T>> — Named plugins that extend table behavior via the transform pipeline. Converted to an ordered array internally.
 - `rowIndexStart`: number = 1 — ARIA row index (1-based) for the first rendered body row. The row ordinal is an accessibility concern independent of any visible index column, so setting this (or rowCount) makes the table emit aria-rowindex on body rows and aria-rowcount on the table. For a paginated/windowed view, pass the offset of the first visible row (e.g. (page - 1) * pageSize + 1) so aria-rowindex reflects position in the full dataset. Data-driven mode only.
 - `rowCount`: number — Total number of body rows across all pages/windows, used for aria-rowcount so assistive tech can announce "row X of Y" against the full dataset. When omitted but rowIndexStart is set (windowed view with an unknown total), aria-rowcount is set to -1 per the ARIA unknown-count convention. Data-driven mode only.
-- `children`: ReactNode — Children mode: compose the table yourself from TableHeader / TableBody / TableFooter, each holding TableRow and TableCell, instead of using data-driven rendering. The children are passed straight to the <table>, so the section is yours to supply — a TableRow placed directly in Table emits <table><tr>, which is invalid HTML and mismatches on hydration (the parser inserts an implied <tbody> for server-rendered markup; React does not on the client). Data-driven mode renders the sections for you.
+- `children`: ReactNode — Children mode: compose the table yourself from TableHeader / TableBody / TableFooter, each holding TableRow and TableCell, instead of using data-driven rendering. The children are passed straight to the <table>, so the section is yours to supply. A TableRow placed directly in Table emits <table><tr>, which is invalid HTML and mismatches on hydration (the parser inserts an implied <tbody> for server-rendered markup; React does not on the client). Data-driven mode renders the sections for you.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 
 ### TreeList
@@ -4835,7 +4976,7 @@ Props:
 - `getIsItemSelectable`: (item: T) => boolean = () => true — Returns whether a row should show a checkbox. Non-selectable rows render nothing in the selection cell.
 - `getIsItemEnabled`: (item: T) => boolean = () => true — Returns whether a row checkbox is interactive. Disabled rows show a disabled checkbox.
 - `getRowLabel`: (item: T) => string — Derives a human-readable identity for a row; the row checkbox's hidden label becomes `Select ${getRowLabel(item)}` so screen readers announce which row each checkbox selects. Falls back to "Select row" when omitted.
-- `hasRowHighlight`: boolean = true — Paints checked rows with the accent wash. Set false when the surrounding UI already uses row background to mean something else (a row open in a detail panel, say) — the wash is an inline style, so it cannot be overridden from userland. Only the background is dropped: aria-selected is still set on checked rows either way.
+- `hasRowHighlight`: boolean = true — Paints checked rows with the accent wash. Set false when the surrounding UI already uses row background to mean something else (a row open in a detail panel, say). The wash is an inline style, so it cannot be overridden from userland. Only the background is dropped: aria-selected is still set on checked rows either way.
 
 ### useTableSelectionState (subcomponent/hook)
 
@@ -5054,6 +5195,24 @@ Props:
 - `theme`: DefinedTheme (required) — Theme object to apply. Prefer built theme objects for static production themes; use runtime `defineTheme()` for dynamic themes.
 - `mode`: 'light' | 'dark' | 'system' = 'system' — Color mode. System follows OS preference.
 - `children`: ReactNode (required) — Content to render with the theme.
+
+### useDevWarning
+
+Import: `import {useDevWarning} from '@astryxdesign/core/hooks';`
+
+Fires a dev-only "Component: message" console warning once per mount while the condition holds. It is the render-safe way for a component to flag misuse: warning straight from the render body repeats on every render, and gating it with state adds a re-render, so this uses a ref and an effect instead. For a warning outside a component, use the imperative devWarn utility.
+
+Do:
+- Say what is wrong and what the builder should do instead; the message is the whole value of the warning.
+- Warn about combinations the types cannot express, such as two mutually exclusive props being set together.
+
+Don't:
+- Use it for anything a user could see or for runtime error handling; it is stripped from production builds.
+
+Parameters:
+- `component`: string (required) — Component or hook name, used as the message prefix.
+- `message`: string (required) — What went wrong and how to fix it.
+- `condition`: boolean = true — Whether to warn.
 
 ### useMergedRefs
 

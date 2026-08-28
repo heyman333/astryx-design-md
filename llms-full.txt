@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `6f7da5c` (2026-08-27) of https://github.com/facebook/astryx.
+Generated from commit `9362563` (2026-08-27) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -760,6 +760,7 @@ Do:
 - Enable scroll-snap when each item should land precisely at the start edge, like a gallery or product list.
 - Reach for hasLoop on small, cyclable sets like a photo gallery, where wrapping past the last item back to the first feels natural.
 - Always provide an aria-label that describes what the carousel contains, like "Featured products" or "Team members".
+- Carousel implements the WAI-ARIA APG carousel pattern (https://www.w3.org/WAI/ARIA/apg/patterns/carousel/) without auto-rotation: the region is labelled and carries aria-roledescription="carousel", each item is a group named "Slide N of M", and the scroll container is a tab stop so keyboard users can pan it with the arrow keys.
 - Use a consistent gap and item width so the carousel looks intentional, not like content overflowing by accident.
 - Trust the built-in navigation: trackpad users can swipe horizontally, and mouse users can hold Shift while scrolling the wheel to move through items.
 
@@ -1460,6 +1461,7 @@ Props:
 - `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Popup placement.
 - `alignment`: 'start' | 'center' | 'end' = 'start' — Popup alignment along the placement axis.
 - `handleRef`: React.Ref<ComplexSelectorHandle> — Imperative handle for programmatic control. Exposes open(), close(), toggle(), and isOpen().
+- `onOpenChange`: (isOpen: boolean) => void — Called whenever the surface opens or closes, however it happened — trigger, keyboard, light dismiss, Escape, close(), or the imperative handle.
 - `contentXstyle`: StyleXStyles — StyleX styles for the popup content container.
 
 ### DateInput
@@ -2479,7 +2481,7 @@ Don't:
 
 Props:
 - `variant`: 'neutral' | 'info' | 'success' | 'warning' | 'error' | 'blue' | 'cyan' | 'green' | 'orange' | 'pink' | 'purple' | 'red' | 'teal' | 'yellow' = 'neutral' — Visual style variant. Semantic variants (neutral, info, success, warning, error) use solid backgrounds. Non-semantic color variants use tinted backgrounds with colored text for categorization and tagging.
-- `label`: ReactNode — Badge text content.
+- `label`: ReactNode — Badge text content. A badge is one line, so a label wider than the space available is cut with an ellipsis rather than escaping its container; a string or number label is also set as the badge's title so the full text stays reachable on hover.
 - `icon`: ReactNode — Optional leading icon.
 
 ### Banner
@@ -2581,7 +2583,7 @@ Don't:
 - Stack multiple spinners in the same view; use one to represent the overall loading state.
 
 Props:
-- `size`: 'sm' | 'md' | 'lg' = 'md' — Spinner size (10px, 14px, 18px).
+- `size`: 'sm' | 'md' | 'lg' | 'xl' = 'md' — Spinner size — ring diameter (10px, 14px, 18px, 28px).
 - `shade`: 'default' | 'onMedia' | 'subtle' | 'inherit' = 'default' — Color shade for light or dark backgrounds.
 - `label`: ReactNode — Visible content below the spinner. String labels auto-set aria-label.
 - `aria-label`: string = 'Loading' — Accessible name for screen readers. Defaults to label (if string) or "Loading".
@@ -3553,7 +3555,7 @@ Returns:
 
 Import: `import {useOverflow} from '@astryxdesign/core/hooks';`
 
-Measures children rendered in a hidden container to determine how many fit in the available width without flickering. Uses ResizeObserver to react to container size changes. The measurement container should hold all items plus an optional overflow indicator element (identified by a data-overflow-indicator attribute).
+Measures children rendered in a hidden container to determine how many fit in the available width without flickering. Uses ResizeObserver to react to container and measured-child size changes. The measurement container should hold all items plus an optional overflow indicator element (identified by a data-overflow-indicator attribute).
 
 Do:
 - Render all items into the measureRef container (hidden) and only the first visibleCount items into the containerRef container (visible).
@@ -4074,7 +4076,8 @@ Props:
 - `isDisabled`: boolean = false — Disabled state.
 - `href`: string — Navigation URL.
 - `onClick`: (e: MouseEvent) => void — Click handler.
-- `endContent`: ReactNode — Right-side content such as badges or counts.
+- `endContent`: ReactNode — Passive right-side content only (badges, counts). Interactive controls go in actions.
+- `actions`: ReactNode — Row-level secondary controls (icon buttons, menus) rendered as siblings of the primary element at the trailing edge of the row — after the expand/collapse toggle, before any nested children in DOM and focus order. Each control owns its accessible name and behavior. Controls inherit the row control size through SizeContext, so an unsized icon button matches the built-in expand/collapse toggle; an explicit size still wins. Hidden while the SideNav rail is collapsed. Use endContent for passive content (badges, counts); use actions for anything interactive.
 - `children`: ReactNode — Sub-items for nesting.
 - `collapsible`: boolean | { defaultIsCollapsed?: boolean, isCollapsed?: boolean, onCollapsedChange?: (isCollapsed: boolean) => void } = false — Enables collapse behavior for items with children. Pass true for uncontrolled (starts expanded), or an object for controlled mode.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant for the nav item row.
@@ -4475,6 +4478,7 @@ Props:
 - `collisionBehavior`: 'overwrite' | 'ignore' = 'overwrite' — Behavior when a toast with matching uniqueID already exists.
 - `onHide`: (reason: "auto" | "manual") => void — Callback fired when the toast is removed.
 - `onDismiss`: (reason: "auto" | "manual") => void (required) — Callback fired when the toast is dismissed.
+- `renderContent`: (toast: ToastContentRenderProps) => ReactNode — Replaces the content of this toast's card with your own layout. Astryx keeps the card, its astryx-toast theme target, the live-region role and the auto-hide timer, and hands the renderer the message, the endContent and a DismissButton component to place — so the close stays themeable, translated and correctly named rather than something a custom layout has to rebuild. A layout that never renders DismissButton does not produce a toast with no way out: Astryx renders the close in the card's default corner instead. Per-toast: an app shares one layout by wrapping useToast and passing it on every call, while a toast raised by library code that never passes it renders as an ordinary Astryx toast. The argument is {body, endContent, DismissButton, type, isAutoHide, autoHideDuration, dismiss}, where type is 'info' | 'error'.
 
 ### Tooltip
 
@@ -4721,6 +4725,7 @@ A horizontal list that automatically hides items when they exceed the available 
 
 Do:
 - Provide a meaningful overflowRenderer: a "+N more" badge, a dropdown, or a count indicator.
+- When the row already has its own menu, use onOverflowChange to feed the collapsed items into it instead of adding a second anchor with overflowRenderer.
 - Set minVisibleItems to keep key items visible, and maxVisibleItems to cap the row at a fixed count regardless of available width.
 - Use maxRows to let items wrap onto a bounded number of rows (e.g. a two-row tag cloud) before collapsing the rest into the indicator.
 
@@ -4730,6 +4735,7 @@ Don't:
 Props:
 - `children`: ReactNode (required) — Items to render. Each child should be a single element.
 - `overflowRenderer`: (overflowItems: OverflowItem[]) => ReactNode — Render function for the overflow indicator. Receives the list of hidden items (each with child and index). Only called when items are overflowing.
+- `onOverflowChange`: (overflowItems: OverflowItem[]) => void — Called whenever the collapsed set changes: with the collapsed items once something collapses, and with an empty array once the row widens back out. Membership and order changes report even when the count stays the same; unrelated re-renders and callback identity changes do not. Silent while nothing overflows, including on mount. Use stable React keys for dynamic items.
 - `gap`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 = 2 — Gap between items as a spacing token step (0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10).
 - `minVisibleItems`: number = 0 — Minimum number of items to always show, even when overflowing.
 - `maxVisibleItems`: number = undefined (no cap) — Maximum number of items to ever show, even when they all fit. The ceiling partner to minVisibleItems; extra items collapse into the overflow indicator. If less than minVisibleItems, the floor wins.

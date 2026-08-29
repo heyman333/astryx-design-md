@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `9362563` (2026-08-27) of https://github.com/facebook/astryx.
+Generated from commit `c2ae093` (2026-08-28) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -1561,7 +1561,7 @@ Props:
 
 Import: `import {DateTimeInput} from '@astryxdesign/core/DateTimeInput';`
 
-DateTimeInput combines a calendar popover with a time input for selecting both a date and time in a single interaction flow. Use it for scheduling, event creation, deadline setting, or any form field that needs a specific datetime.
+DateTimeInput combines date and time selection in one field. On mouse/trackpad devices it uses a calendar popover plus text time input; on coarse-pointer devices the closed control still has separate Date and Time segments, and either segment opens a bottom sheet with Date and Time sections, a swipable month calendar, and accessible time wheels. The closed date and time segments stay side by side when at least 400px is available and wrap into full-width rows below 400px, independent of viewport width. Use it for scheduling, event creation, deadline setting, or any form field that needs a specific datetime.
 
 Do:
 - Provide clear labels and descriptions so users understand what datetime is expected.
@@ -1592,16 +1592,16 @@ Props:
 - `dateConstraints`: Array<(date: Date) => boolean> — Array of custom constraint functions that disable specific dates.
 - `hasSeconds`: boolean = false — Include seconds in the time portion.
 - `hourFormat`: '12h' | '24h' = '12h' — Hour display format. '12h' shows AM/PM; '24h' uses 24-hour notation.
-- `timeIncrement`: 1 | 5 | 10 | 15 | 30 = 1 — Minutes to add or subtract when using arrow keys in the time input.
-- `timeOptionInterval`: 5 | 10 | 15 | 30 | 60 — Minute cadence for a dropdown of preset times on the time portion. Set it to turn the time field into a combobox listing every valid time at that cadence (60 gives a 12 AM to 11 PM list). Omitted, the time field stays a plain text input and gains no combobox semantics. Typed entry keeps working either way, so a time between two options is still reachable. Independent of timeIncrement, which governs arrow-key stepping.
+- `timeIncrement`: 1 | 5 | 10 | 15 | 30 = 1 — Minutes to add or subtract when using arrow keys in the desktop time input. Ignored on the mobile touch sheet, where time is changed with wheels.
+- `timeOptionInterval`: 5 | 10 | 15 | 30 | 60 — Minute cadence for a dropdown of preset times on the desktop time portion. Set it to turn the desktop time field into a combobox listing every valid time at that cadence (60 gives a 12 AM to 11 PM list). Omitted, the desktop time field stays a plain text input and gains no combobox semantics. Typed entry keeps working either way, so a time between two options is still reachable. Ignored on the mobile touch sheet, where the wheels expose every hour/minute/second.
 - `hasClear`: boolean = false — Shows a clear button when a datetime value is set.
 - `placeholder`: string = 'Select a date' — Placeholder text shown in the date portion when no date is selected.
-- `timePlaceholder`: string = 'Select a time' — Placeholder text shown in the time portion when no time is selected.
+- `timePlaceholder`: string = 'Select a time' — Placeholder text shown in the time portion when no time is selected. On touch, this appears in the closed time segment before a time is chosen.
 - `timeLabel`: string — Accessible label for the time portion. Defaults to "{label} time" so it is tied to the field label and localizable.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size of the input control.
 - `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator object for error, warning, or success states with a message.
 - `labelTooltip`: string — Tooltip text displayed via an info icon at the end of the label.
-- `numberOfMonths`: 1 | 2 = 1 — Number of months displayed simultaneously in the calendar.
+- `numberOfMonths`: 1 | 2 = 1 — Number of months displayed simultaneously in the desktop calendar popover. Ignored on the mobile touch sheet, whose Date panel always shows one swipe-paged month at a time.
 - `weekStartsOn`: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' = 0 — First day of week in the calendar. A number (0 = Sunday to 6 = Saturday) or a three-letter day name.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
@@ -4455,7 +4455,7 @@ Props:
 
 Import: `import {Toast} from '@astryxdesign/core/Toast';`
 
-Toast shows a brief, non-blocking notification to confirm an action or present temporary information. Use it for scenarios where the user needs feedback but not a decision, such as saving, deleting, or changing a status.\n\nFor production use, prefer the `useToast()` hook; it handles positioning, stacking, auto-dismiss, and deduplication via `ToastViewport`. Toasts stay within viewport and safe-area gutters, wrap long message content, and enter or exit toward their configured top or bottom edge. Set `isAutoHide: false` explicitly when an action or message must remain available. The `Toast` component renders the visual toast element inline and is useful for previews, documentation, and static showcases where the viewport lifecycle is not needed.
+Toast shows a brief, non-blocking notification to confirm an action or present temporary information. Use it for scenarios where the user needs feedback but not a decision, such as saving, deleting, or changing a status.\n\nFor production use, prefer the `useToast()` hook; it handles positioning, stacking, auto-dismiss, and deduplication via `ToastViewport`. Toasts stay within viewport and safe-area gutters, wrap long message content, and enter, exit, or swipe-dismiss toward their configured top or bottom edge. The vertical swipe uses the same spatial model as placement motion: top Toasts leave upward and bottom Toasts leave downward. Swipe waits for dominant edge-directed intent before cancelling native touch movement and reports the existing manual dismissal reason. Pen is supported as direct-contact input; mouse drag is excluded to avoid conflicting with desktop text selection, where the visible close control remains available. Set `isAutoHide: false` explicitly when an action or message must remain available. The `Toast` component renders the visual toast element inline and is useful for previews, documentation, and static showcases where the viewport lifecycle is not needed.
 
 Do:
 - Keep messages short: only a few words that tell the user what happened, like "Changes saved" or "Message sent".
@@ -4478,7 +4478,7 @@ Props:
 - `collisionBehavior`: 'overwrite' | 'ignore' = 'overwrite' — Behavior when a toast with matching uniqueID already exists.
 - `onHide`: (reason: "auto" | "manual") => void — Callback fired when the toast is removed.
 - `onDismiss`: (reason: "auto" | "manual") => void (required) — Callback fired when the toast is dismissed.
-- `renderContent`: (toast: ToastContentRenderProps) => ReactNode — Replaces the content of this toast's card with your own layout. Astryx keeps the card, its astryx-toast theme target, the live-region role and the auto-hide timer, and hands the renderer the message, the endContent and a DismissButton component to place — so the close stays themeable, translated and correctly named rather than something a custom layout has to rebuild. A layout that never renders DismissButton does not produce a toast with no way out: Astryx renders the close in the card's default corner instead. Per-toast: an app shares one layout by wrapping useToast and passing it on every call, while a toast raised by library code that never passes it renders as an ordinary Astryx toast. The argument is {body, endContent, DismissButton, type, isAutoHide, autoHideDuration, dismiss}, where type is 'info' | 'error'.
+- `renderContent`: (toast: ToastContentRenderProps) => ReactNode — Replaces the content of this toast's card with your own layout. Astryx keeps the card, its astryx-toast theme target, the live-region role and auto-hide behavior, then hands the renderer the message, endContent, resolved toast settings and a dismiss callback. The custom renderer owns every control in its layout: compose the control you want and call dismiss from it. Astryx does not inject a fallback close into custom content. Per-toast: an app shares one layout by wrapping useToast and passing it on every call, while a toast raised by library code that never passes it renders as an ordinary Astryx toast. The argument is {body, endContent, type, isAutoHide, autoHideDuration, dismiss}, where type is 'info' | 'error'.
 
 ### Tooltip
 

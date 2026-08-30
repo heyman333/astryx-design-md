@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `c2ae093` (2026-08-28) of https://github.com/facebook/astryx.
+Generated from commit `8359f1a` (2026-08-29) of https://github.com/facebook/astryx.
 
 Key facts:
 

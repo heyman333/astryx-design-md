@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `8359f1a` (2026-08-29) of https://github.com/facebook/astryx.
+Generated from commit `e4f8e4e` (2026-08-31) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -122,7 +122,9 @@ A right-click context menu that appears at the cursor position. Use to provide c
 Do:
 - Keep menu items concise and action-oriented; users expect quick access to contextual actions.
 - Use sections and dividers to group related actions when the menu has many items.
+- Use `presentation="adaptive"` when right-click should remain cursor-positioned on desktop while long-press opens a reachable BottomSheet on compact touch devices.
 - Ensure all context menu actions are also accessible via other UI elements for keyboard-only users.
+- Keep a visible MoreMenu or equivalent trigger for important mobile actions; long-press must not be the only route.
 
 Don't:
 - Use a ContextMenu as the only way to access important actions; not all users know to right-click.
@@ -130,12 +132,13 @@ Don't:
 
 Props:
 - `children`: ReactNode (required) — The trigger area: right-click on this content to open the menu.
-- `items`: ContextMenuOption[] (required) — Array of menu entries. Each entry is one of: an action item `{label, onClick?, icon?, isDisabled?, variant?}` (variant `"destructive"` renders it in the error color), a divider `{type: "divider"}`, or a section `{type: "section", title?, items: [...action items]}`.
+- `items`: ContextMenuOption[] (required) — Array of menu entries. Each entry is one of: an action item `{label, onClick?, icon?, isDisabled?, variant?, items?}` (nested `items` open a flyout in popover presentation and drill into a new view in bottom-sheet presentation; variant `"destructive"` renders it in the error color), a divider `{type: "divider"}`, or a section `{type: "section", title?, items: [...action items]}`.
 - `menuContent`: ReactNode — Custom JSX menu content for compound mode. Use instead of items for dynamic or stateful menus.
 - `menuWidth`: number | string = '160px' — Custom menu width.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size of menu items: controls padding density.
 - `label`: string = 'Context menu' — Accessible name for the menu surface, announced when it opens.
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when the menu opens or closes.
+- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — Presentation policy. `popover` opens at the pointer position, `bottom-sheet` always uses an action sheet, and `adaptive` uses the BottomSheet at 768px and below when the primary pointer is coarse.
 - `isDisabled`: boolean = false — When true, right-click shows the native browser context menu instead.
 
 ### DropdownMenu
@@ -147,6 +150,11 @@ A dropdown menu that displays a list of actionable items in a popup triggered by
 Do:
 - Keep menu items concise and action-oriented so users can scan options quickly.
 - Use sections and dividers to group related actions when the menu has many items.
+- For a short, flat action set, use presentation="bottom-sheet" when product policy calls for a modal touch surface.
+- Use presentation="adaptive" when the same short action set should remain anchored on pointer layouts and become a BottomSheet on compact coarse-pointer layouts.
+- For a hierarchy that cannot fit as adjacent flyouts on a compact touch surface, a product may explicitly use a drill-in interaction with a Back action.
+- Choose presentation explicitly in product code. A compact, coarse-pointer, hover-free media query is one useful policy, but DropdownMenu does not impose a universal device breakpoint.
+- When the content is no longer a short list of immediate actions, reevaluate the interaction and choose a component that matches the actual task; content traits alone do not determine the component.
 
 Don't:
 - Use a DropdownMenu for navigation; use a navigation component instead.
@@ -155,13 +163,13 @@ Don't:
 Props:
 - `button`: DropdownMenuButtonProps = { label: 'Menu' } — Props for the trigger button (Button props except onClick).
 - `items`: DropdownMenuOption[] (required) — Array of menu entries. Each entry is one of: an action item `{label, onClick?, icon?, description?, endContent?, isDisabled?, variant?, hasCloseOnSelect?, id?}` (variant `"destructive"` renders it in the error color; `endContent` holds trailing content such as a keyboard-shortcut hint; `id` is the row's stable React key, needed only when the array reorders or filters), a divider `{type: "divider"}`, or a section `{type: "section", title?, id?, items: [...action items]}`.
+- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — Presentation surface for data-driven items. 'popover' stays anchored, 'bottom-sheet' always renders the actions in a modal BottomSheet, and 'adaptive' uses a BottomSheet on compact coarse-pointer layouts while remaining anchored elsewhere. Compound children currently support popover only.
 - `isMenuOpen`: boolean — Controlled open state for the menu.
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when the open state changes.
-- `menuWidth`: number | string — Custom menu width; defaults to matching the trigger button width.
-- `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Position placement relative to the trigger. Logical: start/end resolve against the menu's own inherited direction (RTL mirrors).
-- `alignment`: 'start' | 'center' | 'end' = 'start' — Alignment along the placement axis. Logical: start/end follow the menu's own inherited direction (RTL mirrors).
+- `menuWidth`: number | string — Minimum width for the popover presentation. Length values may grow for content; intrinsic and CSS-wide keywords select the preferred inline size. Every form is capped to the available viewport space. Defaults to matching the trigger width up to that cap.
+- `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Popover placement relative to the trigger. Ignored by the bottom-sheet presentation. Logical: start/end resolve against the menu's own inherited direction (RTL mirrors).
+- `alignment`: 'start' | 'center' | 'end' = 'start' — Popover alignment along the placement axis. Ignored by the bottom-sheet presentation. Logical: start/end follow the menu's own inherited direction (RTL mirrors).
 - `onClick`: () => void — Callback fired when the trigger button is clicked.
-- `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Position placement for the menu popover relative to the trigger button.
 - `hasChevron`: boolean = true — Whether to show a chevron icon on the trigger button. Set to false for icon-only triggers.
 - `children`: ReactNode — Compound-mode menu content: DropdownMenuItem, DropdownMenuDivider, DropdownMenuSubMenu, and the selectable items. Mutually exclusive with `items`.
 
@@ -239,6 +247,7 @@ MoreMenu is a three-dot button that opens a list of actions. Use it for secondar
 Do:
 - Use for overflow or secondary actions; keep primary actions visible outside the menu.
 - Use dividers or sections to group related actions when the menu has many items.
+- Use `presentation="adaptive"` when the visible overflow trigger should open a thumb-reachable BottomSheet on compact touch devices.
 
 Don't:
 - Hide primary actions inside a MoreMenu; they should be directly visible.
@@ -252,6 +261,7 @@ Props:
 - `isDisabled`: boolean = false — Whether the menu trigger is disabled.
 - `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Position of the menu relative to the trigger. Logical: start/end resolve against the menu's own inherited direction (RTL mirrors).
 - `alignment`: 'start' | 'center' | 'end' = 'start' — Alignment along the placement axis. Use 'end' to align the menu with the trigger's trailing edge, which is usually what an overflow menu wants.
+- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — Presentation policy forwarded to DropdownMenu. `adaptive` keeps the anchored popover on pointer-based layouts and uses a BottomSheet at 768px and below when the primary pointer is coarse.
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when the menu opens or closes.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
@@ -421,7 +431,7 @@ Props:
 - `children`: ReactNode — The flyout menu items: the same components used at the top level (DropdownMenuItem, nested DropdownMenuSubMenu, selectable items).
 - `isDisabled`: boolean = false — A disabled submenu renders its trigger row but never opens the flyout.
 - `hasSpinner`: boolean = false — Show a spinner in place of the caret, e.g. while a lazy submenu's children are loading.
-- `menuWidth`: number | string — Fixed flyout width. Defaults to sizing to its content (min 160px).
+- `menuWidth`: number | string — Minimum flyout width. The flyout may grow for its content, but it is capped to the available viewport space. Defaults to intrinsic sizing (min 160px).
 - `onOpenChange`: (isOpen: boolean) => void — Called when the flyout opens or closes.
 - `xstyle`: StyleXStyles — StyleX styles for the trigger row. Must be a stylex.create() value: not an inline style object like style={{}}.
 
@@ -1317,7 +1327,363 @@ Props:
 - `hasStrikethrough`: boolean = false — Apply strikethrough text decoration.
 - `id`: string — HTML id attribute.
 
-## Data Input
+## Feedback & Status
+
+### Badge
+
+Import: `import {Badge} from '@astryxdesign/core/Badge';`
+
+Badge highlights a status or category at a glance. Use it sparingly: only when a value represents a distinct state (Active, Failed) or a grouping tag (Engineering, Design). Most metadata (dates, durations, counts, descriptions) should be plain description text, not badges.
+
+Do:
+- Every status badge steals attention. Only badge states where the user needs to notice or act: errors, warnings, items requiring follow-up. If no action is needed, plain text is fine.
+- Use success, warning, and error variants only for system status that demands attention: "Failed", "Degraded", "Action Required". These have bold solid backgrounds designed to stand out.
+- Use color variants (blue, purple, teal, etc.) for category tags that group or classify items: team names, content types, priority levels.
+- Keep labels to one or two words. If you need more detail, put it in surrounding text instead of the badge.
+- Add an icon when it helps identify the badge type quickly, but always include a text label alongside it.
+
+Don't:
+- Apply a "success" badge to every healthy/active/normal item. If all rows show green "Active" badges, none stand out; the badge adds noise, not information. Show only the states that need user attention (errors, warnings, pending actions).
+- Use badges for metadata. Durations ("6h window"), counts ("12 trigger types"), dates, and descriptions are not statuses or categories; use description text (Text with type="supporting") instead.
+- Use semantic status variants (success, warning, error, info) for categories or informational content. These are visually loud and should only indicate system state.
+- Repeat the same badge in every row of a table or list. If the same value appears in most rows, it's not adding information; use plain text for common states and reserve badges for the exceptional ones.
+- Make badges clickable; they are read-only indicators. Use a button or link if the user needs to take action.
+
+Props:
+- `variant`: 'neutral' | 'info' | 'success' | 'warning' | 'error' | 'blue' | 'cyan' | 'green' | 'orange' | 'pink' | 'purple' | 'red' | 'teal' | 'yellow' = 'neutral' — Visual style variant. Semantic variants (neutral, info, success, warning, error) use solid backgrounds. Non-semantic color variants use tinted backgrounds with colored text for categorization and tagging.
+- `label`: ReactNode — Badge text content. A badge is one line, so a label wider than the space available is cut with an ellipsis rather than escaping its container; a string or number label is also set as the badge's title so the full text stays reachable on hover.
+- `icon`: ReactNode — Optional leading icon.
+
+### Banner
+
+Import: `import {Banner} from '@astryxdesign/core/Banner';`
+
+Banner shows a persistent message at the top of a page or section. Use it for form errors, system updates, maintenance notices, or success confirmations that the user needs to see until they act on it.
+
+Do:
+- Pick a status that matches the message: info for updates, warning for caution, error for problems, success for confirmations.
+- Use the card container inside page content and the section container for full-width messages that span the entire page.
+- Make info and success banners dismissable. Keep error banners visible until the user fixes the issue.
+- Keep titles short and scannable: "Payment failed" not "There was a problem processing your most recent payment."
+- Set collapsible={false} when the user needs the content to act on the message, like the list of fields that failed validation. Keep the default toggle when the detail is long enough to bury the banner\u2019s own message.
+- Error and warning banners render as role="alert"; info and success render as role="status". Mount an alert banner in response to an event rather than on first paint, so assistive tech has a change to report.
+
+Don't:
+- Use Banner for short-lived messages that disappear on their own; use Toast instead.
+- Stack multiple banners with the same status; combine related messages into one banner.
+- Rely on the status color or icon alone to carry meaning; say which status it is in the title text, because the icon is decorative to a screen reader.
+
+Props:
+- `status`: 'info' | 'warning' | 'error' | 'success' (required) — Status type controlling icon and color.
+- `title`: ReactNode (required) — Title text or ReactNode displayed in the header.
+- `description`: ReactNode — Description text rendered below the title in the header.
+- `icon`: ReactNode — Override the default status icon.
+- `isDismissable`: boolean = false — Whether the banner can be dismissed by the user.
+- `onDismiss`: () => void — Called when the dismiss button is clicked; banner hides itself regardless of whether this is provided.
+- `dismissLabel`: string — Accessible name and visible tooltip for the dismiss button (pass it already translated). Defaults to "Dismiss <title>" for a string title, so stacked banners are distinguishable; set it when the title is a ReactNode.
+- `endContent`: ReactNode — Action content rendered in the header area, end-aligned. Wraps to its own row below the text when the header is too narrow to hold both.
+- `container`: 'card' | 'section' = 'card' — Container type: card has border-radius; section is full-width with no border-radius for page-level use.
+- `elevation`: 'none' | 'low' | 'med' | 'high' = 'none' — Resting shadow depth. Use for a floating banner that hovers above content; `none` is the default inline banner. A `card`-container banner rounds its shadow to match.
+- `children`: ReactNode — Content rendered in the card-background area below the colored header. Sits behind an expand/collapse toggle unless `collapsible={false}`.
+- `collapsible`: boolean | {defaultIsOpen?: boolean; isOpen?: boolean; onOpenChange?: (isOpen: boolean) => void} = true — Whether the content area (children) sits behind an expand/collapse toggle in the header. On by default, starting collapsed. `false` opts out: children are always visible with no toggle. `{defaultIsOpen: true}` starts open; `{isOpen, onOpenChange}` is controlled. Takes the same CollapsibleConfig as Collapsible.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+
+### ProgressBar
+
+Import: `import {ProgressBar} from '@astryxdesign/core/ProgressBar';`
+
+A horizontal bar showing the completion progress of a task. Use it for operations where the duration is known, or as an animated indicator when progress can't be calculated. Supports semantic color variants, value labels, and custom formatting.
+
+Do:
+- Use a determinate bar when the total amount of work is known, and indeterminate when it's not.
+- Choose a color variant that matches the context: accent for general progress, success for completion, warning or error for alerts.
+- Always provide a label, even if hidden; screen readers need it to announce what's loading.
+
+Don't:
+- Place icons or labels inside the bar; compose them alongside it using layout components.
+- Use a progress bar for instant actions; it's meant for operations that take noticeable time.
+- Use multiple progress bars stacked together for the same operation; use one bar with a value label instead.
+
+Props:
+- `label`: string (required) — accessible label
+- `value`: number = 0 — Current value (ignored when indeterminate).
+- `max`: number = 100 — Maximum value.
+- `isLabelHidden`: boolean = false — Visually hide the label (remains accessible).
+- `hasValueLabel`: boolean = false — Show formatted value text (ignored when indeterminate).
+- `formatValueLabel`: (value: number, max: number) => string — Custom value label formatter; defaults to a percentage string.
+- `variant`: 'accent' | 'success' | 'warning' | 'error' | 'neutral' = 'accent' — Semantic color variant.
+- `isIndeterminate`: boolean = false — Animated loading indicator for unknown progress.
+- `marks`: ReadonlyArray<{value: number; label: string}> — Fixed target marks drawn on the track at values in the same 0..max scale as value (e.g. a goal line). They stay visible whether progress is below or past them, and take their color from what they sit on: a mark inside the filled area uses the fill variant's on-color (on-accent, on-warning, on-error, and so on), a mark still out on the bare track uses the primary text color (the secondary one on a disabled bar, which dims everything it draws). Each mark requires a label: it is the mark's accessible name and the text revealed via a tooltip on hover/focus. Ignored when indeterminate.
+- `isDisabled`: boolean = false — Visually disabled state: grays out the fill and text. Use for canceled or inactive operations.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+
+### Skeleton
+
+Import: `import {Skeleton} from '@astryxdesign/core/Skeleton';`
+
+An animated shimmer placeholder that previews the shape of content while it loads. Use it to build loading screens that match the layout of the real content. For content with unknown dimensions, use Spinner instead.
+
+Do:
+- Match the size and shape of the content being loaded to create a realistic placeholder.
+- Stagger multiple skeletons with the `index` prop for a natural wave animation.
+
+Don't:
+- Use when the content dimensions are unknown; use Spinner instead.
+- Combine with a Spinner on the same content area; pick one loading pattern.
+- Show skeletons indefinitely; if loading takes too long, show an error or empty state instead.
+
+Props:
+- `width`: number | string = '100%' — Width in pixels (number) or CSS value (string).
+- `height`: number | string = '100%' — Height in pixels (number) or CSS value (string).
+- `radius`: 'none' | 0 | 1 | 2 | 3 | 4 | 'rounded' = 3 — Border radius using design token scale. Use none for sharp corners, rounded for fully rounded (avatars, pills, circles).
+- `index`: number = 0 — Index for staggered animation timing. For element at index n, animation starts at DELAY_TIME + (STAGGER_TIME × n).
+
+### Spinner
+
+Import: `import {Spinner} from '@astryxdesign/core/Spinner';`
+
+An animated loading indicator for processes with unknown duration, such as data fetching or form submission. Supports visible labels, multiple sizes, and a dark background variant. For content with known dimensions, use Skeleton instead.
+
+Do:
+- Provide a meaningful label to describe what is loading for screen reader users.
+- Use the "onMedia" shade when placed on dark or accent-colored backgrounds.
+
+Don't:
+- Use for content areas with known dimensions; use Skeleton to preserve layout instead.
+- Stack multiple spinners in the same view; use one to represent the overall loading state.
+
+Props:
+- `size`: 'sm' | 'md' | 'lg' | 'xl' = 'md' — Spinner size — ring diameter (10px, 14px, 18px, 28px).
+- `shade`: 'default' | 'onMedia' | 'subtle' | 'inherit' = 'default' — Color shade for light or dark backgrounds.
+- `label`: ReactNode — Visible content below the spinner. String labels auto-set aria-label.
+- `aria-label`: string = 'Loading' — Accessible name for screen readers. Defaults to label (if string) or "Loading".
+- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+
+### StatusDot
+
+Import: `import {StatusDot} from '@astryxdesign/core/StatusDot';`
+
+A small colored dot that communicates status like online/offline presence or severity levels. Supports five semantic variants and an optional pulse animation. Always pair with a visible text label, as color alone should not carry meaning.
+
+Do:
+- Use StatusDot as a binary present/absent signal; avoid encoding many distinct states in a single dot, since color and size alone cannot reliably distinguish them.
+- Always pair with a visible text label so status is not conveyed by color alone.
+- Provide a descriptive `label` prop for screen reader accessibility.
+- Pair the dot with an icon that carries the status as a distinct shape when it must stand on its own without adjacent text, so meaning survives without color.
+- If you can't add a label or an icon, make sure the status is conveyed elsewhere accessibly (e.g. adjacent text, a table column, or a live region).
+
+Don't:
+- Rely on color alone to communicate status; StatusDot is not fully accessible in isolation, so the builder must make the status distinguishable in context via a label, an icon, or an accessible alternative.
+- Use the pulse animation for purely decorative purposes; reserve it for states that require immediate attention.
+
+Props:
+- `variant`: 'success' | 'warning' | 'error' | 'accent' | 'neutral' (required) — Semantic color variant.
+- `label`: string (required) — Accessible label surfaced via aria-label.
+- `isPulsing`: boolean = false — Enables a pulse animation; respects prefers-reduced-motion: reduce.
+- `tooltip`: string — Tooltip text shown on hover to explain the status meaning.
+- `icon`: ReactNode — Optional icon rendered centered inside the dot, painted in currentColor (the variant's ink). Gives the status a non-color mark, so use a different icon per status. Booleans and empty strings are ignored, so `cond && <Icon />` is safe. Same contract as AvatarStatusDot.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+
+## Focus
+
+### useFocusTrap
+
+Import: `import {useFocusTrap} from '@astryxdesign/core/hooks';`
+
+Traps focus within a container element following the WAI-ARIA dialog focus trap pattern. Listens to focus events on the document and redirects focus back into the container if it escapes via keyboard navigation. Handles both Tab and Shift+Tab wrapping. When the trap deactivates or unmounts, focus is restored to the element that was focused before activation, unless focus was already moved elsewhere. Mouse clicks outside the container are not intercepted; use a light-dismiss handler for that.
+
+Do:
+- Call focusFirst() when opening a dialog/modal to move focus into the trapped region.
+- Provide an onEscape callback to close the dialog when Escape is pressed.
+- Rely on the built-in focus restoration on close; only add your own onHide focus handling when you need to send focus somewhere other than the previously-focused element.
+
+Don't:
+- Use on non-modal content like tooltips or dropdowns; those need light-dismiss, not focus trapping.
+
+Parameters:
+- `options`: UseFocusTrapOptions (required) — Configuration object for the focus trap.
+- `options.isActive`: boolean (required) — Whether the focus trap is currently active.
+- `options.onEscape`: () => void — Callback when Escape key is pressed inside the trapped container.
+
+Returns:
+- `containerRef`: React.RefObject<HTMLElement | null> — Ref to attach to the container element that should trap focus.
+- `focusFirst`: () => void — Focuses the first focusable element inside the container.
+
+### useGridFocus
+
+Import: `import {useGridFocus} from '@astryxdesign/core/hooks';`
+
+Manages keyboard navigation within a 2D grid following the WAI-ARIA grid pattern. Supports arrow keys for cell-to-cell navigation, Home/End for row boundaries, Ctrl+Home/Ctrl+End for grid boundaries, and Page Up/Down for custom callbacks (e.g., month navigation in calendars). Boundary navigation callbacks allow cross-grid navigation.
+
+Do:
+- Use for calendar date grids: wire onPageUp/onPageDown to month navigation and onNavigateBefore/onNavigateAfter for cross-month arrow key navigation.
+- Attach both gridRef and handleKeyDown to the grid container element.
+- For roving-tabindex grids (e.g. Calendar), set hasRovingTabIndex: true and attach handleFocus to the container onFocus; seed one focus target with tabindex=0 and the hook repairs and moves it.
+
+Don't:
+- Use for simple linear lists; prefer useListFocus for 1D navigation.
+
+Parameters:
+- `options`: UseGridFocusOptions (required) — Configuration object for grid focus behavior.
+- `options.columns`: number (required) — Number of columns in the grid. Used for up/down navigation (moves by this many cells).
+- `options.cellSelector`: string = 'button:not([disabled]), [tabindex]:not([tabindex="-1"])' — Selector for cells within the grid. Should match ALL cell positions in DOM order (including disabled/empty) so grid geometry is preserved.
+- `options.isCellFocusable`: (cell: HTMLElement) => boolean — Predicate for whether a matched cell can receive focus. Omit to treat every matched cell as focusable.
+- `options.getFocusTarget`: (cell: HTMLElement) => HTMLElement | null — Resolves the element to focus for a cell, e.g. a button inside a role="gridcell" wrapper. Omit to focus the cell itself.
+- `options.onNavigateBefore`: (column: number, offset: number) => void — Callback when navigation would go before the first cell. Receives the column index and offset (1 for horizontal, columns for vertical).
+- `options.onNavigateAfter`: (column: number, offset: number) => void — Callback when navigation would go after the last cell. Receives the column index and offset.
+- `options.onPageUp`: () => void — Callback for Page Up key (e.g., navigate to previous month in calendars).
+- `options.onPageDown`: () => void — Callback for Page Down key (e.g., navigate to next month in calendars).
+- `options.isRtl`: boolean = undefined (auto-detect from the container's computed direction) — Swap ArrowLeft/ArrowRight so horizontal navigation follows visual direction in right-to-left contexts. When omitted, auto-detected from the container computed direction on keydown.
+- `options.hasRovingTabIndex`: boolean = false — Own a single roving tab stop across the grid: one focusable cell (its resolved focus target) carries tabindex="0", the rest -1. Stamped/repaired on render and moved with arrow navigation. Attach the returned handleFocus to the container onFocus.
+
+Returns:
+- `gridRef`: React.RefObject<HTMLElement | null> — Ref to attach to the grid container element.
+- `handleKeyDown`: (e: React.KeyboardEvent) => void — Key down handler to attach to the grid container.
+- `handleFocus`: (e: React.FocusEvent) => void — Focus handler for the grid container. Keeps the roving tab stop in sync when hasRovingTabIndex is enabled; a no-op otherwise, so always safe to attach.
+- `focusCell`: (index: number) => void — Focus a specific cell by index (clamped to valid range).
+- `focusFirst`: () => void — Focus the first focusable cell in the grid.
+- `focusLast`: () => void — Focus the last focusable cell in the grid.
+
+### useIndicatorFocusRing
+
+Import: `import {useIndicatorFocusRing} from '@astryxdesign/core/hooks';`
+
+Draws the standard focus ring on the indicator of a control whose real input is visually hidden; a checkbox or radio focuses an opacity-0 input, so the ring has to appear on the picture beside it. The ring is painted imperatively on the indicator's own element, which is the only element whose border-radius can shape it, and only on :focus-visible, so pointer clicks stay quiet. Owning it here means a theme-supplied indicator cannot ship a control with no visible focus (WCAG 2.4.7) by ignoring a prop.
+
+Do:
+- Wrap only the indicator in the ref'd element; a wrapper holding label text would ring the whole row.
+- Spread focusProps on the element that contains the hidden input, not on the input itself.
+
+Don't:
+- Ask a themeable indicator to draw its own focus ring; a replacement that ignores the prop leaves the control with no visible focus.
+
+Parameters:
+- `containerRef`: RefObject<HTMLElement | null> (required) — Ref to an element wrapping only the indicator, so its single element child is unambiguously the thing to ring.
+- `isDisabled`: boolean = false — Skip the ring; a disabled control is not focusable.
+
+Returns:
+- `focusProps`: {onFocus: (event: FocusEvent<HTMLElement>) => void; onBlur: () => void} — Spread onto the element that owns the focusable input.
+
+### useKeyboardHint
+
+Import: `import {useKeyboardHint} from '@astryxdesign/core/hooks';`
+
+Shows an ephemeral "← → to navigate" hint anchored to the focused item the first time a roving-tabindex composite (Toolbar, TabList, SegmentedControl, etc.) receives keyboard focus. It teaches sighted keyboard users that arrow keys move within the group. The hint renders arrow keys with Kbd in the top layer (popover="manual") and is CSS-anchor-positioned to the focused element, so overflow containers never clip it. It auto-dismisses on the first arrow press, on timeout, or on blur, and does not re-show for that instance. Toolbar, TabList, and SegmentedControl wire this in automatically; reach for the hook directly only when building a custom roving-tabindex widget.
+
+Do:
+- Compose the returned onFocus/onKeyDown with your existing focus handlers rather than replacing them: call onKeyDown first (it only dismisses, never prevents), then your navigation handler.
+- Render hintElement as the last child of the composite container; it is position:fixed in the top layer and aria-hidden, so it never affects layout or the accessibility tree.
+- Match orientation to the arrow keys your widget actually responds to so the hint shows the correct icons.
+
+Don't:
+- Use for single controls or widgets without roving-tabindex navigation; the hint only makes sense where arrows move focus within a group.
+
+Parameters:
+- `options`: UseKeyboardHintOptions — Configuration object for the keyboard hint.
+- `options.orientation`: 'horizontal' | 'vertical' | 'both' = 'horizontal' — Which arrow-key axis the composite navigates, controlling which arrow icons the hint shows (← → for horizontal, ↑ ↓ for vertical, all four for both).
+- `options.dismissAfterMs`: number = 3000 — Milliseconds before the hint auto-dismisses after appearing.
+- `options.isEnabled`: boolean = true — Whether the hint is enabled. Set to false to suppress it for a specific instance (e.g. a disabled or read-only widget).
+
+Returns:
+- `hintElement`: ReactNode — The popover hint element to render inside the composite container (as the last child). Portals to the top layer via popover="manual", renders arrow keys with Kbd, and manages its own visibility; render it unconditionally.
+- `onFocus`: (e: React.FocusEvent) => void — Attach to the container onFocus. Shows the hint on the first keyboard-focus (:focus-visible) entry from outside the composite.
+- `onBlur`: (e: React.FocusEvent) => void — Attach to the container onBlur. Hides the hint when focus leaves the composite entirely, and re-anchors when focus moves within.
+- `onKeyDown`: (e: React.KeyboardEvent) => void — Attach to the container onKeyDown. Dismisses the hint on the first arrow press (the user has discovered the interaction). Never prevents default or stops propagation.
+
+### useListFocus
+
+Import: `import {useListFocus} from '@astryxdesign/core/hooks';`
+
+Manages keyboard navigation within a linear list following WAI-ARIA menu/listbox/toolbar patterns. Supports arrow key navigation (vertical, horizontal, or both), Home/End for boundaries, optional wrap-around, RTL, and Escape to close. Opt into hasRovingTabIndex for composite widgets (toolbars, segmented controls, tab strips) that own a single tab stop. Suitable for dropdown menus, toolbars, and any 1D focusable list.
+
+Do:
+- Set orientation to 'horizontal' for toolbars and tab bars, 'vertical' for dropdown menus.
+- Provide an onEscape callback for menus/dropdowns to return focus to the trigger.
+- Enable hasRovingTabIndex (and hasCaretGuard when the widget can contain text inputs) for toolbar-style composites that should be a single tab stop.
+
+Don't:
+- Use for 2D grid navigation; prefer useGridFocus for grids and calendars.
+
+Parameters:
+- `options`: UseListFocusOptions — Configuration object for list focus behavior. All fields are optional.
+- `options.itemSelector`: string = '[role="menuitem"]' — Selector for focusable items within the list.
+- `options.boundarySelector`: string — Selector identifying a list boundary, for lists that contain nested lists of the same kind (e.g. a menu with submenu flyouts). When set, item collection and key handling are scoped to this level's own container. Typically '[role="menu"]'.
+- `options.wrap`: boolean = true — Whether arrow navigation wraps around at the ends.
+- `options.onEscape`: () => void — Callback when Escape key is pressed (e.g., close menu). Supplying it also consumes the key (preventDefault); without it Escape passes through to the surrounding layer.
+- `options.orientation`: 'horizontal' | 'vertical' | 'both' = 'vertical' — Navigation orientation. 'horizontal' uses ArrowLeft/ArrowRight, 'vertical' uses ArrowUp/ArrowDown, 'both' accepts all four arrows.
+- `options.hasHomeEnd`: boolean = true — Whether Home/End jump to the first/last enabled item.
+- `options.isRtl`: boolean = undefined (auto-detect from the container's computed direction) — Whether the list is in a right-to-left context. When true, ArrowLeft/ArrowRight are swapped for horizontal navigation so it follows visual direction. When omitted, auto-detected from the container computed direction on keydown.
+- `options.hasRovingTabIndex`: boolean = false — Opt into roving-tabindex ownership: the hook stamps a single tab stop (one item tabindex="0", the rest -1), repairs it as items mount/unmount or toggle disabled, and moves it with arrow navigation. When false, the hook only moves focus and never touches tabindex.
+- `options.hasCaretGuard`: boolean = false — When true, arrow keys are not stolen from a nested text input/textarea whose caret is not at the boundary in the direction of travel (or that has a selection), and are never stolen from a nested contenteditable (rich-text editor / chat composer). Preserves inline text editing within the list.
+
+Returns:
+- `listRef`: React.RefObject<HTMLElement | null> — Ref to attach to the list container element.
+- `handleKeyDown`: (e: React.KeyboardEvent) => void — Key down handler to attach to the list container.
+- `handleFocus`: (e: React.FocusEvent) => void — Focus handler for the container. Keeps the roving tab stop in sync when hasRovingTabIndex is enabled; a no-op otherwise, so it is always safe to attach.
+- `focusItem`: (index: number) => void — Focus a specific item by index (clamped to valid range).
+- `focusFirst`: () => boolean — Focus the first enabled item. Returns true when an item was focused.
+- `focusLast`: () => boolean — Focus the last enabled item. Returns true when an item was focused.
+- `ownsEvent`: (e: React.KeyboardEvent) => boolean — Whether a key event belongs to this list level rather than a nested list sharing the same boundarySelector. Always true when no boundarySelector is set. Use to guard consumer-added key handling (Enter/Space, typeahead).
+- `getItems`: () => HTMLElement[] — This level's focusable items in DOM order (already scoped by boundarySelector). Build typeahead targets from this instead of re-querying.
+
+### useTreeFocus
+
+Import: `import {useTreeFocus} from '@astryxdesign/core/hooks';`
+
+Manages roving-tabindex focus and the WAI-ARIA tree keyboard model. ArrowUp/ArrowDown/Home/End roam linearly over the visible treeitems (skipping disabled ones), while ArrowRight/ArrowLeft carry tree semantics (expand/collapse, move to first-child/parent). Enter/Space activate, and printable characters trigger typeahead.
+
+Do:
+- Use for hierarchical tree widgets: wire onToggleExpand to your expansion state and onActiveChange to a single roving tab stop.
+- Attach both treeRef and handleKeyDown to the role="tree" container element.
+
+Don't:
+- Use for linear lists (prefer useListFocus) or 2D grids (prefer useGridFocus); those traversals differ from a tree.
+
+Parameters:
+- `options`: UseTreeFocusOptions — Configuration object for tree focus behavior.
+- `options.itemSelector`: string = '[role="treeitem"]' — Selector for visible treeitems within the tree, in DOM order.
+- `options.isItemDisabled`: (item: HTMLElement) => boolean — Predicate for whether a treeitem is disabled and must be skipped during navigation. Defaults to reading `data-tree-disabled` / `aria-disabled`.
+- `options.getLevel`: (item: HTMLElement) => number — Reads the 1-based nesting level of a treeitem. Defaults to the `aria-level` attribute.
+- `options.onToggleExpand`: (id: string) => void — Called to expand/collapse the treeitem with the given id (ArrowRight on a collapsed parent, ArrowLeft on an expanded parent, Enter/Space on a parent without its own action).
+- `options.onActivate`: (item: HTMLElement, id: string | undefined) => boolean | void — Called when Enter/Space activates a treeitem. Return true when handled; return false/undefined to let the hook fall back to toggling expansion.
+- `options.onActiveChange`: (id: string | undefined) => void — Notified when the hook moves focus to a treeitem. Consumers use this to move a single roving tab stop.
+- `options.hasRovingTabIndex`: boolean = false — When true, the hook owns a single roving tab stop across the visible treeitems (stamps tabindex 0/-1, repairs on mount, moves with navigation). Preserves an existing tabindex="0" seed on mount. Attach the returned `handleFocus` to keep the stop in sync after clicks.
+- `options.typeahead`: boolean = true — Whether typeahead (jump to next item whose text starts with the typed characters) is enabled.
+
+Returns:
+- `treeRef`: React.RefObject<HTMLElement | null> — Ref to attach to the tree container element (role="tree").
+- `handleKeyDown`: (e: React.KeyboardEvent) => void — Key down handler to attach to the tree container.
+- `handleFocus`: (e: React.FocusEvent) => void — Focus handler to attach to the container's onFocus. Keeps the roving tab stop in sync when hasRovingTabIndex is enabled; a no-op otherwise, so always safe to attach.
+- `focusFirst`: () => void — Focus the first enabled visible treeitem.
+- `focusLast`: () => void — Focus the last enabled visible treeitem.
+
+### useTypeahead
+
+Import: `import {useTypeahead} from '@astryxdesign/core/hooks';`
+
+Adds APG type-to-focus search to a collection: printable keystrokes are buffered (resetting after a pause), and the first item whose label starts with the buffer is reported through onMatch. Pressing the same letter repeatedly cycles through the matches rather than filtering deeper. It moves nothing itself; pair it with the collection's own focus management, most often useListFocus or useGridFocus.
+
+Do:
+- Wire onMatch to the focus manager you already have (useListFocus.focusItem) instead of moving focus yourself.
+- Let it see the key event first and fall through to arrow-key navigation only when it returns false.
+- Pass getCurrentIndex so repeated presses of one letter walk through matches instead of sticking on the first.
+
+Don't:
+- Use it on a text input; the field already receives the characters, and typeahead would fight the value.
+
+Parameters:
+- `options`: UseTypeaheadOptions (required) — Configuration object.
+- `options.getItemLabels`: () => ReadonlyArray<string | null | undefined> (required) — Returns the item labels in DOM order. A null or empty entry marks a non-matchable slot and keeps indices aligned with the caller's items.
+- `options.onMatch`: (index: number) => void (required) — Called with the index of the matched item so the caller can focus or select it; typically useListFocus's focusItem.
+- `options.getCurrentIndex`: () => number = () => -1 — The index to search from, usually the focused item, so repeated presses of one letter cycle through matches. A negative value means nothing is current.
+- `options.resetMs`: number = 750 — Milliseconds of inactivity after which the typed buffer resets.
+- `options.isDisabled`: (index: number) => boolean — Whether an index should be skipped, e.g. disabled items.
+
+Returns:
+- `onKeyDown`: (e: React.KeyboardEvent | KeyboardEvent) => boolean — Keydown handler. Returns true when it consumed a printable character, so the caller can stop its own key handling.
+- `reset`: () => void — Clears the pending buffer, e.g. when the collection closes.
+
+## Form Controls
 
 ### Calendar
 
@@ -1795,6 +2161,7 @@ Do:
 - Enable select-all when most users will want all or nearly all options selected.
 - Use inside InputGroup only when the control needs a short prefix or suffix addon as part of one decorated input surface; prefer count or labels trigger display so the group stays single-line.
 - Use variant="ghost" when a multi-selector sits in a toolbar with ghost buttons. If validation status is needed there, prefer statusVariant="tooltip" so the toolbar height stays compact.
+- Use presentation="adaptive" when the multi-selector should become a bottom sheet on compact touch screens.
 
 Don't:
 - Use for single-value selection; use Selector instead.
@@ -1831,6 +2198,7 @@ Props:
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' for input selectors; 'detached' for ghost selectors — How the status message is placed relative to the input. attached overlaps directly below the bordered input and is only valid for the input variant; ghost selectors detach attached status messages by default. Use tooltip for compact toolbar controls.
 - `renderOption`: (option: MultiSelectorOptionData) => ReactNode — Custom render function for each selectable option in the dropdown. Not called for dividers, sections, or the select-all row.
 - `indicatorPosition`: 'start' | 'end' = 'start' — Which edge of the option row carries the checkbox. end pushes it to the far edge of the row, including on the select-all row.
+- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — How the option list is presented. adaptive uses a bottom sheet on compact touch screens and an anchored popover otherwise.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
 - `startIcon`: IconType | ReactNode — Icon displayed at the start of the selector trigger.
 - `hasClear`: boolean = false — Shows a clear button when values are selected.
@@ -1985,6 +2353,7 @@ Do:
 - Set a meaningful placeholder that hints at the expected selection (e.g. "Choose a country" not "Select...").
 - Use inside InputGroup only when the selector needs a short prefix or suffix addon as part of one decorated input surface.
 - Use variant="ghost" when a selector sits in a toolbar with ghost buttons. If validation status is needed there, prefer statusVariant="tooltip" so the toolbar height stays compact.
+- Use presentation="adaptive" when the selector should become a bottom sheet on compact touch screens.
 
 Don't:
 - Use for action menus; use Dropdown Menu for triggering commands or navigation.
@@ -2019,6 +2388,7 @@ Props:
 - `renderOption`: (option: SelectorOptionData) => ReactNode — Custom render function for each selectable option in the dropdown. Use this instead of JSX children; dividers and sections are rendered by the selector.
 - `renderValue`: (option: SelectorOptionData) => ReactNode — Custom render function for the selected option inside the closed trigger. The trigger is sized by padding, so it is the size token for a one-line value (28/32/36) and exactly one text line taller for a two-line one (48/52/56), always on the 4px rhythm, always aligned with the buttons and inputs beside it. Inside an InputGroup the group owns the row height: a SelectorOption folds onto one line and ellipsizes, and any taller node is cut off at the row.
 - `indicatorPosition`: 'start' | 'end' = 'end' — Which edge of the option row carries the selected mark. start reserves a mark column ahead of every label so they stay aligned, the way a native menu does; end is the house convention shared with Typeahead and CommandPalette.
+- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — How the option list is presented. adaptive uses a bottom sheet on compact touch screens and an anchored popover otherwise.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
 - `startIcon`: IconType | ReactNode — Icon displayed at the start of the selector trigger.
 - `isLoading`: boolean = false — Shows a loading spinner in the trigger.
@@ -2456,362 +2826,6 @@ Props:
 - `description`: string — Description text displayed below the label.
 - `isDisabled`: boolean = false — Whether this item is visually disabled.
 - `group`: string — Group label for grouping items visually.
-
-## Feedback & Status
-
-### Badge
-
-Import: `import {Badge} from '@astryxdesign/core/Badge';`
-
-Badge highlights a status or category at a glance. Use it sparingly: only when a value represents a distinct state (Active, Failed) or a grouping tag (Engineering, Design). Most metadata (dates, durations, counts, descriptions) should be plain description text, not badges.
-
-Do:
-- Every status badge steals attention. Only badge states where the user needs to notice or act: errors, warnings, items requiring follow-up. If no action is needed, plain text is fine.
-- Use success, warning, and error variants only for system status that demands attention: "Failed", "Degraded", "Action Required". These have bold solid backgrounds designed to stand out.
-- Use color variants (blue, purple, teal, etc.) for category tags that group or classify items: team names, content types, priority levels.
-- Keep labels to one or two words. If you need more detail, put it in surrounding text instead of the badge.
-- Add an icon when it helps identify the badge type quickly, but always include a text label alongside it.
-
-Don't:
-- Apply a "success" badge to every healthy/active/normal item. If all rows show green "Active" badges, none stand out; the badge adds noise, not information. Show only the states that need user attention (errors, warnings, pending actions).
-- Use badges for metadata. Durations ("6h window"), counts ("12 trigger types"), dates, and descriptions are not statuses or categories; use description text (Text with type="supporting") instead.
-- Use semantic status variants (success, warning, error, info) for categories or informational content. These are visually loud and should only indicate system state.
-- Repeat the same badge in every row of a table or list. If the same value appears in most rows, it's not adding information; use plain text for common states and reserve badges for the exceptional ones.
-- Make badges clickable; they are read-only indicators. Use a button or link if the user needs to take action.
-
-Props:
-- `variant`: 'neutral' | 'info' | 'success' | 'warning' | 'error' | 'blue' | 'cyan' | 'green' | 'orange' | 'pink' | 'purple' | 'red' | 'teal' | 'yellow' = 'neutral' — Visual style variant. Semantic variants (neutral, info, success, warning, error) use solid backgrounds. Non-semantic color variants use tinted backgrounds with colored text for categorization and tagging.
-- `label`: ReactNode — Badge text content. A badge is one line, so a label wider than the space available is cut with an ellipsis rather than escaping its container; a string or number label is also set as the badge's title so the full text stays reachable on hover.
-- `icon`: ReactNode — Optional leading icon.
-
-### Banner
-
-Import: `import {Banner} from '@astryxdesign/core/Banner';`
-
-Banner shows a persistent message at the top of a page or section. Use it for form errors, system updates, maintenance notices, or success confirmations that the user needs to see until they act on it.
-
-Do:
-- Pick a status that matches the message: info for updates, warning for caution, error for problems, success for confirmations.
-- Use the card container inside page content and the section container for full-width messages that span the entire page.
-- Make info and success banners dismissable. Keep error banners visible until the user fixes the issue.
-- Keep titles short and scannable: "Payment failed" not "There was a problem processing your most recent payment."
-- Set collapsible={false} when the user needs the content to act on the message, like the list of fields that failed validation. Keep the default toggle when the detail is long enough to bury the banner\u2019s own message.
-- Error and warning banners render as role="alert"; info and success render as role="status". Mount an alert banner in response to an event rather than on first paint, so assistive tech has a change to report.
-
-Don't:
-- Use Banner for short-lived messages that disappear on their own; use Toast instead.
-- Stack multiple banners with the same status; combine related messages into one banner.
-- Rely on the status color or icon alone to carry meaning; say which status it is in the title text, because the icon is decorative to a screen reader.
-
-Props:
-- `status`: 'info' | 'warning' | 'error' | 'success' (required) — Status type controlling icon and color.
-- `title`: ReactNode (required) — Title text or ReactNode displayed in the header.
-- `description`: ReactNode — Description text rendered below the title in the header.
-- `icon`: ReactNode — Override the default status icon.
-- `isDismissable`: boolean = false — Whether the banner can be dismissed by the user.
-- `onDismiss`: () => void — Called when the dismiss button is clicked; banner hides itself regardless of whether this is provided.
-- `dismissLabel`: string — Accessible name and visible tooltip for the dismiss button (pass it already translated). Defaults to "Dismiss <title>" for a string title, so stacked banners are distinguishable; set it when the title is a ReactNode.
-- `endContent`: ReactNode — Action content rendered in the header area, end-aligned. Wraps to its own row below the text when the header is too narrow to hold both.
-- `container`: 'card' | 'section' = 'card' — Container type: card has border-radius; section is full-width with no border-radius for page-level use.
-- `elevation`: 'none' | 'low' | 'med' | 'high' = 'none' — Resting shadow depth. Use for a floating banner that hovers above content; `none` is the default inline banner. A `card`-container banner rounds its shadow to match.
-- `children`: ReactNode — Content rendered in the card-background area below the colored header. Sits behind an expand/collapse toggle unless `collapsible={false}`.
-- `collapsible`: boolean | {defaultIsOpen?: boolean; isOpen?: boolean; onOpenChange?: (isOpen: boolean) => void} = true — Whether the content area (children) sits behind an expand/collapse toggle in the header. On by default, starting collapsed. `false` opts out: children are always visible with no toggle. `{defaultIsOpen: true}` starts open; `{isOpen, onOpenChange}` is controlled. Takes the same CollapsibleConfig as Collapsible.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
-
-### ProgressBar
-
-Import: `import {ProgressBar} from '@astryxdesign/core/ProgressBar';`
-
-A horizontal bar showing the completion progress of a task. Use it for operations where the duration is known, or as an animated indicator when progress can't be calculated. Supports semantic color variants, value labels, and custom formatting.
-
-Do:
-- Use a determinate bar when the total amount of work is known, and indeterminate when it's not.
-- Choose a color variant that matches the context: accent for general progress, success for completion, warning or error for alerts.
-- Always provide a label, even if hidden; screen readers need it to announce what's loading.
-
-Don't:
-- Place icons or labels inside the bar; compose them alongside it using layout components.
-- Use a progress bar for instant actions; it's meant for operations that take noticeable time.
-- Use multiple progress bars stacked together for the same operation; use one bar with a value label instead.
-
-Props:
-- `label`: string (required) — accessible label
-- `value`: number = 0 — Current value (ignored when indeterminate).
-- `max`: number = 100 — Maximum value.
-- `isLabelHidden`: boolean = false — Visually hide the label (remains accessible).
-- `hasValueLabel`: boolean = false — Show formatted value text (ignored when indeterminate).
-- `formatValueLabel`: (value: number, max: number) => string — Custom value label formatter; defaults to a percentage string.
-- `variant`: 'accent' | 'success' | 'warning' | 'error' | 'neutral' = 'accent' — Semantic color variant.
-- `isIndeterminate`: boolean = false — Animated loading indicator for unknown progress.
-- `marks`: ReadonlyArray<{value: number; label: string}> — Fixed target marks drawn on the track at values in the same 0..max scale as value (e.g. a goal line). They stay visible whether progress is below or past them, and take their color from what they sit on: a mark inside the filled area uses the fill variant's on-color (on-accent, on-warning, on-error, and so on), a mark still out on the bare track uses the primary text color (the secondary one on a disabled bar, which dims everything it draws). Each mark requires a label: it is the mark's accessible name and the text revealed via a tooltip on hover/focus. Ignored when indeterminate.
-- `isDisabled`: boolean = false — Visually disabled state: grays out the fill and text. Use for canceled or inactive operations.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
-
-### Skeleton
-
-Import: `import {Skeleton} from '@astryxdesign/core/Skeleton';`
-
-An animated shimmer placeholder that previews the shape of content while it loads. Use it to build loading screens that match the layout of the real content. For content with unknown dimensions, use Spinner instead.
-
-Do:
-- Match the size and shape of the content being loaded to create a realistic placeholder.
-- Stagger multiple skeletons with the `index` prop for a natural wave animation.
-
-Don't:
-- Use when the content dimensions are unknown; use Spinner instead.
-- Combine with a Spinner on the same content area; pick one loading pattern.
-- Show skeletons indefinitely; if loading takes too long, show an error or empty state instead.
-
-Props:
-- `width`: number | string = '100%' — Width in pixels (number) or CSS value (string).
-- `height`: number | string = '100%' — Height in pixels (number) or CSS value (string).
-- `radius`: 'none' | 0 | 1 | 2 | 3 | 4 | 'rounded' = 3 — Border radius using design token scale. Use none for sharp corners, rounded for fully rounded (avatars, pills, circles).
-- `index`: number = 0 — Index for staggered animation timing. For element at index n, animation starts at DELAY_TIME + (STAGGER_TIME × n).
-
-### Spinner
-
-Import: `import {Spinner} from '@astryxdesign/core/Spinner';`
-
-An animated loading indicator for processes with unknown duration, such as data fetching or form submission. Supports visible labels, multiple sizes, and a dark background variant. For content with known dimensions, use Skeleton instead.
-
-Do:
-- Provide a meaningful label to describe what is loading for screen reader users.
-- Use the "onMedia" shade when placed on dark or accent-colored backgrounds.
-
-Don't:
-- Use for content areas with known dimensions; use Skeleton to preserve layout instead.
-- Stack multiple spinners in the same view; use one to represent the overall loading state.
-
-Props:
-- `size`: 'sm' | 'md' | 'lg' | 'xl' = 'md' — Spinner size — ring diameter (10px, 14px, 18px, 28px).
-- `shade`: 'default' | 'onMedia' | 'subtle' | 'inherit' = 'default' — Color shade for light or dark backgrounds.
-- `label`: ReactNode — Visible content below the spinner. String labels auto-set aria-label.
-- `aria-label`: string = 'Loading' — Accessible name for screen readers. Defaults to label (if string) or "Loading".
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
-
-### StatusDot
-
-Import: `import {StatusDot} from '@astryxdesign/core/StatusDot';`
-
-A small colored dot that communicates status like online/offline presence or severity levels. Supports five semantic variants and an optional pulse animation. Always pair with a visible text label, as color alone should not carry meaning.
-
-Do:
-- Use StatusDot as a binary present/absent signal; avoid encoding many distinct states in a single dot, since color and size alone cannot reliably distinguish them.
-- Always pair with a visible text label so status is not conveyed by color alone.
-- Provide a descriptive `label` prop for screen reader accessibility.
-- Pair the dot with an icon that carries the status as a distinct shape when it must stand on its own without adjacent text, so meaning survives without color.
-- If you can't add a label or an icon, make sure the status is conveyed elsewhere accessibly (e.g. adjacent text, a table column, or a live region).
-
-Don't:
-- Rely on color alone to communicate status; StatusDot is not fully accessible in isolation, so the builder must make the status distinguishable in context via a label, an icon, or an accessible alternative.
-- Use the pulse animation for purely decorative purposes; reserve it for states that require immediate attention.
-
-Props:
-- `variant`: 'success' | 'warning' | 'error' | 'accent' | 'neutral' (required) — Semantic color variant.
-- `label`: string (required) — Accessible label surfaced via aria-label.
-- `isPulsing`: boolean = false — Enables a pulse animation; respects prefers-reduced-motion: reduce.
-- `tooltip`: string — Tooltip text shown on hover to explain the status meaning.
-- `icon`: ReactNode — Optional icon rendered centered inside the dot, painted in currentColor (the variant's ink). Gives the status a non-color mark, so use a different icon per status. Booleans and empty strings are ignored, so `cond && <Icon />` is safe. Same contract as AvatarStatusDot.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
-
-## Focus
-
-### useFocusTrap
-
-Import: `import {useFocusTrap} from '@astryxdesign/core/hooks';`
-
-Traps focus within a container element following the WAI-ARIA dialog focus trap pattern. Listens to focus events on the document and redirects focus back into the container if it escapes via keyboard navigation. Handles both Tab and Shift+Tab wrapping. When the trap deactivates or unmounts, focus is restored to the element that was focused before activation, unless focus was already moved elsewhere. Mouse clicks outside the container are not intercepted; use a light-dismiss handler for that.
-
-Do:
-- Call focusFirst() when opening a dialog/modal to move focus into the trapped region.
-- Provide an onEscape callback to close the dialog when Escape is pressed.
-- Rely on the built-in focus restoration on close; only add your own onHide focus handling when you need to send focus somewhere other than the previously-focused element.
-
-Don't:
-- Use on non-modal content like tooltips or dropdowns; those need light-dismiss, not focus trapping.
-
-Parameters:
-- `options`: UseFocusTrapOptions (required) — Configuration object for the focus trap.
-- `options.isActive`: boolean (required) — Whether the focus trap is currently active.
-- `options.onEscape`: () => void — Callback when Escape key is pressed inside the trapped container.
-
-Returns:
-- `containerRef`: React.RefObject<HTMLElement | null> — Ref to attach to the container element that should trap focus.
-- `focusFirst`: () => void — Focuses the first focusable element inside the container.
-
-### useGridFocus
-
-Import: `import {useGridFocus} from '@astryxdesign/core/hooks';`
-
-Manages keyboard navigation within a 2D grid following the WAI-ARIA grid pattern. Supports arrow keys for cell-to-cell navigation, Home/End for row boundaries, Ctrl+Home/Ctrl+End for grid boundaries, and Page Up/Down for custom callbacks (e.g., month navigation in calendars). Boundary navigation callbacks allow cross-grid navigation.
-
-Do:
-- Use for calendar date grids: wire onPageUp/onPageDown to month navigation and onNavigateBefore/onNavigateAfter for cross-month arrow key navigation.
-- Attach both gridRef and handleKeyDown to the grid container element.
-- For roving-tabindex grids (e.g. Calendar), set hasRovingTabIndex: true and attach handleFocus to the container onFocus; seed one focus target with tabindex=0 and the hook repairs and moves it.
-
-Don't:
-- Use for simple linear lists; prefer useListFocus for 1D navigation.
-
-Parameters:
-- `options`: UseGridFocusOptions (required) — Configuration object for grid focus behavior.
-- `options.columns`: number (required) — Number of columns in the grid. Used for up/down navigation (moves by this many cells).
-- `options.cellSelector`: string = 'button:not([disabled]), [tabindex]:not([tabindex="-1"])' — Selector for cells within the grid. Should match ALL cell positions in DOM order (including disabled/empty) so grid geometry is preserved.
-- `options.isCellFocusable`: (cell: HTMLElement) => boolean — Predicate for whether a matched cell can receive focus. Omit to treat every matched cell as focusable.
-- `options.getFocusTarget`: (cell: HTMLElement) => HTMLElement | null — Resolves the element to focus for a cell, e.g. a button inside a role="gridcell" wrapper. Omit to focus the cell itself.
-- `options.onNavigateBefore`: (column: number, offset: number) => void — Callback when navigation would go before the first cell. Receives the column index and offset (1 for horizontal, columns for vertical).
-- `options.onNavigateAfter`: (column: number, offset: number) => void — Callback when navigation would go after the last cell. Receives the column index and offset.
-- `options.onPageUp`: () => void — Callback for Page Up key (e.g., navigate to previous month in calendars).
-- `options.onPageDown`: () => void — Callback for Page Down key (e.g., navigate to next month in calendars).
-- `options.isRtl`: boolean = undefined (auto-detect from the container's computed direction) — Swap ArrowLeft/ArrowRight so horizontal navigation follows visual direction in right-to-left contexts. When omitted, auto-detected from the container computed direction on keydown.
-- `options.hasRovingTabIndex`: boolean = false — Own a single roving tab stop across the grid: one focusable cell (its resolved focus target) carries tabindex="0", the rest -1. Stamped/repaired on render and moved with arrow navigation. Attach the returned handleFocus to the container onFocus.
-
-Returns:
-- `gridRef`: React.RefObject<HTMLElement | null> — Ref to attach to the grid container element.
-- `handleKeyDown`: (e: React.KeyboardEvent) => void — Key down handler to attach to the grid container.
-- `handleFocus`: (e: React.FocusEvent) => void — Focus handler for the grid container. Keeps the roving tab stop in sync when hasRovingTabIndex is enabled; a no-op otherwise, so always safe to attach.
-- `focusCell`: (index: number) => void — Focus a specific cell by index (clamped to valid range).
-- `focusFirst`: () => void — Focus the first focusable cell in the grid.
-- `focusLast`: () => void — Focus the last focusable cell in the grid.
-
-### useIndicatorFocusRing
-
-Import: `import {useIndicatorFocusRing} from '@astryxdesign/core/hooks';`
-
-Draws the standard focus ring on the indicator of a control whose real input is visually hidden; a checkbox or radio focuses an opacity-0 input, so the ring has to appear on the picture beside it. The ring is painted imperatively on the indicator's own element, which is the only element whose border-radius can shape it, and only on :focus-visible, so pointer clicks stay quiet. Owning it here means a theme-supplied indicator cannot ship a control with no visible focus (WCAG 2.4.7) by ignoring a prop.
-
-Do:
-- Wrap only the indicator in the ref'd element; a wrapper holding label text would ring the whole row.
-- Spread focusProps on the element that contains the hidden input, not on the input itself.
-
-Don't:
-- Ask a themeable indicator to draw its own focus ring; a replacement that ignores the prop leaves the control with no visible focus.
-
-Parameters:
-- `containerRef`: RefObject<HTMLElement | null> (required) — Ref to an element wrapping only the indicator, so its single element child is unambiguously the thing to ring.
-- `isDisabled`: boolean = false — Skip the ring; a disabled control is not focusable.
-
-Returns:
-- `focusProps`: {onFocus: (event: FocusEvent<HTMLElement>) => void; onBlur: () => void} — Spread onto the element that owns the focusable input.
-
-### useKeyboardHint
-
-Import: `import {useKeyboardHint} from '@astryxdesign/core/hooks';`
-
-Shows an ephemeral "← → to navigate" hint anchored to the focused item the first time a roving-tabindex composite (Toolbar, TabList, SegmentedControl, etc.) receives keyboard focus. It teaches sighted keyboard users that arrow keys move within the group. The hint renders arrow keys with Kbd in the top layer (popover="manual") and is CSS-anchor-positioned to the focused element, so overflow containers never clip it. It auto-dismisses on the first arrow press, on timeout, or on blur, and does not re-show for that instance. Toolbar, TabList, and SegmentedControl wire this in automatically; reach for the hook directly only when building a custom roving-tabindex widget.
-
-Do:
-- Compose the returned onFocus/onKeyDown with your existing focus handlers rather than replacing them: call onKeyDown first (it only dismisses, never prevents), then your navigation handler.
-- Render hintElement as the last child of the composite container; it is position:fixed in the top layer and aria-hidden, so it never affects layout or the accessibility tree.
-- Match orientation to the arrow keys your widget actually responds to so the hint shows the correct icons.
-
-Don't:
-- Use for single controls or widgets without roving-tabindex navigation; the hint only makes sense where arrows move focus within a group.
-
-Parameters:
-- `options`: UseKeyboardHintOptions — Configuration object for the keyboard hint.
-- `options.orientation`: 'horizontal' | 'vertical' | 'both' = 'horizontal' — Which arrow-key axis the composite navigates, controlling which arrow icons the hint shows (← → for horizontal, ↑ ↓ for vertical, all four for both).
-- `options.dismissAfterMs`: number = 3000 — Milliseconds before the hint auto-dismisses after appearing.
-- `options.isEnabled`: boolean = true — Whether the hint is enabled. Set to false to suppress it for a specific instance (e.g. a disabled or read-only widget).
-
-Returns:
-- `hintElement`: ReactNode — The popover hint element to render inside the composite container (as the last child). Portals to the top layer via popover="manual", renders arrow keys with Kbd, and manages its own visibility; render it unconditionally.
-- `onFocus`: (e: React.FocusEvent) => void — Attach to the container onFocus. Shows the hint on the first keyboard-focus (:focus-visible) entry from outside the composite.
-- `onBlur`: (e: React.FocusEvent) => void — Attach to the container onBlur. Hides the hint when focus leaves the composite entirely, and re-anchors when focus moves within.
-- `onKeyDown`: (e: React.KeyboardEvent) => void — Attach to the container onKeyDown. Dismisses the hint on the first arrow press (the user has discovered the interaction). Never prevents default or stops propagation.
-
-### useListFocus
-
-Import: `import {useListFocus} from '@astryxdesign/core/hooks';`
-
-Manages keyboard navigation within a linear list following WAI-ARIA menu/listbox/toolbar patterns. Supports arrow key navigation (vertical, horizontal, or both), Home/End for boundaries, optional wrap-around, RTL, and Escape to close. Opt into hasRovingTabIndex for composite widgets (toolbars, segmented controls, tab strips) that own a single tab stop. Suitable for dropdown menus, toolbars, and any 1D focusable list.
-
-Do:
-- Set orientation to 'horizontal' for toolbars and tab bars, 'vertical' for dropdown menus.
-- Provide an onEscape callback for menus/dropdowns to return focus to the trigger.
-- Enable hasRovingTabIndex (and hasCaretGuard when the widget can contain text inputs) for toolbar-style composites that should be a single tab stop.
-
-Don't:
-- Use for 2D grid navigation; prefer useGridFocus for grids and calendars.
-
-Parameters:
-- `options`: UseListFocusOptions — Configuration object for list focus behavior. All fields are optional.
-- `options.itemSelector`: string = '[role="menuitem"]' — Selector for focusable items within the list.
-- `options.boundarySelector`: string — Selector identifying a list boundary, for lists that contain nested lists of the same kind (e.g. a menu with submenu flyouts). When set, item collection and key handling are scoped to this level's own container. Typically '[role="menu"]'.
-- `options.wrap`: boolean = true — Whether arrow navigation wraps around at the ends.
-- `options.onEscape`: () => void — Callback when Escape key is pressed (e.g., close menu). Supplying it also consumes the key (preventDefault); without it Escape passes through to the surrounding layer.
-- `options.orientation`: 'horizontal' | 'vertical' | 'both' = 'vertical' — Navigation orientation. 'horizontal' uses ArrowLeft/ArrowRight, 'vertical' uses ArrowUp/ArrowDown, 'both' accepts all four arrows.
-- `options.hasHomeEnd`: boolean = true — Whether Home/End jump to the first/last enabled item.
-- `options.isRtl`: boolean = undefined (auto-detect from the container's computed direction) — Whether the list is in a right-to-left context. When true, ArrowLeft/ArrowRight are swapped for horizontal navigation so it follows visual direction. When omitted, auto-detected from the container computed direction on keydown.
-- `options.hasRovingTabIndex`: boolean = false — Opt into roving-tabindex ownership: the hook stamps a single tab stop (one item tabindex="0", the rest -1), repairs it as items mount/unmount or toggle disabled, and moves it with arrow navigation. When false, the hook only moves focus and never touches tabindex.
-- `options.hasCaretGuard`: boolean = false — When true, arrow keys are not stolen from a nested text input/textarea whose caret is not at the boundary in the direction of travel (or that has a selection), and are never stolen from a nested contenteditable (rich-text editor / chat composer). Preserves inline text editing within the list.
-
-Returns:
-- `listRef`: React.RefObject<HTMLElement | null> — Ref to attach to the list container element.
-- `handleKeyDown`: (e: React.KeyboardEvent) => void — Key down handler to attach to the list container.
-- `handleFocus`: (e: React.FocusEvent) => void — Focus handler for the container. Keeps the roving tab stop in sync when hasRovingTabIndex is enabled; a no-op otherwise, so it is always safe to attach.
-- `focusItem`: (index: number) => void — Focus a specific item by index (clamped to valid range).
-- `focusFirst`: () => boolean — Focus the first enabled item. Returns true when an item was focused.
-- `focusLast`: () => boolean — Focus the last enabled item. Returns true when an item was focused.
-- `ownsEvent`: (e: React.KeyboardEvent) => boolean — Whether a key event belongs to this list level rather than a nested list sharing the same boundarySelector. Always true when no boundarySelector is set. Use to guard consumer-added key handling (Enter/Space, typeahead).
-- `getItems`: () => HTMLElement[] — This level's focusable items in DOM order (already scoped by boundarySelector). Build typeahead targets from this instead of re-querying.
-
-### useTreeFocus
-
-Import: `import {useTreeFocus} from '@astryxdesign/core/hooks';`
-
-Manages roving-tabindex focus and the WAI-ARIA tree keyboard model. ArrowUp/ArrowDown/Home/End roam linearly over the visible treeitems (skipping disabled ones), while ArrowRight/ArrowLeft carry tree semantics (expand/collapse, move to first-child/parent). Enter/Space activate, and printable characters trigger typeahead.
-
-Do:
-- Use for hierarchical tree widgets: wire onToggleExpand to your expansion state and onActiveChange to a single roving tab stop.
-- Attach both treeRef and handleKeyDown to the role="tree" container element.
-
-Don't:
-- Use for linear lists (prefer useListFocus) or 2D grids (prefer useGridFocus); those traversals differ from a tree.
-
-Parameters:
-- `options`: UseTreeFocusOptions — Configuration object for tree focus behavior.
-- `options.itemSelector`: string = '[role="treeitem"]' — Selector for visible treeitems within the tree, in DOM order.
-- `options.isItemDisabled`: (item: HTMLElement) => boolean — Predicate for whether a treeitem is disabled and must be skipped during navigation. Defaults to reading `data-tree-disabled` / `aria-disabled`.
-- `options.getLevel`: (item: HTMLElement) => number — Reads the 1-based nesting level of a treeitem. Defaults to the `aria-level` attribute.
-- `options.onToggleExpand`: (id: string) => void — Called to expand/collapse the treeitem with the given id (ArrowRight on a collapsed parent, ArrowLeft on an expanded parent, Enter/Space on a parent without its own action).
-- `options.onActivate`: (item: HTMLElement, id: string | undefined) => boolean | void — Called when Enter/Space activates a treeitem. Return true when handled; return false/undefined to let the hook fall back to toggling expansion.
-- `options.onActiveChange`: (id: string | undefined) => void — Notified when the hook moves focus to a treeitem. Consumers use this to move a single roving tab stop.
-- `options.hasRovingTabIndex`: boolean = false — When true, the hook owns a single roving tab stop across the visible treeitems (stamps tabindex 0/-1, repairs on mount, moves with navigation). Preserves an existing tabindex="0" seed on mount. Attach the returned `handleFocus` to keep the stop in sync after clicks.
-- `options.typeahead`: boolean = true — Whether typeahead (jump to next item whose text starts with the typed characters) is enabled.
-
-Returns:
-- `treeRef`: React.RefObject<HTMLElement | null> — Ref to attach to the tree container element (role="tree").
-- `handleKeyDown`: (e: React.KeyboardEvent) => void — Key down handler to attach to the tree container.
-- `handleFocus`: (e: React.FocusEvent) => void — Focus handler to attach to the container's onFocus. Keeps the roving tab stop in sync when hasRovingTabIndex is enabled; a no-op otherwise, so always safe to attach.
-- `focusFirst`: () => void — Focus the first enabled visible treeitem.
-- `focusLast`: () => void — Focus the last enabled visible treeitem.
-
-### useTypeahead
-
-Import: `import {useTypeahead} from '@astryxdesign/core/hooks';`
-
-Adds APG type-to-focus search to a collection: printable keystrokes are buffered (resetting after a pause), and the first item whose label starts with the buffer is reported through onMatch. Pressing the same letter repeatedly cycles through the matches rather than filtering deeper. It moves nothing itself; pair it with the collection's own focus management, most often useListFocus or useGridFocus.
-
-Do:
-- Wire onMatch to the focus manager you already have (useListFocus.focusItem) instead of moving focus yourself.
-- Let it see the key event first and fall through to arrow-key navigation only when it returns false.
-- Pass getCurrentIndex so repeated presses of one letter walk through matches instead of sticking on the first.
-
-Don't:
-- Use it on a text input; the field already receives the characters, and typeahead would fight the value.
-
-Parameters:
-- `options`: UseTypeaheadOptions (required) — Configuration object.
-- `options.getItemLabels`: () => ReadonlyArray<string | null | undefined> (required) — Returns the item labels in DOM order. A null or empty entry marks a non-matchable slot and keeps indices aligned with the caller's items.
-- `options.onMatch`: (index: number) => void (required) — Called with the index of the matched item so the caller can focus or select it; typically useListFocus's focusItem.
-- `options.getCurrentIndex`: () => number = () => -1 — The index to search from, usually the focused item, so repeated presses of one letter cycle through matches. A negative value means nothing is current.
-- `options.resetMs`: number = 750 — Milliseconds of inactivity after which the typed buffer resets.
-- `options.isDisabled`: (index: number) => boolean — Whether an index should be skipped, e.g. disabled items.
-
-Returns:
-- `onKeyDown`: (e: React.KeyboardEvent | KeyboardEvent) => boolean — Keydown handler. Returns true when it consumed a printable character, so the caller can stop its own key handling.
-- `reset`: () => void — Clears the pending buffer, e.g. when the collection closes.
 
 ## Interaction
 
@@ -4245,6 +4259,7 @@ Don't:
 Props:
 - `isOpen`: boolean — Whether a standalone sheet is open. Fully controlled; pair with onOpenChange. Omit inside BottomSheetSwitcher.
 - `onOpenChange`: (isOpen: boolean) => void — For a standalone sheet, called when it requests an open-state change. Automatic calls follow purpose: info dismisses on Escape, scrim click, or swipe; form dismisses on Escape only; required never dismisses implicitly. Omit inside BottomSheetSwitcher.
+- `finalFocusRef`: RefObject<HTMLElement | null> — Optional explicit focus-return target for a standalone sheet. Use when the opener can remount or the active element is not a reliable trigger, such as an adaptive presentation switch. Omit inside BottomSheetSwitcher.
 - `purpose`: 'required' | 'form' | 'info' = 'info' — Controls implicit dismissal behavior, matching Dialog. info allows Escape, scrim click, and swipe-to-dismiss. form protects entered data by blocking scrim click and swipe while allowing Escape. required blocks every implicit dismissal path and uses role='alertdialog'. Explicit controls may still update the controlled state. Works for standalone and BottomSheetSwitcher-managed sheets.
 - `sheetId`: string — Unique ID for this sheet inside BottomSheetSwitcher. The switcher opens it when activeSheet matches. Omit isOpen and onOpenChange when sheetId is used.
 - `label`: string (required) — Accessible label for the sheet. Required; the sheet has no built-in heading to derive a name from.
@@ -4428,8 +4443,8 @@ Do:
 
 Don't:
 - Nest popovers inside other popovers; it creates confusing focus and navigation.
-- Use a popover for content that requires heavy user input; use a Dialog instead.
-- Put too much content in a popover; if it needs scrolling, use a Dialog instead.
+- Assume input complexity alone determines the presentation; evaluate the task’s focus, space, and interaction requirements.
+- Assume scrolling alone means Popover is the wrong component; a bounded Popover may scroll while a focused anchored interaction remains appropriate.
 
 Props:
 - `children`: ReactNode — Trigger element. Must contain a <button> or [role="button"] element.
@@ -4440,13 +4455,13 @@ Props:
 - `isOpen`: boolean — Whether the popover is shown in controlled mode.
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when the popover visibility changes.
 - `isEnabled`: boolean = true — When false, trigger interactions are ignored.
-- `width`: number | string = 'auto' — Width of the popover container.
+- `width`: number | string = 'auto' — Width of the popover container. The layer still caps to the viewport with alignment-aware safe-area gutters before scrolling long content.
 - `label`: string — Accessible label for the popover dialog.
 - `role`: 'dialog' | 'none' = 'dialog' — ARIA role for the popover wrapper. Use dialog for dialog-style popovers; use none when content provides its own role, like menu or listbox.
 - `isModal`: boolean = true — Whether a dialog-style popover sets aria-modal. Only applies when role is dialog.
 - `hasCloseButton`: boolean = true — Whether to include a hidden close button for accessibility.
 - `closeButtonLabel`: string = 'Close popover' — Label for the hidden close button.
-- `hasAutoFocus`: boolean = true — Whether to auto-focus the first focusable element when the popover opens. Set to false for inline showcases or documentation previews.
+- `hasAutoFocus`: boolean = true — Whether to move focus into the popover when it opens. Keyboard activation focuses the first content control; pointer activation focuses the labeled dialog container so an action does not appear preselected. Set to false for inline showcases or documentation previews.
 - `hasLightDismiss`: boolean = true — Whether clicking outside dismisses the popover. Set to false for surfaces that stay open until explicitly dismissed, like onboarding coachmarks.
 - `hasEscapeDismiss`: boolean = true — Whether pressing Escape dismisses the popover. Only takes full effect together with hasLightDismiss={false}, since native light dismiss also closes on Escape.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.

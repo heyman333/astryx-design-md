@@ -2,7 +2,7 @@
 
 > Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 227 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 
-Generated from commit `8359f1a` (2026-08-29) of https://github.com/facebook/astryx.
+Generated from commit `e4f8e4e` (2026-08-31) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -44,9 +44,9 @@ Key facts:
 - Chat: Chat, ChatComposer, ChatComposerDrawer, ChatComposerInput, ChatComposerTokenElement, ChatDictationButton, ChatLayout, ChatLayoutScrollButton, ChatMessage, ChatMessageBubble, ChatMessageList, ChatMessageMetadata, ChatSendButton, ChatSystemMessage, ChatTokenizedText, ChatToolCalls
 - Container: Card, Carousel, ClickableCard, Collapsible, CollapsibleGroup, SelectableCard
 - Content: Avatar, AvatarStatusDot, AvatarGroup, AvatarGroupOverflow, Blockquote, Citation, Code, CodeBlock, EmptyState, Icon, Kbd, Markdown, Heading, Text, Thumbnail, Timestamp, Token
-- Data Input: Calendar, CheckboxInput, CheckboxList, CheckboxListItem, ComplexSelector, DateInput, DateRangeInput, DateTimeInput, Field, FieldLabel, FieldStatus, FileInput, Indicator, InputGroup, InputGroupText, MultiSelector, NumberInput, PowerSearch, RadioList, RadioListItem, Selector, SelectorOption, Slider, Switch, TextArea, TextInput, TimeInput, Tokenizer, BaseTypeahead, Typeahead, TypeaheadItem
 - Feedback & Status: Badge, Banner, ProgressBar, Skeleton, Spinner, StatusDot
 - Focus: useFocusTrap, useGridFocus, useIndicatorFocusRing, useKeyboardHint, useListFocus, useTreeFocus, useTypeahead
+- Form Controls: Calendar, CheckboxInput, CheckboxList, CheckboxListItem, ComplexSelector, DateInput, DateRangeInput, DateTimeInput, Field, FieldLabel, FieldStatus, FileInput, Indicator, InputGroup, InputGroupText, MultiSelector, NumberInput, PowerSearch, RadioList, RadioListItem, Selector, SelectorOption, Slider, Switch, TextArea, TextInput, TimeInput, Tokenizer, BaseTypeahead, Typeahead, TypeaheadItem
 - Interaction: useCollapsible, useHoverCard, useLayer, usePopover, useToast, useTooltip, useClickableContainer, useClipboard, useContainerReveal, useHotkeys, useInputContainer, useInputStatusIcon, useInteractiveRole, useLongPress
 - Layout: AppShell, useAppShellMobile, AspectRatio, Center, Divider, FormLayout, Grid, GridSpan, Layout, LayoutContent, LayoutFooter, LayoutHeader, LayoutPanel, Resizable, useResizable, Section, Stack, useOverflow, useScrollLock, useScrollOverflow
 - Media: useImageMode, useMediaQuery

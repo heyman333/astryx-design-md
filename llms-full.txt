@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `e4f8e4e` (2026-08-31) of https://github.com/facebook/astryx.
+Generated from commit `a1f0dde` (2026-08-31) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -113,65 +113,31 @@ Props:
 - `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
 - `data-testid`: string — Test selector for automated testing frameworks.
 
-### ContextMenu
+### Control
 
-Import: `import {ContextMenu} from '@astryxdesign/core/ContextMenu';`
+Import: `import {Control} from '@astryxdesign/core/SegmentedControl';`
 
-A right-click context menu that appears at the cursor position. Use to provide contextual actions for specific elements or regions without cluttering the UI with visible buttons.
-
-Do:
-- Keep menu items concise and action-oriented; users expect quick access to contextual actions.
-- Use sections and dividers to group related actions when the menu has many items.
-- Use `presentation="adaptive"` when right-click should remain cursor-positioned on desktop while long-press opens a reachable BottomSheet on compact touch devices.
-- Ensure all context menu actions are also accessible via other UI elements for keyboard-only users.
-- Keep a visible MoreMenu or equivalent trigger for important mobile actions; long-press must not be the only route.
-
-Don't:
-- Use a ContextMenu as the only way to access important actions; not all users know to right-click.
-- Place more than 10–12 items in a single menu without grouping them into sections.
-
-Props:
-- `children`: ReactNode (required) — The trigger area: right-click on this content to open the menu.
-- `items`: ContextMenuOption[] (required) — Array of menu entries. Each entry is one of: an action item `{label, onClick?, icon?, isDisabled?, variant?, items?}` (nested `items` open a flyout in popover presentation and drill into a new view in bottom-sheet presentation; variant `"destructive"` renders it in the error color), a divider `{type: "divider"}`, or a section `{type: "section", title?, items: [...action items]}`.
-- `menuContent`: ReactNode — Custom JSX menu content for compound mode. Use instead of items for dynamic or stateful menus.
-- `menuWidth`: number | string = '160px' — Custom menu width.
-- `size`: 'sm' | 'md' | 'lg' = 'md' — Size of menu items: controls padding density.
-- `label`: string = 'Context menu' — Accessible name for the menu surface, announced when it opens.
-- `onOpenChange`: (isOpen: boolean) => void — Callback fired when the menu opens or closes.
-- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — Presentation policy. `popover` opens at the pointer position, `bottom-sheet` always uses an action sheet, and `adaptive` uses the BottomSheet at 768px and below when the primary pointer is coarse.
-- `isDisabled`: boolean = false — When true, right-click shows the native browser context menu instead.
-
-### DropdownMenu
-
-Import: `import {DropdownMenu} from '@astryxdesign/core/DropdownMenu';`
-
-A dropdown menu that displays a list of actionable items in a popup triggered by a button. Use to present action options as a next step in a process, or to offer contextual actions without cluttering the interface.
+A segmented button group that allows users to make a single selection from a small set of mutually exclusive options. Use SegmentedControl when all options should be visible at once and the selection controls a value or mode, not page navigation.
 
 Do:
-- Keep menu items concise and action-oriented so users can scan options quickly.
-- Use sections and dividers to group related actions when the menu has many items.
-- For a short, flat action set, use presentation="bottom-sheet" when product policy calls for a modal touch surface.
-- Use presentation="adaptive" when the same short action set should remain anchored on pointer layouts and become a BottomSheet on compact coarse-pointer layouts.
-- For a hierarchy that cannot fit as adjacent flyouts on a compact touch surface, a product may explicitly use a drill-in interaction with a Back action.
-- Choose presentation explicitly in product code. A compact, coarse-pointer, hover-free media query is one useful policy, but DropdownMenu does not impose a universal device breakpoint.
-- When the content is no longer a short list of immediate actions, reevaluate the interaction and choose a component that matches the actual task; content traits alone do not determine the component.
+- Use for switching between 2–5 mutually exclusive views or modes where all options should be visible.
+- Provide a descriptive label for the control to ensure the group is accessible to screen readers.
 
 Don't:
-- Use a DropdownMenu for navigation; use a navigation component instead.
-- Place more than 10–12 items in a single menu without grouping them into sections.
+- Use for page-level navigation; use TabList instead. TabList is a navigation component, while SegmentedControl is an input that always has exactly one selected option.
+- Use for simple on/off states; use ToggleButton instead. ToggleButton can be toggled on or off independently, while SegmentedControl enforces a single selection from a group.
+- Wrap a disabled SegmentedControl in Tooltip to explain why it is disabled; disabled controls swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
 
 Props:
-- `button`: DropdownMenuButtonProps = { label: 'Menu' } — Props for the trigger button (Button props except onClick).
-- `items`: DropdownMenuOption[] (required) — Array of menu entries. Each entry is one of: an action item `{label, onClick?, icon?, description?, endContent?, isDisabled?, variant?, hasCloseOnSelect?, id?}` (variant `"destructive"` renders it in the error color; `endContent` holds trailing content such as a keyboard-shortcut hint; `id` is the row's stable React key, needed only when the array reorders or filters), a divider `{type: "divider"}`, or a section `{type: "section", title?, id?, items: [...action items]}`.
-- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — Presentation surface for data-driven items. 'popover' stays anchored, 'bottom-sheet' always renders the actions in a modal BottomSheet, and 'adaptive' uses a BottomSheet on compact coarse-pointer layouts while remaining anchored elsewhere. Compound children currently support popover only.
-- `isMenuOpen`: boolean — Controlled open state for the menu.
-- `onOpenChange`: (isOpen: boolean) => void — Callback fired when the open state changes.
-- `menuWidth`: number | string — Minimum width for the popover presentation. Length values may grow for content; intrinsic and CSS-wide keywords select the preferred inline size. Every form is capped to the available viewport space. Defaults to matching the trigger width up to that cap.
-- `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Popover placement relative to the trigger. Ignored by the bottom-sheet presentation. Logical: start/end resolve against the menu's own inherited direction (RTL mirrors).
-- `alignment`: 'start' | 'center' | 'end' = 'start' — Popover alignment along the placement axis. Ignored by the bottom-sheet presentation. Logical: start/end follow the menu's own inherited direction (RTL mirrors).
-- `onClick`: () => void — Callback fired when the trigger button is clicked.
-- `hasChevron`: boolean = true — Whether to show a chevron icon on the trigger button. Set to false for icon-only triggers.
-- `children`: ReactNode — Compound-mode menu content: DropdownMenuItem, DropdownMenuDivider, DropdownMenuSubMenu, and the selectable items. Mutually exclusive with `items`.
+- `value`: string (required) — The currently selected value (controlled).
+- `onChange`: (value: string) => void (required) — Callback fired when a segment is selected.
+- `label`: string (required) — Accessible label for the radio group (used as aria-label, never rendered visually).
+- `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant for the control.
+- `layout`: 'hug' | 'fill' = 'hug' — Layout mode. hug (default) sizes segments to content; fill stretches them equally to fill the container.
+- `isDisabled`: boolean = false — Whether the entire control is disabled.
+- `disabledMessage`: string — Explains why the control is disabled. Applies to the whole-group disabled state (isDisabled), not per segment. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the control focusable via aria-disabled (selection stays blocked). Use this instead of wrapping a disabled SegmentedControl in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
+- `children`: ReactNode (required) — SegmentedControlItem children.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 
 ### IconButton
 
@@ -238,58 +204,38 @@ Props:
 - `maxLines`: number = 0 — Maximum lines before truncation.
 - `children`: ReactNode (required) — Link content
 
-### MoreMenu
+### Outer chrome
 
-Import: `import {MoreMenu} from '@astryxdesign/core/MoreMenu';`
+Import: `import {Outer chrome} from '@astryxdesign/core/Toolbar';`
 
-MoreMenu is a three-dot button that opens a list of actions. Use it for secondary actions that don't need to be always visible, like in table rows, card headers, or toolbars.
-
-Do:
-- Use for overflow or secondary actions; keep primary actions visible outside the menu.
-- Use dividers or sections to group related actions when the menu has many items.
-- Use `presentation="adaptive"` when the visible overflow trigger should open a thumb-reachable BottomSheet on compact touch devices.
-
-Don't:
-- Hide primary actions inside a MoreMenu; they should be directly visible.
-
-Props:
-- `items`: DropdownMenuOption[] (required) — Menu items: data array of actions, dividers, and sections. Same type as DropdownMenu items prop.
-- `label`: string = 'More options' — Accessible label for the trigger button (aria-label) and tooltip text.
-- `variant`: ButtonVariant = 'ghost' — Visual style variant of the trigger button.
-- `size`: ButtonSize = 'md' — Size of the trigger button.
-- `icon`: ReactNode — Override the default three-dot icon. Accepts any ReactNode.
-- `isDisabled`: boolean = false — Whether the menu trigger is disabled.
-- `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Position of the menu relative to the trigger. Logical: start/end resolve against the menu's own inherited direction (RTL mirrors).
-- `alignment`: 'start' | 'center' | 'end' = 'start' — Alignment along the placement axis. Use 'end' to align the menu with the trigger's trailing edge, which is usually what an overflow menu wants.
-- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — Presentation policy forwarded to DropdownMenu. `adaptive` keeps the anchored popover on pointer-based layouts and uses a BottomSheet at 768px and below when the primary pointer is coarse.
-- `onOpenChange`: (isOpen: boolean) => void — Callback fired when the menu opens or closes.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
-
-### SegmentedControl
-
-Import: `import {SegmentedControl} from '@astryxdesign/core/SegmentedControl';`
-
-A segmented button group that allows users to make a single selection from a small set of mutually exclusive options. Use SegmentedControl when all options should be visible at once and the selection controls a value or mode, not page navigation.
+Toolbar is a horizontal bar with left, center, and right areas. Use it for contextual actions within a content area (above a table, inside a card, or in a panel), not as a page-level header. Set the size once on the toolbar and all buttons, inputs, and tabs inside it match automatically.
 
 Do:
-- Use for switching between 2–5 mutually exclusive views or modes where all options should be visible.
-- Provide a descriptive label for the control to ensure the group is accessible to screen readers.
+- Put secondary actions like "Back" on the left, and primary actions like "Save" on the right.
+- Make temporary toolbars like bulk selection visually distinct so users can tell they're contextual, for example with a background color or border.
+- Visually separate the toolbar from the content below it, with a divider, a background variant, or both.
+- Use Toolbar as a card header when the header has interactive actions like filter or add; it gives you slot layout, keyboard navigation, and size cascading. If the header is just a title with no actions, a LayoutHeader or Section is enough.
 
 Don't:
-- Use for page-level navigation; use TabList instead. TabList is a navigation component, while SegmentedControl is an input that always has exactly one selected option.
-- Use for simple on/off states; use ToggleButton instead. ToggleButton can be toggled on or off independently, while SegmentedControl enforces a single selection from a group.
-- Wrap a disabled SegmentedControl in Tooltip to explain why it is disabled; disabled controls swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
+- Put too many actions in one toolbar; move less common items into a MoreMenu.
+- Set size on individual child buttons; set it once on the toolbar and it cascades automatically.
+- Use Toolbar for app-wide navigation like main menu links or sign out; use TopNav or LayoutHeader for that.
+
+#### Toolbar
+
+General-purpose toolbar container with three content slots and roving tabindex.
 
 Props:
-- `value`: string (required) — The currently selected value (controlled).
-- `onChange`: (value: string) => void (required) — Callback fired when a segment is selected.
-- `label`: string (required) — Accessible label for the radio group (used as aria-label, never rendered visually).
-- `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant for the control.
-- `layout`: 'hug' | 'fill' = 'hug' — Layout mode. hug (default) sizes segments to content; fill stretches them equally to fill the container.
-- `isDisabled`: boolean = false — Whether the entire control is disabled.
-- `disabledMessage`: string — Explains why the control is disabled. Applies to the whole-group disabled state (isDisabled), not per segment. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the control focusable via aria-disabled (selection stays blocked). Use this instead of wrapping a disabled SegmentedControl in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
-- `children`: ReactNode (required) — SegmentedControlItem children.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
+- `label`: string (required) — Accessible label for the toolbar, applied as aria-label.
+- `startContent`: ReactNode — Content aligned to the start (left in LTR).
+- `centerContent`: ReactNode — Centered content. Switches layout to CSS grid (1fr auto 1fr).
+- `endContent`: ReactNode — Content aligned to the end (right in LTR).
+- `size`: 'sm' | 'md' | 'lg' = 'md' — Size of the toolbar. Controls minimum height and coordinates with Button, TextInput, TabList, and Selector; children inherit this size as their default via SizeContext.
+- `gap`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 = 1 — Gap between items within each slot.
+- `orientation`: 'horizontal' | 'vertical' = 'horizontal' — Orientation for keyboard navigation. Controls arrow key direction.
+- `variant`: SectionVariant = 'transparent' — Visual variant passed to Section.
+- `dividers`: Array<'top' | 'bottom' | 'start' | 'end'> — Borders/dividers rendered around the toolbar.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
 
 ### ToggleButton
 
@@ -323,34 +269,92 @@ Props:
 - `value`: string — Value identifier when used inside ToggleButtonGroup. Required in groups.
 - `data-testid`: string — Test selector for automated testing frameworks.
 
-### Toolbar
+### Trigger area
 
-Import: `import {Toolbar} from '@astryxdesign/core/Toolbar';`
+Import: `import {Trigger area} from '@astryxdesign/core/ContextMenu';`
 
-Toolbar is a horizontal bar with left, center, and right areas. Use it for contextual actions within a content area (above a table, inside a card, or in a panel), not as a page-level header. Set the size once on the toolbar and all buttons, inputs, and tabs inside it match automatically.
+A right-click context menu that appears at the cursor position. Use to provide contextual actions for specific elements or regions without cluttering the UI with visible buttons.
 
 Do:
-- Put secondary actions like "Back" on the left, and primary actions like "Save" on the right.
-- Make temporary toolbars like bulk selection visually distinct so users can tell they're contextual, for example with a background color or border.
-- Visually separate the toolbar from the content below it, with a divider, a background variant, or both.
-- Use Toolbar as a card header when the header has interactive actions like filter or add; it gives you slot layout, keyboard navigation, and size cascading. If the header is just a title with no actions, a LayoutHeader or Section is enough.
+- Keep menu items concise and action-oriented; users expect quick access to contextual actions.
+- Use sections and dividers to group related actions when the menu has many items.
+- Use `presentation="adaptive"` when right-click should remain cursor-positioned on desktop while long-press opens a reachable BottomSheet on compact touch devices.
+- Ensure all context menu actions are also accessible via other UI elements for keyboard-only users.
+- Keep a visible MoreMenu or equivalent trigger for important mobile actions; long-press must not be the only route.
 
 Don't:
-- Put too many actions in one toolbar; move less common items into a MoreMenu.
-- Set size on individual child buttons; set it once on the toolbar and it cascades automatically.
-- Use Toolbar for app-wide navigation like main menu links or sign out; use TopNav or LayoutHeader for that.
+- Use a ContextMenu as the only way to access important actions; not all users know to right-click.
+- Place more than 10–12 items in a single menu without grouping them into sections.
 
 Props:
-- `label`: string (required) — Accessible label for the toolbar, applied as aria-label.
-- `startContent`: ReactNode — Content aligned to the start (left in LTR).
-- `centerContent`: ReactNode — Centered content. Switches layout to CSS grid (1fr auto 1fr).
-- `endContent`: ReactNode — Content aligned to the end (right in LTR).
-- `size`: 'sm' | 'md' | 'lg' = 'md' — Size of the toolbar. Controls minimum height and coordinates with Button, TextInput, TabList, and Selector; children inherit this size as their default via SizeContext.
-- `gap`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 = 1 — Gap between items within each slot.
-- `orientation`: 'horizontal' | 'vertical' = 'horizontal' — Orientation for keyboard navigation. Controls arrow key direction.
-- `variant`: SectionVariant = 'transparent' — Visual variant passed to Section.
-- `dividers`: Array<'top' | 'bottom' | 'start' | 'end'> — Borders/dividers rendered around the toolbar.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
+- `children`: ReactNode (required) — The trigger area: right-click on this content to open the menu.
+- `items`: ContextMenuOption[] (required) — Array of menu entries. Each entry is one of: an action item `{label, onClick?, icon?, isDisabled?, variant?, items?}` (nested `items` open a flyout in popover presentation and drill into a new view in bottom-sheet presentation; variant `"destructive"` renders it in the error color), a divider `{type: "divider"}`, or a section `{type: "section", title?, items: [...action items]}`.
+- `menuContent`: ReactNode — Custom JSX menu content for compound mode. Use instead of items for dynamic or stateful menus.
+- `menuWidth`: number | string = '160px' — Custom menu width.
+- `size`: 'sm' | 'md' | 'lg' = 'md' — Size of menu items: controls padding density.
+- `label`: string = 'Context menu' — Accessible name for the menu surface, announced when it opens.
+- `onOpenChange`: (isOpen: boolean) => void — Callback fired when the menu opens or closes.
+- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — Presentation policy. `popover` opens at the pointer position, `bottom-sheet` always uses an action sheet, and `adaptive` uses the BottomSheet at 768px and below when the primary pointer is coarse.
+- `isDisabled`: boolean = false — When true, right-click shows the native browser context menu instead.
+
+### Trigger button
+
+Import: `import {Trigger button} from '@astryxdesign/core/DropdownMenu';`
+
+A dropdown menu that displays a list of actionable items in a popup triggered by a button. Use to present action options as a next step in a process, or to offer contextual actions without cluttering the interface.
+
+Do:
+- Keep menu items concise and action-oriented so users can scan options quickly.
+- Use sections and dividers to group related actions when the menu has many items.
+- For a short, flat action set, use presentation="bottom-sheet" when product policy calls for a modal touch surface.
+- Use presentation="adaptive" when the same short action set should remain anchored on pointer layouts and become a BottomSheet on compact coarse-pointer layouts.
+- For a hierarchy that cannot fit as adjacent flyouts on a compact touch surface, a product may explicitly use a drill-in interaction with a Back action.
+- Choose presentation explicitly in product code. A compact, coarse-pointer, hover-free media query is one useful policy, but DropdownMenu does not impose a universal device breakpoint.
+- When the content is no longer a short list of immediate actions, reevaluate the interaction and choose a component that matches the actual task; content traits alone do not determine the component.
+
+Don't:
+- Use a DropdownMenu for navigation; use a navigation component instead.
+- Place more than 10–12 items in a single menu without grouping them into sections.
+
+Props:
+- `button`: DropdownMenuButtonProps = { label: 'Menu' } — Props for the trigger button (Button props except onClick).
+- `items`: DropdownMenuOption[] (required) — Array of menu entries. Each entry is one of: an action item `{label, onClick?, icon?, description?, endContent?, isDisabled?, variant?, hasCloseOnSelect?, id?}` (variant `"destructive"` renders it in the error color; `endContent` holds trailing content such as a keyboard-shortcut hint; `id` is the row's stable React key, needed only when the array reorders or filters), a divider `{type: "divider"}`, or a section `{type: "section", title?, id?, items: [...action items]}`.
+- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — Presentation surface for data-driven items. 'popover' stays anchored, 'bottom-sheet' always renders the actions in a modal BottomSheet, and 'adaptive' uses a BottomSheet on compact coarse-pointer layouts while remaining anchored elsewhere. Compound children currently support popover only.
+- `isMenuOpen`: boolean — Controlled open state for the menu.
+- `onOpenChange`: (isOpen: boolean) => void — Callback fired when the open state changes.
+- `menuWidth`: number | string — Minimum width for the popover presentation. Length values may grow for content; intrinsic and CSS-wide keywords select the preferred inline size. Every form is capped to the available viewport space. Defaults to matching the trigger width up to that cap.
+- `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Popover placement relative to the trigger. Ignored by the bottom-sheet presentation. Logical: start/end resolve against the menu's own inherited direction (RTL mirrors).
+- `alignment`: 'start' | 'center' | 'end' = 'start' — Popover alignment along the placement axis. Ignored by the bottom-sheet presentation. Logical: start/end follow the menu's own inherited direction (RTL mirrors).
+- `onClick`: () => void — Callback fired when the trigger button is clicked.
+- `hasChevron`: boolean = true — Whether to show a chevron icon on the trigger button. Set to false for icon-only triggers.
+- `children`: ReactNode — Compound-mode menu content: DropdownMenuItem, DropdownMenuDivider, DropdownMenuSubMenu, and the selectable items. Mutually exclusive with `items`.
+
+### Trigger button
+
+Import: `import {Trigger button} from '@astryxdesign/core/MoreMenu';`
+
+MoreMenu is a three-dot button that opens a list of actions. Use it for secondary actions that don't need to be always visible, like in table rows, card headers, or toolbars.
+
+Do:
+- Use for overflow or secondary actions; keep primary actions visible outside the menu.
+- Use dividers or sections to group related actions when the menu has many items.
+- Use `presentation="adaptive"` when the visible overflow trigger should open a thumb-reachable BottomSheet on compact touch devices.
+
+Don't:
+- Hide primary actions inside a MoreMenu; they should be directly visible.
+
+Props:
+- `items`: DropdownMenuOption[] (required) — Menu items: data array of actions, dividers, and sections. Same type as DropdownMenu items prop.
+- `label`: string = 'More options' — Accessible label for the trigger button (aria-label) and tooltip text.
+- `variant`: ButtonVariant = 'ghost' — Visual style variant of the trigger button.
+- `size`: ButtonSize = 'md' — Size of the trigger button.
+- `icon`: ReactNode — Override the default three-dot icon. Accepts any ReactNode.
+- `isDisabled`: boolean = false — Whether the menu trigger is disabled.
+- `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Position of the menu relative to the trigger. Logical: start/end resolve against the menu's own inherited direction (RTL mirrors).
+- `alignment`: 'start' | 'center' | 'end' = 'start' — Alignment along the placement axis. Use 'end' to align the menu with the trigger's trailing edge, which is usually what an overflow menu wants.
+- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — Presentation policy forwarded to DropdownMenu. `adaptive` keeps the anchored popover on pointer-based layouts and uses a BottomSheet at 768px and below when the primary pointer is coarse.
+- `onOpenChange`: (isOpen: boolean) => void — Callback fired when the menu opens or closes.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
 ### ContextMenuItem (subcomponent/hook)
 
@@ -1027,81 +1031,9 @@ Props:
 - `style`: CSSProperties — Inline styles. Prefer xstyle for StyleX-optimized styling.
 - `data-testid`: string — Test selector for automated testing frameworks.
 
-### EmptyState
+### Document
 
-Import: `import {EmptyState} from '@astryxdesign/core/EmptyState';`
-
-EmptyState shows a placeholder when a content area has no data. Use it for empty lists, zero search results, first-time setups, or cleared inboxes. Always include a title and a next step so the user is not stuck.
-
-Do:
-- Include a clear title and a call-to-action button so users know how to proceed.
-- Use an illustration or icon that reinforces the context of the empty state.
-- Use the compact variant inside cards or sidebars where space is limited.
-
-Don't:
-- Leave an empty state without guidance; always explain what happened and what the user can do next.
-- Use a generic message like "No data"; be specific about what is empty and why.
-- Use an EmptyState for error messages that require immediate action; use a Banner instead.
-
-Props:
-- `title`: string (required) — Primary message rendered as an <h3> heading inside the empty state.
-- `description`: string — Optional secondary text providing additional context below the title.
-- `icon`: ReactNode — Optional icon or illustration displayed above the title; rendered as decorative (aria-hidden="true").
-- `actions`: ReactNode — Optional action buttons displayed below the description, laid out horizontally by default and stacked vertically when isCompact is true.
-- `headingLevel`: 1 | 2 | 3 | 4 | 5 | 6 = 3 — Controls only the rendered HTML heading tag (h1-h6) so the title fits the document outline. This is a semantic change for accessibility and does not change the visual size of the title, which stays fixed regardless of level.
-- `isCompact`: boolean = false — Enables the compact variant with reduced spacing for constrained content areas.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
-
-### Icon
-
-Import: `import {Icon} from '@astryxdesign/core/Icon';`
-
-Icons are small visual symbols that represent actions, objects, or concepts. They improve scannability and reinforce meaning alongside text. Supports both direct SVG components and semantic icon names that adapt to the active theme.
-
-Do:
-- Use semantic icon names when available; they adapt to theme changes automatically.
-- Override icons through the theme, not globally: defineTheme({icons: {close: <XMarkIcon />}}) scopes the swap to the active <Theme>, and extends shallow-merges it into derived themes. registerIcons() mutates a process-wide registry and warns in dev, so keep it for app bootstrap rather than making it a library's theming seam.
-- Pair icons with text labels for accessibility; icon-only elements need an accessible label.
-- For a meaningful standalone icon (no adjacent text), give it an accessible name via the `label` prop: it sets role="img" + aria-label and unhides the icon.
-- Use color tokens for icon colors, not hardcoded hex values.
-- Be mindful of context; decorative icons in compact components can distract rather than help.
-
-Don't:
-- Use icons as the sole means of conveying meaning; always provide a text alternative.
-- Resize icons with arbitrary pixel values; use the provided size props.
-- Mix icon styles (e.g. outline and filled) within the same context.
-- Render raw SVG elements; always wrap in Icon for consistent sizing and color.
-- Pass a `name` prop; Icon uses `icon` (not `name`) to specify which icon to render.
-
-Props:
-- `icon`: IconName | ComponentType<SVGProps> (required) — Semantic icon name or SVG component. Valid semantic names: close, chevronDown, chevronLeft, chevronRight, chevronsLeft, chevronsRight, check, success, error, warning, info, calendar, clock, externalLink, menu, moreHorizontal, search, arrowUp, arrowDown, arrowsUpDown, funnel, eyeSlash, viewColumns, copy, checkDouble, wrench, stop, microphone. For any icon not in this list, pass an SVG component directly (e.g. import from lucide-react or @heroicons/react). Note: this prop is called `icon`, not `name`.
-- `color`: 'primary' | 'secondary' | 'tertiary' | 'disabled' | 'accent' | 'success' | 'error' | 'warning' | 'inherit' = 'inherit' — Color variant mapped to Astryx icon color tokens.
-- `size`: 'xsm' | 'sm' | 'md' | 'lg' = 'md' — Icon size.
-- `label`: string — Accessible name for a MEANINGFUL, standalone icon (a status glyph or icon-only indicator with no adjacent text). Setting it exposes the icon to screen readers as role="img" with this text as the accessible name (aria-label) and removes the default aria-hidden. Omit it (default) for decorative icons and the icon stays hidden from assistive tech (aria-hidden="true"). This is the accessible-name / alt-text prop for icons: one prop instead of manually setting aria-label + role + aria-hidden. An empty string is treated as decorative. Do not set it when an interactive parent (Button, IconButton, link) already names the control.
-- `xstyle`: StyleXStyles — StyleX styles for customization (color, size, opacity). Folded into the icon's own stylex.props() call so it composes with the base color/size styles. Must be a stylex.create() value, not an inline style object like style={{}}.
-
-### Kbd
-
-Import: `import {Kbd} from '@astryxdesign/core/Kbd';`
-
-Renders a keyboard shortcut as styled key badges. Use Kbd in tooltips, menus, and help text to show key combinations.
-
-Do:
-- Place shortcuts near the action they trigger: in a tooltip, menu item, or inline instruction.
-- Use mod instead of ctrl or cmd; it automatically adapts to the user's platform.
-
-Don't:
-- Use Kbd as the only way to discover an action; shortcuts should supplement visible controls, not replace them.
-
-Props:
-- `keys`: string (required) — Keyboard shortcut string. Use "+" to separate keys. Special keys: mod (Cmd on Mac), ctrl, alt, shift, enter, backspace, escape, tab, up, down, left, right.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
-- `className`: string — CSS class name for the root element. Prefer xstyle for styling; className is provided for integration with non-StyleX systems.
-- `style`: CSSProperties — Inline styles for the root element. Prefer xstyle for styling; inline styles bypass StyleX optimization.
-
-### Markdown
-
-Import: `import {Markdown} from '@astryxdesign/core/Markdown';`
+Import: `import {Document} from '@astryxdesign/core/Markdown';`
 
 Renders a markdown string as Astryx-styled components. Use Markdown for user-generated content, AI responses, and documentation; it handles headings, lists, tables, code blocks, and citations with consistent styling.
 
@@ -1132,6 +1064,78 @@ Props:
 - `className`: string — CSS class name for the root element. Prefer xstyle for styling; className is provided for integration with non-StyleX systems.
 - `style`: CSSProperties — Inline styles for the root element. Prefer xstyle for styling; inline styles bypass StyleX optimization.
 - `data-testid`: string — Test selector for automated testing frameworks.
+
+### EmptyState
+
+Import: `import {EmptyState} from '@astryxdesign/core/EmptyState';`
+
+EmptyState shows a placeholder when a content area has no data. Use it for empty lists, zero search results, first-time setups, or cleared inboxes. Always include a title and a next step so the user is not stuck.
+
+Do:
+- Include a clear title and a call-to-action button so users know how to proceed.
+- Use an illustration or icon that reinforces the context of the empty state.
+- Use the compact variant inside cards or sidebars where space is limited.
+
+Don't:
+- Leave an empty state without guidance; always explain what happened and what the user can do next.
+- Use a generic message like "No data"; be specific about what is empty and why.
+- Use an EmptyState for error messages that require immediate action; use a Banner instead.
+
+Props:
+- `title`: string (required) — Primary message rendered as an <h3> heading inside the empty state.
+- `description`: string — Optional secondary text providing additional context below the title.
+- `icon`: ReactNode — Optional icon or illustration displayed above the title; rendered as decorative (aria-hidden="true").
+- `actions`: ReactNode — Optional action buttons displayed below the description, laid out horizontally by default and stacked vertically when isCompact is true.
+- `headingLevel`: 1 | 2 | 3 | 4 | 5 | 6 = 3 — Controls only the rendered HTML heading tag (h1-h6) so the title fits the document outline. This is a semantic change for accessibility and does not change the visual size of the title, which stays fixed regardless of level.
+- `isCompact`: boolean = false — Enables the compact variant with reduced spacing for constrained content areas.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+
+### Glyph
+
+Import: `import {Glyph} from '@astryxdesign/core/Icon';`
+
+Icons are small visual symbols that represent actions, objects, or concepts. They improve scannability and reinforce meaning alongside text. Supports both direct SVG components and semantic icon names that adapt to the active theme.
+
+Do:
+- Use semantic icon names when available; they adapt to theme changes automatically.
+- Override icons through the theme, not globally: defineTheme({icons: {close: <XMarkIcon />}}) scopes the swap to the active <Theme>, and extends shallow-merges it into derived themes. registerIcons() mutates a process-wide registry and warns in dev, so keep it for app bootstrap rather than making it a library's theming seam.
+- Pair icons with text labels for accessibility; icon-only elements need an accessible label.
+- For a meaningful standalone icon (no adjacent text), give it an accessible name via the `label` prop: it sets role="img" + aria-label and unhides the icon.
+- Use color tokens for icon colors, not hardcoded hex values.
+- Be mindful of context; decorative icons in compact components can distract rather than help.
+
+Don't:
+- Use icons as the sole means of conveying meaning; always provide a text alternative.
+- Resize icons with arbitrary pixel values; use the provided size props.
+- Mix icon styles (e.g. outline and filled) within the same context.
+- Render raw SVG elements; always wrap in Icon for consistent sizing and color.
+- Pass a `name` prop; Icon uses `icon` (not `name`) to specify which icon to render.
+
+Props:
+- `icon`: IconName | ComponentType<SVGProps> (required) — Semantic icon name or SVG component. Valid semantic names: close, chevronDown, chevronLeft, chevronRight, chevronsLeft, chevronsRight, check, success, error, warning, info, calendar, clock, externalLink, menu, moreHorizontal, search, arrowUp, arrowDown, arrowsUpDown, funnel, eyeSlash, viewColumns, copy, checkDouble, wrench, stop, microphone. For any icon not in this list, pass an SVG component directly (e.g. import from lucide-react or @heroicons/react). Note: this prop is called `icon`, not `name`.
+- `color`: 'primary' | 'secondary' | 'tertiary' | 'disabled' | 'accent' | 'success' | 'error' | 'warning' | 'inherit' = 'inherit' — Color variant mapped to Astryx icon color tokens.
+- `size`: 'xsm' | 'sm' | 'md' | 'lg' = 'md' — Icon size.
+- `label`: string — Accessible name for a MEANINGFUL, standalone icon (a status glyph or icon-only indicator with no adjacent text). Setting it exposes the icon to screen readers as role="img" with this text as the accessible name (aria-label) and removes the default aria-hidden. Omit it (default) for decorative icons and the icon stays hidden from assistive tech (aria-hidden="true"). This is the accessible-name / alt-text prop for icons: one prop instead of manually setting aria-label + role + aria-hidden. An empty string is treated as decorative. Do not set it when an interactive parent (Button, IconButton, link) already names the control.
+- `xstyle`: StyleXStyles — StyleX styles for customization (color, size, opacity). Folded into the icon's own stylex.props() call so it composes with the base color/size styles. Must be a stylex.create() value, not an inline style object like style={{}}.
+
+### Shortcut
+
+Import: `import {Shortcut} from '@astryxdesign/core/Kbd';`
+
+Renders a keyboard shortcut as styled key badges. Use Kbd in tooltips, menus, and help text to show key combinations.
+
+Do:
+- Place shortcuts near the action they trigger: in a tooltip, menu item, or inline instruction.
+- Use mod instead of ctrl or cmd; it automatically adapts to the user's platform.
+
+Don't:
+- Use Kbd as the only way to discover an action; shortcuts should supplement visible controls, not replace them.
+
+Props:
+- `keys`: string (required) — Keyboard shortcut string. Use "+" to separate keys. Special keys: mod (Cmd on Mac), ctrl, alt, shift, enter, backspace, escape, tab, up, down, left, right.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+- `className`: string — CSS class name for the root element. Prefer xstyle for styling; className is provided for integration with non-StyleX systems.
+- `style`: CSSProperties — Inline styles for the root element. Prefer xstyle for styling; inline styles bypass StyleX optimization.
 
 ### Text
 
@@ -1388,9 +1392,55 @@ Props:
 - `collapsible`: boolean | {defaultIsOpen?: boolean; isOpen?: boolean; onOpenChange?: (isOpen: boolean) => void} = true — Whether the content area (children) sits behind an expand/collapse toggle in the header. On by default, starting collapsed. `false` opts out: children are always visible with no toggle. `{defaultIsOpen: true}` starts open; `{isOpen, onOpenChange}` is controlled. Takes the same CollapsibleConfig as Collapsible.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
-### ProgressBar
+### Dot
 
-Import: `import {ProgressBar} from '@astryxdesign/core/ProgressBar';`
+Import: `import {Dot} from '@astryxdesign/core/StatusDot';`
+
+A small colored dot that communicates status like online/offline presence or severity levels. Supports five semantic variants and an optional pulse animation. Always pair with a visible text label, as color alone should not carry meaning.
+
+Do:
+- Use StatusDot as a binary present/absent signal; avoid encoding many distinct states in a single dot, since color and size alone cannot reliably distinguish them.
+- Always pair with a visible text label so status is not conveyed by color alone.
+- Provide a descriptive `label` prop for screen reader accessibility.
+- Pair the dot with an icon that carries the status as a distinct shape when it must stand on its own without adjacent text, so meaning survives without color.
+- If you can't add a label or an icon, make sure the status is conveyed elsewhere accessibly (e.g. adjacent text, a table column, or a live region).
+
+Don't:
+- Rely on color alone to communicate status; StatusDot is not fully accessible in isolation, so the builder must make the status distinguishable in context via a label, an icon, or an accessible alternative.
+- Use the pulse animation for purely decorative purposes; reserve it for states that require immediate attention.
+
+Props:
+- `variant`: 'success' | 'warning' | 'error' | 'accent' | 'neutral' (required) — Semantic color variant.
+- `label`: string (required) — Accessible label surfaced via aria-label.
+- `isPulsing`: boolean = false — Enables a pulse animation; respects prefers-reduced-motion: reduce.
+- `tooltip`: string — Tooltip text shown on hover to explain the status meaning.
+- `icon`: ReactNode — Optional icon rendered centered inside the dot, painted in currentColor (the variant's ink). Gives the status a non-color mark, so use a different icon per status. Booleans and empty strings are ignored, so `cond && <Icon />` is safe. Same contract as AvatarStatusDot.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+
+### Placeholder
+
+Import: `import {Placeholder} from '@astryxdesign/core/Skeleton';`
+
+An animated shimmer placeholder that previews the shape of content while it loads. Use it to build loading screens that match the layout of the real content. For content with unknown dimensions, use Spinner instead.
+
+Do:
+- Match the size and shape of the content being loaded to create a realistic placeholder.
+- Stagger multiple skeletons with the `index` prop for a natural wave animation.
+
+Don't:
+- Use when the content dimensions are unknown; use Spinner instead.
+- Combine with a Spinner on the same content area; pick one loading pattern.
+- Show skeletons indefinitely; if loading takes too long, show an error or empty state instead.
+
+Props:
+- `width`: number | string = '100%' — Width in pixels (number) or CSS value (string).
+- `height`: number | string = '100%' — Height in pixels (number) or CSS value (string).
+- `radius`: 'none' | 0 | 1 | 2 | 3 | 4 | 'rounded' = 3 — Border radius using design token scale. Use none for sharp corners, rounded for fully rounded (avatars, pills, circles).
+- `index`: number = 0 — Index for staggered animation timing. For element at index n, animation starts at DELAY_TIME + (STAGGER_TIME × n).
+
+### Progress bar
+
+Import: `import {Progress bar} from '@astryxdesign/core/ProgressBar';`
 
 A horizontal bar showing the completion progress of a task. Use it for operations where the duration is known, or as an animated indicator when progress can't be calculated. Supports semantic color variants, value labels, and custom formatting.
 
@@ -1417,27 +1467,6 @@ Props:
 - `isDisabled`: boolean = false — Visually disabled state: grays out the fill and text. Use for canceled or inactive operations.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
-### Skeleton
-
-Import: `import {Skeleton} from '@astryxdesign/core/Skeleton';`
-
-An animated shimmer placeholder that previews the shape of content while it loads. Use it to build loading screens that match the layout of the real content. For content with unknown dimensions, use Spinner instead.
-
-Do:
-- Match the size and shape of the content being loaded to create a realistic placeholder.
-- Stagger multiple skeletons with the `index` prop for a natural wave animation.
-
-Don't:
-- Use when the content dimensions are unknown; use Spinner instead.
-- Combine with a Spinner on the same content area; pick one loading pattern.
-- Show skeletons indefinitely; if loading takes too long, show an error or empty state instead.
-
-Props:
-- `width`: number | string = '100%' — Width in pixels (number) or CSS value (string).
-- `height`: number | string = '100%' — Height in pixels (number) or CSS value (string).
-- `radius`: 'none' | 0 | 1 | 2 | 3 | 4 | 'rounded' = 3 — Border radius using design token scale. Use none for sharp corners, rounded for fully rounded (avatars, pills, circles).
-- `index`: number = 0 — Index for staggered animation timing. For element at index n, animation starts at DELAY_TIME + (STAGGER_TIME × n).
-
 ### Spinner
 
 Import: `import {Spinner} from '@astryxdesign/core/Spinner';`
@@ -1457,31 +1486,6 @@ Props:
 - `shade`: 'default' | 'onMedia' | 'subtle' | 'inherit' = 'default' — Color shade for light or dark backgrounds.
 - `label`: ReactNode — Visible content below the spinner. String labels auto-set aria-label.
 - `aria-label`: string = 'Loading' — Accessible name for screen readers. Defaults to label (if string) or "Loading".
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
-
-### StatusDot
-
-Import: `import {StatusDot} from '@astryxdesign/core/StatusDot';`
-
-A small colored dot that communicates status like online/offline presence or severity levels. Supports five semantic variants and an optional pulse animation. Always pair with a visible text label, as color alone should not carry meaning.
-
-Do:
-- Use StatusDot as a binary present/absent signal; avoid encoding many distinct states in a single dot, since color and size alone cannot reliably distinguish them.
-- Always pair with a visible text label so status is not conveyed by color alone.
-- Provide a descriptive `label` prop for screen reader accessibility.
-- Pair the dot with an icon that carries the status as a distinct shape when it must stand on its own without adjacent text, so meaning survives without color.
-- If you can't add a label or an icon, make sure the status is conveyed elsewhere accessibly (e.g. adjacent text, a table column, or a live region).
-
-Don't:
-- Rely on color alone to communicate status; StatusDot is not fully accessible in isolation, so the builder must make the status distinguishable in context via a label, an icon, or an accessible alternative.
-- Use the pulse animation for purely decorative purposes; reserve it for states that require immediate attention.
-
-Props:
-- `variant`: 'success' | 'warning' | 'error' | 'accent' | 'neutral' (required) — Semantic color variant.
-- `label`: string (required) — Accessible label surfaced via aria-label.
-- `isPulsing`: boolean = false — Enables a pulse animation; respects prefers-reduced-motion: reduce.
-- `tooltip`: string — Tooltip text shown on hover to explain the status meaning.
-- `icon`: ReactNode — Optional icon rendered centered inside the dot, painted in currentColor (the variant's ink). Gives the status a non-color mark, so use a different icon per status. Booleans and empty strings are ignored, so `cond && <Icon />` is safe. Same contract as AvatarStatusDot.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
 ## Focus
@@ -1758,78 +1762,6 @@ Props:
 - `status`: { type: 'error' | 'warning' | 'success', message: string } — Status indicator. Displays a colored message box below the checkbox and sets aria-invalid for errors.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
 
-### CheckboxList
-
-Import: `import {CheckboxList} from '@astryxdesign/core/CheckboxList';`
-
-CheckboxList shows a small group of checkboxes so users can turn several options on or off at once. Place it in settings pages, filter panels, or forms where every choice should be visible without scrolling. For a single standalone checkbox (like "I agree to the terms"), use CheckboxInput instead. If only one option can be picked, use RadioList. If the list is long enough to need searching or scrolling, use MultiSelector instead.
-
-Do:
-- Keep the list short: three to seven options is the sweet spot. Beyond that, switch to MultiSelector which adds search and scrolling.
-- Turn on dividers (hasDividers) when items have helper text underneath; without them the labels and descriptions blur together.
-- Write a group label that says what the choices represent: "Export formats" tells users more than "Options".
-
-Don't:
-- Show a CheckboxList when the user can only pick one thing; that is what RadioList is for.
-- Put buttons or links inside the trailing slot (endContent); the whole row is already tappable, so a nested button creates two competing click targets.
-- Wrap a disabled CheckboxList in Tooltip to explain why it is disabled; disabled controls swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
-
-Props:
-- `label`: string (required) — Label text for the checkbox group (always rendered for accessibility).
-- `children`: ReactNode (required) — CheckboxListItem elements.
-- `value`: string[] — The currently selected values (collection mode).
-- `onChange`: (values: string[]) => void — Callback fired when the selected values change.
-- `changeAction`: (values: string[]) => void | Promise<void> — Async action on change with optimistic updates. While the promise is pending, the toggled item shows a spinner inside its checkbox and is marked aria-busy.
-- `isLabelHidden`: boolean = false — Whether to visually hide the label.
-- `description`: string — Description text displayed below the label.
-- `density`: 'compact' | 'balanced' | 'spacious' = 'balanced' — Spacing density for list items.
-- `hasDividers`: boolean = false — Whether to show dividers between items.
-- `isDisabled`: boolean = false — Whether all checkbox items are disabled.
-- `disabledMessage`: string — Explains why the group is disabled. Applies to the whole-group disabled state (isDisabled), not per item. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the checkboxes focusable via aria-disabled (toggling stays blocked). Use this instead of wrapping a disabled CheckboxList in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
-- `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator ({ type, message }).
-- `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
-
-### ComplexSelector
-
-Import: `import {ComplexSelector} from '@astryxdesign/core/ComplexSelector';`
-
-Use ComplexSelector when a selection needs richer custom content than a Selector option row. It is intentionally one component: ComplexSelector owns the field, trigger, popover, focus restore, and changeAction flow, while the content render prop owns the selector-specific accessible structure.
-
-Do:
-- Use variant="ghost" with a startIcon when the selector is triggered from a toolbar. Use alignment="end" when a wide surface should align its end edge to the trigger.
-- For staged editors, keep draft state in the composed content and call the provided onChange helper only from Apply. Cancel or dismiss without committing.
-- Compose the dialog content from the appropriate accessible structure for the job: RadioList for a simple choice, Calendar/date inputs for date picking, TreeList or a searchable list for hierarchy, or a custom grid when two-dimensional arrow navigation is useful.
-- Use the provided onChange helper from children; it already calls both onChange and changeAction and updates optimistic busy state.
-- Call close() from custom content when a selection should dismiss the popup. Keep it open for multi-step content or freeform entry flows.
-- Use Astryx focus hooks for custom content: useGridFocus for two-dimensional grids, useTreeFocus through TreeList for hierarchies, and useListFocus for custom linear collections.
-- Evaluate custom content against WCAG 2.2: keyboard operation, focus visible/not obscured, names and roles, labels/instructions, target size, and contrast/non-text contrast are especially relevant for selector popovers.
-
-Don't:
-- Do not rebuild trigger ARIA, popover focus management, or changeAction handling in product code.
-- Do not use ComplexSelector for a plain single-column text list; use Selector instead.
-
-Props:
-- `label`: string (required) — Label text for accessibility and the field label.
-- `value`: Value (required) — Current controlled value.
-- `onChange`: (value: Value) => void — Called when custom content commits a new value.
-- `changeAction`: (value: Value) => void | Promise<void> — Async action after onChange. ComplexSelector exposes optimistic value and busy state while pending.
-- `children`: (value: Value, onChange: (value: Value) => void, close: () => void, state: ComplexSelectorRenderState) => ReactNode (required) — Custom dialog content. Receives positional value, onChange, close, and state helpers.
-- `triggerLabel`: ReactNode — Label/content shown in the closed trigger.
-- `placeholder`: ReactNode = 'Select...' — Placeholder shown when triggerLabel is omitted.
-- `isDisabled`: boolean — Disables the selector.
-- `isLoading`: boolean — Shows loading state on the trigger.
-- `status`: {type: 'warning' | 'error' | 'success', message?: string} — Validation status.
-- `size`: 'sm' | 'md' | 'lg' = 'md' — Exact trigger height: sm 28px, md 32px, or lg 36px.
-- `variant`: 'input' | 'ghost' = 'input' — Visual trigger style. Input is the bordered form treatment; ghost matches toolbar buttons.
-- `startIcon`: ReactNode | IconType — Icon displayed at the start of the trigger.
-- `width`: SizeValue — Width of the field.
-- `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Popup placement.
-- `alignment`: 'start' | 'center' | 'end' = 'start' — Popup alignment along the placement axis.
-- `handleRef`: React.Ref<ComplexSelectorHandle> — Imperative handle for programmatic control. Exposes open(), close(), toggle(), and isOpen().
-- `onOpenChange`: (isOpen: boolean) => void — Called whenever the surface opens or closes, however it happened — trigger, keyboard, light dismiss, Escape, close(), or the imperative handle.
-- `contentXstyle`: StyleXStyles — StyleX styles for the popup content container.
-
 ### DateInput
 
 Import: `import {DateInput} from '@astryxdesign/core/DateInput';`
@@ -1974,6 +1906,50 @@ Props:
 
 ### Field
 
+Import: `import {Field} from '@astryxdesign/core/ComplexSelector';`
+
+Use ComplexSelector when a selection needs richer custom content than a Selector option row. It is intentionally one component: ComplexSelector owns the field, trigger, popover, focus restore, and changeAction flow, while the content render prop owns the selector-specific accessible structure.
+
+Do:
+- Use variant="ghost" with a startIcon when the selector is triggered from a toolbar. Use alignment="end" when a wide surface should align its end edge to the trigger.
+- For staged editors, keep draft state in the composed content and call the provided onChange helper only from Apply. Cancel or dismiss without committing.
+- Compose the dialog content from the appropriate accessible structure for the job: RadioList for a simple choice, Calendar/date inputs for date picking, TreeList or a searchable list for hierarchy, or a custom grid when two-dimensional arrow navigation is useful.
+- Use the provided onChange helper from children; it already calls both onChange and changeAction and updates optimistic busy state.
+- Call close() from custom content when a selection should dismiss the popup. Keep it open for multi-step content or freeform entry flows.
+- Use Astryx focus hooks for custom content: useGridFocus for two-dimensional grids, useTreeFocus through TreeList for hierarchies, and useListFocus for custom linear collections.
+- Evaluate custom content against WCAG 2.2: keyboard operation, focus visible/not obscured, names and roles, labels/instructions, target size, and contrast/non-text contrast are especially relevant for selector popovers.
+
+Don't:
+- Do not rebuild trigger ARIA, popover focus management, or changeAction handling in product code.
+- Do not use ComplexSelector for a plain single-column text list; use Selector instead.
+
+#### ComplexSelector
+
+An input or toolbar trigger and dialog-popover shell for custom selector content.
+
+Props:
+- `label`: string (required) — Label text for accessibility and the field label.
+- `value`: Value (required) — Current controlled value.
+- `onChange`: (value: Value) => void — Called when custom content commits a new value.
+- `changeAction`: (value: Value) => void | Promise<void> — Async action after onChange. ComplexSelector exposes optimistic value and busy state while pending.
+- `children`: (value: Value, onChange: (value: Value) => void, close: () => void, state: ComplexSelectorRenderState) => ReactNode (required) — Custom dialog content. Receives positional value, onChange, close, and state helpers.
+- `triggerLabel`: ReactNode — Label/content shown in the closed trigger.
+- `placeholder`: ReactNode = 'Select...' — Placeholder shown when triggerLabel is omitted.
+- `isDisabled`: boolean — Disables the selector.
+- `isLoading`: boolean — Shows loading state on the trigger.
+- `status`: {type: 'warning' | 'error' | 'success', message?: string} — Validation status.
+- `size`: 'sm' | 'md' | 'lg' = 'md' — Exact trigger height: sm 28px, md 32px, or lg 36px.
+- `variant`: 'input' | 'ghost' = 'input' — Visual trigger style. Input is the bordered form treatment; ghost matches toolbar buttons.
+- `startIcon`: ReactNode | IconType — Icon displayed at the start of the trigger.
+- `width`: SizeValue — Width of the field.
+- `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Popup placement.
+- `alignment`: 'start' | 'center' | 'end' = 'start' — Popup alignment along the placement axis.
+- `handleRef`: React.Ref<ComplexSelectorHandle> — Imperative handle for programmatic control. Exposes open(), close(), toggle(), and isOpen().
+- `onOpenChange`: (isOpen: boolean) => void — Called whenever the surface opens or closes, however it happened — trigger, keyboard, light dismiss, Escape, close(), or the imperative handle.
+- `contentXstyle`: StyleXStyles — StyleX styles for the popup content container.
+
+### Field
+
 Import: `import {Field} from '@astryxdesign/core/Field';`
 
 Field is a low-level wrapper for custom, native, or third-party controls that do not already provide field label, description, and status UI. Use it when you need the Field shell around a control you own; use styled Astryx inputs like TextInput, Typeahead, and Select directly when they already expose label, description, and validation props.
@@ -2011,24 +1987,207 @@ Props:
 - `className`: string — CSS class name(s) appended to the root element. Prefer xstyle for StyleX deduplication.
 - `style`: React.CSSProperties — Inline styles applied to the root element. Takes priority over StyleX inline styles.
 
-### FieldStatus
+### Field
 
-Import: `import {FieldStatus} from '@astryxdesign/core/FieldStatus';`
+Import: `import {Field} from '@astryxdesign/core/MultiSelector';`
 
-FieldStatus renders validation feedback for fields and field-like controls. Use it directly for custom controls that need the same error, warning, or success presentation as Field.
+A checkbox dropdown for selecting multiple values from a list. Selected items can display as a count, labels, or badges. Use it for filtering or when presenting a finite set of options where multiple choices are needed.
 
 Do:
-- Use attached status below bordered inputs when the message belongs to that input.
-- Use detached status for controls like checkboxes, switches, and custom controls where overlap would be visually awkward.
+- Use for a moderate, finite set of options where multiple choices are needed.
+- Enable search filtering when the list exceeds ~15 options.
+- Use renderOption for custom option rows; the checkbox affordance remains owned by MultiSelector.
+- Enable select-all when most users will want all or nearly all options selected.
+- Use inside InputGroup only when the control needs a short prefix or suffix addon as part of one decorated input surface; prefer count or labels trigger display so the group stays single-line.
+- Use variant="ghost" when a multi-selector sits in a toolbar with ghost buttons. If validation status is needed there, prefer statusVariant="tooltip" so the toolbar height stays compact.
+- Use presentation="adaptive" when the multi-selector should become a bottom sheet on compact touch screens.
 
 Don't:
-- Use FieldStatus for general alerts or page-level notices; use Banner or Toast instead.
+- Use for single-value selection; use Selector instead.
+- Show more than ~20 options without enabling search.
+- Wrap a disabled MultiSelector in Tooltip to explain why it is disabled; disabled triggers swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
+
+#### MultiSelector
+
+Multi-select dropdown with checkboxes for choosing multiple items.
 
 Props:
-- `type`: 'error' | 'warning' | 'success' (required) — Status type.
-- `message`: string (required) — Status message text.
-- `id`: string — ID for aria-describedby association.
-- `variant`: 'attached' | 'detached' = 'attached' — Visual variant: attached overlaps the input, detached floats below.
+- `label`: string (required) — Label text for accessibility.
+- `options`: MultiSelectorOptionType[] (required) — Array of items: strings, objects with value/label/icon/disabled, dividers, or sections.
+- `value`: string[] (required) — Currently selected values.
+- `onChange`: (value: string[]) => void (required) — Callback fired when the selection changes.
+- `changeAction`: (value: string[]) => void | Promise<void> — Async action on change. Fires after onChange.
+- `placeholder`: string = 'Select...' — Placeholder text shown when no value is selected.
+- `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant for the selector.
+- `variant`: 'input' | 'ghost' = 'input' — Visual trigger style. input is the bordered input treatment for forms; ghost is borderless and matches ghost buttons for toolbar usage.
+- `triggerDisplay`: 'count' | 'labels' | 'badges' = 'count' — How to display selected items in the trigger.
+- `formatValue`: (items: {value: string; label: string}[]) => string — Formats the trigger text when triggerDisplay="count" or "labels". Receives the selected items (value plus resolved label); the count is items.length. Not used by triggerDisplay="badges".
+- `maxBadges`: number = 3 — Maximum badges to show before "+N". Only for triggerDisplay="badges".
+- `hasSelectAll`: boolean — Whether to show a select-all checkbox.
+- `selectAllLabel`: string = 'Select all' — Label for the select-all checkbox.
+- `hasSearch`: boolean — Whether to show a search input for filtering options. As the user types, the match count (or "No results found") is announced to screen readers via a polite live region. The search field has built-in affordances: a leading magnifier icon and, once a query is typed, a trailing clear (✕) button that resets the query and returns focus to the input.
+- `searchPlaceholder`: string = 'Search...' — Placeholder text for the search input.
+- `emptyText`: ReactNode = 'No options' — Content shown in the dropdown panel when there are no options to show, and announced in a polite live region when the panel opens (a string override is announced verbatim; a richer node falls back to the default text). Not shown while isLoading.
+- `emptySearchText`: ReactNode = 'No results found' — Content shown in the dropdown panel when a search query matches no options, and announced in a polite live region at the same time (a string override is announced verbatim; a richer node falls back to the default text).
+- `isDisabled`: boolean — Disables the selector.
+- `htmlName`: string — The HTML name attribute for form submissions. Renders one hidden input per selected value, like a native multi-select.
+- `disabledMessage`: string — Explains why the selector is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the trigger focusable via aria-disabled (activation stays blocked). Use this instead of wrapping a disabled MultiSelector in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
+- `isLabelHidden`: boolean — Visually hides the label while keeping it accessible.
+- `description`: string — Helper text displayed below the label.
+- `isOptional`: boolean — Marks the field as optional.
+- `isRequired`: boolean — Marks the field as required.
+- `isLoading`: boolean — Shows a loading spinner in the trigger.
+- `status`: {type: 'error' | 'warning' | 'success', message?: string} — Validation status with an optional message.
+- `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' for input selectors; 'detached' for ghost selectors — How the status message is placed relative to the input. attached overlaps directly below the bordered input and is only valid for the input variant; ghost selectors detach attached status messages by default. Use tooltip for compact toolbar controls.
+- `renderOption`: (option: MultiSelectorOptionData) => ReactNode — Custom render function for each selectable option in the dropdown. Not called for dividers, sections, or the select-all row.
+- `indicatorPosition`: 'start' | 'end' = 'start' — Which edge of the option row carries the checkbox. end pushes it to the far edge of the row, including on the select-all row.
+- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — How the option list is presented. adaptive uses a bottom sheet on compact touch screens and an anchored popover otherwise.
+- `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
+- `startIcon`: IconType | ReactNode — Icon displayed at the start of the selector trigger.
+- `hasClear`: boolean = false — Shows a clear button when values are selected.
+- `isDefaultOpen`: boolean = false — Whether the dropdown starts open on mount.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
+
+### Field
+
+Import: `import {Field} from '@astryxdesign/core/Selector';`
+
+A dropdown selector for choosing a single value from a list of options. Supports labels, validation, descriptions, and required/optional states. Use it in forms and settings when presenting a moderate number of options. Keyboard typeahead matches a native select: typing on the focused closed trigger selects the matching option directly, repeated presses cycle through options sharing a first letter, and spaces count as match characters ("new y" reaches "New York"). With the menu open, typing moves the highlight and Enter commits. With hasSearch, typing on the closed trigger opens the popup and seeds the search input.
+
+Do:
+- Provide a visible label so users understand what they are selecting.
+- Use sections and dividers to organize options when the list exceeds ~8 items.
+- Use renderOption for custom option rows. Do not pass SelectorOption directly as JSX children.
+- Set a meaningful placeholder that hints at the expected selection (e.g. "Choose a country" not "Select...").
+- Use inside InputGroup only when the selector needs a short prefix or suffix addon as part of one decorated input surface.
+- Use variant="ghost" when a selector sits in a toolbar with ghost buttons. If validation status is needed there, prefer statusVariant="tooltip" so the toolbar height stays compact.
+- Use presentation="adaptive" when the selector should become a bottom sheet on compact touch screens.
+
+Don't:
+- Use for action menus; use Dropdown Menu for triggering commands or navigation.
+- Use when there are only two options; use a SegmentedControl or radio buttons instead.
+- Use Selector for navigation; links should be links, not dropdown options.
+- Use for yes/no or on/off choices; use Switch or CheckboxInput instead.
+- Put more than ~20 options without sections; consider Typeahead for large lists.
+- Wrap a disabled Selector in Tooltip to explain why it is disabled; disabled triggers swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
+
+Props:
+- `label`: string (required) — Label text for accessibility.
+- `options`: SelectorOption[] (required) — Array of items: strings, objects with value/label/description/icon/disabled, dividers ({type: "divider"}), or sections ({type: "section", title, items}).
+- `value`: string — Currently selected value.
+- `onChange`: (value: string) => void — Callback fired when the selection changes.
+- `hasClear`: boolean = false — Shows a clear (×) button when a value is selected. When true, onChange also accepts null to signal the user cleared the selection.
+- `hasSearch`: boolean = false — Whether to show a search input for filtering options. As the user types, the match count (or "No results found") is announced to screen readers via a polite live region. The search field has built-in affordances: a leading magnifier icon and, once a query is typed, a trailing clear (✕) button that resets the query and returns focus to the input.
+- `searchPlaceholder`: string = 'Search...' — Placeholder text for the search input.
+- `emptyText`: ReactNode = 'No options' — Content shown in the dropdown panel when there are no options to show, and announced in a polite live region when the panel opens (a string override is announced verbatim; a richer node falls back to the default text). Not shown while isLoading.
+- `emptySearchText`: ReactNode = 'No results found' — Content shown in the dropdown panel when a search query matches no options, and announced in a polite live region at the same time (a string override is announced verbatim; a richer node falls back to the default text).
+- `placeholder`: string = 'Select...' — Placeholder text shown when no value is selected.
+- `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant for the selector.
+- `variant`: 'input' | 'ghost' = 'input' — Visual trigger style. input is the bordered input treatment for forms; ghost is borderless and matches ghost buttons for toolbar usage.
+- `isDisabled`: boolean = false — Disables the selector.
+- `htmlName`: string — The HTML name attribute for form submissions. Renders a hidden input carrying the selected value, like a native select.
+- `disabledMessage`: string — Explains why the selector is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the trigger focusable via aria-disabled (activation stays blocked). Use this instead of wrapping a disabled Selector in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
+- `isLabelHidden`: boolean = false — Visually hides the label while keeping it accessible.
+- `description`: string — Helper text displayed below the label.
+- `isOptional`: boolean = false — Marks the field as optional.
+- `isRequired`: boolean = false — Marks the field as required.
+- `status`: {type: 'error' | 'warning' | 'success', message?: string} — Validation status with an optional message.
+- `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' for input selectors; 'detached' for ghost selectors — How the status message is placed relative to the input. attached overlaps directly below the bordered input and is only valid for the input variant; ghost selectors detach attached status messages by default. Use tooltip for compact toolbar controls.
+- `renderOption`: (option: SelectorOptionData) => ReactNode — Custom render function for each selectable option in the dropdown. Use this instead of JSX children; dividers and sections are rendered by the selector.
+- `renderValue`: (option: SelectorOptionData) => ReactNode — Custom render function for the selected option inside the closed trigger. The trigger is sized by padding, so it is the size token for a one-line value (28/32/36) and exactly one text line taller for a two-line one (48/52/56), always on the 4px rhythm, always aligned with the buttons and inputs beside it. Inside an InputGroup the group owns the row height: a SelectorOption folds onto one line and ellipsizes, and any taller node is cut off at the row.
+- `indicatorPosition`: 'start' | 'end' = 'end' — Which edge of the option row carries the selected mark. start reserves a mark column ahead of every label so they stay aligned, the way a native menu does; end is the house convention shared with Typeahead and CommandPalette.
+- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — How the option list is presented. adaptive uses a bottom sheet on compact touch screens and an anchored popover otherwise.
+- `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
+- `startIcon`: IconType | ReactNode — Icon displayed at the start of the selector trigger.
+- `isLoading`: boolean = false — Shows a loading spinner in the trigger.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
+
+### Field
+
+Import: `import {Field} from '@astryxdesign/core/Switch';`
+
+A toggle control for on/off states that take effect immediately. Supports labels, descriptions, loading states, and validation. Use it for settings or preferences that apply instantly. For changes requiring a form submission, use a checkbox instead.
+
+Do:
+- Use for settings that apply immediately; the toggle should take effect without a separate save action.
+- Pair with a clear, concise label that describes the setting being controlled.
+
+Don't:
+- Use for options that require a form submission to take effect; use a checkbox instead.
+- Use a switch for multi-state values; it's strictly on/off.
+- Wrap a disabled switch in Tooltip to explain why it is disabled; disabled controls swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
+
+Props:
+- `ref`: React.Ref<HTMLInputElement> — Ref forwarded to the underlying <input> element.
+- `label`: string (required) — Label text for the switch (always rendered for accessibility).
+- `value`: boolean (required) — Whether the switch is on or off.
+- `onChange`: (checked: boolean, e: ChangeEvent<HTMLInputElement>) => void — Callback fired when the switch state changes.
+- `changeAction`: (checked: boolean, e: ChangeEvent<HTMLInputElement>) => void | Promise<void> — Async action fired after onChange. Triggers optimistic UI and shows a loading spinner until the promise resolves.
+- `isLoading`: boolean = false — Whether the switch is in a loading state, showing a spinner inside the thumb.
+- `isLabelHidden`: boolean = false — Visually hides the label while keeping it accessible to screen readers.
+- `description`: string — Description text displayed below the label.
+- `isDisabled`: boolean = false — Whether the switch is disabled.
+- `size`: 'sm' | 'md' = 'md' — Size variant controlling track and thumb dimensions. sm (32x20px) matches sm checkbox/radio vertical rhythm; md (40x24px, default) matches md checkbox/radio vertical rhythm.
+- `htmlName`: string — The HTML name attribute for the underlying checkbox input, useful for form submissions (submits "on" when the switch is on).
+- `disabledMessage`: string — Explains why the switch is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the switch focusable via aria-disabled (toggling stays blocked). Use this instead of wrapping a disabled Switch in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
+- `isOptional`: boolean = false — Whether the field is optional. Mutually exclusive with isRequired.
+- `isRequired`: boolean = false — Whether the switch is required. Mutually exclusive with isOptional.
+- `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator with type and message. Displays a colored message box below the switch and sets aria-invalid when type is "error".
+- `onFocus`: (e: FocusEvent<HTMLInputElement>) => void — Callback fired when the switch receives focus.
+- `onBlur`: (e: FocusEvent<HTMLInputElement>) => void — Callback fired when the switch loses focus.
+- `labelIcon`: IconType — Icon displayed before the label text. See `astryx docs icons` for valid semantic names.
+- `labelTooltip`: string — Tooltip text shown in an info icon at the end of the label.
+- `labelPosition`: 'start' | 'end' = 'end' — Which side of the switch the label appears on. "start" places the label before the switch.
+- `labelSpacing`: 'hug' | 'spread' = 'hug' — Spacing behavior between label and switch. "hug" places them next to each other; "spread" pushes them to opposite ends of the container (full width).
+- `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
+
+### Field
+
+Import: `import {Field} from '@astryxdesign/core/Typeahead';`
+
+A searchable input for selecting a single item from a large or dynamic dataset. Results appear as the user types, with support for async data sources, debounced search, and custom item rendering. Use it when the option list is too large for a Selector dropdown.
+
+Do:
+- Provide descriptive placeholder text that hints at what users can search for.
+- Show suggestions on focus when users benefit from seeing popular or recent options before typing.
+- Add a search delay for remote data sources to avoid excessive network requests.
+- Use inside InputGroup when the typeahead needs a single-line prefix or suffix addon.
+
+Don't:
+- Use for short, static option lists; use Selector for better discoverability.
+- Use for multi-selection; use Tokenizer instead.
+- Place multiple Typeaheads adjacent to each other without clear labels differentiating them.
+- Wrap a disabled Typeahead in Tooltip to explain why it is disabled; disabled triggers swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
+
+Props:
+- `label`: string (required) — Accessible label for the input.
+- `searchSource`: SearchSource<T> (required) — Data source providing search and bootstrap methods for populating the dropdown.
+- `value`: T | null (required) — Currently selected item, or null if nothing is selected.
+- `onChange`: (item: T | null) => void (required) — Called when the selection changes.
+- `placeholder`: string — Input placeholder text.
+- `hasEntriesOnFocus`: boolean = false — Show bootstrap results on focus before typing.
+- `hasClear`: boolean = true — Show clear button to deselect the current value.
+- `isDisabled`: boolean = false — Disables the input.
+- `disabledMessage`: string — Explains why the input is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the field focusable via aria-disabled (activation stays blocked). Use this instead of wrapping a disabled Typeahead in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
+- `maxMenuItems`: number = 10 — Maximum number of dropdown items to display.
+- `minQueryLength`: number = 1 — Minimum query length before the search source is queried. Below it no search runs and the menu stays closed.
+- `status`: {type: 'warning' | 'error' | 'success', message?: string} — Validation status object with type and message for error/warning/success states.
+- `statusVariant`: 'attached' | 'detached' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing.
+- `renderItem`: (item: T) => ReactNode — Custom render function for dropdown items. Default renders TypeaheadItem.
+- `isLabelHidden`: boolean = false — Visually hides the label while keeping it accessible.
+- `description`: string — Helper text displayed below the label.
+- `isRequired`: boolean = false — Marks the field as required.
+- `isOptional`: boolean = false — Shows an optional indicator on the label.
+- `labelTooltip`: string — Tooltip text shown on the label.
+- `emptySearchResultsText`: string = 'No results found' — Text shown when search returns no results.
+- `hasAutoFocus`: boolean = false — Auto-focus the input on mount.
+- `size`: 'sm' | 'md' | 'lg' = 'md' — Input and token size.
+- `debounceMs`: number = 150 — Debounce delay in ms before triggering search. Set to 0 for synchronous sources.
+- `onChangeQuery`: (query: string) => void — Callback fired when the search query text changes.
+- `onOpenChange`: (isOpen: boolean) => void — Callback when the dropdown opens or closes.
+- `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
+- `startIcon`: IconType | ReactNode — SVG icon component displayed at the start of the input.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 
 ### FileInput
 
@@ -2069,6 +2228,38 @@ Props:
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing; tooltip hides the message box and surfaces it in a tooltip on the status icon.
 - `labelTooltip`: string — Tooltip text displayed in an info icon at the end of the label.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
+
+### Group
+
+Import: `import {Group} from '@astryxdesign/core/CheckboxList';`
+
+CheckboxList shows a small group of checkboxes so users can turn several options on or off at once. Place it in settings pages, filter panels, or forms where every choice should be visible without scrolling. For a single standalone checkbox (like "I agree to the terms"), use CheckboxInput instead. If only one option can be picked, use RadioList. If the list is long enough to need searching or scrolling, use MultiSelector instead.
+
+Do:
+- Keep the list short: three to seven options is the sweet spot. Beyond that, switch to MultiSelector which adds search and scrolling.
+- Turn on dividers (hasDividers) when items have helper text underneath; without them the labels and descriptions blur together.
+- Write a group label that says what the choices represent: "Export formats" tells users more than "Options".
+
+Don't:
+- Show a CheckboxList when the user can only pick one thing; that is what RadioList is for.
+- Put buttons or links inside the trailing slot (endContent); the whole row is already tappable, so a nested button creates two competing click targets.
+- Wrap a disabled CheckboxList in Tooltip to explain why it is disabled; disabled controls swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
+
+Props:
+- `label`: string (required) — Label text for the checkbox group (always rendered for accessibility).
+- `children`: ReactNode (required) — CheckboxListItem elements.
+- `value`: string[] — The currently selected values (collection mode).
+- `onChange`: (values: string[]) => void — Callback fired when the selected values change.
+- `changeAction`: (values: string[]) => void | Promise<void> — Async action on change with optimistic updates. While the promise is pending, the toggled item shows a spinner inside its checkbox and is marked aria-busy.
+- `isLabelHidden`: boolean = false — Whether to visually hide the label.
+- `description`: string — Description text displayed below the label.
+- `density`: 'compact' | 'balanced' | 'spacious' = 'balanced' — Spacing density for list items.
+- `hasDividers`: boolean = false — Whether to show dividers between items.
+- `isDisabled`: boolean = false — Whether all checkbox items are disabled.
+- `disabledMessage`: string — Explains why the group is disabled. Applies to the whole-group disabled state (isDisabled), not per item. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the checkboxes focusable via aria-disabled (toggling stays blocked). Use this instead of wrapping a disabled CheckboxList in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
+- `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator ({ type, message }).
+- `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
 
 ### Indicator
 
@@ -2148,62 +2339,113 @@ Props:
 - `xstyle`: StyleXStyles — StyleX styles for layout customization.
 - `data-testid`: string — Test selector.
 
-### MultiSelector
+### Label
 
-Import: `import {MultiSelector} from '@astryxdesign/core/MultiSelector';`
+Import: `import {Label} from '@astryxdesign/core/Slider';`
 
-A checkbox dropdown for selecting multiple values from a list. Selected items can display as a count, labels, or badges. Use it for filtering or when presenting a finite set of options where multiple choices are needed.
+A draggable control for selecting a numeric value or range within defined bounds. Supports single value and range selection, tick marks, custom value formatting, and vertical orientation. Use it when users need to explore a continuous range, such as volume, price, or percentage.
 
 Do:
-- Use for a moderate, finite set of options where multiple choices are needed.
-- Enable search filtering when the list exceeds ~15 options.
-- Use renderOption for custom option rows; the checkbox affordance remains owned by MultiSelector.
-- Enable select-all when most users will want all or nearly all options selected.
-- Use inside InputGroup only when the control needs a short prefix or suffix addon as part of one decorated input surface; prefer count or labels trigger display so the group stays single-line.
-- Use variant="ghost" when a multi-selector sits in a toolbar with ghost buttons. If validation status is needed there, prefer statusVariant="tooltip" so the toolbar height stays compact.
-- Use presentation="adaptive" when the multi-selector should become a bottom sheet on compact touch screens.
+- Always provide a label, even if visually hidden, so the slider is accessible to screen readers.
+- Format values with meaningful units like "$50" or "75%" instead of raw numbers.
 
 Don't:
-- Use for single-value selection; use Selector instead.
-- Show more than ~20 options without enabling search.
-- Wrap a disabled MultiSelector in Tooltip to explain why it is disabled; disabled triggers swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
+- Use for precise numeric entry; pair with a text input or use NumberInput instead.
+- Set a step size so large that only a few positions are possible; use SegmentedControl or radio buttons instead.
+- Wrap a disabled slider in Tooltip to explain why it is disabled; disabled controls swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
 
 Props:
-- `label`: string (required) — Label text for accessibility.
-- `options`: MultiSelectorOptionType[] (required) — Array of items: strings, objects with value/label/icon/disabled, dividers, or sections.
-- `value`: string[] (required) — Currently selected values.
-- `onChange`: (value: string[]) => void (required) — Callback fired when the selection changes.
-- `changeAction`: (value: string[]) => void | Promise<void> — Async action on change. Fires after onChange.
-- `placeholder`: string = 'Select...' — Placeholder text shown when no value is selected.
-- `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant for the selector.
-- `variant`: 'input' | 'ghost' = 'input' — Visual trigger style. input is the bordered input treatment for forms; ghost is borderless and matches ghost buttons for toolbar usage.
-- `triggerDisplay`: 'count' | 'labels' | 'badges' = 'count' — How to display selected items in the trigger.
-- `formatValue`: (items: {value: string; label: string}[]) => string — Formats the trigger text when triggerDisplay="count" or "labels". Receives the selected items (value plus resolved label); the count is items.length. Not used by triggerDisplay="badges".
-- `maxBadges`: number = 3 — Maximum badges to show before "+N". Only for triggerDisplay="badges".
-- `hasSelectAll`: boolean — Whether to show a select-all checkbox.
-- `selectAllLabel`: string = 'Select all' — Label for the select-all checkbox.
-- `hasSearch`: boolean — Whether to show a search input for filtering options. As the user types, the match count (or "No results found") is announced to screen readers via a polite live region. The search field has built-in affordances: a leading magnifier icon and, once a query is typed, a trailing clear (✕) button that resets the query and returns focus to the input.
-- `searchPlaceholder`: string = 'Search...' — Placeholder text for the search input.
-- `emptyText`: ReactNode = 'No options' — Content shown in the dropdown panel when there are no options to show, and announced in a polite live region when the panel opens (a string override is announced verbatim; a richer node falls back to the default text). Not shown while isLoading.
-- `emptySearchText`: ReactNode = 'No results found' — Content shown in the dropdown panel when a search query matches no options, and announced in a polite live region at the same time (a string override is announced verbatim; a richer node falls back to the default text).
-- `isDisabled`: boolean — Disables the selector.
-- `htmlName`: string — The HTML name attribute for form submissions. Renders one hidden input per selected value, like a native multi-select.
-- `disabledMessage`: string — Explains why the selector is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the trigger focusable via aria-disabled (activation stays blocked). Use this instead of wrapping a disabled MultiSelector in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
-- `isLabelHidden`: boolean — Visually hides the label while keeping it accessible.
-- `description`: string — Helper text displayed below the label.
-- `isOptional`: boolean — Marks the field as optional.
-- `isRequired`: boolean — Marks the field as required.
-- `isLoading`: boolean — Shows a loading spinner in the trigger.
-- `status`: {type: 'error' | 'warning' | 'success', message?: string} — Validation status with an optional message.
-- `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' for input selectors; 'detached' for ghost selectors — How the status message is placed relative to the input. attached overlaps directly below the bordered input and is only valid for the input variant; ghost selectors detach attached status messages by default. Use tooltip for compact toolbar controls.
-- `renderOption`: (option: MultiSelectorOptionData) => ReactNode — Custom render function for each selectable option in the dropdown. Not called for dividers, sections, or the select-all row.
-- `indicatorPosition`: 'start' | 'end' = 'start' — Which edge of the option row carries the checkbox. end pushes it to the far edge of the row, including on the select-all row.
-- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — How the option list is presented. adaptive uses a bottom sheet on compact touch screens and an anchored popover otherwise.
+- `label`: string (required) — Label text (always rendered for accessibility).
+- `value`: number | [number, number] (required) — Current value: a `number` for single thumb mode or `[number, number]` for range mode.
+- `onChange`: (value: number) => void | (value: [number, number]) => void — Callback fired on value change during drag.
+- `onChangeEnd`: (value: number) => void | (value: [number, number]) => void — Callback fired when drag ends.
+- `min`: number = 0 — Minimum value.
+- `max`: number = 100 — Maximum value.
+- `step`: number = 1 — Step increment.
+- `orientation`: 'horizontal' | 'vertical' = 'horizontal' — Orientation of the slider.
+- `formatValue`: (value: number) => string — Custom value formatting function used for display and `aria-valuetext`.
+- `valueDisplay`: 'tooltip' | 'text' | 'none' = 'tooltip' — How the current value is displayed.
+- `marks`: Array<{ value: number; label?: string }> — Tick marks at specified positions with optional labels.
+- `minStepsBetweenThumbs`: number = 0 — Minimum number of steps between thumbs in range mode; prevents thumbs from overlapping.
+- `isDisabled`: boolean = false — Whether the slider is disabled.
+- `htmlName`: string — The HTML name attribute for form submissions. Renders hidden inputs carrying the current value (two entries in range mode).
+- `disabledMessage`: string — Explains why the slider is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the thumb focusable via aria-disabled (value changes stay blocked). Use this instead of wrapping a disabled Slider in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
+- `isOptional`: boolean = false — Whether the field is optional.
+- `isRequired`: boolean = false — Whether the field is required.
+- `isLabelHidden`: boolean = false — Whether to visually hide the label.
+- `description`: string — Description text rendered below the label.
+- `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator object (`{ type, message }`) for validation feedback.
+- `labelTooltip`: string — Tooltip text for an info icon displayed next to the label.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
-- `startIcon`: IconType | ReactNode — Icon displayed at the start of the selector trigger.
-- `hasClear`: boolean = false — Shows a clear button when values are selected.
-- `isDefaultOpen`: boolean = false — Whether the dropdown starts open on mount.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+
+### Label
+
+Import: `import {Label} from '@astryxdesign/core/TextArea';`
+
+TextArea is a multi-line text input for collecting longer-form content like comments, descriptions, or messages. Use it when the expected input spans multiple lines. For shorter, single-line values, use TextInput.
+
+Do:
+- Provide a visible label so users know what to enter. If the label must be hidden, set isLabelHidden with a descriptive label for screen readers.
+- Set maxLength with a character counter when there is a defined limit; it helps users stay within bounds before they submit.
+- Use the status prop to surface validation feedback inline: show success when input is valid, warning for soft limits, and error for hard failures.
+- Add a description or placeholder to clarify expected content, like "Describe the issue in detail," but never rely on placeholder alone as the only label.
+
+Don't:
+- Avoid using TextArea for short, single-line values like names or emails; use TextInput instead.
+- Don't rely solely on placeholder text to communicate the purpose of the field; placeholders disappear on focus and are not accessible labels.
+- Don't show a status message without also setting the status type; the colored border and icon are what draw the user's attention to the message.
+- Don't wrap a disabled TextArea in Tooltip to explain why it's disabled; disabled controls swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
+
+Props:
+- `ref`: React.Ref<HTMLTextAreaElement> — Ref forwarded to the underlying <textarea> element.
+- `label`: string (required) — Label text for the textarea. Always rendered for accessibility.
+- `value`: string (required) — Current value of the textarea.
+- `onChange`: (value: string, e: ChangeEvent<HTMLTextAreaElement>) => void — Callback fired when the textarea value changes.
+- `changeAction`: (value: string, e: ChangeEvent<HTMLTextAreaElement>) => void | Promise<void> — Async action fired after onChange inside a React transition. Enables optimistic updates via useOptimistic.
+- `isLabelHidden`: boolean = false — Visually hides the label while keeping it accessible to screen readers.
+- `description`: string — Helper text displayed between the label and textarea.
+- `isOptional`: boolean = false — Displays an "Optional" indicator next to the label. Mutually exclusive with isRequired.
+- `isRequired`: boolean = false — Displays a "Required" indicator next to the label and sets aria-required. Mutually exclusive with isOptional.
+- `isDisabled`: boolean = false — Disables the textarea, preventing interaction.
+- `isReadOnly`: boolean = false — Makes the textarea read-only: the value is shown at full opacity and still submits with the form, but cannot be edited. Unlike isDisabled, a read-only textarea is not dimmed and stays in the tab order. isDisabled takes precedence when both are set.
+- `disabledMessage`: string — Explains why the textarea is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the textarea focusable via aria-disabled (the field becomes read-only). Use this instead of wrapping a disabled TextArea in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
+- `isLoading`: boolean = false — Puts the textarea in a loading state, showing a spinner inside the input.
+- `placeholder`: string — Placeholder text shown when the textarea is empty.
+- `rows`: number = 3 — Number of visible text rows.
+- `maxLength`: number — Maximum number of characters allowed, counted as user-perceived characters: an emoji or flag sequence counts as one. When set, a character counter (current/max) is displayed inside the input container, anchored to the bottom-right beneath the text. Does not enforce the limit natively; when exceeded the counter turns red and shows a warning icon (a non-color cue), and screen-reader users hear the remaining/over-limit count announced. Consumers validating the limit should count with characterCount (exported from the package) so enforcement matches the displayed count.
+- `status`: { type: 'warning' | 'error' | 'success'; message?: string } — Status indicator that applies a colored border and icon. An optional message is displayed in a floating box below the textarea.
+- `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing; tooltip hides the message box and surfaces it in a tooltip on the status icon.
+- `labelTooltip`: string — Tooltip text displayed in an info icon at the end of the label.
+- `startIcon`: IconType — Icon component rendered inside the leading edge of the textarea wrapper. See `astryx docs icons` for valid semantic names.
+- `hasSpellCheck`: boolean = true — Enables or disables browser spell checking.
+- `hasAutoFocus`: boolean = false — Automatically focuses the textarea on mount.
+- `size`: 'sm' | 'md' | 'lg' = 'md' — Size of the textarea, affecting internal padding. Height is controlled by rows, not size.
+- `onPaste`: (e: ClipboardEvent<HTMLTextAreaElement>) => void — Callback fired when content is pasted into the textarea.
+- `htmlName`: string — HTML name attribute for the textarea element, useful for form submissions.
+- `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
+- `onFocus`: (e: FocusEvent<HTMLTextAreaElement>) => void — Callback fired when the textarea receives focus.
+- `onBlur`: (e: FocusEvent<HTMLTextAreaElement>) => void — Callback fired when the textarea loses focus.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+
+### Message box
+
+Import: `import {Message box} from '@astryxdesign/core/FieldStatus';`
+
+FieldStatus renders validation feedback for fields and field-like controls. Use it directly for custom controls that need the same error, warning, or success presentation as Field.
+
+Do:
+- Use attached status below bordered inputs when the message belongs to that input.
+- Use detached status for controls like checkboxes, switches, and custom controls where overlap would be visually awkward.
+
+Don't:
+- Use FieldStatus for general alerts or page-level notices; use Banner or Toast instead.
+
+Props:
+- `type`: 'error' | 'warning' | 'success' (required) — Status type.
+- `message`: string (required) — Status message text.
+- `id`: string — ID for aria-describedby association.
+- `variant`: 'attached' | 'detached' = 'attached' — Visual variant: attached overlaps the input, detached floats below.
 
 ### NumberInput
 
@@ -2339,188 +2581,6 @@ Props:
 - `labelTooltip`: string — Tooltip text for an info icon next to the label.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
-
-### Selector
-
-Import: `import {Selector} from '@astryxdesign/core/Selector';`
-
-A dropdown selector for choosing a single value from a list of options. Supports labels, validation, descriptions, and required/optional states. Use it in forms and settings when presenting a moderate number of options. Keyboard typeahead matches a native select: typing on the focused closed trigger selects the matching option directly, repeated presses cycle through options sharing a first letter, and spaces count as match characters ("new y" reaches "New York"). With the menu open, typing moves the highlight and Enter commits. With hasSearch, typing on the closed trigger opens the popup and seeds the search input.
-
-Do:
-- Provide a visible label so users understand what they are selecting.
-- Use sections and dividers to organize options when the list exceeds ~8 items.
-- Use renderOption for custom option rows. Do not pass SelectorOption directly as JSX children.
-- Set a meaningful placeholder that hints at the expected selection (e.g. "Choose a country" not "Select...").
-- Use inside InputGroup only when the selector needs a short prefix or suffix addon as part of one decorated input surface.
-- Use variant="ghost" when a selector sits in a toolbar with ghost buttons. If validation status is needed there, prefer statusVariant="tooltip" so the toolbar height stays compact.
-- Use presentation="adaptive" when the selector should become a bottom sheet on compact touch screens.
-
-Don't:
-- Use for action menus; use Dropdown Menu for triggering commands or navigation.
-- Use when there are only two options; use a SegmentedControl or radio buttons instead.
-- Use Selector for navigation; links should be links, not dropdown options.
-- Use for yes/no or on/off choices; use Switch or CheckboxInput instead.
-- Put more than ~20 options without sections; consider Typeahead for large lists.
-- Wrap a disabled Selector in Tooltip to explain why it is disabled; disabled triggers swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
-
-Props:
-- `label`: string (required) — Label text for accessibility.
-- `options`: SelectorOption[] (required) — Array of items: strings, objects with value/label/description/icon/disabled, dividers ({type: "divider"}), or sections ({type: "section", title, items}).
-- `value`: string — Currently selected value.
-- `onChange`: (value: string) => void — Callback fired when the selection changes.
-- `hasClear`: boolean = false — Shows a clear (×) button when a value is selected. When true, onChange also accepts null to signal the user cleared the selection.
-- `hasSearch`: boolean = false — Whether to show a search input for filtering options. As the user types, the match count (or "No results found") is announced to screen readers via a polite live region. The search field has built-in affordances: a leading magnifier icon and, once a query is typed, a trailing clear (✕) button that resets the query and returns focus to the input.
-- `searchPlaceholder`: string = 'Search...' — Placeholder text for the search input.
-- `emptyText`: ReactNode = 'No options' — Content shown in the dropdown panel when there are no options to show, and announced in a polite live region when the panel opens (a string override is announced verbatim; a richer node falls back to the default text). Not shown while isLoading.
-- `emptySearchText`: ReactNode = 'No results found' — Content shown in the dropdown panel when a search query matches no options, and announced in a polite live region at the same time (a string override is announced verbatim; a richer node falls back to the default text).
-- `placeholder`: string = 'Select...' — Placeholder text shown when no value is selected.
-- `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant for the selector.
-- `variant`: 'input' | 'ghost' = 'input' — Visual trigger style. input is the bordered input treatment for forms; ghost is borderless and matches ghost buttons for toolbar usage.
-- `isDisabled`: boolean = false — Disables the selector.
-- `htmlName`: string — The HTML name attribute for form submissions. Renders a hidden input carrying the selected value, like a native select.
-- `disabledMessage`: string — Explains why the selector is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the trigger focusable via aria-disabled (activation stays blocked). Use this instead of wrapping a disabled Selector in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
-- `isLabelHidden`: boolean = false — Visually hides the label while keeping it accessible.
-- `description`: string — Helper text displayed below the label.
-- `isOptional`: boolean = false — Marks the field as optional.
-- `isRequired`: boolean = false — Marks the field as required.
-- `status`: {type: 'error' | 'warning' | 'success', message?: string} — Validation status with an optional message.
-- `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' for input selectors; 'detached' for ghost selectors — How the status message is placed relative to the input. attached overlaps directly below the bordered input and is only valid for the input variant; ghost selectors detach attached status messages by default. Use tooltip for compact toolbar controls.
-- `renderOption`: (option: SelectorOptionData) => ReactNode — Custom render function for each selectable option in the dropdown. Use this instead of JSX children; dividers and sections are rendered by the selector.
-- `renderValue`: (option: SelectorOptionData) => ReactNode — Custom render function for the selected option inside the closed trigger. The trigger is sized by padding, so it is the size token for a one-line value (28/32/36) and exactly one text line taller for a two-line one (48/52/56), always on the 4px rhythm, always aligned with the buttons and inputs beside it. Inside an InputGroup the group owns the row height: a SelectorOption folds onto one line and ellipsizes, and any taller node is cut off at the row.
-- `indicatorPosition`: 'start' | 'end' = 'end' — Which edge of the option row carries the selected mark. start reserves a mark column ahead of every label so they stay aligned, the way a native menu does; end is the house convention shared with Typeahead and CommandPalette.
-- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — How the option list is presented. adaptive uses a bottom sheet on compact touch screens and an anchored popover otherwise.
-- `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
-- `startIcon`: IconType | ReactNode — Icon displayed at the start of the selector trigger.
-- `isLoading`: boolean = false — Shows a loading spinner in the trigger.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
-
-### Slider
-
-Import: `import {Slider} from '@astryxdesign/core/Slider';`
-
-A draggable control for selecting a numeric value or range within defined bounds. Supports single value and range selection, tick marks, custom value formatting, and vertical orientation. Use it when users need to explore a continuous range, such as volume, price, or percentage.
-
-Do:
-- Always provide a label, even if visually hidden, so the slider is accessible to screen readers.
-- Format values with meaningful units like "$50" or "75%" instead of raw numbers.
-
-Don't:
-- Use for precise numeric entry; pair with a text input or use NumberInput instead.
-- Set a step size so large that only a few positions are possible; use SegmentedControl or radio buttons instead.
-- Wrap a disabled slider in Tooltip to explain why it is disabled; disabled controls swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
-
-Props:
-- `label`: string (required) — Label text (always rendered for accessibility).
-- `value`: number | [number, number] (required) — Current value: a `number` for single thumb mode or `[number, number]` for range mode.
-- `onChange`: (value: number) => void | (value: [number, number]) => void — Callback fired on value change during drag.
-- `onChangeEnd`: (value: number) => void | (value: [number, number]) => void — Callback fired when drag ends.
-- `min`: number = 0 — Minimum value.
-- `max`: number = 100 — Maximum value.
-- `step`: number = 1 — Step increment.
-- `orientation`: 'horizontal' | 'vertical' = 'horizontal' — Orientation of the slider.
-- `formatValue`: (value: number) => string — Custom value formatting function used for display and `aria-valuetext`.
-- `valueDisplay`: 'tooltip' | 'text' | 'none' = 'tooltip' — How the current value is displayed.
-- `marks`: Array<{ value: number; label?: string }> — Tick marks at specified positions with optional labels.
-- `minStepsBetweenThumbs`: number = 0 — Minimum number of steps between thumbs in range mode; prevents thumbs from overlapping.
-- `isDisabled`: boolean = false — Whether the slider is disabled.
-- `htmlName`: string — The HTML name attribute for form submissions. Renders hidden inputs carrying the current value (two entries in range mode).
-- `disabledMessage`: string — Explains why the slider is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the thumb focusable via aria-disabled (value changes stay blocked). Use this instead of wrapping a disabled Slider in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
-- `isOptional`: boolean = false — Whether the field is optional.
-- `isRequired`: boolean = false — Whether the field is required.
-- `isLabelHidden`: boolean = false — Whether to visually hide the label.
-- `description`: string — Description text rendered below the label.
-- `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator object (`{ type, message }`) for validation feedback.
-- `labelTooltip`: string — Tooltip text for an info icon displayed next to the label.
-- `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
-
-### Switch
-
-Import: `import {Switch} from '@astryxdesign/core/Switch';`
-
-A toggle control for on/off states that take effect immediately. Supports labels, descriptions, loading states, and validation. Use it for settings or preferences that apply instantly. For changes requiring a form submission, use a checkbox instead.
-
-Do:
-- Use for settings that apply immediately; the toggle should take effect without a separate save action.
-- Pair with a clear, concise label that describes the setting being controlled.
-
-Don't:
-- Use for options that require a form submission to take effect; use a checkbox instead.
-- Use a switch for multi-state values; it's strictly on/off.
-- Wrap a disabled switch in Tooltip to explain why it is disabled; disabled controls swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
-
-Props:
-- `ref`: React.Ref<HTMLInputElement> — Ref forwarded to the underlying <input> element.
-- `label`: string (required) — Label text for the switch (always rendered for accessibility).
-- `value`: boolean (required) — Whether the switch is on or off.
-- `onChange`: (checked: boolean, e: ChangeEvent<HTMLInputElement>) => void — Callback fired when the switch state changes.
-- `changeAction`: (checked: boolean, e: ChangeEvent<HTMLInputElement>) => void | Promise<void> — Async action fired after onChange. Triggers optimistic UI and shows a loading spinner until the promise resolves.
-- `isLoading`: boolean = false — Whether the switch is in a loading state, showing a spinner inside the thumb.
-- `isLabelHidden`: boolean = false — Visually hides the label while keeping it accessible to screen readers.
-- `description`: string — Description text displayed below the label.
-- `isDisabled`: boolean = false — Whether the switch is disabled.
-- `size`: 'sm' | 'md' = 'md' — Size variant controlling track and thumb dimensions. sm (32x20px) matches sm checkbox/radio vertical rhythm; md (40x24px, default) matches md checkbox/radio vertical rhythm.
-- `htmlName`: string — The HTML name attribute for the underlying checkbox input, useful for form submissions (submits "on" when the switch is on).
-- `disabledMessage`: string — Explains why the switch is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the switch focusable via aria-disabled (toggling stays blocked). Use this instead of wrapping a disabled Switch in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
-- `isOptional`: boolean = false — Whether the field is optional. Mutually exclusive with isRequired.
-- `isRequired`: boolean = false — Whether the switch is required. Mutually exclusive with isOptional.
-- `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator with type and message. Displays a colored message box below the switch and sets aria-invalid when type is "error".
-- `onFocus`: (e: FocusEvent<HTMLInputElement>) => void — Callback fired when the switch receives focus.
-- `onBlur`: (e: FocusEvent<HTMLInputElement>) => void — Callback fired when the switch loses focus.
-- `labelIcon`: IconType — Icon displayed before the label text. See `astryx docs icons` for valid semantic names.
-- `labelTooltip`: string — Tooltip text shown in an info icon at the end of the label.
-- `labelPosition`: 'start' | 'end' = 'end' — Which side of the switch the label appears on. "start" places the label before the switch.
-- `labelSpacing`: 'hug' | 'spread' = 'hug' — Spacing behavior between label and switch. "hug" places them next to each other; "spread" pushes them to opposite ends of the container (full width).
-- `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
-
-### TextArea
-
-Import: `import {TextArea} from '@astryxdesign/core/TextArea';`
-
-TextArea is a multi-line text input for collecting longer-form content like comments, descriptions, or messages. Use it when the expected input spans multiple lines. For shorter, single-line values, use TextInput.
-
-Do:
-- Provide a visible label so users know what to enter. If the label must be hidden, set isLabelHidden with a descriptive label for screen readers.
-- Set maxLength with a character counter when there is a defined limit; it helps users stay within bounds before they submit.
-- Use the status prop to surface validation feedback inline: show success when input is valid, warning for soft limits, and error for hard failures.
-- Add a description or placeholder to clarify expected content, like "Describe the issue in detail," but never rely on placeholder alone as the only label.
-
-Don't:
-- Avoid using TextArea for short, single-line values like names or emails; use TextInput instead.
-- Don't rely solely on placeholder text to communicate the purpose of the field; placeholders disappear on focus and are not accessible labels.
-- Don't show a status message without also setting the status type; the colored border and icon are what draw the user's attention to the message.
-- Don't wrap a disabled TextArea in Tooltip to explain why it's disabled; disabled controls swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
-
-Props:
-- `ref`: React.Ref<HTMLTextAreaElement> — Ref forwarded to the underlying <textarea> element.
-- `label`: string (required) — Label text for the textarea. Always rendered for accessibility.
-- `value`: string (required) — Current value of the textarea.
-- `onChange`: (value: string, e: ChangeEvent<HTMLTextAreaElement>) => void — Callback fired when the textarea value changes.
-- `changeAction`: (value: string, e: ChangeEvent<HTMLTextAreaElement>) => void | Promise<void> — Async action fired after onChange inside a React transition. Enables optimistic updates via useOptimistic.
-- `isLabelHidden`: boolean = false — Visually hides the label while keeping it accessible to screen readers.
-- `description`: string — Helper text displayed between the label and textarea.
-- `isOptional`: boolean = false — Displays an "Optional" indicator next to the label. Mutually exclusive with isRequired.
-- `isRequired`: boolean = false — Displays a "Required" indicator next to the label and sets aria-required. Mutually exclusive with isOptional.
-- `isDisabled`: boolean = false — Disables the textarea, preventing interaction.
-- `isReadOnly`: boolean = false — Makes the textarea read-only: the value is shown at full opacity and still submits with the form, but cannot be edited. Unlike isDisabled, a read-only textarea is not dimmed and stays in the tab order. isDisabled takes precedence when both are set.
-- `disabledMessage`: string — Explains why the textarea is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the textarea focusable via aria-disabled (the field becomes read-only). Use this instead of wrapping a disabled TextArea in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
-- `isLoading`: boolean = false — Puts the textarea in a loading state, showing a spinner inside the input.
-- `placeholder`: string — Placeholder text shown when the textarea is empty.
-- `rows`: number = 3 — Number of visible text rows.
-- `maxLength`: number — Maximum number of characters allowed, counted as user-perceived characters: an emoji or flag sequence counts as one. When set, a character counter (current/max) is displayed inside the input container, anchored to the bottom-right beneath the text. Does not enforce the limit natively; when exceeded the counter turns red and shows a warning icon (a non-color cue), and screen-reader users hear the remaining/over-limit count announced. Consumers validating the limit should count with characterCount (exported from the package) so enforcement matches the displayed count.
-- `status`: { type: 'warning' | 'error' | 'success'; message?: string } — Status indicator that applies a colored border and icon. An optional message is displayed in a floating box below the textarea.
-- `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing; tooltip hides the message box and surfaces it in a tooltip on the status icon.
-- `labelTooltip`: string — Tooltip text displayed in an info icon at the end of the label.
-- `startIcon`: IconType — Icon component rendered inside the leading edge of the textarea wrapper. See `astryx docs icons` for valid semantic names.
-- `hasSpellCheck`: boolean = true — Enables or disables browser spell checking.
-- `hasAutoFocus`: boolean = false — Automatically focuses the textarea on mount.
-- `size`: 'sm' | 'md' | 'lg' = 'md' — Size of the textarea, affecting internal padding. Height is controlled by rows, not size.
-- `onPaste`: (e: ClipboardEvent<HTMLTextAreaElement>) => void — Callback fired when content is pasted into the textarea.
-- `htmlName`: string — HTML name attribute for the textarea element, useful for form submissions.
-- `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
-- `onFocus`: (e: FocusEvent<HTMLTextAreaElement>) => void — Callback fired when the textarea receives focus.
-- `onBlur`: (e: FocusEvent<HTMLTextAreaElement>) => void — Callback fired when the textarea loses focus.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
 ### TextInput
 
@@ -2668,54 +2728,6 @@ Props:
 - `onFocus`: (e: FocusEvent<HTMLInputElement>) => void — Fires when focus enters the tokenizer input.
 - `onBlur`: (e: FocusEvent<HTMLInputElement>) => void — Fires when focus leaves the tokenizer input.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value; not an inline style object like style={{}}.
-
-### Typeahead
-
-Import: `import {Typeahead} from '@astryxdesign/core/Typeahead';`
-
-A searchable input for selecting a single item from a large or dynamic dataset. Results appear as the user types, with support for async data sources, debounced search, and custom item rendering. Use it when the option list is too large for a Selector dropdown.
-
-Do:
-- Provide descriptive placeholder text that hints at what users can search for.
-- Show suggestions on focus when users benefit from seeing popular or recent options before typing.
-- Add a search delay for remote data sources to avoid excessive network requests.
-- Use inside InputGroup when the typeahead needs a single-line prefix or suffix addon.
-
-Don't:
-- Use for short, static option lists; use Selector for better discoverability.
-- Use for multi-selection; use Tokenizer instead.
-- Place multiple Typeaheads adjacent to each other without clear labels differentiating them.
-- Wrap a disabled Typeahead in Tooltip to explain why it is disabled; disabled triggers swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
-
-Props:
-- `label`: string (required) — Accessible label for the input.
-- `searchSource`: SearchSource<T> (required) — Data source providing search and bootstrap methods for populating the dropdown.
-- `value`: T | null (required) — Currently selected item, or null if nothing is selected.
-- `onChange`: (item: T | null) => void (required) — Called when the selection changes.
-- `placeholder`: string — Input placeholder text.
-- `hasEntriesOnFocus`: boolean = false — Show bootstrap results on focus before typing.
-- `hasClear`: boolean = true — Show clear button to deselect the current value.
-- `isDisabled`: boolean = false — Disables the input.
-- `disabledMessage`: string — Explains why the input is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the field focusable via aria-disabled (activation stays blocked). Use this instead of wrapping a disabled Typeahead in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
-- `maxMenuItems`: number = 10 — Maximum number of dropdown items to display.
-- `minQueryLength`: number = 1 — Minimum query length before the search source is queried. Below it no search runs and the menu stays closed.
-- `status`: {type: 'warning' | 'error' | 'success', message?: string} — Validation status object with type and message for error/warning/success states.
-- `statusVariant`: 'attached' | 'detached' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing.
-- `renderItem`: (item: T) => ReactNode — Custom render function for dropdown items. Default renders TypeaheadItem.
-- `isLabelHidden`: boolean = false — Visually hides the label while keeping it accessible.
-- `description`: string — Helper text displayed below the label.
-- `isRequired`: boolean = false — Marks the field as required.
-- `isOptional`: boolean = false — Shows an optional indicator on the label.
-- `labelTooltip`: string — Tooltip text shown on the label.
-- `emptySearchResultsText`: string = 'No results found' — Text shown when search returns no results.
-- `hasAutoFocus`: boolean = false — Auto-focus the input on mount.
-- `size`: 'sm' | 'md' | 'lg' = 'md' — Input and token size.
-- `debounceMs`: number = 150 — Debounce delay in ms before triggering search. Set to 0 for synchronous sources.
-- `onChangeQuery`: (query: string) => void — Callback fired when the search query text changes.
-- `onOpenChange`: (isOpen: boolean) => void — Callback when the dropdown opens or closes.
-- `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
-- `startIcon`: IconType | ReactNode — SVG icon component displayed at the start of the input.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 
 ### BaseTypeahead (subcomponent/hook)
 
@@ -3198,7 +3210,7 @@ Returns:
 
 Import: `import {AppShell} from '@astryxdesign/core/AppShell';`
 
-The outermost layout for an application. Provides slots for top navigation, side navigation, banners, and main content. Use it as the root wrapper for every page. It handles responsive mobile navigation and skip-to-content automatically. Configure side nav collapse on SideNav with its collapsible prop.
+AppShell is the page shell for an application. It provides slots for top navigation, side navigation, banners, and main content. Use it as the root wrapper for every page. It handles responsive mobile navigation and skip-to-content automatically. Configure side nav collapse on SideNav with its collapsible prop.
 
 Do:
 - Choose the right height: use "fill" for dashboards with internal scrolling and "auto" for pages that grow with content.
@@ -3281,9 +3293,9 @@ Props:
 - `children`: ReactNode — Content to center.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
-### Divider
+### Divider group
 
-Import: `import {Divider} from '@astryxdesign/core/Divider';`
+Import: `import {Divider group} from '@astryxdesign/core/Divider';`
 
 A visual separator that divides content into distinct sections. Use to create clear boundaries between groups of related content, or to demarcate interactive regions within a layout.
 
@@ -3323,9 +3335,9 @@ Props:
 - `children`: ReactNode — Form fields to arrange. Accepts Astryx inputs (TextInput, Selector, etc.) and Field-wrapped custom controls.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
-### Grid
+### Grid container
 
-Import: `import {Grid} from '@astryxdesign/core/Grid';`
+Import: `import {Grid container} from '@astryxdesign/core/Grid';`
 
 A CSS grid layout container for arranging children in rows and columns. Use Grid for card galleries, dashboards, and any multi-column layout. Supports fixed column counts and responsive columns that reflow based on available width.
 
@@ -3353,34 +3365,9 @@ Props:
 - `children`: ReactNode — Grid content.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 
-### Layout
+### Handle
 
-Import: `import {Layout} from '@astryxdesign/core/Layout';`
-
-Layout provides composable components for building structured page shells with header, sidebar, content, and footer slots. Use Layout for full app layouts and HStack/VStack for simple directional stacking.
-
-Do:
-- Use Layout for page shells that need distinct zones like header, sidebar(s), content, and footer.
-- Use HStack and VStack for simple directional stacking within a content area.
-
-Don't:
-- Use Layout for simple stacking layouts; use HStack or VStack instead.
-- Nest multiple Layout components; use one per page shell and compose content within its slots.
-
-Props:
-- `content`: ReactNode — Main content area (center). Children passed to `<Layout>` render here too: `<Layout>{main}</Layout>` is shorthand for `<Layout content={main} />`.
-- `header`: ReactNode — Header slot.
-- `footer`: ReactNode — Footer slot.
-- `start`: ReactNode — Start panel (left in LTR).
-- `end`: ReactNode — End panel (right in LTR).
-- `height`: 'fill' | 'auto' = 'fill' — Height behavior: fill the container or grow with content.
-- `contentWidth`: SizeValue — Maximum width of the content within each slot (header, content, footer, panels), centered when narrower than the available space. Dividers stay full-bleed. Numbers are treated as pixels, strings are used as-is (e.g. `60ch`). Common page widths: 640 for forms, settings, and text-focused pages; 960 for content pages and wider layouts.
-- `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Padding at the layout's outer edges using the spacing scale.
-- `defaultHasDividers`: boolean — Default divider visibility for LayoutHeader and LayoutFooter children. Headers and footers that don't pass `hasDivider` use this value; when unset, nested layouts inherit from their parent context.
-
-### Resizable
-
-Import: `import {Resizable} from '@astryxdesign/core/Resizable';`
+Import: `import {Handle} from '@astryxdesign/core/Resizable';`
 
 Hook-based resizable panel system. useResizable() manages size state 
 
@@ -3407,9 +3394,34 @@ Props:
 - `children`: ReactNode — Custom handle content. Overrides the default pill + divider.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
-### Section
+### Layout container
 
-Import: `import {Section} from '@astryxdesign/core/Section';`
+Import: `import {Layout container} from '@astryxdesign/core/Layout';`
+
+Layout is a general five-slot primitive for arranging header, start, content, end, and footer regions within a page or bounded container. AppShell owns the page shell and app-wide navigation behavior; use HStack or VStack for simple directional stacking.
+
+Do:
+- Use Layout when content needs named header, start, content, end, or footer regions.
+- Use HStack and VStack for simple directional stacking within a content area.
+
+Don't:
+- Use Layout for simple stacking layouts; use HStack or VStack instead.
+- Use Layout as the page shell or for app-wide navigation; use AppShell for that responsibility.
+
+Props:
+- `content`: ReactNode — Content slot (center). Accepts any ReactNode; use LayoutContent when a content region is needed. Children passed to `<Layout>` render here too: `<Layout>{main}</Layout>` is shorthand for `<Layout content={main} />`.
+- `header`: ReactNode — Header slot. Accepts any ReactNode; use LayoutHeader when a header region is needed.
+- `footer`: ReactNode — Footer slot. Accepts any ReactNode; use LayoutFooter when a footer region is needed.
+- `start`: ReactNode — Logical-start slot (left in LTR). Accepts any ReactNode; use LayoutPanel when a panel region is needed.
+- `end`: ReactNode — Logical-end slot (right in LTR). Accepts any ReactNode; use LayoutPanel when a panel region is needed.
+- `height`: 'fill' | 'auto' = 'fill' — Height behavior: fill the container or grow with content.
+- `contentWidth`: SizeValue — Maximum width of the content within each slot (header, content, footer, panels), centered when narrower than the available space. Dividers stay full-bleed. Numbers are treated as pixels, strings are used as-is (e.g. `60ch`). Common page widths: 640 for forms, settings, and text-focused pages; 960 for content pages and wider layouts.
+- `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Padding at the layout's outer edges using the spacing scale.
+- `defaultHasDividers`: boolean — Default divider visibility for LayoutHeader and LayoutFooter children. Headers and footers that don't pass `hasDivider` use this value; when unset, nested layouts inherit from their parent context.
+
+### Section container
+
+Import: `import {Section container} from '@astryxdesign/core/Section';`
 
 Section is the correct way to create page regions and group related content on a page. Use it for settings groups, form sections, sidebar areas, or any time you need visual separation between parts of a page. If you are tempted to use a Card for a page section, use Section instead.
 
@@ -3439,9 +3451,9 @@ Props:
 - `paddingBlockEnd`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Block-end (bottom) padding, using the spacing scale. Overrides paddingBlock and padding on that edge only.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object.
 
-### Stack
+### Stack container
 
-Import: `import {Stack} from '@astryxdesign/core/Stack';`
+Import: `import {Stack container} from '@astryxdesign/core/Stack';`
 
 Stack arranges items in a row or column with consistent spacing. Use the gap prop to control the space between items.
 
@@ -3451,6 +3463,10 @@ Do:
 
 Don't:
 - Nest stacks inside stacks; try wrap="wrap" first to let items flow to the next line.
+
+#### Stack
+
+Unified stack layout component with a direction prop. Use direction="horizontal" for left-to-right flow or direction="vertical" (default) for top-to-bottom. For convenience, HStack and VStack are pre-configured wrappers.
 
 Props:
 - `direction`: 'horizontal' | 'vertical' = 'vertical' — Direction of the stack layout. 'horizontal' flows items left-to-right (like HStack), 'vertical' flows top-to-bottom (like VStack). Note: the value is 'horizontal', NOT 'row'.
@@ -3788,9 +3804,37 @@ Props:
 - `label`: string = 'Breadcrumb' — Accessible label for the nav landmark (aria-label).
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 
-### MobileNav
+### Container
 
-Import: `import {MobileNav} from '@astryxdesign/core/MobileNav';`
+Import: `import {Container} from '@astryxdesign/core/NavIcon';`
+
+NavIcon is a circular icon container with an accent-colored background. Use it in navigation headers such as TopNavHeading and PageNavHeader to visually identify a section or application.
+
+Do:
+- Use in navigation headers to provide a recognizable visual anchor for the section.
+- Pass an Icon or similarly sized icon component to ensure proper proportions.
+
+Don't:
+- Use NavIcon for interactive purposes; it is a display-only container, not a button.
+
+Props:
+- `icon`: ReactNode (required) — The icon element to render inside the circular background. Should be an Icon or similar icon component.
+
+### Menu
+
+Import: `import {Menu} from '@astryxdesign/core/NavMenu';`
+
+Accessible menu container and items for nav heading popovers. 
+
+Props:
+- `children`: ReactNode (required) — Menu items.
+- `size`: 'sm' | 'md' | 'lg' = 'md' — Controls min-width and item padding.
+- `minWidth`: number | string — Minimum width override.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+
+### Navigation overlay
+
+Import: `import {Navigation overlay} from '@astryxdesign/core/MobileNav';`
 
 A slide-out drawer for mobile navigation. MobileNav is the mobile counterpart to SideNav and accepts the same children. Use it on narrow viewports where a persistent sidebar is not practical. Inside AppShell, use MobileNavToggle as the trigger; it reads state from context automatically.
 
@@ -3801,6 +3845,10 @@ Do:
 
 Don't:
 - Use MobileNav on desktop: use a persistent SideNav instead.
+
+#### MobileNav
+
+A slide-out drawer for mobile navigation. Accepts SideNav children.
 
 Props:
 - `isOpen`: boolean — Whether the drawer is open. Inside AppShell, this is managed automatically via context. Outside AppShell, provide this prop to control the drawer yourself.
@@ -3817,34 +3865,6 @@ Hamburger button that opens/closes the mobile nav drawer. Reads open state from 
 Props:
 - `children`: ReactNode — Custom content to render instead of the default hamburger icon.
 - `label`: string = 'Open navigation' — Accessible label for the toggle button.
-
-### NavHeadingMenu
-
-Import: `import {NavHeadingMenu} from '@astryxdesign/core/NavMenu';`
-
-Accessible menu container and items for nav heading popovers. 
-
-Props:
-- `children`: ReactNode (required) — Menu items.
-- `size`: 'sm' | 'md' | 'lg' = 'md' — Controls min-width and item padding.
-- `minWidth`: number | string — Minimum width override.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
-
-### NavIcon
-
-Import: `import {NavIcon} from '@astryxdesign/core/NavIcon';`
-
-NavIcon is a circular icon container with an accent-colored background. Use it in navigation headers such as TopNavHeading and PageNavHeader to visually identify a section or application.
-
-Do:
-- Use in navigation headers to provide a recognizable visual anchor for the section.
-- Pass an Icon or similarly sized icon component to ensure proper proportions.
-
-Don't:
-- Use NavIcon for interactive purposes; it is a display-only container, not a button.
-
-Props:
-- `icon`: ReactNode (required) — The icon element to render inside the circular background. Should be an Icon or similar icon component.
 
 ### Outline
 
@@ -4242,32 +4262,6 @@ Props:
 - `width`: number | string = 400 — Requested dialog width. Dialog preserves this preferred width and clamps it to the container and dynamic viewport with token gutters.
 - `isInline`: boolean = false — Renders alert dialog content inline without modal behavior. For documentation previews and showcases only. Not being a modal, the inline path renders role="group" instead of role="alertdialog".
 
-### BottomSheet
-
-Import: `import {BottomSheet} from '@astryxdesign/core/BottomSheet';`
-
-A mobile touch surface for filters, actions, forms, and detail views that should rise from the bottom of the viewport; use BottomSheetSwitcher for multi-step flows.
-
-Do:
-- Use for mobile-first surfaces (filters, share sheets, quick actions) where the content should rise from the bottom edge.
-- Pick the starting height that fits the content: 'hug' for short bounded content, 'capped' for lists, and 'tall' for forms or streaming/resizing content.
-- Use purpose='form' to protect entered data from scrim clicks and swipes while keeping Escape available; reserve purpose='required' for flows that must end through an explicit action.
-
-Don't:
-- Don't make the sheet content overly long. Consider breaking it into steps and using Bottom Sheet Switcher.
-
-Props:
-- `isOpen`: boolean — Whether a standalone sheet is open. Fully controlled; pair with onOpenChange. Omit inside BottomSheetSwitcher.
-- `onOpenChange`: (isOpen: boolean) => void — For a standalone sheet, called when it requests an open-state change. Automatic calls follow purpose: info dismisses on Escape, scrim click, or swipe; form dismisses on Escape only; required never dismisses implicitly. Omit inside BottomSheetSwitcher.
-- `finalFocusRef`: RefObject<HTMLElement | null> — Optional explicit focus-return target for a standalone sheet. Use when the opener can remount or the active element is not a reliable trigger, such as an adaptive presentation switch. Omit inside BottomSheetSwitcher.
-- `purpose`: 'required' | 'form' | 'info' = 'info' — Controls implicit dismissal behavior, matching Dialog. info allows Escape, scrim click, and swipe-to-dismiss. form protects entered data by blocking scrim click and swipe while allowing Escape. required blocks every implicit dismissal path and uses role='alertdialog'. Explicit controls may still update the controlled state. Works for standalone and BottomSheetSwitcher-managed sheets.
-- `sheetId`: string — Unique ID for this sheet inside BottomSheetSwitcher. The switcher opens it when activeSheet matches. Omit isOpen and onOpenChange when sheetId is used.
-- `label`: string (required) — Accessible label for the sheet. Required; the sheet has no built-in heading to derive a name from.
-- `children`: ReactNode (required) — Sheet content, rendered below the grab handle in a scrollable area. If it includes a text-entry control that can bring up the mobile keyboard, use height='tall' and keep the sheet fully expanded while editing.
-- `height`: 'hug' | 'capped' | 'tall' | number | string = 'capped' — How tall the sheet is. Named budgets: 'hug' fits its content up to 92% of the viewport, 'capped' is a scrolling mid-height panel (~62%), and 'tall' is a pinned near-full panel (~92%) for content that streams in. Or pass a number (px) / CSS length for a custom budget. Give snapPoints to let the user drag between heights. On shorter viewports the sheet fills the available height. Only a fully expanded 'tall' sheet provides mobile-keyboard accommodation: it stays put and scrolls each focused control above the keyboard. Hug, Capped, numeric and CSS-length heights never do, and a Tall sheet stops doing it the moment the user drags it to a shorter detent, resuming when they drag it back. Outside that state the sheet neither moves nor adds keyboard scroll space, and the browser's own focus reveal is left in place; on iOS that reveal can shift the whole page.
-- `snapPoints`: ReadonlyArray<number | string> — Extra heights the sheet can rest at when dragged; its own height is always the tallest stop, and omitting this gives a sheet that only opens and closes. Each stop is the sheet's visible height: a number is a viewport fraction (0.5 is half the screen), '50%' the same in CSS, '320px' an absolute length. A stop of a quarter of the sheet or less is a peek: it slides away instead of reflowing, and thins the scrim.
-- `hasScrim`: boolean = true — For a standalone BottomSheet, whether to render a scrim, the semi-transparent overlay that covers and blocks the background. true (default) uses showModal(): top layer, focus trap, ::backdrop scrim, body scroll lock, and tap-scrim-to-dismiss when purpose='info', with the background inert. false uses show() with no scrim, leaving the page behind interactive and scrollable. For a multi-step flow, configure hasScrim on BottomSheetSwitcher instead; it owns one shared dialog across every child.
-
 ### BottomSheetSwitcher
 
 Import: `import {BottomSheetSwitcher} from '@astryxdesign/core/BottomSheet';`
@@ -4286,9 +4280,9 @@ Props:
 - `hasScrim`: boolean = true — Whether the shared dialog is modal. true uses showModal() once for one native ::backdrop, focus trap, scroll lock, and click-to-dismiss when the active BottomSheet has purpose='info'. false uses show() with no backdrop and leaves the page interactive; avoid transformed, contained, or clipping ancestors because the non-modal dialog remains in its containing context.
 - `children`: ReactNode (required) — BottomSheets identified by unique sheetId values.
 
-### CommandPalette
+### Dialog
 
-Import: `import {CommandPalette} from '@astryxdesign/core/CommandPalette';`
+Import: `import {Dialog} from '@astryxdesign/core/CommandPalette';`
 
 CommandPalette is a searchable dialog for quick access to commands, navigation, and actions. Use it as a keyboard-driven launcher powered by SearchSource for filtering and selection.
 
@@ -4379,32 +4373,6 @@ Props:
 - `isDefaultOpen`: boolean — Whether the hover card should be shown on mount. Still dismissible.
 - `isOpen`: boolean — Controlled open state for the hover card.
 
-### Lightbox
-
-Import: `import {Lightbox} from '@astryxdesign/core/Lightbox';`
-
-A fullscreen overlay for viewing images and videos at full resolution. Supports single-item and gallery modes with prev/next navigation, optional zoom and pan for images, and native video controls.
-
-Do:
-- Always provide alt text for every image for screen reader accessibility.
-- Use gallery mode with onIndexChange for multi-image sets.
-- Enable hasZoom only when viewing high-resolution images that benefit from close inspection.
-
-Don't:
-- Use the lightbox for non-image content; it is specialized for images.
-- Nest interactive content inside captions; keep them plain text.
-
-Props:
-- `isOpen`: boolean (required) — Whether the lightbox is open.
-- `onOpenChange`: (isOpen: boolean) => void (required) — Callback when the lightbox open state changes.
-- `media`: LightboxMedia | LightboxMedia[] (required) — Media to display. Pass a single object for one item, or an array for gallery mode with prev/next navigation. Each item is {src: string, alt: string, caption?: ReactNode, type?: 'image' | 'video'}; type defaults to 'image', and zoom/pan is disabled for 'video'.
-- `index`: number — Current index in gallery mode (when media is an array).
-- `onIndexChange`: (index: number) => void — Callback when the gallery index changes via prev/next navigation.
-- `hasZoom`: boolean = false — Enable zoom on double-click, or Enter/Space/+/- via keyboard (images only). When zoomed, drag or use arrow keys to pan.
-- `defaultIndex`: number = 0 — Initial image index in gallery mode for uncontrolled usage.
-- `hasAutoPlay`: boolean = false — Automatically start video playback when a video media item is shown.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be stylex.create() value.
-
 ### Overlay
 
 Import: `import {Overlay} from '@astryxdesign/core/Overlay';`
@@ -4466,6 +4434,32 @@ Props:
 - `hasEscapeDismiss`: boolean = true — Whether pressing Escape dismisses the popover. Only takes full effect together with hasLightDismiss={false}, since native light dismiss also closes on Escape.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
+### Sheet panel
+
+Import: `import {Sheet panel} from '@astryxdesign/core/BottomSheet';`
+
+A mobile touch surface for filters, actions, forms, and detail views that should rise from the bottom of the viewport; use BottomSheetSwitcher for multi-step flows.
+
+Do:
+- Use for mobile-first surfaces (filters, share sheets, quick actions) where the content should rise from the bottom edge.
+- Pick the starting height that fits the content: 'hug' for short bounded content, 'capped' for lists, and 'tall' for forms or streaming/resizing content.
+- Use purpose='form' to protect entered data from scrim clicks and swipes while keeping Escape available; reserve purpose='required' for flows that must end through an explicit action.
+
+Don't:
+- Don't make the sheet content overly long. Consider breaking it into steps and using Bottom Sheet Switcher.
+
+Props:
+- `isOpen`: boolean — Whether a standalone sheet is open. Fully controlled; pair with onOpenChange. Omit inside BottomSheetSwitcher.
+- `onOpenChange`: (isOpen: boolean) => void — For a standalone sheet, called when it requests an open-state change. Automatic calls follow purpose: info dismisses on Escape, scrim click, or swipe; form dismisses on Escape only; required never dismisses implicitly. Omit inside BottomSheetSwitcher.
+- `finalFocusRef`: RefObject<HTMLElement | null> — Optional explicit focus-return target for a standalone sheet. Use when the opener can remount or the active element is not a reliable trigger, such as an adaptive presentation switch. Omit inside BottomSheetSwitcher.
+- `purpose`: 'required' | 'form' | 'info' = 'info' — Controls implicit dismissal behavior, matching Dialog. info allows Escape, scrim click, and swipe-to-dismiss. form protects entered data by blocking scrim click and swipe while allowing Escape. required blocks every implicit dismissal path and uses role='alertdialog'. Explicit controls may still update the controlled state. Works for standalone and BottomSheetSwitcher-managed sheets.
+- `sheetId`: string — Unique ID for this sheet inside BottomSheetSwitcher. The switcher opens it when activeSheet matches. Omit isOpen and onOpenChange when sheetId is used.
+- `label`: string (required) — Accessible label for the sheet. Required; the sheet has no built-in heading to derive a name from.
+- `children`: ReactNode (required) — Sheet content, rendered below the grab handle in a scrollable area. If it includes a text-entry control that can bring up the mobile keyboard, use height='tall' and keep the sheet fully expanded while editing.
+- `height`: 'hug' | 'capped' | 'tall' | number | string = 'capped' — How tall the sheet is. Named budgets: 'hug' fits its content up to 92% of the viewport, 'capped' is a scrolling mid-height panel (~62%), and 'tall' is a pinned near-full panel (~92%) for content that streams in. Or pass a number (px) / CSS length for a custom budget. Give snapPoints to let the user drag between heights. On shorter viewports the sheet fills the available height. Only a fully expanded 'tall' sheet provides mobile-keyboard accommodation: it stays put and scrolls each focused control above the keyboard. Hug, Capped, numeric and CSS-length heights never do, and a Tall sheet stops doing it the moment the user drags it to a shorter detent, resuming when they drag it back. Outside that state the sheet neither moves nor adds keyboard scroll space, and the browser's own focus reveal is left in place; on iOS that reveal can shift the whole page.
+- `snapPoints`: ReadonlyArray<number | string> — Extra heights the sheet can rest at when dragged; its own height is always the tallest stop, and omitting this gives a sheet that only opens and closes. Each stop is the sheet's visible height: a number is a viewport fraction (0.5 is half the screen), '50%' the same in CSS, '320px' an absolute length. A stop of a quarter of the sheet or less is a peek: it slides away instead of reflowing, and thins the scrim.
+- `hasScrim`: boolean = true — For a standalone BottomSheet, whether to render a scrim, the semi-transparent overlay that covers and blocks the background. true (default) uses showModal(): top layer, focus trap, ::backdrop scrim, body scroll lock, and tap-scrim-to-dismiss when purpose='info', with the background inert. false uses show() with no scrim, leaving the page behind interactive and scrollable. For a multi-step flow, configure hasScrim on BottomSheetSwitcher instead; it owns one shared dialog across every child.
+
 ### Toast
 
 Import: `import {Toast} from '@astryxdesign/core/Toast';`
@@ -4495,9 +4489,9 @@ Props:
 - `onDismiss`: (reason: "auto" | "manual") => void (required) — Callback fired when the toast is dismissed.
 - `renderContent`: (toast: ToastContentRenderProps) => ReactNode — Replaces the content of this toast's card with your own layout. Astryx keeps the card, its astryx-toast theme target, the live-region role and auto-hide behavior, then hands the renderer the message, endContent, resolved toast settings and a dismiss callback. The custom renderer owns every control in its layout: compose the control you want and call dismiss from it. Astryx does not inject a fallback close into custom content. Per-toast: an app shares one layout by wrapping useToast and passing it on every call, while a toast raised by library code that never passes it renders as an ordinary Astryx toast. The argument is {body, endContent, type, isAutoHide, autoHideDuration, dismiss}, where type is 'info' | 'error'.
 
-### Tooltip
+### Tooltip surface
 
-Import: `import {Tooltip} from '@astryxdesign/core/Tooltip';`
+Import: `import {Tooltip surface} from '@astryxdesign/core/Tooltip';`
 
 A short text hint that appears on hover or focus, anchored to a trigger element. Use it to describe icon-only buttons, show the full text of truncated labels, or provide supplementary context without cluttering the UI.
 
@@ -4509,6 +4503,10 @@ Do:
 Don't:
 - Place interactive elements like links or buttons inside a tooltip; use HoverCard or Popover instead.
 - Use tooltips for essential information that users must see to complete a task.
+
+#### Tooltip
+
+Component wrapper for tooltip display triggered on hover or focus.
 
 Props:
 - `children`: ReactNode — Trigger element(s) that activate the tooltip.
@@ -4525,6 +4523,32 @@ Props:
 - `hasHoverIndication`: 'auto' | boolean = 'auto' — Shows a dashed underline on the trigger element.
 - `isDefaultOpen`: boolean — Whether the tooltip should be shown on mount. Still dismissible.
 - `isOpen`: boolean — Controlled open state for the tooltip.
+
+### Viewer overlay
+
+Import: `import {Viewer overlay} from '@astryxdesign/core/Lightbox';`
+
+A fullscreen overlay for viewing images and videos at full resolution. Supports single-item and gallery modes with prev/next navigation, optional zoom and pan for images, and native video controls.
+
+Do:
+- Always provide alt text for every image for screen reader accessibility.
+- Use gallery mode with onIndexChange for multi-image sets.
+- Enable hasZoom only when viewing high-resolution images that benefit from close inspection.
+
+Don't:
+- Use the lightbox for non-image content; it is specialized for images.
+- Nest interactive content inside captions; keep them plain text.
+
+Props:
+- `isOpen`: boolean (required) — Whether the lightbox is open.
+- `onOpenChange`: (isOpen: boolean) => void (required) — Callback when the lightbox open state changes.
+- `media`: LightboxMedia | LightboxMedia[] (required) — Media to display. Pass a single object for one item, or an array for gallery mode with prev/next navigation. Each item is {src: string, alt: string, caption?: ReactNode, type?: 'image' | 'video'}; type defaults to 'image', and zoom/pan is disabled for 'video'.
+- `index`: number — Current index in gallery mode (when media is an array).
+- `onIndexChange`: (index: number) => void — Callback when the gallery index changes via prev/next navigation.
+- `hasZoom`: boolean = false — Enable zoom on double-click, or Enter/Space/+/- via keyboard (images only). When zoomed, drag or use arrow keys to pan.
+- `defaultIndex`: number = 0 — Initial image index in gallery mode for uncontrolled usage.
+- `hasAutoPlay`: boolean = false — Automatically start video playback when a video media item is shown.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be stylex.create() value.
 
 ### CommandPaletteEmpty (subcomponent/hook)
 
@@ -4709,32 +4733,9 @@ Props:
 - `start`: number = 1 — Starting number for ordered lists (listStyle='decimal'). Sets the CSS counter to begin at this value.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 
-### MetadataList
+### List
 
-Import: `import {MetadataList} from '@astryxdesign/core/MetadataList';`
-
-MetadataList displays key-value pairs for object attributes like quality, condition, and status, in a structured layout. Use it for detail panels, settings summaries, and record information.
-
-Do:
-- Choose label position based on content: "start" for short values, "top" for long or complex values.
-- Collapse long lists with `maxNumOfItems` to keep the page scannable.
-
-Don't:
-- Use for extensive form input; use a form layout instead.
-- Use for data that doesn't have a clear key-value structure.
-
-Props:
-- `children`: ReactNode (required) — Metadata items (MetadataListItem components).
-- `columns`: 'multi' | 'single' | number = 'single' — Column layout mode.
-- `label`: { position?: 'start' | 'top', width?: number | string } = { position: 'start' } (single-column) / { position: 'top' } (multi-column) — Label display configuration. position controls label placement, width sets a custom label column width. Defaults to { position: 'top' } for multi-column layouts.
-- `maxNumOfItems`: number — Maximum items to show before collapsing with a show more/less toggle.
-- `orientation`: 'vertical' | 'horizontal' = 'vertical' — Layout orientation. Horizontal mode flows items in a row with flex-wrap.
-- `title`: ReactNode — Optional title or heading above the list.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
-
-### OverflowList
-
-Import: `import {OverflowList} from '@astryxdesign/core/OverflowList';`
+Import: `import {List} from '@astryxdesign/core/OverflowList';`
 
 A horizontal list that automatically hides items when they exceed the available width. Use OverflowList for breadcrumbs, toolbars, tag lists, or any row that needs to collapse gracefully at smaller sizes.
 
@@ -4758,6 +4759,29 @@ Props:
 - `collapseFrom`: 'start' | 'end' = 'end' — Which end to collapse items from when overflow occurs.
 - `behavior`: 'observeSelf' | 'observeParent' = 'observeSelf' — Controls which element is measured for available width. 'observeSelf' uses the container's own width. 'observeParent' observes the parent element, useful when the list should stay content-sized while still detecting available space.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object.
+
+### MetadataList
+
+Import: `import {MetadataList} from '@astryxdesign/core/MetadataList';`
+
+MetadataList displays key-value pairs for object attributes like quality, condition, and status, in a structured layout. Use it for detail panels, settings summaries, and record information.
+
+Do:
+- Choose label position based on content: "start" for short values, "top" for long or complex values.
+- Collapse long lists with `maxNumOfItems` to keep the page scannable.
+
+Don't:
+- Use for extensive form input; use a form layout instead.
+- Use for data that doesn't have a clear key-value structure.
+
+Props:
+- `children`: ReactNode (required) — Metadata items (MetadataListItem components).
+- `columns`: 'multi' | 'single' | number = 'single' — Column layout mode.
+- `label`: { position?: 'start' | 'top', width?: number | string } = { position: 'start' } (single-column) / { position: 'top' } (multi-column) — Label display configuration. position controls label placement, width sets a custom label column width. Defaults to { position: 'top' } for multi-column layouts.
+- `maxNumOfItems`: number — Maximum items to show before collapsing with a show more/less toggle.
+- `orientation`: 'vertical' | 'horizontal' = 'vertical' — Layout orientation. Horizontal mode flows items in a row with flex-wrap.
+- `title`: ReactNode — Optional title or heading above the list.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
 
 ### Table
 
@@ -4793,9 +4817,9 @@ Props:
 - `children`: ReactNode — Children mode: compose the table yourself from TableHeader / TableBody / TableFooter, each holding TableRow and TableCell, instead of using data-driven rendering. The children are passed straight to the <table>, so the section is yours to supply. A TableRow placed directly in Table emits <table><tr>, which is invalid HTML and mismatches on hydration (the parser inserts an implied <tbody> for server-rendered markup; React does not on the client). Data-driven mode renders the sections for you.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 
-### TreeList
+### Tree list
 
-Import: `import {TreeList} from '@astryxdesign/core/TreeList';`
+Import: `import {Tree list} from '@astryxdesign/core/TreeList';`
 
 An expandable tree structure for displaying hierarchical data with branch connector lines. Use it for file explorers, nested category browsers, or any interface that visualizes parent-child relationships.
 
@@ -4807,6 +4831,10 @@ Do:
 Don't:
 - Nest more than 4–5 levels deep; flatten the structure or use a different pattern.
 - Use a tree for flat, non-hierarchical data; use a List instead.
+
+#### TreeList
+
+Tree list container. Accepts items data and rendering configuration. Expansion state is managed internally.
 
 Props:
 - `items`: TreeListItemData[] (required) — Recursive tree item data. Each item has id, label, optional children array, and optional isExpanded boolean for initial state.
@@ -4982,7 +5010,7 @@ Props:
 Import: `import {useTableRowStatus} from '@astryxdesign/core/Table';`
 
 Props:
-- `getStatus`: (item: T) => { color: 'accent' | 'success' | 'error' | 'warning' | 'red' | 'orange' | 'green' | 'yellow' | 'blue' | 'gray' | string; icon?: IconName; label: string } | null (required) — Derive the status indicator for a row: a semantic color (accent, success, error, warning, red, orange, green, yellow, blue, gray, each mapped to a theme token) or a raw CSS color as an escape hatch; an optional icon to signal status by shape instead of the dot (recommended when multiple statuses coexist; valid names: close, chevronDown, chevronLeft, chevronRight, chevronsLeft, chevronsRight, check, success, error, warning, info, calendar, clock, externalLink, menu, moreHorizontal, search, arrowUp, arrowDown, arrowsUpDown, funnel, eyeSlash, viewColumns, copy, checkDouble, wrench, stop, microphone); and a required accessible label (announced via role="img" and shown in a tooltip on hover, so a status is never conveyed by color alone). Return null for rows with no status. Memoize with useCallback for a stable plugin identity.
+- `getStatus`: (item: T) => { color: 'accent' | 'success' | 'error' | 'warning' | 'red' | 'orange' | 'green' | 'yellow' | 'blue' | 'gray' | string; icon?: IconName; label: string } | null (required) — Derive the status indicator for a row: a semantic color (success, error, warning) uses its matching themed semantic icon by default; accent, palette colors (red, orange, green, yellow, blue, gray), and raw CSS use a dot unless icon overrides the signifier. Valid icon names: close, chevronDown, chevronLeft, chevronRight, chevronsLeft, chevronsRight, check, success, error, warning, info, calendar, clock, externalLink, menu, moreHorizontal, search, arrowUp, arrowDown, arrowsUpDown, funnel, eyeSlash, viewColumns, copy, checkDouble, wrench, stop, microphone. label is required and is announced via role="img" and shown in a tooltip. Return null for rows with no status. Memoize with useCallback for a stable plugin identity.
 
 ### useTableSelection (subcomponent/hook)
 

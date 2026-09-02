@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `a1f0dde` (2026-08-31) of https://github.com/facebook/astryx.
+Generated from commit `5dabc56` (2026-09-01) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -1369,7 +1369,7 @@ Do:
 - Use the card container inside page content and the section container for full-width messages that span the entire page.
 - Make info and success banners dismissable. Keep error banners visible until the user fixes the issue.
 - Keep titles short and scannable: "Payment failed" not "There was a problem processing your most recent payment."
-- Set collapsible={false} when the user needs the content to act on the message, like the list of fields that failed validation. Keep the default toggle when the detail is long enough to bury the banner\u2019s own message.
+- Set collapsible={false} when the user needs the content to act on the message, like the list of fields that failed validation. Keep the default toggle when the detail is long enough to bury the banner's own message.
 - Error and warning banners render as role="alert"; info and success render as role="status". Mount an alert banner in response to an event rather than on first paint, so assistive tech has a change to report.
 
 Don't:
@@ -1482,7 +1482,7 @@ Don't:
 - Stack multiple spinners in the same view; use one to represent the overall loading state.
 
 Props:
-- `size`: 'sm' | 'md' | 'lg' | 'xl' = 'md' — Spinner size — ring diameter (10px, 14px, 18px, 28px).
+- `size`: 'sm' | 'md' | 'lg' | 'xl' = 'md' — Spinner size: ring diameter (10px, 14px, 18px, 28px).
 - `shade`: 'default' | 'onMedia' | 'subtle' | 'inherit' = 'default' — Color shade for light or dark backgrounds.
 - `label`: ReactNode — Visible content below the spinner. String labels auto-set aria-label.
 - `aria-label`: string = 'Loading' — Accessible name for screen readers. Defaults to label (if string) or "Loading".
@@ -1859,7 +1859,7 @@ Props:
 
 Import: `import {DateTimeInput} from '@astryxdesign/core/DateTimeInput';`
 
-DateTimeInput combines date and time selection in one field. On mouse/trackpad devices it uses a calendar popover plus text time input; on coarse-pointer devices the closed control still has separate Date and Time segments, and either segment opens a bottom sheet with Date and Time sections, a swipable month calendar, and accessible time wheels. The closed date and time segments stay side by side when at least 400px is available and wrap into full-width rows below 400px, independent of viewport width. Use it for scheduling, event creation, deadline setting, or any form field that needs a specific datetime.
+DateTimeInput combines date and time selection in one field. With nativePicker="touch" (the default), mouse/trackpad devices use Astryx typed fields and popovers, while coarse-pointer devices use browser/OS date and time controls in the same two-segment field. nativePicker="always" uses both native controls on every pointer; nativePicker="never" keeps Astryx's own surfaces — pointer fields on fine pointers and the coordinated Date/Time bottom sheet on coarse pointers. The closed segments stay side by side when at least 400px is available and wrap into full-width rows below 400px, independent of viewport width. Use it for scheduling, event creation, deadline setting, or any form field that needs a specific datetime.
 
 Do:
 - Provide clear labels and descriptions so users understand what datetime is expected.
@@ -1888,10 +1888,10 @@ Props:
 - `min`: ISODateTimeString — Minimum selectable datetime. Constrains both date and time selection.
 - `max`: ISODateTimeString — Maximum selectable datetime. Constrains both date and time selection.
 - `dateConstraints`: Array<(date: Date) => boolean> — Array of custom constraint functions that disable specific dates.
-- `hasSeconds`: boolean = false — Include seconds in the time portion.
+- `hasSeconds`: boolean = false — Include seconds in the time portion. Keeps Astryx's time field even when nativePicker selects native surfaces, because iOS has no seconds wheel.
 - `hourFormat`: '12h' | '24h' = '12h' — Hour display format. '12h' shows AM/PM; '24h' uses 24-hour notation.
-- `timeIncrement`: 1 | 5 | 10 | 15 | 30 = 1 — Minutes to add or subtract when using arrow keys in the desktop time input. Ignored on the mobile touch sheet, where time is changed with wheels.
-- `timeOptionInterval`: 5 | 10 | 15 | 30 | 60 — Minute cadence for a dropdown of preset times on the desktop time portion. Set it to turn the desktop time field into a combobox listing every valid time at that cadence (60 gives a 12 AM to 11 PM list). Omitted, the desktop time field stays a plain text input and gains no combobox semantics. Typed entry keeps working either way, so a time between two options is still reachable. Ignored on the mobile touch sheet, where the wheels expose every hour/minute/second.
+- `timeIncrement`: 1 | 5 | 10 | 15 | 30 = 1 — Minute step for arrow keys in Astryx's typed time field. A non-default value keeps the Astryx time field in nativePicker modes because iOS treats native step as validation, not picker cadence. Ignored by the Astryx touch sheet, which uses wheels.
+- `timeOptionInterval`: 5 | 10 | 15 | 30 | 60 — Minute cadence for the preset-time combobox on Astryx's fine-pointer time field. Setting it keeps that Astryx time field even in nativePicker modes because the OS picker has no equivalent preset list. The Astryx touch sheet uses wheels.
 - `hasClear`: boolean = false — Shows a clear button when a datetime value is set.
 - `placeholder`: string = 'Select a date' — Placeholder text shown in the date portion when no date is selected.
 - `timePlaceholder`: string = 'Select a time' — Placeholder text shown in the time portion when no time is selected. On touch, this appears in the closed time segment before a time is chosen.
@@ -1899,8 +1899,9 @@ Props:
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size of the input control.
 - `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator object for error, warning, or success states with a message.
 - `labelTooltip`: string — Tooltip text displayed via an info icon at the end of the label.
-- `numberOfMonths`: 1 | 2 = 1 — Number of months displayed simultaneously in the desktop calendar popover. Ignored on the mobile touch sheet, whose Date panel always shows one swipe-paged month at a time.
-- `weekStartsOn`: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' = 0 — First day of week in the calendar. A number (0 = Sunday to 6 = Saturday) or a three-letter day name.
+- `numberOfMonths`: 1 | 2 = 1 — Number of months displayed simultaneously in Astryx's pointer calendar popover. Ignored by native date controls and the mobile touch sheet, whose Date panel always shows one swipe-paged month at a time.
+- `weekStartsOn`: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' = 0 — First day of week in Astryx calendars. A number (0 = Sunday to 6 = Saturday) or a three-letter day name. Ignored by native date controls.
+- `nativePicker`: 'touch' | 'always' | 'never' = 'touch' — Which surfaces draw the date and time pickers. 'touch' (the default) uses browser/OS controls on a coarse primary pointer; 'always' uses them wherever input type=date/time are supported; 'never' keeps Astryx's own surfaces everywhere. The native time control is used only for the default minute-precision contract: hasSeconds, non-default timeIncrement, or timeOptionInterval retain Astryx's time field because iOS cannot express them faithfully. Use 'never' when numberOfMonths, weekStartsOn, or visible dateConstraints behavior matters. Constraints are enforced on commit; min/max are forwarded as hints. hourFormat formats the closed time, while the OS picker follows the user's locale.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
@@ -2030,6 +2031,7 @@ Props:
 - `emptyText`: ReactNode = 'No options' — Content shown in the dropdown panel when there are no options to show, and announced in a polite live region when the panel opens (a string override is announced verbatim; a richer node falls back to the default text). Not shown while isLoading.
 - `emptySearchText`: ReactNode = 'No results found' — Content shown in the dropdown panel when a search query matches no options, and announced in a polite live region at the same time (a string override is announced verbatim; a richer node falls back to the default text).
 - `isDisabled`: boolean — Disables the selector.
+- `isReadOnly`: boolean = false — Makes the selector read-only: the selected values stay visible, focusable, and included in form submission, and retain their combobox identity with aria-readonly. The selection surface, clear action, and disclosure indicator are removed. Unlike isDisabled, the control is not dimmed. isDisabled takes precedence when both are set.
 - `htmlName`: string — The HTML name attribute for form submissions. Renders one hidden input per selected value, like a native multi-select.
 - `disabledMessage`: string — Explains why the selector is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the trigger focusable via aria-disabled (activation stays blocked). Use this instead of wrapping a disabled MultiSelector in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
 - `isLabelHidden`: boolean — Visually hides the label while keeping it accessible.
@@ -2085,6 +2087,7 @@ Props:
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant for the selector.
 - `variant`: 'input' | 'ghost' = 'input' — Visual trigger style. input is the bordered input treatment for forms; ghost is borderless and matches ghost buttons for toolbar usage.
 - `isDisabled`: boolean = false — Disables the selector.
+- `isReadOnly`: boolean = false — Makes the selector read-only: the selected value stays visible, focusable, and included in form submission, and retains its combobox identity with aria-readonly. The selection surface, clear action, and disclosure indicator are removed. Unlike isDisabled, the control is not dimmed. isDisabled takes precedence when both are set.
 - `htmlName`: string — The HTML name attribute for form submissions. Renders a hidden input carrying the selected value, like a native select.
 - `disabledMessage`: string — Explains why the selector is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the trigger focusable via aria-disabled (activation stays blocked). Use this instead of wrapping a disabled Selector in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
 - `isLabelHidden`: boolean = false — Visually hides the label while keeping it accessible.
@@ -2631,7 +2634,7 @@ Props:
 
 Import: `import {TimeInput} from '@astryxdesign/core/TimeInput';`
 
-TimeInput lets users enter a time of day and converts it to a standard format. It also allows users to adjust times using the arrow keys. Use it in forms, scheduling flows, or any interface where users need to select a specific time.
+TimeInput uses a browser/OS time picker on coarse pointers by default and Astryx's typed field on fine pointers. It converts values to a standard format and supports arrow-key adjustment on the typed surface. Use it in forms, scheduling flows, or any interface where users need to select a specific time.
 
 Do:
 - Choose the hour format (12h or 24h) that matches your audience's locale: 12-hour with AM/PM for US-centric UIs, 24-hour for international or technical contexts.
@@ -2664,6 +2667,7 @@ Props:
 - `hasClear`: boolean = false — Shows a clear button when a value is set and the input is not disabled.
 - `hourFormat`: '12h' | '24h' = '12h' — Controls the display format. '12h' shows AM/PM (e.g. '2:30 PM'); '24h' uses 24-hour notation (e.g. '14:30').
 - `increment`: number = 1 — Number of minutes to add or subtract when the user presses the up or down arrow key.
+- `nativePicker`: 'touch' | 'always' | 'never' = 'touch' — Which surface selects the time. 'touch' (the default) uses the browser/OS input type=time on a coarse pointer and Astryx's typed field on a fine pointer; 'always' requests the native control on every pointer; 'never' keeps Astryx's typed field everywhere. Native mode forwards min/max and enforces them on commit. hasSeconds or increment other than 1 automatically retains the typed field because iOS has no seconds wheel and treats step as validation rather than picker cadence. hourFormat formats the closed value; the open OS picker follows the device locale.
 - `placeholder`: string = 'Select a time' — Placeholder text shown when no time is selected. When the input is focused and empty, a format hint overrides this text.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Controls the height of the input element.
 - `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator that colors the border and displays an icon. When a message is provided it is rendered below the input.
@@ -3118,11 +3122,13 @@ Returns:
 
 Import: `import {usePopover} from '@astryxdesign/core/Popover';`
 
-Headless hook for click-triggered popovers with focus trapping. Combines useLayer with useFocusTrap, auto-focus, light dismiss, Escape handling, and an optional hidden close button for accessible dialog-like popover behavior. Use for custom interactive floating content that needs keyboard navigation.
+Headless hook for click-triggered popovers with focus trapping. Combines useLayer with useFocusTrap, auto-focus, light dismiss, Escape handling, and an optional hidden close button for accessible dialog-like popover behavior. Use for custom interactive floating content that needs keyboard navigation. The canonical broad surface target is popover; automatic hook-wide emission is separate migration work, so current direct compositions needing a distinct stable seam should pass and document their own surfaceTarget instead of depending on deprecated popover-surface.
 
 Do:
 - Use for interactive content such as menus, pickers, forms, and command panels that need focus management.
 - Prefer the Popover component for standard trigger-content pairs; use the hook for custom trigger patterns.
+- Use popover as the broad surface target. During migration, popover-surface remains compatibility output only; do not create new theme dependencies on it.
+- When a custom composition needs its own theme refinement, pass and document an owned surfaceTarget such as selector-popup. It refines the Popover surface rather than creating another anatomy part.
 
 Don't:
 - Use for non-interactive hover previews: use useHoverCard or useTooltip instead.
@@ -3140,6 +3146,7 @@ Parameters:
 - `role`: 'dialog' | 'none' = 'dialog' — ARIA role on the content wrapper. Use "dialog" for genuine dialog content; use "none" for listbox/menu popups whose own content role should be exposed and whose trigger keeps DOM focus.
 - `isModal`: boolean = true — Whether a dialog-role popover is modal (aria-modal). Only applies when role is "dialog".
 - `hasSurface`: boolean = true — Whether to apply the default popover surface background, radius, and shadow.
+- `surfaceTarget`: string — Optional component-owned refinement target on the painted surface, without the astryx- prefix. Use and document one when a direct hook composition needs distinct theme reachability. Do not use popover-surface; it is a deprecated compatibility alias of the canonical popover target.
 
 Returns:
 - `triggerRef`: (el: HTMLElement | null) => void — Ref callback to attach to the trigger element for CSS anchor positioning.
@@ -3790,6 +3797,7 @@ Do:
 - Make the last item plain text, not a link; it represents the current page. The component does this automatically when you set isCurrent.
 - The component implements the WAI-ARIA APG Breadcrumb pattern: a labelled nav landmark wrapping an ordered list, with aria-current="page" on the current item. A crumb with a menu additionally implements the APG Menu Button pattern, opening on Enter, Space or ArrowDown and closing on Escape.
 - Give each trail its own label when a page renders more than one, so the nav landmarks stay distinguishable in a screen reader landmark list.
+- The built-in slash separator mirrors automatically in RTL. For a custom separator, leave Unicode-mirrored angle quotes such as › alone; mirror arrows and Icon separators once with rtlStyles.mirror.
 
 Don't:
 - Use breadcrumbs as the primary navigation. They supplement a sidebar or top nav, not replace it.
@@ -3799,7 +3807,7 @@ Don't:
 
 Props:
 - `children`: ReactNode (required) — BreadcrumbItem elements to render inside the breadcrumb trail.
-- `separator`: ReactNode = '/' — Separator rendered between breadcrumb items.
+- `separator`: ReactNode = '/' — Separator rendered between breadcrumb items. The built-in slash mirrors automatically in RTL.
 - `variant`: 'default' | 'supporting' = 'default' — Visual variant: supporting is smaller with secondary text styling.
 - `label`: string = 'Breadcrumb' — Accessible label for the nav landmark (aria-label).
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
@@ -4111,7 +4119,7 @@ Props:
 - `href`: string — Navigation URL.
 - `onClick`: (e: MouseEvent) => void — Click handler.
 - `endContent`: ReactNode — Passive right-side content only (badges, counts). Interactive controls go in actions.
-- `actions`: ReactNode — Row-level secondary controls (icon buttons, menus) rendered as siblings of the primary element at the trailing edge of the row — after the expand/collapse toggle, before any nested children in DOM and focus order. Each control owns its accessible name and behavior. Controls inherit the row control size through SizeContext, so an unsized icon button matches the built-in expand/collapse toggle; an explicit size still wins. Hidden while the SideNav rail is collapsed. Use endContent for passive content (badges, counts); use actions for anything interactive.
+- `actions`: ReactNode — Row-level secondary controls (icon buttons, menus) rendered as siblings of the primary element at the trailing edge of the row: after the expand/collapse toggle, before any nested children in DOM and focus order. Each control owns its accessible name and behavior. Controls inherit the row control size through SizeContext, so an unsized icon button matches the built-in expand/collapse toggle; an explicit size still wins. Hidden while the SideNav rail is collapsed. Use endContent for passive content (badges, counts); use actions for anything interactive.
 - `children`: ReactNode — Sub-items for nesting.
 - `collapsible`: boolean | { defaultIsCollapsed?: boolean, isCollapsed?: boolean, onCollapsedChange?: (isCollapsed: boolean) => void } = false — Enables collapse behavior for items with children. Pass true for uncontrolled (starts expanded), or an object for controlled mode.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant for the nav item row.
@@ -4408,10 +4416,11 @@ A click-triggered overlay anchored to a button or trigger element. Use it for se
 Do:
 - Keep popover content focused on a single task or piece of information.
 - Provide a clear way to close: either by clicking outside or with an explicit close button.
+- Theme the painted surface through popover. Existing popover-surface overrides remain supported during migration, but new themes should not depend on that deprecated alias.
 
 Don't:
 - Nest popovers inside other popovers; it creates confusing focus and navigation.
-- Assume input complexity alone determines the presentation; evaluate the task’s focus, space, and interaction requirements.
+- Assume input complexity alone determines the presentation; evaluate the task's focus, space, and interaction requirements.
 - Assume scrolling alone means Popover is the wrong component; a bounded Popover may scroll while a focused anchored interaction remains appropriate.
 
 Props:

@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `5dabc56` (2026-09-01) of https://github.com/facebook/astryx.
+Generated from commit `a5333b2` (2026-09-02) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -574,7 +574,7 @@ Props:
 - `placeholder`: string = 'Type a message...' — Placeholder text shown when the input is empty.
 - `isDisabled`: boolean = false — Disables the composer.
 - `density`: 'compact' | 'balanced' | 'spacious' = 'balanced' — Visual density.
-- `elevation`: 'none' | 'low' = 'low' — Resting elevation of the composer body. `low` (the default) keeps today's raised look: low at rest, bumping to med on hover / focus. `none` flattens it and draws a border with the same rest / hover / focus treatment as a text input (emphasized border → accent on focus, matching inset rings).
+- `elevation`: 'none' | 'low' = 'low' — Resting elevation of the composer body. `low` (the default) keeps today's raised look: low at rest, bumping to med on hover / focus. `none` flattens it and draws a border. Keyboard focus in the editor adds the shared focus ring in either presentation; pointer focus does not add that ring.
 - `drawer`: ReactNode — Slot: collapsible drawer above the input: attachments, context chips, etc. Use ChatComposerDrawer.
 - `headerActions`: ReactNode — Slot: left-aligned header actions (attach, mention buttons). Use icon-only size="sm" buttons.
 - `headerContext`: ReactNode — Slot: right-aligned contextual info in the header (context window usage, ProgressBar, supporting text).
@@ -1228,7 +1228,7 @@ Don't:
 
 Props:
 - `value`: string | number (required) — The date/time to display. Accepts Unix timestamps (seconds) or ISO 8601 strings.
-- `format`: 'relative' | 'relative_short' | 'auto' | 'date' | 'date_long' | 'date_weekday' | 'date_time' | 'time' | 'system_date' | 'system_date_time' | 'system_time' | 'unix_seconds' = 'auto' — Display format. 'relative' shows '2 hours ago', 'relative_short' shows the same tiers abbreviated ('2h ago', '1d ago', '3mo ago') for compact surfaces, 'date' shows 'Mar 21, 2025', 'date_long' shows 'March 21, 2025', 'date_weekday' shows 'Wed, Mar 21, 2025', 'date_time' shows 'Mar 21, 2025, 2:51 PM', 'time' shows '2:51 PM', 'system_*' variants use ISO-style formatting, 'unix_seconds' shows the Unix time in whole seconds since the epoch (an absolute, zone-independent value), 'auto' switches from relative to date_time based on recency.
+- `format`: 'relative' | 'relative_short' | 'auto' | 'date' | 'date_long' | 'date_weekday' | 'date_time' | 'time' | 'system_date' | 'system_date_time' | 'system_time' | 'unix_seconds' = 'auto' — Display format. 'relative' uses the locale's native long relative-time wording ('2 hours ago' in English), 'relative_short' uses its narrow pattern ('2h ago' in English) for compact surfaces, 'date' shows 'Mar 21, 2025', 'date_long' shows 'March 21, 2025', 'date_weekday' shows 'Wed, Mar 21, 2025', 'date_time' shows 'Mar 21, 2025, 2:51 PM', 'time' shows '2:51 PM', 'system_*' variants use ISO-style formatting, 'unix_seconds' shows the Unix time in whole seconds since the epoch (an absolute, zone-independent value), 'auto' switches from relative to date_time based on recency.
 - `autoThreshold`: number = 604800 — Threshold in seconds for 'auto' format to switch from relative to date_time.
 - `hasTooltip`: boolean = true — Whether to show a copyable hover card with the full date/time on hover. Applies to relative timestamps and to any format once tooltipEntries is configured.
 - `tooltipEntries`: ReadonlyArray<{timezoneID?: string; format?: TimestampTooltipFormat; label?: string; isCopyable?: boolean}> — Lines to show on hover, so one instant can be read (and optionally copied) in several time zones and/or formats at once. Each entry is one line, in the order given. Omit timezoneID (or pass 'local') for the viewer's own zone; format defaults to the full absolute style and also accepts 'full' alongside every non-relative TimestampFormat. Rows are read-only unless they set isCopyable (default false); copyable rows show a copy button in a dedicated trailing action column so buttons align, and the column is only present when some row is copyable. With no entries the card shows a single default row with the full absolute time, which is copyable. Configuring entries also attaches the surface to absolute formats, which otherwise have none.
@@ -2775,10 +2775,10 @@ Props:
 Import: `import {CheckboxListItem} from '@astryxdesign/core/CheckboxList';`
 
 Props:
-- `label`: ReactNode (required) — Primary text label for the item. A plain string names the checkbox automatically; a rich (ReactNode) label should be paired with aria-label so screen readers get a concise name.
+- `label`: ReactNode (required) — Primary text label for the item. Rich labels may contain links or buttons, which keep their own behavior without toggling the item. Pair a ReactNode label with aria-label so screen readers get a concise checkbox name.
 - `aria-label`: string — Plain-text accessible name for the checkbox when label is a ReactNode. Applied to the checkbox control. Without it, rich-label items all announce as the generic "Checkbox" to screen readers.
 - `value`: string — Identity key (required inside CheckboxList).
-- `description`: string — Secondary text below the label.
+- `description`: ReactNode — Secondary content below the label. String or ReactNode.
 - `endContent`: ReactNode — Content rendered after the label area.
 - `isDisabled`: boolean = false — Whether this individual item is disabled.
 - `isLoading`: boolean = false — Whether this item is loading. Shows a spinner inside the checkbox and blocks interaction on this item. In collection mode, the toggled item also shows this automatically while the parent changeAction is pending.
@@ -2814,9 +2814,10 @@ Props:
 Import: `import {RadioListItem} from '@astryxdesign/core/RadioList';`
 
 Props:
-- `label`: string (required) — Label text for the radio item.
+- `label`: ReactNode (required) — Primary label for the radio item. Rich labels may contain links or buttons, which keep their own behavior without selecting the item. The label text names the radio; pair it with aria-label when that text does not read well on its own.
+- `aria-label`: string — Plain-text accessible name for the radio, applied to the control rather than the row. It overrides whatever the label element computes — a plain string label included — so reach for it when a rich label\u2019s own text is absent or reads badly.
 - `value`: string (required) — Value of this radio item.
-- `description`: string — Description text displayed below the label.
+- `description`: ReactNode — Secondary content displayed below the label. Links and buttons keep their own click behaviour — the row only delegates clicks from its non-interactive surface to the radio.
 - `isDisabled`: boolean = false — Whether this individual radio item is disabled.
 - `startContent`: ReactNode — Content to render before the radio circle.
 - `endContent`: ReactNode — Content to render after the label.
@@ -5019,7 +5020,7 @@ Props:
 Import: `import {useTableRowStatus} from '@astryxdesign/core/Table';`
 
 Props:
-- `getStatus`: (item: T) => { color: 'accent' | 'success' | 'error' | 'warning' | 'red' | 'orange' | 'green' | 'yellow' | 'blue' | 'gray' | string; icon?: IconName; label: string } | null (required) — Derive the status indicator for a row: a semantic color (success, error, warning) uses its matching themed semantic icon by default; accent, palette colors (red, orange, green, yellow, blue, gray), and raw CSS use a dot unless icon overrides the signifier. Valid icon names: close, chevronDown, chevronLeft, chevronRight, chevronsLeft, chevronsRight, check, success, error, warning, info, calendar, clock, externalLink, menu, moreHorizontal, search, arrowUp, arrowDown, arrowsUpDown, funnel, eyeSlash, viewColumns, copy, checkDouble, wrench, stop, microphone. label is required and is announced via role="img" and shown in a tooltip. Return null for rows with no status. Memoize with useCallback for a stable plugin identity.
+- `getStatus`: (item: T) => ({ status: 'success' | 'warning' | 'error'; color?: never; icon?: never; label: string } | { status?: never; color: 'accent' | 'success' | 'error' | 'warning' | 'red' | 'orange' | 'green' | 'yellow' | 'blue' | 'gray' | string; icon?: IconName; label: string }) | null (required) — Derive either a semantic outcome or a custom marker. {status, label} accepts the closed success/error/warning vocabulary and resolves its glyph and tone through the active theme. {color, icon?, label} preserves the stable custom-marker path: color always selects paint, no icon renders an 8px dot, and icon renders the explicit caller glyph. Even color values named success/error/warning remain dots without icon. Valid icon names: close, chevronDown, chevronLeft, chevronRight, chevronsLeft, chevronsRight, check, success, error, warning, info, calendar, clock, externalLink, menu, moreHorizontal, search, arrowUp, arrowDown, arrowsUpDown, funnel, eyeSlash, viewColumns, copy, checkDouble, wrench, stop, microphone. The branches are exclusive, label is required and announced via role="img", and null leaves the row status cell empty. Memoize with useCallback for a stable plugin identity.
 
 ### useTableSelection (subcomponent/hook)
 

@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `a5333b2` (2026-09-02) of https://github.com/facebook/astryx.
+Generated from commit `49625f5` (2026-09-03) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -1494,7 +1494,7 @@ Props:
 
 Import: `import {useFocusTrap} from '@astryxdesign/core/hooks';`
 
-Traps focus within a container element following the WAI-ARIA dialog focus trap pattern. Listens to focus events on the document and redirects focus back into the container if it escapes via keyboard navigation. Handles both Tab and Shift+Tab wrapping. When the trap deactivates or unmounts, focus is restored to the element that was focused before activation, unless focus was already moved elsewhere. Mouse clicks outside the container are not intercepted; use a light-dismiss handler for that.
+Traps focus within a container element following the WAI-ARIA dialog focus trap pattern. Listens to focus events on the document and redirects focus back into the container if it escapes via keyboard navigation. Handles both Tab and Shift+Tab wrapping. When the trap deactivates or unmounts, focus is restored to the element that was focused before activation, unless focus was already moved elsewhere or never entered the trap (so popups that keep focus on their trigger, like comboboxes, are unaffected). Mouse clicks outside the container are not intercepted; use a light-dismiss handler for that.
 
 Do:
 - Call focusFirst() when opening a dialog/modal to move focus into the trapped region.
@@ -3380,6 +3380,7 @@ Import: `import {Handle} from '@astryxdesign/core/Resizable';`
 Hook-based resizable panel system. useResizable() manages size state 
 
 Do:
+- Use percent(value, {min: pixel(value)}) or percent(value, {max: pixel(value)}) when a percentage needs exactly one pixel floor or ceiling. Reuse Table’s pixel() helper; numbers, exact Npx, and pixel(value) remain pixels. State, persistence, callbacks, paint, and ARIA remain resolved pixels.
 - Use useResizable() with existing Astryx layout components. Pass the returned props to the resizable prop on LayoutPanel or SideNav.
 - Provide an accessible label on each ResizeHandle when multiple handles exist (e.g. "Resize sidebar", "Resize terminal").
 
@@ -3398,7 +3399,7 @@ Props:
 - `isAlwaysVisible`: boolean = true — Show the pill grip at rest instead of only on hover. Use when discoverability is important.
 - `pillPlacement`: 'start' | 'end' | 'center' | 'auto' = 'auto' — Which side of the divider the pill sits on. auto = content side (derived from isReversed), flips when collapsed. start = left/top, end = right/bottom, center = centered on divider.
 - `label`: string = 'Resize handle' — Accessible label for the separator.
-- `resizable`: ResizableProps (required) — Resize props from useResizable: connects handle to panel.
+- `resizable`: ResizableProps (required) — Resize props from useResizable: connects handle to panel. Carries the region's axis ('horizontal' | 'vertical'), which must match this handle's direction.
 - `children`: ReactNode — Custom handle content. Overrides the default pill + divider.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
@@ -3623,16 +3624,23 @@ Import: `import {useResizable} from '@astryxdesign/core/Resizable';`
 Hook for adding drag-to-resize behavior to layout regions. Supports single-region and multi-region configurations with snap points, collapsible panels, localStorage persistence, and cascade resize ordering.
 
 Do:
+- Use percent(40, {min: pixel(333)}) for a 40% size with a 333px floor, or percent(10, {max: pixel(400)}) for a 10% size with a 400px ceiling. The options argument is required and carries a floor XOR a ceiling.
+- A structured default is an initial choice only; a structured minSize or maxSize remains live. State, persistence, callbacks, resize(), paint, and ARIA all use resolved pixel numbers.
+- Import percent and Table’s same pixel binding from @astryxdesign/core/Resizable/utils when constructing configuration in a Server Component; the root package exposes one pixel symbol and one percent symbol without collision.
 - Use with Layout or AppShell sidebar for resizable navigation panels.
 - Set autoSaveId to persist user-chosen sizes across page reloads.
 
 Don't:
-- Set minSizePx too small; content becomes unreadable. Prefer collapsible for panels that can hide entirely.
+- Set minSize too small; content becomes unreadable. Prefer collapsible for panels that can hide entirely.
 
 Parameters:
-- `defaultSize`: number | string — Initial size in pixels or percentage string (e.g. "20%").
-- `minSizePx`: number = 50 — Minimum size in pixels.
-- `maxSizePx`: number = Infinity — Maximum size in pixels.
+- `defaultSize`: SizeValue | ResizableSize = 250 — Initial size. Numbers, exact "Npx", and pixel(value) are pixels. Exact "N%" has no additional pixel bound. percent(value, {min: pixel(value)}) or percent(value, {max: pixel(value)}) adds one pixel floor or ceiling. A percentage resolves ONCE into pixels — against containerRef when supplied, against the viewport otherwise — and does not track its basis afterwards. The released broad number | string type remains compatible; runtime validation is authoritative.
+- `minSize`: ResizableSize = 50 — Minimum size. Numbers, exact "Npx", and pixel(value) remain pixels; exact "N%" has no additional pixel bound; percent(value, {min: pixel(value)}) or percent(value, {max: pixel(value)}) adds exactly one. Percentage minimums re-resolve when their basis changes and clamp the current pixel selection.
+- `maxSize`: ResizableSize = Infinity — Maximum size. Numbers, exact "Npx", and pixel(value) remain pixels; exact "N%" has no additional pixel bound; percent(value, {min: pixel(value)}) or percent(value, {max: pixel(value)}) adds exactly one. Percentage maximums re-resolve when their basis changes and clamp the current pixel selection.
+- `containerRef`: RefObject<HTMLElement | null> — The element a percentage is a share of. Caller-owned: the hook never infers one. Omitted, percentages use the viewport, which is the released behaviour. The ref may point at a different element over time — the basis follows it. Until that element is actually laid out (not yet mounted, display:none, detached) percentages use a temporary 1200px basis rather than its zero measurement, and nothing is persisted from it.
+- `direction`: 'horizontal' | 'vertical' = 'horizontal' — Which axis this region resizes along. Selects the container's inline or block content-box size as the percentage basis, and must match the direction given to ResizeHandle.
+- `minSizePx`: number — Deprecated. Use minSize, which also accepts a percentage. Supplying both is a type error; if untyped code supplies both, minSize wins.
+- `maxSizePx`: number — Deprecated. Use maxSize, which also accepts a percentage. Explicit Infinity remains valid.
 - `collapsible`: boolean = false — Whether dragging below the collapsed threshold collapses the region to zero.
 - `snaps`: number[] — Pixel values to snap to during drag.
 - `autoSaveId`: string — Key for localStorage persistence of size and collapse state across sessions.
@@ -3737,7 +3745,7 @@ Props:
 - `label`: string — Accessible label for the landmark element.
 - `role`: AriaRole — ARIA landmark role.
 - `width`: number | string — Width of the panel. Numbers are treated as pixels, strings are used as-is. Ignored when resizable is provided; the hook controls width.
-- `resizable`: ResizableProps — Resize props from useResizable(). When provided, the hook drives the panel width and a ResizeHandle should be placed adjacent to the panel.
+- `resizable`: ResizableProps — Resize props from useResizable(). When provided, the hook drives the panel width and a ResizeHandle should be placed adjacent to the panel. Carries the region's axis ('horizontal' | 'vertical'), which must match the adjacent ResizeHandle's direction.
 
 ## Media
 

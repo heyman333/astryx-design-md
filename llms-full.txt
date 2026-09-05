@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `49625f5` (2026-09-03) of https://github.com/facebook/astryx.
+Generated from commit `cb13c1e` (2026-09-04) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -3731,6 +3731,7 @@ Props:
 - `hasDivider`: boolean = false — Border at bottom edge.
 - `height`: SizeValue — Header height. Numbers are treated as pixels, strings are used as-is.
 - `label`: string — Accessible label for the landmark element.
+- `paddingBlockEnd`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Block-end (bottom) padding, using the spacing scale. Overrides padding on that edge only; paddingBlockEnd={0} docks the last child on the header bottom edge.
 - `role`: AriaRole — ARIA landmark role.
 
 ### LayoutPanel (subcomponent/hook)
@@ -4034,6 +4035,7 @@ Do:
 - Leave overflow handling on: a strip narrower than its tabs scrolls, and the selected tab is kept in view. Use TabMenu when you want a curated group of extra options rather than a scrolling strip.
 - When using hasDivider with action buttons alongside tabs, match the Button size to the TabList size (both md, both sm); the divided tab strip reserves space so tabs and same-size buttons align to a shared baseline above the rail.
 - Reach for role="tablist" when the strip switches panels in place, and give each tab a panelId pointing at the panel it opens: that link is how a screen reader gets from a tab to its content. Leave it off for navigation between views.
+- Set isFullBleed to stretch a tab bar inside a padded LayoutHeader, Card, or Section to the container's inline content edges, instead of reaching for negative-margin CSS.
 
 Don't:
 - Use tabs for sequential steps or workflows; use a stepper or wizard pattern instead.
@@ -4046,6 +4048,7 @@ Props:
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant applied to all child tabs.
 - `layout`: 'hug' | 'fill' = 'hug' — Layout mode for tab sizing. 'hug': each tab hugs its content width. 'fill': tabs stretch equally to fill the container width.
 - `hasDivider`: boolean = false — Whether to show a bottom border divider under the tab list.
+- `isFullBleed`: boolean = false — Makes the tab strip escape its parent's container padding, extending to the container's content edges (cancels the nearest padded Layout container's --container-padding-* custom properties with negative margins). The inner strip pads back by the portion of the container inset that is not already supplied by the first or last tab stop, keeping edge labels aligned while a hasDivider underline spans the full content width. Matches Divider's isFullBleed: inline (start/end) edges only; block-edge docking stays with the surrounding layout.
 - `role`: AriaRole — ARIA role for the strip. 'tablist' asks for the WAI-ARIA tabs pattern: role="tablist" / role="tab" and aria-selected, with each tab pointing at the panel it controls via its panelId; only tabs may live in a tablist strip, and an href on a tab is ignored there. Left unset, the strip is a nav landmark marking the current tab with aria-current. Any other value is passed through to the element unchanged.
 - `overflow`: 'auto' | 'scroll' | 'visible' = 'auto' — What happens when the tabs are wider than the strip. 'auto' lets the component choose, which today always scrolls. 'scroll' scrolls the tabs horizontally, with edge fades and arrow affordances for pointers that can hover. 'visible' turns overflow handling off and lets the tabs spill out of the strip. The selected tab is always scrolled back into view.
 - `children`: ReactNode (required) — Tab and TabMenu items to render inside the strip.

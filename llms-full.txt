@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `5aca971` (2026-09-05) of https://github.com/facebook/astryx.
+Generated from commit `5823b00` (2026-09-06) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -259,6 +259,7 @@ Props:
 - `onPressedChange`: (isPressed: boolean, event: MouseEvent) => void — Called when pressed state should change. Receives the next state and the click event; call event.preventDefault() to skip pressedChangeAction. Ignored when inside a group.
 - `pressedChangeAction`: (isPressed: boolean) => void | Promise<void> — Action handler for API- or navigation-backed toggles, run in a transition. Shows an optimistic pressed state immediately and a spinner while pending; the button stays interruptible by re-clicks.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Button size. Defaults to group size when inside a group.
+- `elevation`: 'none' | 'low' | 'med' | 'high' = 'none' — Resting shadow depth for floating (FAB-style) toggle buttons, mirroring Button. `none` is the default flat button; `low`/`med`/`high` map to the shadow token scale. Applies inside a ToggleButtonGroup as well — grouped children retain their own elevation.
 - `isDisabled`: boolean = false — Whether the button is disabled.
 - `isLoading`: boolean = false — Whether the button shows a loading spinner.
 - `icon`: ReactNode — Icon element. When provided without children, button becomes icon-only with tooltip from label.
@@ -1317,7 +1318,7 @@ Import: `import {Heading} from '@astryxdesign/core/Text';`
 
 Props:
 - `level`: 1 | 2 | 3 | 4 | 5 | 6 (required) — Heading level. Determines the semantic HTML element (h1-h6) and the visual styling from the theme (unless `type` is set).
-- `type`: 'display-1' | 'display-2' | 'display-3' — Display type variant. Overrides the visual styling from `level` with display-scale sizing (larger, lighter weight, tighter line-height). The `level` still determines the HTML element for accessibility. Use for hero banners, marketing headlines, and data callouts.
+- `type`: 'display-1' | 'display-2' | 'display-3' — Display type variant. Overrides the visual styling from `level` with display-scale sizing (larger, lighter weight, tighter line-height). Themes may add custom visual types. The `level` still determines the HTML element for accessibility. Use for hero banners, marketing headlines, and data callouts.
 - `children`: ReactNode (required) — Heading content.
 - `accessibilityLevel`: 1 | 2 | 3 | 4 | 5 | 6 — Accessibility level override. When set and different from `level`, applies `aria-level` so the document outline differs from the visual style.
 - `color`: 'primary' | 'secondary' | 'disabled' | 'placeholder' | 'accent' | 'inherit' = 'primary' — Text color. Themes may add custom colors.

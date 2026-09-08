@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `5823b00` (2026-09-06) of https://github.com/facebook/astryx.
+Generated from commit `a8e7f9f` (2026-09-07) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -321,12 +321,12 @@ Props:
 - `button`: DropdownMenuButtonProps = { label: 'Menu' } — Props for the trigger button (Button props except onClick).
 - `items`: DropdownMenuOption[] (required) — Array of menu entries. Each entry is one of: an action item `{label, onClick?, icon?, description?, endContent?, isDisabled?, variant?, hasCloseOnSelect?, id?}` (variant `"destructive"` renders it in the error color; `endContent` holds trailing content such as a keyboard-shortcut hint; `id` is the row's stable React key, needed only when the array reorders or filters), a divider `{type: "divider"}`, or a section `{type: "section", title?, id?, items: [...action items]}`.
 - `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — Presentation surface for data-driven items. 'popover' stays anchored, 'bottom-sheet' always renders the actions in a modal BottomSheet, and 'adaptive' uses a BottomSheet on compact coarse-pointer layouts while remaining anchored elsewhere. Compound children currently support popover only.
-- `isMenuOpen`: boolean — Controlled open state for the menu.
+- `isMenuOpen`: boolean — Controlled open state for the menu. Mounting with true renders the menu open without moving focus into it; focus moves to the first item only when the menu opens after mount.
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when the open state changes.
 - `menuWidth`: number | string — Minimum width for the popover presentation. Length values may grow for content; intrinsic and CSS-wide keywords select the preferred inline size. Every form is capped to the available viewport space. Defaults to matching the trigger width up to that cap.
 - `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Popover placement relative to the trigger. Ignored by the bottom-sheet presentation. Logical: start/end resolve against the menu's own inherited direction (RTL mirrors).
 - `alignment`: 'start' | 'center' | 'end' = 'start' — Popover alignment along the placement axis. Ignored by the bottom-sheet presentation. Logical: start/end follow the menu's own inherited direction (RTL mirrors).
-- `onClick`: () => void — Callback fired when the trigger button is clicked.
+- `onClick`: () => void — Callback fired for accepted trigger activation. The trailing click from the same press that light-dismissed the menu is ignored.
 - `hasChevron`: boolean = true — Whether to show a chevron icon on the trigger button. Set to false for icon-only triggers.
 - `children`: ReactNode — Compound-mode menu content: DropdownMenuItem, DropdownMenuDivider, DropdownMenuSubMenu, and the selectable items. Mutually exclusive with `items`.
 
@@ -1283,6 +1283,7 @@ Do:
 - Provide `onClick` when the overflow opens a member list, popover, or detail view.
 
 Don't:
+- Do not pass custom text that disagrees with `count`; `count` continues to provide the accessible label.
 - Do not use long labels inside the indicator; place longer participant details next to the group instead.
 
 Props:
@@ -1290,7 +1291,7 @@ Props:
 - `children`: ReactNode — Optional custom count text rendered inside the indicator. Omit to use the default `+N` label.
 - `onClick`: () => void — Callback fired when the overflow indicator is clicked. When provided, the indicator renders as a focusable button.
 - `ref`: React.Ref<HTMLElement> — Ref forwarded to the overflow indicator element.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization.
+- `xstyle`: StyleXStyles — stylex.create() value — not an inline style object.
 
 ### AvatarStatusDot (subcomponent/hook)
 
@@ -1538,7 +1539,6 @@ Parameters:
 - `options.onNavigateAfter`: (column: number, offset: number) => void — Callback when navigation would go after the last cell. Receives the column index and offset.
 - `options.onPageUp`: () => void — Callback for Page Up key (e.g., navigate to previous month in calendars).
 - `options.onPageDown`: () => void — Callback for Page Down key (e.g., navigate to next month in calendars).
-- `options.isRtl`: boolean = undefined (auto-detect from the container's computed direction) — Swap ArrowLeft/ArrowRight so horizontal navigation follows visual direction in right-to-left contexts. When omitted, auto-detected from the container computed direction on keydown.
 - `options.hasRovingTabIndex`: boolean = false — Own a single roving tab stop across the grid: one focusable cell (its resolved focus target) carries tabindex="0", the rest -1. Stamped/repaired on render and moved with arrow navigation. Attach the returned handleFocus to the container onFocus.
 
 Returns:
@@ -1617,7 +1617,6 @@ Parameters:
 - `options.onEscape`: () => void — Callback when Escape key is pressed (e.g., close menu). Supplying it also consumes the key (preventDefault); without it Escape passes through to the surrounding layer.
 - `options.orientation`: 'horizontal' | 'vertical' | 'both' = 'vertical' — Navigation orientation. 'horizontal' uses ArrowLeft/ArrowRight, 'vertical' uses ArrowUp/ArrowDown, 'both' accepts all four arrows.
 - `options.hasHomeEnd`: boolean = true — Whether Home/End jump to the first/last enabled item.
-- `options.isRtl`: boolean = undefined (auto-detect from the container's computed direction) — Whether the list is in a right-to-left context. When true, ArrowLeft/ArrowRight are swapped for horizontal navigation so it follows visual direction. When omitted, auto-detected from the container computed direction on keydown.
 - `options.hasRovingTabIndex`: boolean = false — Opt into roving-tabindex ownership: the hook stamps a single tab stop (one item tabindex="0", the rest -1), repairs it as items mount/unmount or toggle disabled, and moves it with arrow navigation. When false, the hook only moves focus and never touches tabindex.
 - `options.hasCaretGuard`: boolean = false — When true, arrow keys are not stolen from a nested text input/textarea whose caret is not at the boundary in the direction of travel (or that has a selection), and are never stolen from a nested contenteditable (rich-text editor / chat composer). Preserves inline text editing within the list.
 
@@ -3141,7 +3140,7 @@ Parameters:
 - `xstyle`: StyleXStyles — StyleX styles applied to the popover content wrapper, after the default surface styles.
 - `hasLightDismiss`: boolean = true — Whether clicking outside dismisses the popover.
 - `hasEscapeDismiss`: boolean = true — Whether pressing Escape dismisses the popover. Only takes full effect together with hasLightDismiss: false, since native light dismiss also closes on Escape.
-- `hasAutoFocus`: boolean = true — Whether to automatically focus the first focusable element when opened.
+- `hasAutoFocus`: boolean = true — Whether to focus the first genuine content control when opened. Dialogs with none fall back to the labeled surface; the generated close control is excluded from initial focus.
 - `hasCloseButton`: boolean = true — Whether to include a hidden close button that appears for keyboard users.
 - `closeButtonLabel`: string = 'Close popover' — Accessible label for the hidden close button.
 - `dialogLabel`: string — Accessible label for the popover dialog (only applies when role is "dialog"). Provide one when there is no visible title.
@@ -3640,8 +3639,6 @@ Parameters:
 - `maxSize`: ResizableSize = Infinity — Maximum size. Numbers, exact "Npx", and pixel(value) remain pixels; exact "N%" has no additional pixel bound; percent(value, {min: pixel(value)}) or percent(value, {max: pixel(value)}) adds exactly one. Percentage maximums re-resolve when their basis changes and clamp the current pixel selection.
 - `containerRef`: RefObject<HTMLElement | null> — The element a percentage is a share of. Caller-owned: the hook never infers one. Omitted, percentages use the viewport, which is the released behaviour. The ref may point at a different element over time — the basis follows it. Until that element is actually laid out (not yet mounted, display:none, detached) percentages use a temporary 1200px basis rather than its zero measurement, and nothing is persisted from it.
 - `direction`: 'horizontal' | 'vertical' = 'horizontal' — Which axis this region resizes along. Selects the container's inline or block content-box size as the percentage basis, and must match the direction given to ResizeHandle.
-- `minSizePx`: number — Deprecated. Use minSize, which also accepts a percentage. Supplying both is a type error; if untyped code supplies both, minSize wins.
-- `maxSizePx`: number — Deprecated. Use maxSize, which also accepts a percentage. Explicit Infinity remains valid.
 - `collapsible`: boolean = false — Whether dragging below the collapsed threshold collapses the region to zero.
 - `snaps`: number[] — Pixel values to snap to during drag.
 - `autoSaveId`: string — Key for localStorage persistence of size and collapse state across sessions.
@@ -4024,7 +4021,7 @@ Props:
 - `label`: string = 'Progress' (localized) — Accessible label describing the set of steps (applied to the ordered list). Defaults to a localized "Progress".
 - `density`: 'compact' | 'balanced' | 'spacious' = 'balanced' — Controls the padding of all steps.
 - `indicatorPosition`: 'separated' | 'on-track' = 'separated' — Position of step indicators relative to the connector track.
-- `horizontalOptions`: { minimumStepWidth: number | string; collapsedVariant: 'withLabelAndControls' | 'withLabel' | 'hiddenLabel' } = { minimumStepWidth: 112, collapsedVariant: 'withLabelAndControls' } — Options for horizontal collapse. minimumStepWidth is the per-step threshold: numbers are pixels and strings accept CSS lengths such as 7rem, calc(6rem + 8px), or var(--step-width). collapsedVariant selects a label with controls, the label alone, or a bare progress track with no compact row. Controls appear only for withLabelAndControls when onStepClick is set, and every step keeps its accessible name.
+- `horizontalOptions`: { minimumStepWidth: number; collapsedVariant: 'withLabelAndControls' | 'withLabel' | 'hiddenLabel' } = { minimumStepWidth: 112, collapsedVariant: 'withLabelAndControls' } — Options for horizontal collapse. minimumStepWidth is the per-step threshold in pixels. collapsedVariant selects a label with controls, the label alone, or a bare progress track with no compact row. Controls appear only for withLabelAndControls when onStepClick is set, and every step keeps its accessible name.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
 
 ### TabList
@@ -4453,7 +4450,7 @@ Props:
 - `isModal`: boolean = true — Whether a dialog-style popover sets aria-modal. Only applies when role is dialog.
 - `hasCloseButton`: boolean = true — Whether to include a hidden close button for accessibility.
 - `closeButtonLabel`: string = 'Close popover' — Label for the hidden close button.
-- `hasAutoFocus`: boolean = true — Whether to move focus into the popover when it opens. Keyboard activation focuses the first content control; pointer activation focuses the labeled dialog container so an action does not appear preselected. Set to false for inline showcases or documentation previews.
+- `hasAutoFocus`: boolean = true — Whether to move focus into the popover when it opens. Focus enters the first genuine content control; dialogs with none fall back to the labeled surface. The generated fallback close control stays hidden until reached through keyboard navigation. Set to false for input-owned focus, inline showcases, or documentation previews.
 - `hasLightDismiss`: boolean = true — Whether clicking outside dismisses the popover. Set to false for surfaces that stay open until explicitly dismissed, like onboarding coachmarks.
 - `hasEscapeDismiss`: boolean = true — Whether pressing Escape dismisses the popover. Only takes full effect together with hasLightDismiss={false}, since native light dismiss also closes on Escape.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.

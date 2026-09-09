@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `a8e7f9f` (2026-09-07) of https://github.com/facebook/astryx.
+Generated from commit `95c8dbf` (2026-09-08) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -853,6 +853,7 @@ Props:
 - `isOpen`: boolean — Controlled open state.
 - `isDisabled`: boolean = false — Disable the item so its trigger can't be toggled (dimmed, aria-disabled, and out of the tab order). Doesn't collapse an already-open item.
 - `onOpenChange`: (isOpen: boolean) => void — Callback invoked when the open state changes.
+- `chevronPosition`: 'start' | 'end' = 'end' — Logical position of Collapsible's disclosure chevron. `end` (default) follows the label, pointing down when collapsed and up when expanded. `start` precedes the label, pointing inward toward content when collapsed (mirrored under RTL) and down when expanded. Inside a CollapsibleGroup this defaults to the group's chevronPosition.
 - `value`: string — Identifier used for group coordination. Required when placed inside an CollapsibleGroup.
 
 ### SelectableCard
@@ -894,6 +895,7 @@ Props:
 - `onChange`: (value: string | string[]) => void — Callback invoked when the set of open items changes.
 - `hasDividers`: boolean = false — Whether to draw hairline dividers between the group's items. When set, the group renders a wrapper div and items default to 'balanced' density. Pair with bare Collapsible children; Card-wrapped items provide their own separation.
 - `density`: 'compact' | 'balanced' | 'spacious' — Row density controlling trigger and content block padding on the group's items. Defaults to 'balanced' when dividers are shown; otherwise items keep their default unpadded look.
+- `chevronPosition`: 'start' | 'end' = 'end' — Logical position shared by the group's direct Collapsible items. `end` is the default trailing indicator; `start` is a leading disclosure arrow that points inward when collapsed (mirrored under RTL) and down when expanded. An individual Collapsible can still override it.
 - `children`: ReactNode (required) — Collapsible instances to coordinate.
 
 ## Content
@@ -1320,6 +1322,7 @@ Import: `import {Heading} from '@astryxdesign/core/Text';`
 Props:
 - `level`: 1 | 2 | 3 | 4 | 5 | 6 (required) — Heading level. Determines the semantic HTML element (h1-h6) and the visual styling from the theme (unless `type` is set).
 - `type`: 'display-1' | 'display-2' | 'display-3' — Display type variant. Overrides the visual styling from `level` with display-scale sizing (larger, lighter weight, tighter line-height). Themes may add custom visual types. The `level` still determines the HTML element for accessibility. Use for hero banners, marketing headlines, and data callouts.
+- `weight`: 'normal' | 'medium' | 'semibold' | 'bold' — Explicit font-weight override. Wins over the selected visual type or heading-level default.
 - `children`: ReactNode (required) — Heading content.
 - `accessibilityLevel`: 1 | 2 | 3 | 4 | 5 | 6 — Accessibility level override. When set and different from `level`, applies `aria-level` so the document outline differs from the visual style.
 - `color`: 'primary' | 'secondary' | 'disabled' | 'placeholder' | 'accent' | 'inherit' = 'primary' — Text color. Themes may add custom colors.

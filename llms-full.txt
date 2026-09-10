@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `95c8dbf` (2026-09-08) of https://github.com/facebook/astryx.
+Generated from commit `1e0c2ac` (2026-09-09) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -2432,6 +2432,7 @@ Props:
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
 - `onFocus`: (e: FocusEvent<HTMLTextAreaElement>) => void — Callback fired when the textarea receives focus.
 - `onBlur`: (e: FocusEvent<HTMLTextAreaElement>) => void — Callback fired when the textarea loses focus.
+- `autoComplete`: string — The native autocomplete attribute, forwarded to the textarea unchanged. Does not affect the controlled value.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
 ### Message box
@@ -2632,6 +2633,7 @@ Props:
 - `hasAutoFocus`: boolean = false — Automatically focuses the input on mount.
 - `htmlName`: string — The HTML name attribute for the input, useful for form submissions.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
+- `autoComplete`: string — The native autocomplete attribute, forwarded to the input unchanged. Does not affect the controlled value.
 
 ### TimeInput
 
@@ -2778,8 +2780,8 @@ Props:
 Import: `import {CheckboxListItem} from '@astryxdesign/core/CheckboxList';`
 
 Props:
-- `label`: ReactNode (required) — Primary text label for the item. Rich labels may contain links or buttons, which keep their own behavior without toggling the item. Pair a ReactNode label with aria-label so screen readers get a concise checkbox name.
-- `aria-label`: string — Plain-text accessible name for the checkbox when label is a ReactNode. Applied to the checkbox control. Without it, rich-label items all announce as the generic "Checkbox" to screen readers.
+- `label`: ReactNode (required) — Primary text label for the item. Rich labels may contain links or buttons, which keep their own behavior without toggling the item. A ReactNode label names the checkbox from its visible text; pass aria-label only when that text is absent, or include all visible label words in the override.
+- `aria-label`: string — Plain-text accessible name for the checkbox, replacing the one derived from label. Applied to the checkbox control. Use it when a rich label has no visible text; otherwise the value must retain every visible label word.
 - `value`: string — Identity key (required inside CheckboxList).
 - `description`: ReactNode — Secondary content below the label. String or ReactNode.
 - `endContent`: ReactNode — Content rendered after the label area.
@@ -2817,8 +2819,8 @@ Props:
 Import: `import {RadioListItem} from '@astryxdesign/core/RadioList';`
 
 Props:
-- `label`: ReactNode (required) — Primary label for the radio item. Rich labels may contain links or buttons, which keep their own behavior without selecting the item. The label text names the radio; pair it with aria-label when that text does not read well on its own.
-- `aria-label`: string — Plain-text accessible name for the radio, applied to the control rather than the row. It overrides whatever the label element computes — a plain string label included — so reach for it when a rich label\u2019s own text is absent or reads badly.
+- `label`: ReactNode (required) — Primary label for the radio item. Rich labels may contain links or buttons, which keep their own behavior without selecting the item. The label text names the radio; use aria-label only when that text is absent, or retain every visible label word in the override.
+- `aria-label`: string — Plain-text accessible name for the radio, applied to the control rather than the row. It overrides the name derived from the label. Use it when a rich label has no visible text; otherwise retain every visible label word.
 - `value`: string (required) — Value of this radio item.
 - `description`: ReactNode — Secondary content displayed below the label. Links and buttons keep their own click behaviour — the row only delegates clicks from its non-interactive surface to the radio.
 - `isDisabled`: boolean = false — Whether this individual radio item is disabled.
@@ -3239,7 +3241,7 @@ Props:
 - `contentPadding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 = 0 — Padding for the main content area. Set based on the dominant content pattern: 4 (16px) for forms/settings/text, 0 for dashboards/maps/tables. Override individual sections with Section.
 - `topNav`: ReactNode — Top navigation slot, typically TopNav.
 - `sideNav`: ReactNode — Side navigation slot, typically SideNav.
-- `mobileNav`: ReactNode — Mobile navigation configuration. Accepts false (disable), a config object (tune auto behavior), or ReactNode (full custom drawer). The config object is {hasToggle?: boolean, isOpen?: boolean, onOpenChange?: (isOpen: boolean) => void, content?: ReactNode, breakpoint?: 'sm' | 'md' | 'lg' | 'none', defaultIsMobile?: boolean}; breakpoint defaults to 'md'.
+- `mobileNav`: ReactNode — Mobile navigation configuration. Accepts false (disable), a config object (tune auto behavior), or ReactNode (full custom drawer). The config object is {hasToggle?: boolean, isOpen?: boolean, onOpenChange?: (isOpen: boolean) => void, content?: ReactNode, breakpoint?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'none', defaultIsMobile?: boolean}; breakpoint defaults to 'md', resolves through the nearest Theme's widthBreakpoints, and switches to the wider layout at equality. 'none' is always non-mobile and ignores defaultIsMobile.
 - `banner`: ReactNode — Banner slot for system-wide announcements, placed above the topNav.
 - `height`: 'fill' | 'auto' = 'fill' — Height behavior: 'fill' makes the shell fill the viewport (100dvh) with independent scroll containers; 'auto' lets the shell grow with content and uses sticky positioning for nav.
 - `variant`: 'wash' | 'surface' | 'section' | 'elevated' = 'elevated' — Navigation background style controlling how nav areas contrast with content. 'wash' uses wash background, 'surface' uses surface background, 'section' adds dividers between nav and content, 'elevated' uses wash nav with elevated surface content and border radius.
@@ -3965,7 +3967,7 @@ Do:
 - Use sections to group related navigation items and help users scan for their destination.
 - Pair outline and filled icon variants so the selected state is visually distinct.
 - Mark the current page with isSelected: it sets aria-current="page", so the current destination is announced rather than carried by color alone.
-- SideNav renders a navigation landmark, and a collapsible item follows the WAI-ARIA APG Disclosure pattern (https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/): the toggle carries aria-expanded and aria-controls, and the group it owns is inert while collapsed. Keep item labels short; they are the accessible name in both expanded and icon-only modes.
+- SideNav renders a navigation landmark, and a collapsible item follows the WAI-ARIA APG Disclosure pattern (https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/): the toggle carries aria-expanded and aria-controls, and the group it owns is inert while collapsed. Keep item labels short; they name icon-only items unless a meaningful aria-label supplies more context.
 - While the nav is collapsed, an item with children shows them in a submenu flyout. On a device that can hover, pointing at the item opens it after a short delay and moving away closes it; a flyout opened by clicking stays open until it is dismissed. On touch, it opens on tap. Do not put an action in there that has no other route to it.
 
 Don't:

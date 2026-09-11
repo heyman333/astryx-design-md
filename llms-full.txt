@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `1e0c2ac` (2026-09-09) of https://github.com/facebook/astryx.
+Generated from commit `814553e` (2026-09-10) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -2618,7 +2618,7 @@ Props:
 - `description`: string — Description text displayed between the label and input.
 - `isOptional`: boolean = false — Displays an "Optional" indicator next to the label. Mutually exclusive with isRequired.
 - `isRequired`: boolean = false — Displays a "Required" indicator next to the label and sets aria-required. Mutually exclusive with isOptional.
-- `onEnter`: () => void — Callback fired when the user presses the Enter key.
+- `onEnter`: () => void — Callback fired when the user presses the Enter key. IME-safe: Enter used to commit a Japanese/Chinese/Korean conversion does not fire it.
 - `onKeyDown`: (e: KeyboardEvent<HTMLInputElement>) => void — Callback fired on keydown events on the input.
 - `isDisabled`: boolean = false — Disables the input, preventing interaction and dimming the element.
 - `isReadOnly`: boolean = false — Makes the input read-only: the value is shown at full opacity and still submits with the form, but cannot be edited. Unlike isDisabled, a read-only input is not dimmed and stays in the tab order. isDisabled takes precedence when both are set.
@@ -2738,43 +2738,6 @@ Props:
 - `onBlur`: (e: FocusEvent<HTMLInputElement>) => void — Fires when focus leaves the tokenizer input.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value; not an inline style object like style={{}}.
 
-### BaseTypeahead (subcomponent/hook)
-
-Import: `import {BaseTypeahead} from '@astryxdesign/core/Typeahead';`
-
-Unstyled combobox engine providing input, search, keyboard navigation, and dropdown. No wrapper div, no border styling, no token rendering. Used by Typeahead and Tokenizer for custom compositions.
-
-Do:
-- Use Typeahead or Tokenizer for standard fields; they wrap BaseTypeahead with the wrapper div, border styling, and token rendering it intentionally omits.
-- Provide your own wrapper div with border and layout when composing directly, since BaseTypeahead renders no visual chrome of its own.
-- Pass anchorRef pointing to your wrapper so the dropdown positions against your custom input chrome, not just the bare input element.
-
-Don't:
-- Expect a wrapper div, border, or token rendering. BaseTypeahead is an engine only; all visual chrome is the caller's responsibility.
-- Use BaseTypeahead when Typeahead or Tokenizer would suffice; the extra wrapper and styling work is only justified for truly custom compositions.
-
-Props:
-- `searchSource`: SearchSource<T> (required) — Data source providing search and bootstrap methods.
-- `value`: T | null (required) — Currently selected item.
-- `onChange`: (item: T | null) => void (required) — Called when the selection changes.
-- `renderItem`: (item: T) => ReactNode — Custom render function for dropdown items.
-- `placeholder`: string = 'Search...' — Input placeholder text.
-- `hasEntriesOnFocus`: boolean = false — Show bootstrap results on focus before typing.
-- `maxMenuItems`: number = 10 — Maximum dropdown items to display.
-- `menuWidth`: number — Fixed dropdown width in pixels. The menu never shrinks below its anchor width.
-- `minQueryLength`: number = 1 — Minimum query length before the search source is queried. Below it no search runs and the menu stays closed.
-- `emptySearchResultsText`: string = 'No results found' — Text shown when search returns no results.
-- `isDisabled`: boolean = false — Whether the input is disabled.
-- `hasAutoFocus`: boolean = false — Auto-focus the input on mount.
-- `debounceMs`: number = 150 — Debounce delay in ms before triggering search. Set to 0 for synchronous sources.
-- `anchorRef`: RefObject<HTMLElement | null> — Ref to the anchor element for dropdown positioning. If not provided, the input itself is used.
-- `inputXStyle`: StyleXStyles — Additional StyleX styles for the input element.
-- `onKeyDown`: (e: React.KeyboardEvent<HTMLInputElement>) => void — Additional keydown handler called before internal keyboard navigation. Call e.preventDefault() to skip internal handling.
-- `onChangeQuery`: (query: string) => void — Callback fired when the search query text changes.
-- `onOpenChange`: (isOpen: boolean) => void — Callback when the dropdown opens or closes.
-- `inputId`: string — ID for the input element (for label association).
-- `ariaDescribedBy`: string — Additional aria-describedby IDs.
-
 ### CheckboxListItem (subcomponent/hook)
 
 Import: `import {CheckboxListItem} from '@astryxdesign/core/CheckboxList';`
@@ -2783,7 +2746,7 @@ Props:
 - `label`: ReactNode (required) — Primary text label for the item. Rich labels may contain links or buttons, which keep their own behavior without toggling the item. A ReactNode label names the checkbox from its visible text; pass aria-label only when that text is absent, or include all visible label words in the override.
 - `aria-label`: string — Plain-text accessible name for the checkbox, replacing the one derived from label. Applied to the checkbox control. Use it when a rich label has no visible text; otherwise the value must retain every visible label word.
 - `value`: string — Identity key (required inside CheckboxList).
-- `description`: ReactNode — Secondary content below the label. String or ReactNode.
+- `description`: ReactNode — Secondary content below the label. String or ReactNode. Exposed as the checkbox's accessible description through aria-describedby, so assistive technology can tell it is the explanation for that choice.
 - `endContent`: ReactNode — Content rendered after the label area.
 - `isDisabled`: boolean = false — Whether this individual item is disabled.
 - `isLoading`: boolean = false — Whether this item is loading. Shows a spinner inside the checkbox and blocks interaction on this item. In collection mode, the toggled item also shows this automatically while the parent changeAction is pending.
@@ -2803,6 +2766,49 @@ Props:
 - `isRequired`: boolean = false — Show "Required" indicator.
 - `labelIcon`: IconType — Icon before the label text. See `astryx docs icons` for valid semantic names.
 - `labelTooltip`: string — Tooltip text for info icon at end of label.
+
+### Input (subcomponent/hook)
+
+Import: `import {Input} from '@astryxdesign/core/Typeahead';`
+
+Composable combobox engine providing a bare input, search, keyboard navigation, and a styled result dropdown. It renders no input wrapper, border, or selected-value token. Typeahead and Tokenizer compose it for standard fields.
+
+Do:
+- Use Typeahead or Tokenizer for standard fields; they wrap BaseTypeahead with input chrome and selected-value rendering it intentionally omits.
+- Provide your own visible label or aria-label and custom input wrapper so the bare combobox has an accessible name, focus treatment, border, and layout.
+- Pass anchorRef pointing to your wrapper so the dropdown positions against your custom input chrome, not just the bare input element.
+
+Don't:
+- Expect input chrome or selected-value rendering. BaseTypeahead is an engine; the caller owns those visible parts.
+- Use BaseTypeahead when Typeahead or Tokenizer would suffice; the extra wrapper and styling work is only justified for truly custom compositions.
+- Treat Escape as cancellation of pending source work. It hides the current popup, but a late response can reopen it.
+
+Props:
+- `searchSource`: SearchSource<T> (required) — Data source providing search and bootstrap methods.
+- `value`: T | null (required) — Currently selected item.
+- `onChange`: (item: T | null) => void (required) — Called when the selection changes.
+- `renderItem`: (item: T) => ReactNode — Custom render function for dropdown items.
+- `placeholder`: string = 'Search…' — Input placeholder text.
+- `hasEntriesOnFocus`: boolean = false — Show bootstrap results on focus before typing.
+- `maxMenuItems`: number = 10 — Maximum dropdown items to display.
+- `menuWidth`: number — Requested dropdown width in pixels before viewport clamping.
+- `minQueryLength`: number = 1 — Minimum query length before the search source is queried. Below it no search runs and the menu stays closed.
+- `emptySearchResultsText`: string = 'No results found' — Text shown when search returns no results.
+- `isDisabled`: boolean = false — Whether the input is disabled.
+- `isFocusableDisabled`: boolean = false — Keep a disabled input focusable with aria-disabled and readOnly so a caller-owned disabled reason remains discoverable. It blocks text entry, but when applied after results are already open, Enter can still select the highlighted option.
+- `hasAutoFocus`: boolean = false — Auto-focus the input on mount.
+- `debounceMs`: number = 150 — Debounce delay in ms before triggering search. Set to 0 for synchronous sources.
+- `size`: 'sm' | 'md' | 'lg' = 'md' — Size used to scale dropdown option padding.
+- `anchorRef`: RefObject<HTMLElement | null> — Ref to the anchor element for dropdown positioning. If not provided, the input itself is used.
+- `inputXStyle`: StyleXStyles — Additional StyleX styles for the input element.
+- `xstyle`: StyleXStyles — Standard BaseProps StyleX styles applied to the input. Must be a stylex.create() value, not an inline style object.
+- `inputTabIndex`: number — Legacy input-specific alias for native tabIndex. When provided, it takes precedence; otherwise native tabIndex is preserved.
+- `onKeyDown`: (e: React.KeyboardEvent<HTMLInputElement>) => void — Additional keydown handler called before internal keyboard navigation. Call e.preventDefault() to skip internal handling.
+- `onChangeQuery`: (query: string) => void — Callback fired when the search query text changes.
+- `onOpenChange`: (isOpen: boolean) => void — Callback when the dropdown opens or closes.
+- `inputId`: string — Legacy input-specific alias for native id. When provided, it takes precedence; otherwise native id is preserved.
+- `ariaDescribedBy`: string — Legacy input-specific alias for native aria-describedby. When provided, it takes precedence; otherwise the native attribute is preserved.
+- `ariaLabelledBy`: string — Legacy input-specific alias for native aria-labelledby. When provided, it takes precedence; otherwise the native attribute is preserved.
 
 ### InputGroupText (subcomponent/hook)
 
@@ -3254,7 +3260,7 @@ Import: `import {AspectRatio} from '@astryxdesign/core/AspectRatio';`
 Maintains a fixed width-to-height ratio for its children as its container resizes. Use it for media containers like videos, images, thumbnails, or any content that needs consistent proportions. It takes its width from the container and derives its height from the ratio, so it needs an ancestor with a definite width.
 
 Do:
-- Express the ratio as a fraction like `16/9` or `4/3` for readability.
+- Express the ratio as a fraction for readability — `ratio={16 / 9}` rather than `ratio={1.78}`. It is a number, so the string form `ratio="16/9"` is a type error.
 - Use for media that needs consistent proportions across screen sizes.
 - Use `fit="cover"` for images and video so the component sizes the child; the child should not repeat `width`/`height`/`objectFit` styles.
 - Pass one child. With `fit` set, every direct child is stretched to fill the box, so put an overlay or caption inside a single wrapper child rather than passing it as a second child.
@@ -3281,27 +3287,28 @@ Import: `import {Center} from '@astryxdesign/core/Center';`
 Center aligns content to the middle of its container. Use it for empty states, loading screens, login forms, or any content that should sit in the center of the available space.
 
 Do:
-- Use axis="horizontal" or axis="vertical" when you only need one direction. Both axes is the default but not always needed.
-- Set a height when centering vertically. Center needs a defined height to know what space to center within.
+- Use a single-axis value only in horizontal writing, or after verifying the active writing mode. In vertical writing, the current implementation follows flex main/cross axes rather than the physical prop names.
+- In horizontal writing, give Center height when using axis="vertical"; centering needs available space on the selected flex axis.
 - Use isInline to center small elements like icons or badges within a line of text without breaking the text flow.
+- Keep semantic structure and accessible names on the content. Center is a layout-only container and does not add a role or label.
 
 Don't:
 - Wrap large page sections in Center. Use Layout or AppShell for page-level structure.
 - Use Center for horizontal lists of items. Use Stack with hAlign="center" instead.
 
 Props:
-- `axis`: 'both' | 'horizontal' | 'vertical' = 'both' — Which direction(s) to center.
+- `axis`: 'both' | 'horizontal' | 'vertical' = 'both' — Which Center mode to use. In horizontal writing, "horizontal" centers the flex main/inline axis and "vertical" centers the cross/block axis. In vertical writing, current single-axis behavior follows those logical flex axes rather than the physical names; "both" still centers both axes.
 - `width`: SizeValue — Container width (px or CSS value).
 - `height`: SizeValue — Container height (px or CSS value).
 - `maxWidth`: SizeValue — Maximum container width (px or CSS value).
 - `minHeight`: SizeValue — Minimum container height (px or CSS value).
 - `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inner padding on all sides, using the spacing scale (0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10). Matches the padding prop on Stack, Card, LayoutContent, and LayoutPanel. Pass as a JSX number expression e.g. padding={3}.
-- `paddingInline`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline (horizontal) padding, using the spacing scale. Overrides padding on the inline axis when both are set.
-- `paddingInlineStart`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline-start padding, using the spacing scale (left in LTR, right in RTL). Overrides paddingInline and padding on that edge only.
-- `paddingInlineEnd`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline-end padding, using the spacing scale (right in LTR, left in RTL). Overrides paddingInline and padding on that edge only.
-- `paddingBlock`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Block (vertical) padding, using the spacing scale. Overrides padding on the block axis when both are set.
-- `paddingBlockStart`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Block-start (top) padding, using the spacing scale. Overrides paddingBlock and padding on that edge only.
-- `paddingBlockEnd`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Block-end (bottom) padding, using the spacing scale. Overrides paddingBlock and padding on that edge only.
+- `paddingInline`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Logical inline-axis padding, using the spacing scale. Overrides padding on the inline axis when both are set.
+- `paddingInlineStart`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Logical inline-start padding, using the spacing scale. Its resolved physical edge depends on writing mode and direction. Overrides paddingInline and padding on that edge only.
+- `paddingInlineEnd`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Logical inline-end padding, using the spacing scale. Its resolved physical edge depends on writing mode and direction. Overrides paddingInline and padding on that edge only.
+- `paddingBlock`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Logical block-axis padding, using the spacing scale. Overrides padding on the block axis when both are set.
+- `paddingBlockStart`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Logical block-start padding, using the spacing scale. Its resolved physical edge depends on writing mode. Overrides paddingBlock and padding on that edge only.
+- `paddingBlockEnd`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Logical block-end padding, using the spacing scale. Its resolved physical edge depends on writing mode. Overrides paddingBlock and padding on that edge only.
 - `isInline`: boolean = false — Use inline-flex (useful for text/icons).
 - `children`: ReactNode — Content to center.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
@@ -3429,7 +3436,7 @@ Props:
 - `start`: ReactNode — Logical-start slot (left in LTR). Accepts any ReactNode; use LayoutPanel when a panel region is needed.
 - `end`: ReactNode — Logical-end slot (right in LTR). Accepts any ReactNode; use LayoutPanel when a panel region is needed.
 - `height`: 'fill' | 'auto' = 'fill' — Height behavior: fill the container or grow with content.
-- `contentWidth`: SizeValue — Maximum width of the content within each slot (header, content, footer, panels), centered when narrower than the available space. Dividers stay full-bleed. Numbers are treated as pixels, strings are used as-is (e.g. `60ch`). Common page widths: 640 for forms, settings, and text-focused pages; 960 for content pages and wider layouts.
+- `contentWidth`: SizeValue — Maximum width of the aligned content within each slot (header, content, footer, panels), centered when narrower than the available space. Without panels, LayoutContent spans the available width so its scrollbar stays at the outer edge while its children align internally to contentWidth. With exactly one panel, the panel stays aligned to the contentWidth frame while LayoutContent extends to the opposite open edge. With both panels, contentWidth includes the complete middle composition. Percentage widths—including percentage-bearing calc(), min(), max(), and clamp() values—and intrinsic widths, plus bare var(...) values, retain the constrained composition; use calc(var(...)) for a variable guaranteed to resolve to a length. Dividers stay full-bleed. Numbers are treated as pixels, strings are used as-is (e.g. `60ch`). Common page widths: 640 for forms, settings, and text-focused pages; 960 for content pages and wider layouts.
 - `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Padding at the layout's outer edges using the spacing scale.
 - `defaultHasDividers`: boolean — Default divider visibility for LayoutHeader and LayoutFooter children. Headers and footers that don't pass `hasDivider` use this value; when unset, nested layouts inherit from their parent context.
 
@@ -3710,7 +3717,7 @@ Import: `import {LayoutContent} from '@astryxdesign/core/Layout';`
 Props:
 - `children`: ReactNode — Content.
 - `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Internal padding using the spacing scale. Overrides the default padding from the layout container.
-- `isScrollable`: boolean = true — Enable scrollable overflow.
+- `isScrollable`: boolean = true — Enable scrollable overflow. With arithmetic contentWidth values, the scrollport spans through every open side while context-aware insets keep children aligned.
 - `label`: string — Accessible label for the landmark element.
 - `role`: AriaRole — ARIA landmark role.
 
@@ -4086,11 +4093,13 @@ Props:
 
 Import: `import {BreadcrumbItem} from '@astryxdesign/core/Breadcrumbs';`
 
+BreadcrumbItem represents one destination, action, current location, or sibling-menu trigger inside a Breadcrumbs trail.
+
 Props:
 - `children`: ReactNode (required) — Label content for the breadcrumb item.
 - `href`: string — URL the breadcrumb links to; omit for non-navigable items.
 - `onClick`: (e: MouseEvent) => void — Click handler for the breadcrumb item.
-- `isCurrent`: boolean = false — Marks this item as the current page, applying aria-current="page".
+- `isCurrent`: boolean — Marks this item as the current page, applying aria-current="page". When omitted, the last item is auto-detected if no item is explicitly current; pass false to opt out.
 - `startIcon`: ReactNode — Icon rendered before the item label.
 - `menu`: DropdownMenuOption[] | ReactNode — Menu opened when the item is activated, using the same item API as DropdownMenu/MoreMenu/ContextMenu (a DropdownMenuOption[] array or composed DropdownMenuItem children). Renders a link-styled menu trigger with a chevron and aria-haspopup="menu". Takes precedence over href/onClick.
 - `menuSize`: 'sm' | 'md' | 'lg' — Size passed to the menu items. Defaults from the breadcrumb variant ('supporting' → 'sm', otherwise 'md').
@@ -4287,24 +4296,6 @@ Props:
 - `width`: number | string = 400 — Requested dialog width. Dialog preserves this preferred width and clamps it to the container and dynamic viewport with token gutters.
 - `isInline`: boolean = false — Renders alert dialog content inline without modal behavior. For documentation previews and showcases only. Not being a modal, the inline path renders role="group" instead of role="alertdialog".
 
-### BottomSheetSwitcher
-
-Import: `import {BottomSheetSwitcher} from '@astryxdesign/core/BottomSheet';`
-
-Coordinates a multi-step bottom-sheet flow in one shared dialog; set activeSheet to a nested BottomSheet's sheetId to open or switch steps, and to null to close.
-
-Do:
-- Use when each step depends on the previous one and only one step needs attention at a time.
-
-Don't:
-- Don't split information across sheets when people need to compare it; use a full-page layout that keeps the relevant content visible together instead.
-
-Props:
-- `activeSheet`: string | null (required) — ID of the interactive BottomSheet, or null when the flow should close. Match a nested BottomSheet's unique sheetId; the previous sheet may remain visually present and inert while the new sheet enters, simultaneously align downward behind a shorter step, then fade away.
-- `onActiveSheetChange`: (activeSheet: string | null) => void (required) — Called with null when the active sheet dismisses according to its purpose. Child BottomSheets may use purpose='form' or purpose='required' to limit implicit dismissal while flow controls can still use the same state setter to switch sheets or close the flow.
-- `hasScrim`: boolean = true — Whether the shared dialog is modal. true uses showModal() once for one native ::backdrop, focus trap, scroll lock, and click-to-dismiss when the active BottomSheet has purpose='info'. false uses show() with no backdrop and leaves the page interactive; avoid transformed, contained, or clipping ancestors because the non-modal dialog remains in its containing context.
-- `children`: ReactNode (required) — BottomSheets identified by unique sheetId values.
-
 ### Dialog
 
 Import: `import {Dialog} from '@astryxdesign/core/CommandPalette';`
@@ -4459,6 +4450,28 @@ Props:
 - `hasLightDismiss`: boolean = true — Whether clicking outside dismisses the popover. Set to false for surfaces that stay open until explicitly dismissed, like onboarding coachmarks.
 - `hasEscapeDismiss`: boolean = true — Whether pressing Escape dismisses the popover. Only takes full effect together with hasLightDismiss={false}, since native light dismiss also closes on Escape.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+
+### Shared dialog
+
+Import: `import {Shared dialog} from '@astryxdesign/core/BottomSheet';`
+
+Coordinates a multi-step bottom-sheet flow in one shared dialog; set activeSheet to a nested BottomSheet's sheetId to open or switch steps, and to null to close.
+
+Do:
+- Use when each step depends on the previous one and only one step needs attention at a time.
+- Give every child a unique sheetId and non-empty label, choose its purpose to match dismissal requirements, and follow the WAI-ARIA Dialog (Modal) pattern for scrim-backed flows: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/.
+
+Don't:
+- Don't split information across sheets when people need to compare it; use a full-page layout that keeps the relevant content visible together instead.
+- Don't use the switcher when multiple panels must stay interactive or visible together; activeSheet intentionally selects one interactive step.
+
+Props:
+- `ref`: Ref<HTMLDialogElement> — Ref forwarded to the one shared native dialog.
+- `onCancel`: (event: SyntheticEvent<HTMLDialogElement>) => void — Called before the switcher handles a native dialog cancel request. Calling preventDefault() keeps the controlled flow open.
+- `activeSheet`: string | null (required) — ID of the interactive BottomSheet, or null when the flow should close. Match a nested BottomSheet's unique sheetId; the previous sheet may remain visually present and inert while the new sheet enters, simultaneously align downward behind a shorter step, then fade away.
+- `onActiveSheetChange`: (activeSheet: string | null) => void (required) — Called with null when the active sheet dismisses according to its purpose. Child BottomSheets may use purpose='form' or purpose='required' to limit implicit dismissal while flow controls can still use the same state setter to switch sheets or close the flow.
+- `hasScrim`: boolean = true — Whether the shared dialog is modal. true uses showModal() once for one native ::backdrop, focus trap, scroll lock, and click-to-dismiss when the active BottomSheet has purpose='info'. false uses show() with no backdrop and leaves the page interactive; avoid transformed, contained, or clipping ancestors because the non-modal dialog remains in its containing context.
+- `children`: ReactNode (required) — BottomSheets identified by unique sheetId values.
 
 ### Sheet panel
 

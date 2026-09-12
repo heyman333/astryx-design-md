@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `814553e` (2026-09-10) of https://github.com/facebook/astryx.
+Generated from commit `35706b0` (2026-09-11) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -3134,12 +3134,12 @@ Returns:
 
 Import: `import {usePopover} from '@astryxdesign/core/Popover';`
 
-Headless hook for click-triggered popovers with focus trapping. Combines useLayer with useFocusTrap, auto-focus, light dismiss, Escape handling, and an optional hidden close button for accessible dialog-like popover behavior. Use for custom interactive floating content that needs keyboard navigation. The canonical broad surface target is popover; automatic hook-wide emission is separate migration work, so current direct compositions needing a distinct stable seam should pass and document their own surfaceTarget instead of depending on deprecated popover-surface.
+Headless hook for click-triggered popovers with focus trapping. Combines useLayer with useFocusTrap, auto-focus, light dismiss, Escape handling, and an optional hidden close button for accessible dialog-like popover behavior. Every painted surface emits the canonical popover target and deprecated popover-surface compatibility alias. A custom composition needing a distinct stable seam should pass and document its own surfaceTarget.
 
 Do:
 - Use for interactive content such as menus, pickers, forms, and command panels that need focus management.
 - Prefer the Popover component for standard trigger-content pairs; use the hook for custom trigger patterns.
-- Use popover as the broad surface target. During migration, popover-surface remains compatibility output only; do not create new theme dependencies on it.
+- Use popover as the broad surface target. Popover-surface remains supported compatibility output, but new theme source uses the canonical key.
 - When a custom composition needs its own theme refinement, pass and document an owned surfaceTarget such as selector-popup. It refines the Popover surface rather than creating another anatomy part.
 
 Don't:
@@ -4424,7 +4424,7 @@ A click-triggered overlay anchored to a button or trigger element. Use it for se
 Do:
 - Keep popover content focused on a single task or piece of information.
 - Provide a clear way to close: either by clicking outside or with an explicit close button.
-- Theme the painted surface through popover. Existing popover-surface overrides remain supported during migration, but new themes should not depend on that deprecated alias.
+- Theme the painted surface through popover. Existing popover-surface overrides remain supported for compatibility, while new themes use the canonical target.
 
 Don't:
 - Nest popovers inside other popovers; it creates confusing focus and navigation.

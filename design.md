@@ -1,6 +1,6 @@
 # Astryx Design System — Design Overview
 
-> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`4a0d1d1`](https://github.com/facebook/astryx/commit/4a0d1d1e2bc1aebf49a1c08ccf77162cb387bfa6) (2026-09-12). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
+> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`1c4033d`](https://github.com/facebook/astryx/commit/1c4033d4978fec47be12e9be239cafbcfda93ec8) (2026-09-13). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
 
 ## What Astryx is
 
@@ -30,10 +30,10 @@ A pnpm monorepo (Node 22+, pnpm 11):
 
 | Package | Version | Description |
 | --- | --- | --- |
-| [`@astryxdesign/build`](https://github.com/facebook/astryx/blob/main/packages/build/README.md) | 0.6.0 | Build plugins for XDS source builds — babel, PostCSS, and Vite integrations |
+| [`@astryxdesign/build`](https://github.com/facebook/astryx/blob/main/packages/build/README.md) | 0.6.1 | Build plugins for XDS source builds — babel, PostCSS, and Vite integrations |
 | [`@astryxdesign/charts`](https://github.com/facebook/astryx/blob/main/packages/charts/README.md) | 0.1.9 (canary) | Astryx charts — a config-model data visualization library (d3-based). Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
-| [`@astryxdesign/cli`](https://github.com/facebook/astryx/blob/main/packages/cli/README.md) | 0.6.0 | Scaffold projects, browse templates, generate themes, and get agent-ready docs from the command line. |
-| [`@astryxdesign/core`](https://github.com/facebook/astryx/blob/main/packages/core/README.md) | 0.6.0 | The component library. Accessible, themeable React components with built-in spacing, dark mode, and StyleX styling. |
+| [`@astryxdesign/cli`](https://github.com/facebook/astryx/blob/main/packages/cli/README.md) | 0.6.1 | Scaffold projects, browse templates, generate themes, and get agent-ready docs from the command line. |
+| [`@astryxdesign/core`](https://github.com/facebook/astryx/blob/main/packages/core/README.md) | 0.6.1 | The component library. Accessible, themeable React components with built-in spacing, dark mode, and StyleX styling. |
 | [`@astryxdesign/lab`](https://github.com/facebook/astryx/blob/main/packages/lab/README.md) | 0.1.9 (canary) | Experimental Astryx components — published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
 | [`@astryxdesign/richtext`](https://github.com/facebook/astryx/blob/main/packages/richtext/README.md) | 0.1.9 (canary) | Astryx rich text — a Lexical-based rich text editor and viewer. Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
 | [`@astryxdesign/vega`](https://github.com/facebook/astryx/blob/main/packages/vega/README.md) | 0.1.3 (canary) | Astryx Vega wrapper — chart and data visualization components. Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
@@ -51,7 +51,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 
 ## Component library
 
-`@astryxdesign/core` currently documents **227 components** across **183 component groups** and **18 categories**. Each component directory contains the implementation (`{Name}.tsx`), colocated tests, and a `{Name}.doc.mjs` structured doc (props, anatomy, best practices) consumed by the CLI and docsite.
+`@astryxdesign/core` currently documents **229 components** across **185 component groups** and **18 categories**. Each component directory contains the implementation (`{Name}.tsx`), colocated tests, and a `{Name}.doc.mjs` structured doc (props, anatomy, best practices) consumed by the CLI and docsite.
 
 ### Accessibility (1)
 
@@ -201,7 +201,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**useToast**](https://github.com/facebook/astryx/blob/main/packages/core/src/Toast/useToast.doc.mjs) — Hook for showing toast notifications from anywhere in your component tree. Returns a function that accepts toast options and shows the notification. Works automatically with LayerProvider or self-mounts a fallback viewport.
 - [**useTooltip**](https://github.com/facebook/astryx/blob/main/packages/core/src/Tooltip/useTooltip.doc.mjs) — Headless hook for hover/focus-triggered tooltips. Builds on useLayer with hover intent, keyboard focus handling, and accessible aria-describedby linking. Use for custom trigger elements that need tooltip behavior without the wrapper component.
 
-### Layout (20)
+### Layout (22)
 
 - [**AppShell**](https://github.com/facebook/astryx/blob/main/packages/core/src/AppShell/AppShell.doc.mjs) — AppShell is the page shell for an application. It provides slots for top navigation, side navigation, banners, and main content. Use it as the root wrapper for every page. It handles responsive mobile navigation and skip-to-content automatically. Configure side nav collapse on SideNav with its collapsible prop.
 - [**AspectRatio**](https://github.com/facebook/astryx/blob/main/packages/core/src/AspectRatio/AspectRatio.doc.mjs) — Maintains a fixed width-to-height ratio for its children as its container resizes. Use it for media containers like videos, images, thumbnails, or any content that needs consistent proportions. It takes its width from the container and derives its height from the ratio, so it needs an ancestor with a definite width.
@@ -211,11 +211,13 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**Grid container**](https://github.com/facebook/astryx/blob/main/packages/core/src/Grid/Grid.doc.mjs) — A CSS grid layout container for arranging children in rows and columns. Use Grid for card galleries, dashboards, and any multi-column layout. Supports fixed column counts and responsive columns that reflow based on available width.
 - [**Handle**](https://github.com/facebook/astryx/blob/main/packages/core/src/Resizable/Resizable.doc.mjs) — Hook-based resizable panel system. useResizable() manages size state 
 - [**Layout container**](https://github.com/facebook/astryx/blob/main/packages/core/src/Layout/Layout.doc.mjs) — Layout is a general five-slot primitive for arranging header, start, content, end, and footer regions within a page or bounded container. AppShell owns the page shell and app-wide navigation behavior; use HStack or VStack for simple directional stacking.
+- [**ScrollableArea**](https://github.com/facebook/astryx/blob/main/packages/core/src/ScrollableArea/ScrollableArea.doc.mjs) — Provides a native scroll viewport and a real observed content box. The viewport enters the tab order only while a requested logical axis is effectively scrollable, and containment applies only to effective axes.
 - [**Section container**](https://github.com/facebook/astryx/blob/main/packages/core/src/Section/Section.doc.mjs) — Section is the correct way to create page regions and group related content on a page. Use it for settings groups, form sections, sidebar areas, or any time you need visual separation between parts of a page. If you are tempted to use a Card for a page section, use Section instead.
 - [**Stack container**](https://github.com/facebook/astryx/blob/main/packages/core/src/Stack/Stack.doc.mjs) — Stack arranges items in a row or column with consistent spacing. Use the gap prop to control the space between items.
 - [**useAppShellMobile**](https://github.com/facebook/astryx/blob/main/packages/core/src/AppShell/useAppShellMobile.doc.mjs) — Hook for reading and controlling AppShell mobile navigation state from descendants of AppShell. Use it for custom mobile nav triggers, closing the drawer after route changes, or coordinating AppShell-adjacent mobile experiences with the same breakpoint used by mobile nav.
 - [**useOverflow**](https://github.com/facebook/astryx/blob/main/packages/core/src/hooks/useOverflow.doc.mjs) — Measures children rendered in a hidden container to determine how many fit in the available width without flickering. Uses ResizeObserver to react to container and measured-child size changes. The measurement container should hold all items plus an optional overflow indicator element (identified by a data-overflow-indicator attribute).
 - [**useResizable**](https://github.com/facebook/astryx/blob/main/packages/core/src/Resizable/useResizable.doc.mjs) — Hook for adding drag-to-resize behavior to layout regions. Supports single-region and multi-region configurations with snap points, collapsible panels, localStorage persistence, and cascade resize ordering.
+- [**useScrollableArea**](https://github.com/facebook/astryx/blob/main/packages/core/src/hooks/useScrollableArea.doc.mjs) — Adds canonical axis-aware scroll behavior to structure owned by the caller. An axis is effective only when its computed overflow is scroll-capable and geometry exceeds the shared 1px tolerance. Both viewport and content boxes are observed.
 - [**useScrollLock**](https://github.com/facebook/astryx/blob/main/packages/core/src/hooks/useScrollLock.doc.mjs) — Locks body scroll when active by pinning the body with position: fixed. This prevents background scrolling behind modals and dialogs, which is necessary for iOS Safari where overscroll-behavior: contain does not work. Restores the original scroll position when unlocked. Pinning hides the document scrollbar, so where that scrollbar takes layout space (desktop) the hook holds its gutter open with scrollbar-gutter: stable for the duration of the lock. The page, including any position: fixed chrome, does not shift sideways.
 - [**useScrollOverflow**](https://github.com/facebook/astryx/blob/main/packages/core/src/hooks/useScrollOverflow.doc.mjs) — Tracks scroll overflow state for a horizontally scrollable container. Returns a ref callback and state booleans that update as the user scrolls or the container resizes. Uses scroll event listeners and ResizeObserver for reactive updates. Tolerance of 1px is applied to avoid sub-pixel false positives.
 - [**GridSpan**](https://github.com/facebook/astryx/blob/main/packages/core/src/Grid/GridSpan.doc.mjs) *(subcomponent/hook)*

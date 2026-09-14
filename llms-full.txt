@@ -1,10 +1,10 @@
 # Astryx — Full Component Reference
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 227 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 229 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `4a0d1d1` (2026-09-12) of https://github.com/facebook/astryx.
+Generated from commit `1c4033d` (2026-09-13) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -1043,7 +1043,9 @@ Renders a markdown string as Astryx-styled components. Use Markdown for user-gen
 Do:
 - Set headingLevelStart to match the page hierarchy, e.g. start at 3 if the markdown sits inside an h2 section.
 - Use contentWidth to keep prose at a readable line length in wide layouts.
-- Use inlinePlugins for custom shorthand patterns like issue refs, diff refs, and mentions instead of preprocessing the markdown string.
+- Use inlinePlugins for prefixed identifiers, mentions, and other prose-only shorthand instead of preprocessing the markdown string.
+- Provide components.math only for documents that use dollar-delimited math. The renderer owns typesetting and accessible output; Astryx passes the expression as text and never executes raw HTML.
+- For direct parsing, use MathParseOptions and handle InlineNodeWithMath or BlockNodeWithMath. Incremental math parsing also uses createIncrementalState<true>() and IncrementalParseState<true>; default calls and ParseOptions annotations keep the legacy unions.
 - Pair with Outline and useOutlineFromMarkdown for section navigation: headings render generated id attributes that match the outline item ids, so hash links scroll to their target.
 
 Don't:
@@ -1060,9 +1062,9 @@ Props:
 - `citationStyle`: 'label' | 'number' = 'label' — How citations are displayed inline. 'label' shows a chip with source title, icon, and border. 'number' shows a compact numbered badge.
 - `contentWidth`: number | string = 680 — Max width for prose content (paragraphs, headings, lists, blockquotes). Tables and code blocks are unconstrained and can expand to the full container width. Use for readable line lengths in wide layouts.
 - `contentAlign`: 'start' | 'center' = 'start' — Alignment of prose content within the container when contentWidth is narrower than the available space.
-- `inlinePlugins`: MarkdownInlinePlugin[] — Transforms regex matches in parsed text nodes into custom inline React elements. Use for issue refs, diff refs, mentions, and other shorthand patterns. Inline code and fenced code blocks are unaffected.
+- `inlinePlugins`: MarkdownInlinePlugin[] — Transforms regex matches in parsed text nodes into custom inline React elements. Use for prefixed identifiers, mentions, and other shorthand patterns. Inline code, fenced code blocks, and math are unaffected.
 - `autolink`: 'gfm' — Opt-in autolinking of bare URLs and emails. 'gfm' applies GitHub-Flavored Markdown autolink-literal rules: bare https?://..., www...., <scheme:url>, <email>, and user@host all become links. Trailing sentence punctuation and unbalanced trailing close-parens are excluded; matches inside code spans, code blocks, existing links, and image alt text are skipped. Default behavior (option unset) is unchanged.
-- `components`: MarkdownComponents — Custom React component overrides for rendered Markdown elements (code, inlineCode, link, heading, paragraph, image, blockquote, hr, citation).
+- `components`: MarkdownComponents — Custom React component overrides for rendered Markdown elements (code, inlineCode, math, link, heading, paragraph, image, blockquote, hr, citation). Providing math enables `$…$` inline and `$$…$$` display parsing and receives `{value, display}`; omit it when dollar text should stay literal.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 - `className`: string — CSS class name for the root element. Prefer xstyle for styling; className is provided for integration with non-StyleX systems.
 - `style`: CSSProperties — Inline styles for the root element. Prefer xstyle for styling; inline styles bypass StyleX optimization.
@@ -3440,6 +3442,47 @@ Props:
 - `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Padding at the layout's outer edges using the spacing scale.
 - `defaultHasDividers`: boolean — Default divider visibility for LayoutHeader and LayoutFooter children. Headers and footers that don't pass `hasDivider` use this value; when unset, nested layouts inherit from their parent context.
 
+### ScrollableArea
+
+Import: `import {ScrollableArea} from '@astryxdesign/core/ScrollableArea';`
+
+Provides a native scroll viewport and a real observed content box. The viewport enters the tab order only while a requested logical axis is effectively scrollable, and containment applies only to effective axes.
+
+Do:
+- Give every area a concise label that identifies the content keyboard users will scroll.
+- Choose `inline`, `block`, or `both` from content intent; the component maps the logical axes through writing mode and direction.
+- Keep the default `overscroll="allow"` for nested areas unless the interaction deliberately needs containment.
+- Use `useScrollableArea` instead when a component already owns both a viewport and a suitable content box, or when children must remain direct flex/grid items or retain a definite percentage block-size basis.
+- ScrollableArea owns one normal block content box with a 100% minimum size. Inline and both-axis modes use max-content inline sizing, so intrinsic inline layout is intentionally wider than the viewport.
+- Use logical padding props on the content box so nested full-bleed components receive the same inset geometry.
+- Set `isFullBleed` only when the viewport itself should reach an ancestor container edge; it is off by default.
+- Set `stickyContainment="always"` only when a fitting viewport should intentionally remain a Sticky boundary.
+
+Don't:
+- Hide the native scrollbar without another visible and operable overflow affordance.
+- Add another overflow wrapper around ScrollableArea; one native viewport should own scrolling.
+
+Props:
+- `axis`: 'inline' | 'block' | 'both' = 'block' — Logical axis or axes where native scrolling is allowed.
+- `label`: string (required) — Accessible name for the viewport when it becomes keyboard scrollable.
+- `role`: 'group' | 'region' = 'group' — Semantics for the named viewport.
+- `overscroll`: 'allow' | 'contain' = 'allow' — Whether effective axes continue scrolling an ancestor at their edge.
+- `width`: SizeValue — Width of the viewport; a number is interpreted as pixels, a string is used as-is.
+- `height`: SizeValue — Height of the viewport; a number is interpreted as pixels, a string is used as-is.
+- `maxWidth`: SizeValue — Maximum width of the viewport.
+- `minHeight`: SizeValue — Minimum height of the viewport.
+- `stickyContainment`: 'whenScrollable' | 'always' = 'whenScrollable' — Whether fitting content passes Sticky ownership to an outer container or deliberately keeps this viewport as the CSS Sticky boundary.
+- `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 = 0 — Content padding on every logical edge; publishes matching inset geometry.
+- `paddingInline`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Logical inline-axis content padding; overrides `padding` on that axis.
+- `paddingInlineStart`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Logical inline-start content padding; overrides broader padding values.
+- `paddingInlineEnd`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Logical inline-end content padding; overrides broader padding values.
+- `paddingBlock`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Logical block-axis content padding; overrides `padding` on that axis.
+- `paddingBlockStart`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Logical block-start content padding; overrides broader padding values.
+- `paddingBlockEnd`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Logical block-end content padding; overrides broader padding values.
+- `isFullBleed`: boolean = false — Lets the viewport escape inherited container padding without changing content padding.
+- `children`: ReactNode — Content rendered inside the observed content box.
+- `xstyle`: StyleXStyles — StyleX sizing and native scrollbar presentation overrides for the viewport.
+
 ### Section container
 
 Import: `import {Section container} from '@astryxdesign/core/Section';`
@@ -3665,6 +3708,29 @@ Returns:
 - `expand`: () => void — Expand from collapsed state.
 - `resize`: (size: number) => void — Resize to a specific pixel value.
 - `props`: ResizableProps — Props to spread on the resizable component or pass to ResizeHandle.
+
+### useScrollableArea
+
+Import: `import {useScrollableArea} from '@astryxdesign/core/hooks';`
+
+Adds canonical axis-aware scroll behavior to structure owned by the caller. An axis is effective only when its computed overflow is scroll-capable and geometry exceeds the shared 1px tolerance. Both viewport and content boxes are observed.
+
+Do:
+- Pass already-resolved props and refs through both prop getters, then spread each returned object once.
+- Use viewport keyboard ownership only when the viewport itself should enter the tab order; provide a concise accessible label.
+- Use content keyboard ownership when an existing focusable descendant gives keyboard users access to all overflowed content.
+- Pass caller `xstyle` through `getViewportProps`; the getter composes it with fitting clip, active overflow, and Sticky containment.
+
+Don't:
+- Attach only the viewport getter. A real observed content box is required for live overflow changes.
+
+Parameters:
+- `options`: UseScrollableAreaOptions (required) — Logical scroll intent, keyboard owner, overscroll policy, and fitting Sticky containment.
+
+Returns:
+- `getViewportProps`: <E extends HTMLElement>(props?: ScrollableElementProps<E>) => ScrollableElementProps<E> — Consumes caller viewport props, xstyle, and refs; composes fitting/active overflow, Sticky containment, accessibility, chaining, and owner registration.
+- `getContentProps`: <E extends HTMLElement>(props?: ScrollableElementProps<E>) => ScrollableElementProps<E> — Composes caller content-box props and refs with content observation.
+- `state`: ScrollableAreaState — Stable inline and block effective-scroll and logical-edge state.
 
 ### useScrollLock
 

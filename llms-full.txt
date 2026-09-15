@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `1c4033d` (2026-09-13) of https://github.com/facebook/astryx.
+Generated from commit `98f9d36` (2026-09-15) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -1848,7 +1848,7 @@ Props:
 - `dateConstraints`: Array<(date: Date) => boolean> — Custom constraint functions to disable specific dates.
 - `maxRangeSpan`: number — Maximum days a selected range may span, counting both endpoints (`7` = a 7-day window, start + 6). Once a start is picked, days beyond this distance are disabled so the range cannot stretch past the cap. Rolling window relative to the start; for fixed calendar bounds use `min`/`max`. Constrains selection only; it never rewrites a `value` already wider than the cap (flag that with `status`).
 - `minRangeSpan`: number — Minimum days a selected range must span, counting both endpoints (`2` forbids a single-day range). Once a start is picked, days closer than this are disabled. Clicking the start again commits a one-day range when allowed, or cancels the in-progress selection when the minimum is longer. Defaults to 1 (same-day start and end allowed).
-- `presets`: Array<DateRangePreset> — Preset ranges shown as quick-select options beside the calendar.
+- `presets`: Array<DateRangePreset> — Preset ranges shown as quick-select options beside the calendar. A preset is disabled when either endpoint violates min, max, or dateConstraints, or when its span violates minRangeSpan or maxRangeSpan.
 - `hasClear`: boolean = true — Shows a clear button when a range is selected.
 - `placeholder`: string = 'Select date range' — Placeholder text when no range is selected.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size of the trigger.
@@ -4717,6 +4717,8 @@ Props:
 ### DialogHeader (subcomponent/hook)
 
 Import: `import {DialogHeader} from '@astryxdesign/core/Dialog';`
+
+Use DialogHeader to give a dialog a labelled title area and optional close control.
 
 Props:
 - `title`: string — Dialog title (receives focus on open and labels the dialog via aria-labelledby).

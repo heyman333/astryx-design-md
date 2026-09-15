@@ -1,6 +1,6 @@
 # Astryx Design System — Design Overview
 
-> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`1c4033d`](https://github.com/facebook/astryx/commit/1c4033d4978fec47be12e9be239cafbcfda93ec8) (2026-09-13). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
+> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`98f9d36`](https://github.com/facebook/astryx/commit/98f9d36759d6eced5c2e3ca32d0b4b5b6a2bf424) (2026-09-15). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
 
 ## What Astryx is
 
@@ -277,7 +277,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**CommandPaletteInput**](https://github.com/facebook/astryx/blob/main/packages/core/src/CommandPalette/CommandPaletteInput.doc.mjs) *(subcomponent/hook)*
 - [**CommandPaletteItem**](https://github.com/facebook/astryx/blob/main/packages/core/src/CommandPalette/CommandPaletteItem.doc.mjs) *(subcomponent/hook)*
 - [**CommandPaletteList**](https://github.com/facebook/astryx/blob/main/packages/core/src/CommandPalette/CommandPaletteList.doc.mjs) *(subcomponent/hook)*
-- [**DialogHeader**](https://github.com/facebook/astryx/blob/main/packages/core/src/Dialog/DialogHeader.doc.mjs) *(subcomponent/hook)*
+- [**DialogHeader**](https://github.com/facebook/astryx/blob/main/packages/core/src/Dialog/DialogHeader.doc.mjs) *(subcomponent/hook)* — Use DialogHeader to give a dialog a labelled title area and optional close control.
 - [**useImperativeAlertDialog**](https://github.com/facebook/astryx/blob/main/packages/core/src/AlertDialog/useImperativeAlertDialog.doc.mjs) *(subcomponent/hook)*
 - [**useImperativeDialog**](https://github.com/facebook/astryx/blob/main/packages/core/src/Dialog/useImperativeDialog.doc.mjs) *(subcomponent/hook)*
 

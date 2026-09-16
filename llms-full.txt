@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `98f9d36` (2026-09-15) of https://github.com/facebook/astryx.
+Generated from commit `a4bcbeb` (2026-09-15) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -1492,7 +1492,7 @@ Props:
 - `size`: 'sm' | 'md' | 'lg' | 'xl' = 'md' — Spinner size: ring diameter (10px, 14px, 18px, 28px).
 - `shade`: 'default' | 'onMedia' | 'subtle' | 'inherit' = 'default' — Color shade for light or dark backgrounds.
 - `label`: ReactNode — Visible content below the spinner. String labels auto-set aria-label.
-- `aria-label`: string = 'Loading' — Accessible name for screen readers. Defaults to label (if string) or "Loading".
+- `aria-label`: string = 'Loading' — Accessible name for screen readers. Defaults to label (if string) or a translated "Loading" from the i18n catalog.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
 ## Focus

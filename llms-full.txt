@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `4f5e785` (2026-09-20) of https://github.com/facebook/astryx.
+Generated from commit `9f0783f` (2026-09-21) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -566,6 +566,8 @@ Props:
 
 Import: `import {ChatComposer} from '@astryxdesign/core/Chat';`
 
+ChatComposer is the message-entry shell for a chat surface. It coordinates a controlled or uncontrolled draft, provides a default token-capable input and send/stop action, and arranges optional drawer, header, footer, and status content. Custom inputs and send controls can join the same value, submission, disabled, stop, and focus contract through useChatComposerContext().
+
 Props:
 - `onSubmit`: (value: string) => void (required) — Called when the user submits a message.
 - `onStop`: () => void — Called when the user requests to stop generation.
@@ -590,6 +592,15 @@ Props:
 
 Import: `import {ChatComposerDrawer} from '@astryxdesign/core/Chat';`
 
+Use ChatComposerDrawer in the ChatComposer drawer slot for supplementary content such as attachments, context chips, or previews. Provide count only when people should be able to collapse that content.
+
+Do:
+- Give label a concrete plural noun such as "Attachments" so the expand and collapse actions have a useful accessible name.
+- Use controlled isCollapsed with onCollapsedChange when another part of the page owns drawer state; otherwise use defaultIsCollapsed.
+
+Don't:
+- Put primary composer actions in the drawer; use ChatComposer footer or send-action slots so those controls remain available when the drawer is collapsed.
+
 Props:
 - `children`: ReactNode (required) — Content to render inside the drawer: tokens, chips, previews, or any React elements.
 - `count`: number — Total item count shown in the collapsed badge. When provided, the drawer gains a collapse/expand toggle.
@@ -602,8 +613,17 @@ Props:
 
 Import: `import {ChatComposerInput} from '@astryxdesign/core/Chat';`
 
+Pass ChatComposerInput to ChatComposer's input slot when the draft needs trigger menus, inline tokens, history recall, dictation insertion, or file intake.
+
+Do:
+- Use handleRef for programmatic text or token insertion; inserted text follows the same onChange pipeline as typing.
+- Use onFiles for files pasted or dropped onto the editor, and keep file validation and upload progress in the product layer.
+
+Don't:
+- Use custom token rendering for ordinary mentions or commands; prefer the structured badge form so tokens remain predictable and themeable.
+
 Props:
-- `handleRef`: React.Ref<ChatComposerInputHandle> — Imperative handle for programmatic control: insertToken, insertText, focus, and getValue.
+- `handleRef`: React.Ref<ChatComposerInputHandle> — Imperative handle for programmatic control: insertToken, expandToken, insertText, focus, and getValue.
 - `value`: string — Controlled input value. Pair with onChange for two-way binding.
 - `onChange`: (value: string) => void — Called when the input value changes. The serialized string includes token placeholders.
 - `placeholder`: string = 'Type a message...' — Placeholder text shown when the input is empty.
@@ -613,7 +633,8 @@ Props:
 - `hasHistory`: boolean = true — Enable ArrowUp/Down to recall previously submitted messages.
 - `label`: string = 'Message input' — Accessible label announced by screen readers.
 - `isDisabled`: boolean = false — Disables the input. Use during streaming or when a prerequisite is unmet.
-- `onPaste`: (event, text) => void — Called when text is pasted. Use to intercept or transform pasted content.
+- `onPaste`: (event, text) => boolean | void — Called when plain text is pasted. Return true after handling the text yourself; otherwise ChatComposerInput inserts it or applies paste-as-token behavior.
+- `pasteAsToken`: UseChatPasteAsTokenReturn | false — Paste-as-token behavior. By default, plain-text pastes over 200 characters become expandable tokens. Pass false to keep every text paste inline, or provide useChatPasteAsToken() to customize the conversion.
 - `onFiles`: (files: File[]) => void — Called when files are pasted or dropped onto the input. Use to handle attachments.
 - `onSubmit`: (value: string) => void — Called when the user presses Enter without Shift. The serialized value includes token placeholders.
 - `onKeyDown`: (event) => void — Key-down handler invoked before the built-in Enter/history behavior (after any open trigger menu). The seam for platform-specific keys: call event.preventDefault() to suppress the default submit (e.g. newline on a touch keyboard), or act on the event yourself to add behavior (e.g. submit on Cmd/Ctrl+Enter). IME composition is always respected; Enter never submits mid-composition.
@@ -2559,8 +2580,8 @@ Props:
 - `menuWidth`: number — Maximum width for the operator/value dropdown menu in pixels.
 - `maxOperatorMenuItems`: number — Maximum number of items displayed in the operator dropdown.
 - `tokenOverflowBehavior`: 'none' | 'unfocusedInline' | 'unfocusedLayer' = 'none' — Controls how tokens overflow when the container is too narrow. Forwarded to Tokenizer.
-- `onFocus`: (e: FocusEvent<HTMLInputElement>) => void — Fires when focus enters the search input.
-- `onBlur`: (e: FocusEvent<HTMLInputElement>) => void — Fires when focus leaves the search input.
+- `onFocus`: (e: React.FocusEvent) => void — Fires when focus enters the search input.
+- `onBlur`: (e: React.FocusEvent) => void — Fires when focus leaves the search input.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
 
 ### RadioList

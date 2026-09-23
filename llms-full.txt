@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `9f0783f` (2026-09-21) of https://github.com/facebook/astryx.
+Generated from commit `d19588c` (2026-09-23) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -255,9 +255,9 @@ Don't:
 
 Props:
 - `label`: string (required) — Accessible label for the button. Used as visible text, or as aria-label for icon-only buttons.
-- `isPressed`: boolean — Whether the button is currently pressed. Ignored when inside a group.
-- `onPressedChange`: (isPressed: boolean, event: MouseEvent) => void — Called when pressed state should change. Receives the next state and the click event; call event.preventDefault() to skip pressedChangeAction. Ignored when inside a group.
-- `pressedChangeAction`: (isPressed: boolean) => void | Promise<void> — Action handler for API- or navigation-backed toggles, run in a transition. Shows an optimistic pressed state immediately and a spinner while pending; the button stays interruptible by re-clicks.
+- `isPressed`: boolean — Whether the button is currently pressed. Ignored for a ToggleButtonGroup member with a value.
+- `onPressedChange`: (isPressed: boolean, event: MouseEvent) => void — Called synchronously from the internal click handler when pressed state should change. Receives the next state and the click event; call event.preventDefault() to skip pressedChangeAction. Without an Action, the callback starts no Action transition. Ignored for a ToggleButtonGroup member with a value.
+- `pressedChangeAction`: (isPressed: boolean) => void | Promise<void> — Action handler for API- or navigation-backed toggles, run through Button’s clickAction transition after the synchronous onPressedChange callback unless that callback calls event.preventDefault(). Works without onPressedChange. Shows an optimistic pressed state and a spinner while pending, and remains interruptible by re-clicks. Omit it for callback-only toggles with no Action transition. Ignored for a ToggleButtonGroup member with a value.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Button size. Defaults to group size when inside a group.
 - `elevation`: 'none' | 'low' | 'med' | 'high' = 'none' — Resting shadow depth for floating (FAB-style) toggle buttons, mirroring Button. `none` is the default flat button; `low`/`med`/`high` map to the shadow token scale. Applies inside a ToggleButtonGroup as well — grouped children retain their own elevation.
 - `isDisabled`: boolean = false — Whether the button is disabled.
@@ -456,7 +456,7 @@ Props:
 Import: `import {ToggleButtonGroup} from '@astryxdesign/core/ToggleButton';`
 
 Props:
-- `children`: ReactNode (required) — ToggleButton children.
+- `children`: ReactNode (required) — ToggleButton children. Give each member a value; the group owns its pressed state and ignores its isPressed, onPressedChange, and pressedChangeAction props. Member activation calls the group’s onChange without starting a member Action transition.
 - `label`: string (required) — Accessible label for the group (aria-label).
 - `type`: 'single' | 'multiple' = 'single' — Selection mode. Single allows one active button, multiple allows many.
 - `value`: string | null | string[] (required) — Currently selected value(s). Type depends on selection mode.
@@ -533,7 +533,7 @@ Don't:
 Props:
 - `dictation`: UseSpeechRecognitionReturn (required) — The return value from useChatDictation or useSpeechRecognition. Controls all button state: listening, volume, bands, and toggle.
 - `size`: 'sm' | 'md' = 'md' — Button size. Matches ChatComposer density.
-- `isHiddenWhenUnsupported`: boolean = true — When true, renders nothing if the browser does not support SpeechRecognition.
+- `isHiddenWhenUnsupported`: boolean = true — When true, renders nothing if the browser does not support SpeechRecognition. When false, keeps the button visible but disabled.
 - `label`: string — Accessible label override. Defaults to "Start dictation" or "Stop dictation" based on state.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
@@ -604,7 +604,8 @@ Don't:
 Props:
 - `children`: ReactNode (required) — Content to render inside the drawer: tokens, chips, previews, or any React elements.
 - `count`: number — Total item count shown in the collapsed badge. When provided, the drawer gains a collapse/expand toggle.
-- `label`: string = 'Items' — Label shown next to the count in collapsed state.
+- `label`: string = 'Items' — Label shown next to the count in the default collapsed summary and used to name the expand/collapse action.
+- `collapsedSummary`: ReactNode — Visual content for the complete Collapsed summary anatomy part. When count enables collapse, this replaces the default neutral Badge and label while the component retains disclosure behavior and accessible naming.
 - `isCollapsed`: boolean — Controlled collapsed state. Use with `onCollapsedChange` for external control.
 - `defaultIsCollapsed`: boolean = false — Initial collapsed state for uncontrolled usage.
 - `onCollapsedChange`: (isCollapsed: boolean) => void — Callback fired when the user toggles the drawer.
@@ -2132,7 +2133,7 @@ Props:
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' for input selectors; 'detached' for ghost selectors — How the status message is placed relative to the input. attached overlaps directly below the bordered input and is only valid for the input variant; ghost selectors detach attached status messages by default. Use tooltip for compact toolbar controls.
 - `renderOption`: (option: SelectorOptionData) => ReactNode — Custom render function for each selectable option in the dropdown. Use this instead of JSX children; dividers and sections are rendered by the selector.
 - `renderValue`: (option: SelectorOptionData) => ReactNode — Custom render function for the selected option inside the closed trigger. The trigger is sized by padding, so it is the size token for a one-line value (28/32/36) and exactly one text line taller for a two-line one (48/52/56), always on the 4px rhythm, always aligned with the buttons and inputs beside it. Inside an InputGroup the group owns the row height: a SelectorOption folds onto one line and ellipsizes, and any taller node is cut off at the row.
-- `indicatorPosition`: 'start' | 'end' = 'end' — Which edge of the option row carries the selected mark. start reserves a mark column ahead of every label so they stay aligned, the way a native menu does; end is the house convention shared with Typeahead and CommandPalette.
+- `indicatorPosition`: 'start' | 'end' = 'end' — Which logical edge of the option row carries a rendered selection mark. An empty mark consumes no space, so selected and unselected labels may shift or have different available width. end is the house convention shared with Typeahead and CommandPalette.
 - `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — How the option list is presented. adaptive uses a bottom sheet on compact touch screens and an anchored popover otherwise.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
 - `startIcon`: IconType | ReactNode — Icon displayed at the start of the selector trigger.
@@ -2402,7 +2403,7 @@ Props:
 - `orientation`: 'horizontal' | 'vertical' = 'horizontal' — Orientation of the slider.
 - `formatValue`: (value: number) => string — Custom value formatting function used for display and `aria-valuetext`.
 - `valueDisplay`: 'tooltip' | 'text' | 'none' = 'tooltip' — How the current value is displayed.
-- `marks`: Array<{ value: number; label?: string }> — Tick marks at specified positions with optional labels.
+- `marks`: Array<{ value: number; label?: string }> — Tick marks at specified positions with optional labels. Unfilled marks use the track color; marks inside the filled region (at or behind the thumb, or between the thumbs in range mode) use the fill color.
 - `minStepsBetweenThumbs`: number = 0 — Minimum number of steps between thumbs in range mode; prevents thumbs from overlapping.
 - `isDisabled`: boolean = false — Whether the slider is disabled.
 - `htmlName`: string — The HTML name attribute for form submissions. Renders hidden inputs carrying the current value (two entries in range mode).
@@ -4974,7 +4975,7 @@ Don't:
 Tree list container. Accepts items data and rendering configuration. Expansion state is managed internally.
 
 Props:
-- `items`: TreeListItemData[] (required) — Recursive tree item data. Each item has id, label, optional children array, and optional isExpanded boolean for initial state.
+- `items`: TreeListItemData[] (required) — Recursive tree item data with id, label, optional children and isExpanded, plus optional xstyle, className, and style applied to that item row.
 - `density`: 'compact' | 'balanced' | 'spacious' = 'balanced' — Spacing density for items.
 - `variant`: 'lineGuides' | 'noGuides' = 'lineGuides' — Visual treatment of the hierarchy guide lines. lineGuides shows connector lines; noGuides hides them, keeping indentation. Orthogonal to density.
 - `header`: ReactNode — Header content, associated with the tree via aria-labelledby.

@@ -1,10 +1,10 @@
 # Astryx — Full Component Reference
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 229 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 230 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `d19588c` (2026-09-23) of https://github.com/facebook/astryx.
+Generated from commit `c3c5571` (2026-09-23) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -256,8 +256,8 @@ Don't:
 Props:
 - `label`: string (required) — Accessible label for the button. Used as visible text, or as aria-label for icon-only buttons.
 - `isPressed`: boolean — Whether the button is currently pressed. Ignored for a ToggleButtonGroup member with a value.
-- `onPressedChange`: (isPressed: boolean, event: MouseEvent) => void — Called synchronously from the internal click handler when pressed state should change. Receives the next state and the click event; call event.preventDefault() to skip pressedChangeAction. Without an Action, the callback starts no Action transition. Ignored for a ToggleButtonGroup member with a value.
-- `pressedChangeAction`: (isPressed: boolean) => void | Promise<void> — Action handler for API- or navigation-backed toggles, run through Button’s clickAction transition after the synchronous onPressedChange callback unless that callback calls event.preventDefault(). Works without onPressedChange. Shows an optimistic pressed state and a spinner while pending, and remains interruptible by re-clicks. Omit it for callback-only toggles with no Action transition. Ignored for a ToggleButtonGroup member with a value.
+- `onPressedChange`: (isPressed: boolean, event: MouseEvent) => void — Called synchronously when pressed state should change. Receives the next state and the click event; call event.preventDefault() to skip pressedChangeAction. Without an Action, the callback produces no Action-pending feedback. Ignored for a ToggleButtonGroup member with a value.
+- `pressedChangeAction`: (isPressed: boolean) => void | Promise<void> — Action handler for API- or navigation-backed toggles, run in a transition after the synchronous onPressedChange callback unless that callback calls event.preventDefault(). Works without onPressedChange. Shows an optimistic pressed state and a spinner while pending, and remains interruptible by re-clicks. Omit it for callback-only toggles with no Action-pending feedback. Ignored for a ToggleButtonGroup member with a value.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Button size. Defaults to group size when inside a group.
 - `elevation`: 'none' | 'low' | 'med' | 'high' = 'none' — Resting shadow depth for floating (FAB-style) toggle buttons, mirroring Button. `none` is the default flat button; `low`/`med`/`high` map to the shadow token scale. Applies inside a ToggleButtonGroup as well — grouped children retain their own elevation.
 - `isDisabled`: boolean = false — Whether the button is disabled.
@@ -651,7 +651,7 @@ Props:
 
 Import: `import {ChatLayout} from '@astryxdesign/core/Chat';`
 
-ChatLayout is the layout shell for full-page chat interfaces. It renders messages in normal page flow and docks the composer to the bottom with a frosted glass blur layer. Density adapts automatically via container width observation. Use it to wrap ChatMessageList and ChatComposer for a complete chat experience with built-in auto-scroll and a scroll-to-bottom button.
+ChatLayout is the layout shell for full-page chat interfaces. It renders messages in normal page flow and docks the composer to the bottom with a frosted glass blur layer. Set the density prop to control spacing; it defaults to balanced. Use it to wrap ChatMessageList and ChatComposer for a complete chat experience with built-in auto-scroll and a scroll-to-bottom button.
 
 Do:
 - Pass ChatMessageList as children and ChatComposer as the composer prop for a complete chat interface.
@@ -668,6 +668,7 @@ Props:
 - `emptyState`: ReactNode — Content shown when children is empty. Centered vertically in the message area.
 - `scrollButton`: ReactNode | null — Scroll-to-bottom button rendered above the composer. Defaults to ChatLayoutScrollButton with auto-scroll integration. Pass null to hide.
 - `scrollRef`: React.RefObject<HTMLElement | null> — External scroll container ref. When provided, auto-scroll and scroll-to-bottom target this element instead of the layout root. Use when the chat is embedded in a page where a parent element or the document body scrolls.
+- `density`: 'compact' | 'balanced' | 'spacious' = 'balanced' — Visual density: controls dock padding, message-area max-width and inline padding, and the height of the frosted glass blur layer.
 
 ### ChatLayoutScrollButton (subcomponent/hook)
 
@@ -1099,6 +1100,32 @@ Props:
 - `className`: string — CSS class name for the root element. Prefer xstyle for styling; className is provided for integration with non-StyleX systems.
 - `style`: CSSProperties — Inline styles for the root element. Prefer xstyle for styling; inline styles bypass StyleX optimization.
 - `data-testid`: string — Test selector for automated testing frameworks.
+
+### Elapsed time
+
+Import: `import {Elapsed time} from '@astryxdesign/core/Timer';`
+
+Displays a standardized elapsed duration for active work without scheduling a React render on every tick. Elapsed format updates by second below one hour and by minute after one hour; clock format remains second-precise.
+
+Do:
+- Use elapsed for compact duration text that may span seconds, minutes, or hours.
+- Use clock for stopwatch-like surfaces where seconds remain meaningful after an hour.
+- Pass startTime when the operation began before Timer mounted so the display reflects the complete wait.
+
+Don't:
+- Do not use Timer for dates, time zones, or relative calendar language; use Timestamp instead.
+- Do not add aria-live unless hearing an announcement every tick is appropriate for the specific task.
+
+Props:
+- `startTime`: number — Unix time in milliseconds when the measured operation began. Omit it to start from this Timer's mount.
+- `format`: 'elapsed' | 'clock' = 'elapsed' — Standard duration representation. Elapsed uses compact units and drops seconds after one hour; clock uses m:ss or h:mm:ss.
+- `type`: 'body' | 'large' | 'label' | 'supporting' | 'code' | 'display-1' | 'display-2' | 'display-3' | 'inherit' = 'supporting' — Semantic text type. Uses the same typography behavior as Timestamp.
+- `size`: '4xs' | '3xs' | '2xs' | 'xsm' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' — Explicit font size override. Overrides the size from type.
+- `color`: 'primary' | 'secondary' | 'disabled' | 'placeholder' | 'accent' | 'inherit' = 'secondary' — Text color.
+- `weight`: 'normal' | 'medium' | 'semibold' | 'bold' — Font weight override.
+- `xstyle`: StyleXStyles — StyleX styles for the Text wrapper. Must be a stylex.create() value.
+- `className`: string — CSS class name for the Text wrapper. Prefer xstyle for styling.
+- `style`: CSSProperties — Inline styles for the Text wrapper. Prefer xstyle for styling.
 
 ### EmptyState
 
@@ -4757,6 +4784,7 @@ Props:
 - `onOpenChange`: (isOpen: boolean) => unknown — Close button callback (no button if omitted).
 - `startContent`: ReactNode — Content before the title (e.g., a back button).
 - `endContent`: ReactNode — Content after the title, before close button.
+- `endContentEdgeCompensation`: 'inline' | 'block' | 'all' — Selects compensation axes for the end-content slot. Omit to preserve automatic close-action compensation.
 - `hasDivider`: boolean = true — Adds border at the bottom edge.
 
 ### useImperativeAlertDialog (subcomponent/hook)

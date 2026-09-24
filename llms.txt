@@ -1,8 +1,8 @@
 # Astryx
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 229 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 230 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 
-Generated from commit `d19588c` (2026-09-23) of https://github.com/facebook/astryx.
+Generated from commit `c3c5571` (2026-09-23) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -26,7 +26,7 @@ Key facts:
 
 ## Packages
 
-- [@astryxdesign/build](https://github.com/facebook/astryx/blob/main/packages/build/README.md): Build plugins for XDS source builds — babel, PostCSS, and Vite integrations
+- [@astryxdesign/build](https://github.com/facebook/astryx/blob/main/packages/build/README.md): Build plugins for Astryx source builds — babel, PostCSS, and Vite integrations
 - [@astryxdesign/charts](https://github.com/facebook/astryx/blob/main/packages/charts/README.md): Astryx charts — a config-model data visualization library (d3-based). Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version.
 - [@astryxdesign/cli](https://github.com/facebook/astryx/blob/main/packages/cli/README.md): Scaffold projects, browse templates, generate themes, and get agent-ready docs from the command line.
 - [@astryxdesign/core](https://github.com/facebook/astryx/blob/main/packages/core/README.md): The component library. Accessible, themeable React components with built-in spacing, dark mode, and StyleX styling.
@@ -36,14 +36,14 @@ Key facts:
 
 ## Components
 
-229 documented components in `packages/core/src/`. Each has a `{Name}.doc.mjs` structured doc with props, anatomy, and best practices. By category:
+230 documented components in `packages/core/src/`. Each has a `{Name}.doc.mjs` structured doc with props, anatomy, and best practices. By category:
 
 - Accessibility: useAnnounce
 - Action: Button, ButtonGroup, Trigger area, ContextMenuItem, Trigger button, DropdownMenuCheckboxItem, DropdownMenuDivider, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSubMenu, IconButton, Link, Trigger button, Control, SegmentedControlItem, ToggleButton, ToggleButtonGroup, Outer chrome
 - Animation: useEntryAnimation
 - Chat: Chat, ChatComposer, ChatComposerDrawer, ChatComposerInput, ChatComposerTokenElement, ChatDictationButton, ChatLayout, ChatLayoutScrollButton, ChatMessage, ChatMessageBubble, ChatMessageList, ChatMessageMetadata, ChatSendButton, ChatSystemMessage, ChatTokenizedText, ChatToolCalls
 - Container: Card, Carousel, ClickableCard, Collapsible, CollapsibleGroup, SelectableCard
-- Content: Avatar, AvatarStatusDot, AvatarGroup, AvatarGroupOverflow, Blockquote, Citation, Code, CodeBlock, EmptyState, Glyph, Shortcut, Document, Heading, Text, Thumbnail, Timestamp, Token
+- Content: Avatar, AvatarStatusDot, AvatarGroup, AvatarGroupOverflow, Blockquote, Citation, Code, CodeBlock, EmptyState, Glyph, Shortcut, Document, Heading, Text, Thumbnail, Elapsed time, Timestamp, Token
 - Feedback & Status: Badge, Banner, Progress bar, Placeholder, Spinner, Dot
 - Focus: useFocusTrap, useGridFocus, useIndicatorFocusRing, useKeyboardHint, useListFocus, useTreeFocus, useTypeahead
 - Form Controls: Calendar, CheckboxInput, Group, CheckboxListItem, Field, DateInput, DateRangeInput, DateTimeInput, Field, FieldLabel, Message box, FileInput, Indicator, InputGroup, InputGroupText, Field, NumberInput, PowerSearch, RadioList, RadioListItem, Field, SelectorOption, Label, Field, Label, TextInput, TimeInput, Tokenizer, Input, Field, TypeaheadItem

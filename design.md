@@ -1,6 +1,6 @@
 # Astryx Design System — Design Overview
 
-> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`d19588c`](https://github.com/facebook/astryx/commit/d19588c0bef4cc04deecaac58d6d7803d357bef4) (2026-09-23). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
+> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`c3c5571`](https://github.com/facebook/astryx/commit/c3c5571828b81c5fbe7c6fe7dcb10a828381af76) (2026-09-23). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
 
 ## What Astryx is
 
@@ -30,10 +30,10 @@ A pnpm monorepo (Node 22+, pnpm 11):
 
 | Package | Version | Description |
 | --- | --- | --- |
-| [`@astryxdesign/build`](https://github.com/facebook/astryx/blob/main/packages/build/README.md) | 0.6.2 | Build plugins for XDS source builds — babel, PostCSS, and Vite integrations |
+| [`@astryxdesign/build`](https://github.com/facebook/astryx/blob/main/packages/build/README.md) | 0.6.3 | Build plugins for Astryx source builds — babel, PostCSS, and Vite integrations |
 | [`@astryxdesign/charts`](https://github.com/facebook/astryx/blob/main/packages/charts/README.md) | 0.1.9 (canary) | Astryx charts — a config-model data visualization library (d3-based). Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
-| [`@astryxdesign/cli`](https://github.com/facebook/astryx/blob/main/packages/cli/README.md) | 0.6.2 | Scaffold projects, browse templates, generate themes, and get agent-ready docs from the command line. |
-| [`@astryxdesign/core`](https://github.com/facebook/astryx/blob/main/packages/core/README.md) | 0.6.2 | The component library. Accessible, themeable React components with built-in spacing, dark mode, and StyleX styling. |
+| [`@astryxdesign/cli`](https://github.com/facebook/astryx/blob/main/packages/cli/README.md) | 0.6.3 | Scaffold projects, browse templates, generate themes, and get agent-ready docs from the command line. |
+| [`@astryxdesign/core`](https://github.com/facebook/astryx/blob/main/packages/core/README.md) | 0.6.3 | The component library. Accessible, themeable React components with built-in spacing, dark mode, and StyleX styling. |
 | [`@astryxdesign/lab`](https://github.com/facebook/astryx/blob/main/packages/lab/README.md) | 0.1.9 (canary) | Experimental Astryx components — published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
 | [`@astryxdesign/richtext`](https://github.com/facebook/astryx/blob/main/packages/richtext/README.md) | 0.1.9 (canary) | Astryx rich text — a Lexical-based rich text editor and viewer. Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
 | [`@astryxdesign/vega`](https://github.com/facebook/astryx/blob/main/packages/vega/README.md) | 0.1.3 (canary) | Astryx Vega wrapper — chart and data visualization components. Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
@@ -51,7 +51,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 
 ## Component library
 
-`@astryxdesign/core` currently documents **229 components** across **185 component groups** and **18 categories**. Each component directory contains the implementation (`{Name}.tsx`), colocated tests, and a `{Name}.doc.mjs` structured doc (props, anatomy, best practices) consumed by the CLI and docsite.
+`@astryxdesign/core` currently documents **230 components** across **186 component groups** and **18 categories**. Each component directory contains the implementation (`{Name}.tsx`), colocated tests, and a `{Name}.doc.mjs` structured doc (props, anatomy, best practices) consumed by the CLI and docsite.
 
 ### Accessibility (1)
 
@@ -92,7 +92,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**ChatComposerDrawer**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatComposerDrawer.doc.mjs) *(subcomponent/hook)* — Use ChatComposerDrawer in the ChatComposer drawer slot for supplementary content such as attachments, context chips, or previews. Provide count only when people should be able to collapse that content.
 - [**ChatComposerInput**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatComposerInput.doc.mjs) *(subcomponent/hook)* — Pass ChatComposerInput to ChatComposer's input slot when the draft needs trigger menus, inline tokens, history recall, dictation insertion, or file intake.
 - [**ChatComposerTokenElement**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatComposerTokenElement.doc.mjs) *(subcomponent/hook)*
-- [**ChatLayout**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatLayout.doc.mjs) *(subcomponent/hook)* — ChatLayout is the layout shell for full-page chat interfaces. It renders messages in normal page flow and docks the composer to the bottom with a frosted glass blur layer. Density adapts automatically via container width observation. Use it to wrap ChatMessageList and ChatComposer for a complete chat experience with built-in auto-scroll and a scroll-to-bottom button.
+- [**ChatLayout**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatLayout.doc.mjs) *(subcomponent/hook)* — ChatLayout is the layout shell for full-page chat interfaces. It renders messages in normal page flow and docks the composer to the bottom with a frosted glass blur layer. Set the density prop to control spacing; it defaults to balanced. Use it to wrap ChatMessageList and ChatComposer for a complete chat experience with built-in auto-scroll and a scroll-to-bottom button.
 - [**ChatLayoutScrollButton**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatLayoutScrollButton.doc.mjs) *(subcomponent/hook)*
 - [**ChatMessage**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatMessage.doc.mjs) *(subcomponent/hook)*
 - [**ChatMessageBubble**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatMessageBubble.doc.mjs) *(subcomponent/hook)*
@@ -111,7 +111,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**SelectableCard**](https://github.com/facebook/astryx/blob/main/packages/core/src/SelectableCard/SelectableCard.doc.mjs) — A card that toggles between selected and unselected states with an accent border. For navigation use ClickableCard.
 - [**CollapsibleGroup**](https://github.com/facebook/astryx/blob/main/packages/core/src/Collapsible/CollapsibleGroup.doc.mjs) *(subcomponent/hook)*
 
-### Content (17)
+### Content (18)
 
 - [**Avatar**](https://github.com/facebook/astryx/blob/main/packages/core/src/Avatar/Avatar.doc.mjs) — Avatar represents a person or team with a profile photo, initials, or a default icon. Use it in comment headers, contact lists, chat messages, user cards, and anywhere you need to identify someone visually.
 - [**AvatarGroup**](https://github.com/facebook/astryx/blob/main/packages/core/src/AvatarGroup/AvatarGroup.doc.mjs) — AvatarGroup displays multiple avatars in an overlapping row with an optional overflow indicator. Uses a compositional API: pass Avatar children directly so each avatar can carry its own props (status dots, click handlers, etc.).
@@ -119,6 +119,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**Citation**](https://github.com/facebook/astryx/blob/main/packages/core/src/Citation/Citation.doc.mjs) — Citations display inline references to external sources. Use them to attribute information within AI-generated responses, articles, or anywhere provenance and source links are needed.
 - [**CodeBlock**](https://github.com/facebook/astryx/blob/main/packages/core/src/CodeBlock/CodeBlock.doc.mjs) — CodeBlock renders syntax-highlighted code with line numbers, a copy button, and optional collapsible sections. Use CodeBlock for multi-line snippets like source files, terminal commands, and configuration examples. Use Code for inline references to function names, variables, or CLI flags within body text.
 - [**Document**](https://github.com/facebook/astryx/blob/main/packages/core/src/Markdown/Markdown.doc.mjs) — Renders a markdown string as Astryx-styled components. Use Markdown for user-generated content, AI responses, and documentation; it handles headings, lists, tables, code blocks, and citations with consistent styling.
+- [**Elapsed time**](https://github.com/facebook/astryx/blob/main/packages/core/src/Timer/Timer.doc.mjs) — Displays a standardized elapsed duration for active work without scheduling a React render on every tick. Elapsed format updates by second below one hour and by minute after one hour; clock format remains second-precise.
 - [**EmptyState**](https://github.com/facebook/astryx/blob/main/packages/core/src/EmptyState/EmptyState.doc.mjs) — EmptyState shows a placeholder when a content area has no data. Use it for empty lists, zero search results, first-time setups, or cleared inboxes. Always include a title and a next step so the user is not stuck.
 - [**Glyph**](https://github.com/facebook/astryx/blob/main/packages/core/src/Icon/Icon.doc.mjs) — Icons are small visual symbols that represent actions, objects, or concepts. They improve scannability and reinforce meaning alongside text. Supports both direct SVG components and semantic icon names that adapt to the active theme.
 - [**Shortcut**](https://github.com/facebook/astryx/blob/main/packages/core/src/Kbd/Kbd.doc.mjs) — Renders a keyboard shortcut as styled key badges. Use Kbd in tooltips, menus, and help text to show key combinations.

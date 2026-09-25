@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `c3c5571` (2026-09-23) of https://github.com/facebook/astryx.
+Generated from commit `34b4692` (2026-09-24) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -70,7 +70,7 @@ Props:
 - `isLoading`: boolean = false — Shows a loading spinner and disables interaction. Announces "Loading" via a live region.
 - `isInterruptible`: boolean = false — Keep the button clickable while a clickAction is pending: the spinner and aria-busy still show, but the button is not disabled and the action is not deduped, so a re-click lands and interrupts the in-flight action with a fresh one.
 - `isDisabled`: boolean = false — Disables the button. When a tooltip is present, uses aria-disabled instead of native disabled so the button stays focusable.
-- `icon`: ReactNode — Icon element rendered before the label text.
+- `icon`: ReactNode — Icon element rendered before the label text. An Astryx Icon with no explicit size defaults to sm for sm/md buttons and md for lg buttons.
 - `isIconOnly`: boolean = false — When true, renders as a square icon-only button with label as aria-label. Requires icon. Tip: for a dedicated icon-only button component, use IconButton from '@astryxdesign/core/IconButton' instead.
 - `width`: SizeValue — Width of the button. Numbers are treated as pixels, strings are used as-is (e.g., '100%' for a full-width button). By default the button sizes to its content.
 - `children`: ReactNode — Optional override for visible text. When provided, displayed instead of label, but label is still required (it provides the accessible name). For most cases, just use label alone: <Button label="Save" />.
@@ -78,7 +78,7 @@ Props:
 - `tooltip`: string — Tooltip text shown on hover.
 - `onClick`: (e: MouseEvent) => void — Standard click handler (passed through from ButtonHTMLAttributes).
 - `clickAction`: (e: MouseEvent) => void | Promise<void> — Async click handler. Shows loading state while the returned promise is pending.
-- `href`: string — When provided, renders the button as a link element (<a> or custom link component).
+- `href`: string — When provided, renders the button as a link element (<a> or custom link component). The destination follows the shared navigation rule described on the Link `href` prop.
 - `as`: ComponentType — Custom link component to use when href is provided (e.g. Next.js Link).
 - `target`: string — HTML target attribute when rendered as a link (e.g. "_blank").
 - `rel`: string — HTML rel attribute when rendered as a link (e.g. "noopener noreferrer").
@@ -156,7 +156,7 @@ Don't:
 
 Props:
 - `label`: string (required) — Accessible label. Used as aria-label (not rendered as visible text).
-- `icon`: ReactNode (required) — Icon element rendered inside the button.
+- `icon`: ReactNode (required) — Icon element rendered inside the button. An Astryx Icon with no explicit size defaults to sm for sm/md buttons and md for lg buttons.
 - `variant`: 'primary' | 'secondary' | 'ghost' | 'destructive' = 'secondary' — Visual style variant.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant.
 - `elevation`: 'none' | 'low' | 'med' | 'high' = 'none' — Resting shadow depth. The most common FAB shape is an icon-only button, so raise it with `low`/`med`/`high` for a floating action button. `none` is the default flat button.
@@ -185,7 +185,7 @@ Don't:
 Props:
 - `as`: LinkComponentType — Custom component to render instead of <a>
 - `label`: string — Accessible label (aria-label). Only use when children are not self-descriptive (e.g. icon-only links). Omit for text links; the link text is the accessible name.
-- `href`: string — Link destination URL
+- `href`: string — Link destination URL. Astryx-owned links and clickable surfaces block javascript:, vbscript:, and data:text/html after control-character removal, outer-whitespace trimming, and case-insensitive scheme inspection. The same rule covers native anchors, custom routers, Markdown links, and every activation method. Relative paths, fragments, protocol-relative URLs, HTTP(S), mailto, tel, safe custom schemes, and accepted downloads keep their existing behavior. A rejected destination renders inertly without invoking a custom router. There is no bypass prop; exceptional behavior requires caller-owned custom rendering outside this guarantee. Images and other resource URLs have separate policies.
 - `hasUnderline`: boolean = false — Always show underline
 - `isDisabled`: boolean = false — Disables the link
 - `isExternalLink`: boolean = false — Opens in new tab with external icon and safe rel tokens
@@ -698,8 +698,8 @@ Import: `import {ChatMessageBubble} from '@astryxdesign/core/Chat';`
 Props:
 - `children`: ReactNode (required) — Bubble content: text, Markdown, or any ReactNode.
 - `variant`: 'filled' | 'ghost' = 'filled' — Visual variant. 'filled' renders sender-colored background (default). 'ghost' renders transparent background but keeps padding for alignment.
-- `name`: ReactNode — Sender name rendered above the bubble, aligned with bubble text padding. Use on the first bubble in a message. If the first content is raw (no bubble), use ChatMessage's `name` prop instead.
-- `metadata`: ReactNode — Metadata content rendered below the bubble, aligned with bubble text padding. Use on the last bubble in a message. If the last content is raw (no bubble), use ChatMessage's `metadata` prop instead.
+- `name`: ReactNode — Sender name rendered above the bubble, aligned with bubble text padding. Use on the first bubble in a message. Non-rendering scalar values (null, undefined, booleans, and the empty string) omit the aligned wrapper; numeric 0 remains aligned. If the first content is raw (no bubble), use ChatMessage's `name` prop instead.
+- `metadata`: ReactNode — Metadata content rendered below the bubble, aligned with bubble text padding. Use on the last bubble in a message. Non-rendering scalar values (null, undefined, booleans, and the empty string) omit the aligned wrapper; numeric 0 remains aligned. If the last content is raw (no bubble), use ChatMessage's `metadata` prop instead.
 - `group`: 'first' | 'middle' | 'last' — Position within a multi-bubble group. Controls corner radius reduction on the sender side. Leave unset for standalone bubbles (full radius).
 - `width`: SizeValue — Width of the bubble (number = pixels, string = used as-is). When set, replaces the default max(80%, 280px) width cap. Combine with variant="ghost" to let custom content (an artifact card, attachments) span the full message column.
 
@@ -839,7 +839,7 @@ Don't:
 Props:
 - `label`: string (required) — Accessibility label.
 - `onClick`: (event: MouseEvent) => void — Click handler: fires on card surface only.
-- `href`: string — Navigation URL.
+- `href`: string — Navigation URL. Plain, new-tab, Cmd/Ctrl-click, and middle-click activation all follow the shared navigation rule described on the Link `href` prop.
 - `target`: string = '_self' — Link target.
 - `isDisabled`: boolean = false — Disables the card.
 - `children`: ReactNode — Card content.
@@ -1014,7 +1014,7 @@ Don't:
 - Mix label and number variants in the same paragraph. Pick one style per context for visual consistency.
 
 Props:
-- `source`: CitationSource (required) — The citation source object containing title, url, an optional image src, and an optional icon node.
+- `source`: CitationSource (required) — The citation source object containing title, url, an optional image src, and an optional icon node. The url follows the shared navigation rule described on the Link `href` prop; rejected destinations leave the citation visible without navigation. Image src uses separate resource handling.
 - `number`: number (required) — The display index for this citation.
 - `variant`: 'label' | 'number' = 'label' — Display style: a label chip showing the source title or a compact numbered badge.
 
@@ -1087,7 +1087,7 @@ Props:
 - `density`: 'default' | 'compact' = 'default' — Controls spacing between block-level elements.
 - `headingLevelStart`: 1 | 2 | 3 | 4 | 5 | 6 = 1 — The HTML heading level that markdown # maps to. Shifts all heading levels down to fit the surrounding page hierarchy. Levels exceeding h6 are clamped to h6.
 - `isStreaming`: boolean = false — Enables streaming mode; it uses incremental parsing and a smooth fade-in animation for chunk-by-chunk text delivery.
-- `onLinkClick`: (href: string, event: MouseEvent) => void | false — Handler for link clicks. Return false to prevent the default navigation behavior.
+- `onLinkClick`: (href: string, event: MouseEvent) => void | false — Handler for link clicks. Return false to prevent the default navigation behavior. Link destinations in the markdown follow the shared navigation rule described on the Link `href` prop: a blocked destination renders as plain text and never reaches this handler or a custom link renderer. Image URLs use a separate, stricter policy (every data: URL is rejected).
 - `sources`: Record<string, MarkdownSource> — Citation sources keyed by ID. When provided, [id] and 【id】 markers in the markdown that match a key are rendered as citation chips.
 - `citationStyle`: 'label' | 'number' = 'label' — How citations are displayed inline. 'label' shows a chip with source title, icon, and border. 'number' shows a compact numbered badge.
 - `contentWidth`: number | string = 680 — Max width for prose content (paragraphs, headings, lists, blockquotes). Tables and code blocks are unconstrained and can expand to the full container width. Use for readable line lengths in wide layouts.
@@ -1176,7 +1176,7 @@ Don't:
 Props:
 - `icon`: IconName | ComponentType<SVGProps> (required) — Semantic icon name or SVG component. Valid semantic names: close, chevronDown, chevronLeft, chevronRight, chevronsLeft, chevronsRight, check, success, error, warning, info, calendar, clock, externalLink, menu, moreHorizontal, search, arrowUp, arrowDown, arrowsUpDown, funnel, eyeSlash, viewColumns, copy, checkDouble, wrench, stop, microphone. For any icon not in this list, pass an SVG component directly (e.g. import from lucide-react or @heroicons/react). Note: this prop is called `icon`, not `name`.
 - `color`: 'primary' | 'secondary' | 'tertiary' | 'disabled' | 'accent' | 'success' | 'error' | 'warning' | 'inherit' = 'inherit' — Color variant mapped to Astryx icon color tokens.
-- `size`: 'xsm' | 'sm' | 'md' | 'lg' = 'md' — Icon size.
+- `size`: 'xsm' | 'sm' | 'md' | 'lg' = Contextual; otherwise 'md' — Icon size. An explicit value wins. When omitted, Icon uses the nearest default supplied by an owning Astryx component for its icon slot, then falls back to md when no contextual default exists.
 - `label`: string — Accessible name for a MEANINGFUL, standalone icon (a status glyph or icon-only indicator with no adjacent text). Setting it exposes the icon to screen readers as role="img" with this text as the accessible name (aria-label) and removes the default aria-hidden. Omit it (default) for decorative icons and the icon stays hidden from assistive tech (aria-hidden="true"). This is the accessible-name / alt-text prop for icons: one prop instead of manually setting aria-label + role + aria-hidden. An empty string is treated as decorative. Do not set it when an interactive parent (Button, IconButton, link) already names the control.
 - `xstyle`: StyleXStyles — StyleX styles for customization (color, size, opacity). Folded into the icon's own stylex.props() call so it composes with the base color/size styles. Must be a stylex.create() value, not an inline style object like style={{}}.
 
@@ -1326,7 +1326,7 @@ Props:
 - `isDisabled`: boolean = false — Whether the token is disabled; reduces opacity and blocks interactions.
 - `onRemove`: (e: React.MouseEvent) => void — Callback fired when the remove button is clicked. When provided, an X button is rendered inside the token.
 - `onClick`: (e: React.MouseEvent) => void — Click handler. When provided, the token renders as a <span> container with an invisible <button> inside for accessibility.
-- `href`: string — Link URL. When provided, the token renders as an <a> element.
+- `href`: string — Link URL. When provided, the token renders as an <a> element. The destination follows the shared navigation rule described on the Link `href` prop.
 - `description`: string — Accessible description applied via aria-description on the root element.
 - `endContent`: ReactNode — Content rendered after the label and before the remove button.
 - `isLabelHidden`: boolean = false — Visually hides the label using a screen-reader-only clip technique; the label remains accessible.
@@ -4384,7 +4384,7 @@ Import: `import {TopNavMenu} from '@astryxdesign/core/TopNav';`
 
 Props:
 - `label`: string (required) — Visible label for the trigger button.
-- `items`: TopNavMenuItemData[] (required) — Menu items to display in the hover popover.
+- `items`: TopNavMenuItemData[] (required) — Menu items to display in the hover popover. Item href values follow the shared navigation rule described on Link; rejected destinations remain visible without navigation.
 - `delay`: number = 150 — Delay in milliseconds before showing the menu on hover.
 - `hideDelay`: number = 200 — Delay in milliseconds before hiding the menu after the mouse leaves.
 
@@ -4865,7 +4865,7 @@ Props:
 - `layout`: 'stacked' | 'inline' = 'stacked' — How the label and description sit together. stacked puts the description on its own line below the label; inline keeps both on one line, description ellipsizing first, so the row fits a fixed-height host.
 - `onClick`: (event: MouseEvent) => void — Click handler. Makes the item clickable with button semantics.
 - `interactiveRef`: RefObject<HTMLElement | null> — Ref to a nested control (e.g. a checkbox in startContent) that owns the item's keyboard access and action. The row becomes an enlarged click/tap target that delegates surface clicks to it (useClickableContainer) and renders no invisible button/anchor, so the row adds no second tab stop (WCAG 4.1.2). Mutually exclusive with onClick/href; those are ignored when set.
-- `href`: string — Link URL. Makes the item a link via an invisible anchor element.
+- `href`: string — Link URL. Makes the item a link via an invisible anchor element. The destination follows the shared navigation rule described on the Link `href` prop.
 - `target`: '_blank' | '_self' — Link target. Only used with href. target="_blank" automatically adds noopener noreferrer.
 - `rel`: string — Link relationship tokens. noopener noreferrer are merged automatically for target="_blank".
 - `isHighlighted`: boolean = false — Highlighted state (hover/keyboard focus appearance).
@@ -4894,6 +4894,7 @@ Props:
 - `children`: ReactNode — List items (ListItem components).
 - `density`: 'compact' | 'balanced' | 'spacious' = 'balanced' — Spacing density for items.
 - `hasDividers`: boolean = false — Show dividers between items.
+- `edgeCompensation`: 'inline' — Compensate for item content inset on each inline edge by cancelling the smaller of each item's built-in horizontal inset and the container's published inline padding. The margin reads the same variable the items derive their inline padding from, so it tracks density and theme padding overrides automatically without pulling rows outside zero-padding or full-bleed surfaces. Use under a section heading to bring row text toward the heading text. Content aligns when container padding is at least the item inset; smaller padding leaves some inset uncompensated. Omit to leave item positions unchanged.
 - `header`: ReactNode — Header content, associated with the list via aria-labelledby.
 - `listStyle`: 'none' | 'disc' | 'decimal' | 'circle' = 'none' — List marker style. 'decimal' renders an <ol> element instead of <ul>.
 - `start`: number = 1 — Starting number for ordered lists (listStyle='decimal'). Sets the CSS counter to begin at this value.
@@ -5020,7 +5021,7 @@ Props:
 - `endContent`: ReactNode — Content rendered after the label area (e.g. badge, chevron).
 - `onClick`: (e: MouseEvent) => void — Click handler; enables the invisible button pattern.
 - `interactiveRef`: RefObject<HTMLElement | null> — Ref to a nested control (e.g. a checkbox in startContent) that owns the item's keyboard access and action. The row becomes an enlarged click/tap target that delegates surface clicks to it (useClickableContainer) and renders no invisible button/anchor, so the row adds no second tab stop (WCAG 4.1.2). Mutually exclusive with onClick/href; those are ignored when set.
-- `href`: string — Link URL; enables the invisible anchor pattern.
+- `href`: string — Link URL; enables the invisible anchor pattern. The destination follows the shared navigation rule described on the Link `href` prop.
 - `target`: string — Link target attribute, only applicable when href is provided. target="_blank" automatically adds noopener noreferrer.
 - `rel`: string — Link relationship tokens. noopener noreferrer are merged automatically for target="_blank".
 - `isDisabled`: boolean = false — Disabled state; sets aria-disabled on the item.
@@ -5353,7 +5354,7 @@ Import: `import {LinkProvider} from '@astryxdesign/core/Link';`
 Wraps your app to replace the default <a> tag with a framework-specific link component (e.g. Next.js Link) for client-side routing across all Astryx components.
 
 Props:
-- `component`: LinkComponentType (required) — Link component to use for all link elements in the subtree (e.g. Next.js Link).
+- `component`: LinkComponentType (required) — Link component to use for all link elements in the subtree (e.g. Next.js Link). It receives accepted `href` and `to` values under the shared navigation rule described on the Link `href` prop. Supported structured destinations, including their `protocol`, are checked without changing object identity. If either supplied destination is rejected, Astryx renders inert content without invoking this component; it does not pass undefined or fall back to the other destination.
 - `children`: ReactNode (required) — Content to render with the link provider.
 
 ### MediaTheme

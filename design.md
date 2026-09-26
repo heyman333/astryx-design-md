@@ -1,6 +1,6 @@
 # Astryx Design System — Design Overview
 
-> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`34b4692`](https://github.com/facebook/astryx/commit/34b4692a3a9aea6ce9a9a387a894830720518a02) (2026-09-24). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
+> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`5937ac3`](https://github.com/facebook/astryx/commit/5937ac3b29c46ad4cc2e8967c7014d6f5a35c549) (2026-09-25). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
 
 ## What Astryx is
 
@@ -97,7 +97,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**ChatMessage**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatMessage.doc.mjs) *(subcomponent/hook)*
 - [**ChatMessageBubble**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatMessageBubble.doc.mjs) *(subcomponent/hook)*
 - [**ChatMessageList**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatMessageList.doc.mjs) *(subcomponent/hook)*
-- [**ChatMessageMetadata**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatMessageMetadata.doc.mjs) *(subcomponent/hook)*
+- [**ChatMessageMetadata**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatMessageMetadata.doc.mjs) *(subcomponent/hook)* — Place ChatMessageMetadata below a message or in the last ChatMessageBubble metadata slot to show a timestamp, footer content, and optional delivery status. Non-rendering scalar slots (booleans and empty strings) create no separator; numeric zero remains visible. Composite React content remains caller-owned.
 - [**ChatSendButton**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatSendButton.doc.mjs) *(subcomponent/hook)*
 - [**ChatSystemMessage**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatSystemMessage.doc.mjs) *(subcomponent/hook)*
 - [**ChatTokenizedText**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatTokenizedText.doc.mjs) *(subcomponent/hook)*

@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `5937ac3` (2026-09-25) of https://github.com/facebook/astryx.
+Generated from commit `f04b501` (2026-09-26) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -739,6 +739,17 @@ Props:
 
 Import: `import {ChatSendButton} from '@astryxdesign/core/Chat';`
 
+Use ChatSendButton as ChatComposer’s send control when the action should switch between sending and stopping. Inside ChatComposer it reads readiness, streaming state, and action callbacks from context; standalone usage supplies those values explicitly.
+
+Do:
+- Place ChatSendButton inside ChatComposer when its readiness and send or stop lifecycle should follow composer context.
+- For standalone use, provide the state and matching onSend or onStop callback explicitly.
+- Keep the translated Send or Stop accessible name intact when supplying custom icon artwork; the icon is decorative and must not be the only name source.
+
+Don't:
+- Do not render the stop state without a working onStop callback from props or ChatComposer context.
+- Do not expect isDisabled to disable the stop action; it applies only to the send state.
+
 Props:
 - `isStopShown`: boolean — Whether the stop button is shown. Defaults to context value.
 - `isDisabled`: boolean — Whether the send button is disabled. Defaults to !canSend from context.
@@ -753,10 +764,21 @@ Props:
 
 Import: `import {ChatSystemMessage} from '@astryxdesign/core/Chat';`
 
+Use ChatSystemMessage for concise, non-sender content inside a chat transcript. Choose the default variant for factual status notices and the divider variant for date or section breaks. Long default content wraps within the available width. The component exposes status semantics and the divider branch includes a labelled separator.
+
+Do:
+- Keep the visible message concise and self-contained so it remains understandable without an icon.
+- Use the divider variant for temporal or section boundaries and the default variant for factual status notices.
+
+Don't:
+- Use ChatSystemMessage for sender-authored content; use ChatMessage and ChatMessageBubble instead.
+- Use caller-provided icon artwork as the only source of meaning; the visible message must carry the same information.
+
 Props:
-- `children`: ReactNode (required) — System message content: a short, factual string like a date, a join/leave notice, or a status change.
+- `children`: ReactNode (required) — System message content: factual text or React content such as a date, join/leave notice, or status change. Long default content wraps within the available width.
 - `variant`: 'default' | 'divider' = 'default' — Visual variant. 'default' renders centered text. 'divider' adds horizontal lines on each side via Divider: use for date separators and section breaks.
-- `icon`: ReactNode — Leading icon that reinforces the message type. Wrap in Icon for consistent sizing. Use for membership changes, encryption notices, or AI activity.
+- `icon`: ReactNode — Optional caller-provided icon content. Rendered before the message in the default variant; the divider variant currently does not render it. Wrap in Icon for consistent sizing.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value: not an inline style object like style={{}}.
 
 ### ChatTokenizedText (subcomponent/hook)
 

@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `f04b501` (2026-09-26) of https://github.com/facebook/astryx.
+Generated from commit `ae45a3d` (2026-09-27) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -546,6 +546,7 @@ ChatToolCalls displays tool or function call invocations from an LLM response. P
 Do:
 - Include a target string on every call so the user can see what the tool acted on: a file path, a shell command, or a search query.
 - Show a duration on completed calls so users can judge which tools are slow and understand why a response took time.
+- Provide a group label when the automatic count does not explain what the calls represent.
 - Provide resultDetail with a code block for calls that produce output (diffs for edits, terminal output for shell commands) so users can inspect results inline.
 - Set a unique key on each call item when streaming so React can animate additions without re-mounting completed rows.
 
@@ -556,7 +557,7 @@ Don't:
 
 Props:
 - `calls`: ChatToolCallItem[] (required) — Array of tool call data. Each item has name, status, target, duration, node, additions, deletions, stats, errorMessage, resultDetail, key, and data. status is one of 'pending', 'running', 'complete', or 'error' (defaults to 'complete').
-- `label`: string — Custom summary label for groups. Auto-generated from count if omitted.
+- `label`: string — Custom summary label shown for an expanded group. The translated call count is used when omitted.
 - `isExpanded`: boolean — Controlled expanded state for the group.
 - `defaultIsExpanded`: boolean = false — Default expanded state when uncontrolled.
 - `onExpandedChange`: (isExpanded: boolean) => void — Callback fired when the expanded state changes.
@@ -784,9 +785,20 @@ Props:
 
 Import: `import {ChatTokenizedText} from '@astryxdesign/core/Chat';`
 
+Use ChatTokenizedText inside a chat message when stored plain text contains serialized token values that should be projected as inline badges or caller-rendered token content. Unmatched text is preserved exactly and empty token values are ignored so rendering always finishes.
+
+Do:
+- Reuse the same token definitions for composer insertion and message rendering so serialized values and visible labels stay aligned.
+- Use non-empty, stable serialized values so every definition identifies real message text.
+
+Don't:
+- Use token labels as a substitute for the surrounding message text; the complete message must remain understandable in reading order.
+- Put component-owned interaction or accessibility behavior inside a custom token renderer; custom token content remains caller owned.
+
 Props:
-- `children`: string (required) — The plain text message containing serialized token values. Patterns matching a token's value are replaced with badge components inline.
-- `tokens`: ChatComposerToken[] — Token definitions: same type returned by trigger onSelect. Each token has a value (the string to match), label (display text), and optional variant and icon. Uses the same type as the composer input, so token definitions work for both input and display.
+- `children`: string (required) — The plain text message containing serialized token values. Patterns matching a token's value are replaced with inline token content.
+- `tokens`: ChatComposerToken[] — Token definitions using the same type as composer input. Each non-empty value is matched literally. Empty values are ignored. Structured tokens render a Badge, while custom tokens render caller content.
+- `xstyle`: StyleXStyles — StyleX styles for the root text wrapper. Must be a stylex.create() value: not an inline style object like style={{}}.
 
 ## Container
 

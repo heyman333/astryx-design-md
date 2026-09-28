@@ -1,6 +1,6 @@
 # Astryx Design System — Design Overview
 
-> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`f04b501`](https://github.com/facebook/astryx/commit/f04b50199e4b94023f24de323bf9f0ec620ad67e) (2026-09-26). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
+> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`ae45a3d`](https://github.com/facebook/astryx/commit/ae45a3d8de288d321be2e8dd21a4bf4d7940673c) (2026-09-27). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
 
 ## What Astryx is
 
@@ -100,7 +100,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**ChatMessageMetadata**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatMessageMetadata.doc.mjs) *(subcomponent/hook)* — Place ChatMessageMetadata below a message or in the last ChatMessageBubble metadata slot to show a timestamp, footer content, and optional delivery status. Non-rendering scalar slots (booleans and empty strings) create no separator; numeric zero remains visible. Composite React content remains caller-owned.
 - [**ChatSendButton**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatSendButton.doc.mjs) *(subcomponent/hook)* — Use ChatSendButton as ChatComposer’s send control when the action should switch between sending and stopping. Inside ChatComposer it reads readiness, streaming state, and action callbacks from context; standalone usage supplies those values explicitly.
 - [**ChatSystemMessage**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatSystemMessage.doc.mjs) *(subcomponent/hook)* — Use ChatSystemMessage for concise, non-sender content inside a chat transcript. Choose the default variant for factual status notices and the divider variant for date or section breaks. Long default content wraps within the available width. The component exposes status semantics and the divider branch includes a labelled separator.
-- [**ChatTokenizedText**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatTokenizedText.doc.mjs) *(subcomponent/hook)*
+- [**ChatTokenizedText**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatTokenizedText.doc.mjs) *(subcomponent/hook)* — Use ChatTokenizedText inside a chat message when stored plain text contains serialized token values that should be projected as inline badges or caller-rendered token content. Unmatched text is preserved exactly and empty token values are ignored so rendering always finishes.
 
 ### Container (6)
 

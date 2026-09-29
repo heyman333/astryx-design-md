@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `ae45a3d` (2026-09-27) of https://github.com/facebook/astryx.
+Generated from commit `1f30d4e` (2026-09-28) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -380,6 +380,7 @@ Props:
 - `onChange`: (checked: boolean) => void — Callback fired with the next checked state when the item is toggled.
 - `isDisabled`: boolean = false — Whether the item is disabled. Disabled items stay focusable (via aria-disabled) so they remain discoverable by keyboard and assistive technology, but activation is blocked.
 - `hasCloseOnSelect`: boolean = false — Whether toggling the item closes the menu. Checkbox items default to staying open so several can be toggled in a single session.
+- `ref`: React.Ref<HTMLElement> — Ref forwarded to the row root, the element carrying role="menuitemcheckbox". Register the row with an element-keyed observer or overlay.
 - `endContent`: ReactNode — Content to render after the label and description, such as a keyboard shortcut hint or badge.
 
 ### DropdownMenuDivider (subcomponent/hook)
@@ -401,6 +402,7 @@ Props:
 - `hasCloseOnSelect`: boolean = true — Whether activating the item closes the menu. Set false for an action that reports its result on the item itself.
 - `variant`: 'default' | 'destructive' = 'default' — Visual variant. 'destructive' renders the label, description, and icon in the error color for dangerous actions (e.g. Delete).
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
+- `ref`: React.Ref<HTMLElement> — Ref forwarded to the row root, the element carrying role="menuitem". Register the row with an element-keyed observer or overlay.
 
 ### DropdownMenuRadioGroup (subcomponent/hook)
 
@@ -424,6 +426,7 @@ Props:
 - `icon`: IconType — Icon to display before the label. See `npx astryx docs icons` for valid semantic names.
 - `isDisabled`: boolean = false — Whether this individual radio item is disabled. Disabled items stay focusable (via aria-disabled) so they remain discoverable by keyboard and assistive technology, but selection is blocked.
 - `endContent`: ReactNode — Content to render after the label and description, such as a badge or metadata.
+- `ref`: React.Ref<HTMLElement> — Ref forwarded to the row root, the element carrying role="menuitemradio". Register the row with an element-keyed observer or overlay.
 
 ### DropdownMenuSubMenu (subcomponent/hook)
 
@@ -1912,7 +1915,8 @@ Props:
 - `numberOfMonths`: 1 | 2 = 1 — Number of months displayed simultaneously in the calendar popover.
 - `weekStartsOn`: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' = 0 — First day of week in the calendar popover. A number (0 = Sunday to 6 = Saturday) or a three-letter day name.
 - `format`: 'date' | 'date_long' | 'date_weekday' | 'system_date' | ((value: ISODateString) => string) = 'date_long' — How the committed date value is displayed. Named values are reused from Timestamp's format vocabulary: 'date' shows 'Mar 21, 2026', 'date_long' shows 'March 21, 2026', 'date_weekday' shows 'Wed, Mar 21, 2026', 'system_date' shows '2026-03-21'. A function receives the ISO value and returns a custom string. Applies only to the committed value, never to text being typed.
-- `nativePicker`: 'touch' | 'always' | 'never' = 'touch' — Which surface draws the date picker. 'touch' (the default) hands a touch device to the browser/OS: the field becomes an input type=date and the platform draws the picker (the iOS wheel, the Android calendar dialog); 'always' does that wherever the browser supports input type=date; 'never' keeps Astryx's own pickers everywhere (the bottom-sheet picker on a finger, the calendar popover on a mouse). Use 'never' for a field that needs weekStartsOn, numberOfMonths or dateConstraints, none of which a native picker can express. format and placeholder still apply in native mode; min and max are forwarded, but a native picker may not show them (on iOS an out-of-range date can be selected and is refused on commit rather than greyed out).
+- `presentation`: 'popover' | 'bottom-sheet' | 'native' | 'adaptive-bottom-sheet' | 'adaptive-native' = 'adaptive-native' — Which surface draws the date picker. 'adaptive-native' (the default) uses Astryx's calendar popover on a fine pointer and the browser/OS picker (input type=date) on a coarse pointer, keeping Astryx fallbacks where a native control cannot express the value; 'native' always uses the browser/OS picker with no fallback; 'adaptive-bottom-sheet' uses the popover on a fine pointer and Astryx's bottom-sheet picker on a coarse pointer; 'popover' and 'bottom-sheet' force that Astryx surface on every pointer. Every value opens a picker; a typed-only field is TimeInput's alone. Use a non-native presentation for a field that needs weekStartsOn, numberOfMonths or dateConstraints, none of which a native picker can express.
+- `nativePicker`: 'touch' | 'always' | 'never' = 'touch' — Deprecated: use presentation ('touch' = 'adaptive-native', 'always' = 'native', 'never' = 'adaptive-bottom-sheet'). Still works exactly as released; presentation wins when both are set.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
@@ -1966,7 +1970,7 @@ Props:
 
 Import: `import {DateTimeInput} from '@astryxdesign/core/DateTimeInput';`
 
-DateTimeInput combines date and time selection in one field. With nativePicker="touch" (the default), mouse/trackpad devices use Astryx typed fields and popovers, while coarse-pointer devices use browser/OS date and time controls in the same two-segment field. nativePicker="always" uses both native controls on every pointer; nativePicker="never" keeps Astryx's own surfaces — pointer fields on fine pointers and the coordinated Date/Time bottom sheet on coarse pointers. The closed segments stay side by side when at least 400px is available and wrap into full-width rows below 400px, independent of viewport width. Use it for scheduling, event creation, deadline setting, or any form field that needs a specific datetime.
+DateTimeInput combines date and time selection in one field. With presentation="adaptive-native" (the default), mouse/trackpad devices use Astryx typed fields and popovers, while coarse-pointer devices use browser/OS date and time controls in the same two-segment field. presentation="native" uses both native controls on every pointer; presentation="adaptive-bottom-sheet" keeps Astryx's own surfaces — pointer fields on fine pointers and the coordinated Date/Time bottom sheet on coarse pointers; "popover" and "bottom-sheet" force one Astryx surface on every pointer. The closed segments stay side by side when at least 400px is available and wrap into full-width rows below 400px, independent of viewport width. Use it for scheduling, event creation, deadline setting, or any form field that needs a specific datetime.
 
 Do:
 - Provide clear labels and descriptions so users understand what datetime is expected.
@@ -2008,7 +2012,8 @@ Props:
 - `labelTooltip`: string — Tooltip text displayed via an info icon at the end of the label.
 - `numberOfMonths`: 1 | 2 = 1 — Number of months displayed simultaneously in Astryx's pointer calendar popover. Ignored by native date controls and the mobile touch sheet, whose Date panel always shows one swipe-paged month at a time.
 - `weekStartsOn`: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' = 0 — First day of week in Astryx calendars. A number (0 = Sunday to 6 = Saturday) or a three-letter day name. Ignored by native date controls.
-- `nativePicker`: 'touch' | 'always' | 'never' = 'touch' — Which surfaces draw the date and time pickers. 'touch' (the default) uses browser/OS controls on a coarse primary pointer; 'always' uses them wherever input type=date/time are supported; 'never' keeps Astryx's own surfaces everywhere. The native time control is used only for the default minute-precision contract: hasSeconds, non-default timeIncrement, or timeOptionInterval retain Astryx's time field because iOS cannot express them faithfully. Use 'never' when numberOfMonths, weekStartsOn, or visible dateConstraints behavior matters. Constraints are enforced on commit; min/max are forwarded as hints. hourFormat formats the closed time, while the OS picker follows the user's locale.
+- `presentation`: 'popover' | 'bottom-sheet' | 'native' | 'adaptive-bottom-sheet' | 'adaptive-native' = 'adaptive-native' — Which surfaces draw the date and time pickers. 'adaptive-native' (the default) uses Astryx's typed fields and popovers on a fine pointer and browser/OS controls on a coarse pointer — with per-segment Astryx fallbacks: hasSeconds, non-default timeIncrement, or timeOptionInterval retain Astryx's time field because iOS cannot express them faithfully; 'native' always uses both browser/OS controls with no fallback; 'adaptive-bottom-sheet' uses popovers on a fine pointer and Astryx's coordinated bottom sheet on a coarse pointer; 'popover' and 'bottom-sheet' force that Astryx surface on every pointer. Every value opens pickers; typed-only fields are TimeInput's alone. Use a non-native presentation when numberOfMonths, weekStartsOn, or visible dateConstraints behavior matters. Constraints are enforced on commit; min/max are forwarded as hints. hourFormat formats the closed time, while the OS picker follows the user's locale.
+- `nativePicker`: 'touch' | 'always' | 'never' = 'touch' — Deprecated: use presentation ('touch' = 'adaptive-native', 'always' = 'native', 'never' = 'adaptive-bottom-sheet'). Still works exactly as released; presentation wins when both are set.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
@@ -2776,7 +2781,8 @@ Props:
 - `hasClear`: boolean = false — Shows a clear button when a value is set and the input is not disabled.
 - `hourFormat`: '12h' | '24h' = '12h' — Controls the display format. '12h' shows AM/PM (e.g. '2:30 PM'); '24h' uses 24-hour notation (e.g. '14:30').
 - `increment`: number = 1 — Number of minutes to add or subtract when the user presses the up or down arrow key.
-- `nativePicker`: 'touch' | 'always' | 'never' = 'touch' — Which surface selects the time. 'touch' (the default) uses the browser/OS input type=time on a coarse pointer and Astryx's typed field on a fine pointer; 'always' requests the native control on every pointer; 'never' keeps Astryx's typed field everywhere. Native mode forwards min/max and enforces them on commit. hasSeconds or increment other than 1 automatically retains the typed field because iOS has no seconds wheel and treats step as validation rather than picker cadence. hourFormat formats the closed value; the open OS picker follows the device locale.
+- `presentation`: 'text-input' | 'popover' | 'bottom-sheet' | 'native' | 'adaptive-bottom-sheet' | 'adaptive-native' = 'adaptive-native' — Which surface selects the time. 'adaptive-native' (the default) uses Astryx's typed field on a fine pointer and the browser/OS input type=time on a coarse pointer — except hasSeconds or increment other than 1, which retain the typed field because iOS has no seconds wheel and treats step as validation rather than picker cadence; 'native' always uses the browser/OS control with no Astryx fallback; 'adaptive-bottom-sheet' uses the typed field on a fine pointer and Astryx's bottom-sheet time wheels on a coarse pointer; 'bottom-sheet' forces the wheels on every pointer; 'text-input' (like 'popover', which has no distinct TimeInput surface) keeps only the typed field. Native mode forwards min/max and enforces them on commit. hourFormat formats the closed value; the open OS picker follows the device locale.
+- `nativePicker`: 'touch' | 'always' | 'never' = 'touch' — Deprecated: use presentation ('touch' = 'adaptive-native', 'always' = 'native', 'never' = 'text-input'). Still works exactly as released; presentation wins when both are set.
 - `placeholder`: string = 'Select a time' — Placeholder text shown when no time is selected. When the input is focused and empty, a format hint overrides this text.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Controls the height of the input element.
 - `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator that colors the border and displays an icon. When a message is provided it is rendered below the input.

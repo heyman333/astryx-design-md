@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `1f30d4e` (2026-09-28) of https://github.com/facebook/astryx.
+Generated from commit `f839b67` (2026-09-30) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -1013,6 +1013,7 @@ Do:
 - Slice the list yourself and pass only the avatars you want visible; 3-5 is typical. The group renders exactly the children it is given and never slices for you.
 - Use AvatarGroupOverflow for custom overflow content like a popover trigger or "add member" button.
 - Pass status dots, click handlers, or tooltips directly on each Avatar child.
+- Wrap an Avatar child in HoverCard or Tooltip to show more on hover; the avatars still overlap. Set tooltip={false} on the wrapped Avatar so its built-in name tooltip does not compete.
 - Make avatars interactive with href or onClick to link to profiles. Interactive avatars share a single Tab stop; arrow keys move between them, and the group announces a keyboard hint to assistive tech. This follows the WAI-ARIA APG roving tabindex technique for managing focus in a composite: https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/#kbd_roving_tabindex
 
 Don't:
@@ -1868,7 +1869,7 @@ Props:
 - `size`: 'sm' | 'md' = 'md' — The size of the checkbox. sm for compact layouts, md for default.
 - `onFocus`: (e: FocusEvent<HTMLInputElement>) => void — Callback fired when the checkbox receives focus.
 - `onBlur`: (e: FocusEvent<HTMLInputElement>) => void — Callback fired when the checkbox loses focus.
-- `labelIcon`: IconType — Icon to display before the label text. See `astryx docs icons` for valid semantic names.
+- `labelIcon`: ReactNode | IconType — Semantic icon name or custom content displayed before the label text. See `astryx docs icons` for valid semantic names.
 - `status`: { type: 'error' | 'warning' | 'success', message: string } — Status indicator. Displays a colored message box below the checkbox and sets aria-invalid for errors.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
 
@@ -2383,8 +2384,8 @@ Import: `import {Indicator} from '@astryxdesign/core/Indicator';`
 Indicators are the componentized selection visuals shared by CheckboxInput, RadioList, and menu selection rows. They are decorative: the owning component keeps the input, role, accessible name, focus, and keyboard behavior, while the indicator turns state into a picture. That split is what makes them themeable: restyle one through its class targets, or replace the component outright.
 
 Do:
-- Reach for component overrides first (components: {checkbox}). Replacing the component is the heavier path, for when the shape itself is wrong.
-- A replacement must render `children` when they will actually draw something: use `isRenderable(children)`, not `children != null` or `children ?? mark`. The owning control passes its loading Spinner through as `children={isBusy && <Spinner/>}`, so the value is `false` whenever it is not busy: a nullish check takes the children branch, renders nothing, and deletes your state mark on every chosen row (#4893).
+- Reach for the canonical `components['checkbox-indicator']` override first. Replacing the component is the heavier path, for when the shape itself is wrong.
+- Match the shipped replacement-content branch with `isRenderable(children)`, not `children != null` or `children ?? mark`. The helper is deliberately shallow: it excludes nullish values, booleans, and the empty string, while React elements and containers take the replacement path even when their descendants render nothing. The owning control passes `children={isBusy && <Spinner/>}`, so a nullish check deletes the state mark whenever that value is `false` (#4893).
 - A replacement must set aria-hidden. The owning control provides the role and accessible name; a visible indicator would be announced twice.
 - Use theme tokens for every color, radius, and border width in a replacement. Run `npx astryx docs tokens` for the set.
 - Render a single root ELEMENT, and let it keep the border-radius you want the focus ring to follow. A control whose real input is visually hidden cannot show focus on that input, so the owner paints the standard ring onto the indicator element itself at focus time (useIndicatorFocusRing), and `outline` then picks up that element's radius. A replacement needs no cooperation and can forget nothing: the ring is never missing (WCAG 2.4.7), it is only the wrong shape if the root has no radius of its own. Do not draw a focus ring yourself; the owner already did.
@@ -2401,7 +2402,7 @@ Props:
 - `state`: 'unchecked' | 'checked' | 'indeterminate' (required) — Which state to draw. An indicator draws in EVERY state: the unchecked box is an empty box, not nothing.
 - `size`: 'sm' | 'md' = 'md' — Control size: 20px or 24px.
 - `isDisabled`: boolean = false — Whether the owning control is disabled. Purely visual; the owner keeps the real disabled semantics.
-- `children`: ReactNode — Rendered inside the chrome INSTEAD of the state mark. CheckboxInput passes its loading Spinner through this while a change action is pending, so a replacement indicator must render children when they will actually draw something: use `isRenderable(children)`, never `children ?? mark`, because a host writes `children={isBusy && <Spinner/>}` and `false` slips straight past a nullish check and deletes the mark.
+- `children`: ReactNode — Rendered inside the chrome INSTEAD of the state mark when the shallow `isRenderable(children)` check accepts the value. The helper excludes `null`, `undefined`, booleans, and the empty string; React elements and containers take the replacement path even when their descendants render nothing. CheckboxInput passes its loading Spinner through as `children={isBusy && <Spinner/>}`, so replacements should use the same helper rather than a nullish check.
 
 #### CheckIndicator
 
@@ -3191,7 +3192,7 @@ Returns:
 
 Import: `import {useLayer} from '@astryxdesign/core/Layer';`
 
-Core positioning hook for rendering overlay content using CSS Anchor Positioning and the Popover API. Use it as the foundation for custom popovers, hover cards, tooltips, and fixed-position layers when higher-level components are not enough.
+Core positioning hook for rendering overlay content using CSS Anchor Positioning and the Popover API. Use it as the foundation for custom popovers, hover cards, tooltips, and fixed-position layers when higher-level components are not enough. Both modes use theme body text defaults and end ancestor surface/group membership as a whole, including group-owned state. Explicit props and unrelated contexts remain unchanged. Apply intentional formatting through render styles or content, and establish complete content-local providers inside the rendered layer.
 
 Do:
 - Use context mode for anchor-positioned overlays relative to a trigger element, and fixed mode for manually positioned overlays at specific coordinates.
@@ -5381,7 +5382,7 @@ Props:
 
 Import: `import {Layer} from '@astryxdesign/core/Layer';`
 
-Layer utilities provide the app-level provider used by overlay systems. Use LayerProvider at the app root for toast/layer configuration; use higher-level Popover, HoverCard, or Tooltip APIs for most overlay UI.
+Layer utilities provide the app-level provider used by overlay systems. Use LayerProvider at the app root for toast/layer configuration; use higher-level Popover, HoverCard, or Tooltip APIs for most overlay UI. Rendered layer content, not the provider’s application subtree, uses theme body text defaults and exits ancestor surface/group membership. Establish intentional groups and complete required providers inside each layer.
 
 Do:
 - Use LayerProvider once near the app root when you need shared toast/layer configuration.

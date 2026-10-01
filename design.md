@@ -1,6 +1,6 @@
 # Astryx Design System — Design Overview
 
-> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`f839b67`](https://github.com/facebook/astryx/commit/f839b67cc64feb9ea00590a32914ac7ce2962af1) (2026-09-30). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
+> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`217f41d`](https://github.com/facebook/astryx/commit/217f41d74ec41aee7f6895ea53e8b6035831f3b7) (2026-09-30). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
 
 ## What Astryx is
 
@@ -51,7 +51,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 
 ## Component library
 
-`@astryxdesign/core` currently documents **230 components** across **186 component groups** and **18 categories**. Each component directory contains the implementation (`{Name}.tsx`), colocated tests, and a `{Name}.doc.mjs` structured doc (props, anatomy, best practices) consumed by the CLI and docsite.
+`@astryxdesign/core` currently documents **231 components** across **187 component groups** and **18 categories**. Each component directory contains the implementation (`{Name}.tsx`), colocated tests, and a `{Name}.doc.mjs` structured doc (props, anatomy, best practices) consumed by the CLI and docsite.
 
 ### Accessibility (1)
 
@@ -286,7 +286,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 
 - [**useStreamingText**](https://github.com/facebook/astryx/blob/main/packages/core/src/hooks/useStreamingText.doc.mjs) — Smooths bursty streamed text into a steady character-by-character reveal using requestAnimationFrame. Decouples arrival rate from display rate. Advances on word and syntax boundaries to avoid slicing mid-markdown or mid-word, preventing visual glitches with markdown renderers. Animation timing derives from Astryx motion tokens via useTheme when available, with sensible fallbacks outside a theme provider. Snaps to full text when isStreaming becomes false.
 
-### Table & List (29)
+### Table & List (30)
 
 - [**Item**](https://github.com/facebook/astryx/blob/main/packages/core/src/Item/Item.doc.mjs) — A single, flexible item primitive that unifies the "start content + label + description + end content" pattern across Astryx. Use it wherever you need a structured row: dropdown menus, selectors, contact lists, notifications, file browsers, and activity feeds.
 - [**List**](https://github.com/facebook/astryx/blob/main/packages/core/src/List/List.doc.mjs) — A vertical collection of items with consistent spacing, dividers, and optional markers. Supports headers, icons, avatars, badges, and interactive items with click or link behavior. Use it to display ordered or unordered groups of related content.
@@ -302,6 +302,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**TableHeader**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/TableHeader.doc.mjs) *(subcomponent/hook)*
 - [**TableHeaderCell**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/TableHeaderCell.doc.mjs) *(subcomponent/hook)*
 - [**TableRow**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/TableRow.doc.mjs) *(subcomponent/hook)*
+- [**TableSelectionToolbar**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/TableSelectionToolbar.doc.mjs) *(subcomponent/hook)* — Pass both outputs of useTableSelectionState to their matching consumers: selectionConfig to useTableSelection and selectionState to TableSelectionToolbar. Render product actions through startContent. Keep fixed or floating placement in the surrounding layout.
 - [**useTableColumnResize**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/useTableColumnResize.doc.mjs) *(subcomponent/hook)*
 - [**useTableColumnSettings**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/useTableColumnSettings.doc.mjs) *(subcomponent/hook)*
 - [**useTableFiltering**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/useTableFiltering.doc.mjs) *(subcomponent/hook)*

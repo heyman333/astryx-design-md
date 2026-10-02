@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `217f41d` (2026-09-30) of https://github.com/facebook/astryx.
+Generated from commit `9cc70a9` (2026-10-01) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -72,7 +72,7 @@ Props:
 - `isDisabled`: boolean = false — Disables the button. When a tooltip is present, uses aria-disabled instead of native disabled so the button stays focusable.
 - `icon`: ReactNode — Icon element rendered before the label text. An Astryx Icon with no explicit size defaults to sm for sm/md buttons and md for lg buttons.
 - `isIconOnly`: boolean = false — When true, renders as a square icon-only button with label as aria-label. Requires icon. Tip: for a dedicated icon-only button component, use IconButton from '@astryxdesign/core/IconButton' instead.
-- `width`: SizeValue — Width of the button. Numbers are treated as pixels, strings are used as-is (e.g., '100%' for a full-width button). By default the button sizes to its content.
+- `width`: SizeValue — Width of the button. Numbers are treated as pixels, strings are used as-is (e.g., '100%' for a full-width button). By default the button sizes to its content, never grows past its container, and truncates its label with an ellipsis when a row is too narrow; icon-only buttons stay square.
 - `children`: ReactNode — Optional override for visible text. When provided, displayed instead of label, but label is still required (it provides the accessible name). For most cases, just use label alone: <Button label="Save" />.
 - `endContent`: ReactElement<IconProps> | ReactElement<BadgeProps> — Trailing icon or badge rendered after the label. Ignored when isIconOnly is true. Color is inherited from the button variant.
 - `tooltip`: string — Tooltip text shown on hover.
@@ -133,7 +133,7 @@ Props:
 - `onChange`: (value: string) => void (required) — Callback fired when a segment is selected.
 - `label`: string (required) — Accessible label for the radio group (used as aria-label, never rendered visually).
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant for the control.
-- `layout`: 'hug' | 'fill' = 'hug' — Layout mode. hug (default) sizes segments to content; fill stretches them equally to fill the container.
+- `layout`: 'hug' | 'fill' = 'hug' — Layout mode. hug (default) sizes segments to content, capped at the container width (segment labels truncate when it is too narrow); fill stretches them equally to fill the container.
 - `isDisabled`: boolean = false — Whether the entire control is disabled.
 - `disabledMessage`: string — Explains why the control is disabled. Applies to the whole-group disabled state (isDisabled), not per segment. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the control focusable via aria-disabled (selection stays blocked). Use this instead of wrapping a disabled SegmentedControl in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
 - `children`: ReactNode (required) — SegmentedControlItem children.
@@ -2210,7 +2210,7 @@ Props:
 - `status`: {type: 'error' | 'warning' | 'success', message?: string} — Validation status with an optional message.
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' for input selectors; 'detached' for ghost selectors — How the status message is placed relative to the input. attached overlaps directly below the bordered input and is only valid for the input variant; ghost selectors detach attached status messages by default. Use tooltip for compact toolbar controls.
 - `renderOption`: (option: SelectorOptionData) => ReactNode — Custom render function for each selectable option in the dropdown. Use this instead of JSX children; dividers and sections are rendered by the selector.
-- `renderValue`: (option: SelectorOptionData) => ReactNode — Custom render function for the selected option inside the closed trigger. A one-line value follows the active size token, including compact spacing with icons or a clear control. Padding accommodates the trigger line box, and each extra line grows the control by one line (28/32/36 for one line and 48/52/56 for two with the default tokens). Inside an InputGroup the group owns the row height: a SelectorOption folds onto one line and ellipsizes, and any taller node is cut off at the row.
+- `renderValue`: (option: SelectorOptionData) => ReactNode — Custom render function for the selected option inside the closed trigger. A one-line value follows the active size token, including compact or wide spacing scales with icons or a clear control. Padding accommodates the trigger line box, and each extra line grows the control by one line (28/32/36 for one line and 48/52/56 for two with the default tokens). Content inherits the trigger line height; content that sets a larger font should set its own line height so the trigger grows to fit it. Inside an InputGroup the group owns the row height: a SelectorOption folds onto one line and ellipsizes, and any taller node is cut off at the row.
 - `indicatorPosition`: 'start' | 'end' = 'end' — Which logical edge of the option row carries a rendered selection mark. An empty mark consumes no space, so selected and unselected labels may shift or have different available width. end is the house convention shared with Typeahead and CommandPalette.
 - `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — How the option list is presented. adaptive uses a bottom sheet on compact touch screens and an anchored popover otherwise.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
@@ -3270,6 +3270,7 @@ Parameters:
 - `role`: 'dialog' | 'none' = 'dialog' — ARIA role on the content wrapper. Use "dialog" for genuine dialog content; use "none" for listbox/menu popups whose own content role should be exposed and whose trigger keeps DOM focus.
 - `isModal`: boolean = true — Whether a dialog-role popover is modal (aria-modal). Only applies when role is "dialog".
 - `hasSurface`: boolean = true — Whether to apply the default popover surface background, radius, and shadow.
+- `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inner padding of the painted surface on the spacing scale (0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10). Omit it and the hook paints no padding of its own; Popover passes 3 by default and 0 for a flush surface.
 - `surfaceTarget`: string — Optional component-owned refinement target on the painted surface, without the astryx- prefix. Use and document one when a direct hook composition needs distinct theme reachability. Do not use popover-surface; it is a deprecated compatibility alias of the canonical popover target.
 
 Returns:
@@ -4618,6 +4619,7 @@ Props:
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when the popover visibility changes.
 - `isEnabled`: boolean = true — When false, trigger interactions are ignored.
 - `width`: number | string = 'auto' — Width of the popover container. The layer still caps to the viewport with alignment-aware safe-area gutters before scrolling long content.
+- `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 = 3 — Inner padding of the popover surface on the spacing scale (0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10), matching the padding prop on Card and Stack. Pass 0 for a flush surface when the content owns its own edges, such as a list of rows or a header with a rule, and pad the content itself. The padding sits on the painted popover target, so a theme padding on that target replaces it.
 - `label`: string — Accessible label for the popover dialog.
 - `role`: 'dialog' | 'none' = 'dialog' — ARIA role for the popover wrapper. Use dialog for dialog-style popovers; use none when content provides its own role, like menu or listbox.
 - `isModal`: boolean = true — Whether a dialog-style popover sets aria-modal. Only applies when role is dialog.
@@ -5389,15 +5391,15 @@ Wraps your app to set the active locale and (optionally) merge additional transl
 Do:
 - Use shipped Astryx locale catalogs from `@astryxdesign/core/locales/*` when one exists for your target locale.
 - Use a same-shape local catalog only when Astryx has not shipped that locale yet or you are testing in-progress translations.
-- Use real BCP 47 tags such as `fr`, `pt-BR`, or `ar`; regional locales fall back to their base language before English.
+- Use real BCP 47 tags such as `fr-FR`, `pt-BR`, or `ar-SA`; regional locales fall back to their base language before English.
 - Set the `dir` attribute on `<html>` (or a wrapping element) yourself; the provider does not set it. Astryx components mirror layout and directional icons from the DOM `dir`, so an RTL locale won't visually mirror without it. Use `getLocaleDirection(locale)` to derive the value for both the provider and the DOM.
 
 Don't:
-- Cast custom catalog maps to `any`; the i18n package exports `MessagesByLocale` and `Catalog` for local catalog typing.
+- Cast custom catalog maps to `any`; the i18n package exports `ProviderMessagesByLocale`, `MessagesByLocale`, `Catalog`, and `RuntimeCatalog` for local catalog typing.
 
 Props:
 - `locale`: string (required) — BCP 47 language tag for the active locale (e.g. "en", "pt", "pt-BR", "zh-Hans"). Regional tags fall back to their base language, then to the shipped "en" catalog.
-- `messages`: MessagesByLocale — Optional map of BCP 47 tag to translation catalog. Import shipped catalogs from `@astryxdesign/core/locales/*`; the shipped "en" catalog is always available and does not need to be listed here.
+- `messages`: ProviderMessagesByLocale — Optional map of BCP 47 tag to a rich or generated runtime catalog. Import compact shipped catalogs from `@astryxdesign/core/locales/*.generated.js`; the shipped "en" catalog is always available and does not need to be listed here.
 - `overrides`: Overrides — Sparse per-locale key overrides applied on top of shipped defaults. Overrides are locale-keyed so a runtime locale swap picks up the correct set.
 - `dir`: 'ltr' | 'rtl' — Explicit text-direction override for the context. When omitted, direction is derived from `locale` via `Intl.Locale.getTextInfo()`. This sets the direction Astryx reads, but it does NOT set the DOM `dir` attribute; you must set `dir` on `<html>` (or a wrapping element) yourself, since Astryx components mirror layout and directional icons from the DOM `dir`, not from this prop. Set both to the same value and keep them in sync.
 - `children`: ReactNode (required) — Content to render with the internationalization provider.

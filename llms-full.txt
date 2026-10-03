@@ -1,10 +1,10 @@
 # Astryx — Full Component Reference
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 231 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 232 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `9cc70a9` (2026-10-01) of https://github.com/facebook/astryx.
+Generated from commit `967a936` (2026-10-03) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -302,7 +302,7 @@ Props:
 
 Import: `import {Trigger button} from '@astryxdesign/core/DropdownMenu';`
 
-A dropdown menu that displays a list of actionable items in a popup triggered by a button. Use to present action options as a next step in a process, or to offer contextual actions without cluttering the interface.
+A dropdown menu that displays a list of actionable items in a popup triggered by a button. Use to present action options as a next step in a process, or to offer contextual actions without cluttering the interface. Like the menus of macOS and iOS, the row under the pointer when it is released is the row that acts, and the highlight follows a held mouse or finger.
 
 Do:
 - Keep menu items concise and action-oriented so users can scan options quickly.
@@ -3241,6 +3241,36 @@ Parameters:
 
 Returns:
 - `handlers`: UseLongPressHandlers — onTouchStart, onTouchMove, onTouchEnd and onTouchCancel to spread onto the target element.
+
+### useMenuPress
+
+Import: `import {useMenuPress} from '@astryxdesign/core/hooks';`
+
+The press model of macOS and iOS menus, for any pointer: the row under the pointer when it is RELEASED is the row that acts, and the highlight follows the pointer while it is held. The pointer is tracked at document level by pointerId, so a finger that slid off the row it landed on is still followed; the click the browser reports at the end of a touch, aimed at the row where the touch began, is swallowed so nothing acts twice. DropdownMenu, ContextMenu, DropdownMenuSubMenu, Selector and the menu bottom sheet already mount it; reach for it directly only when building a menu-like surface of your own.
+
+Do:
+- Pass a selector for ENABLED rows only, so a disabled row or a divider under the pointer clears the highlight instead of lighting up.
+- Let the default highlight move focus in a menu; supply onHighlight only for a listbox that must keep focus on its combobox and highlight through aria-activedescendant.
+- Declare touch-action on the menu root: none when its rows fit, pan-y when it scrolls, so the browser — not the hook — decides when a finger is scrolling.
+
+Don't:
+- Act on a row from its own pointerdown or pointerup handler as well; the hook already activates the row under the release, and a second path acts twice.
+- Read a row click with detail 0 as a keyboard activation; the hook dispatches its pointer activation with detail 0 too. Use isMenuPressActivation() to tell them apart.
+
+Parameters:
+- `options`: UseMenuPressOptions (required) — Configuration object.
+- `options.menuRef`: RefObject<HTMLElement | null> (required) — The menu or listbox root — the surface whose rows a press picks from.
+- `options.itemSelector`: string (required) — Selector matching the ENABLED rows. A pointer over anything else inside the menu (a divider, a heading, a disabled row) highlights nothing.
+- `options.triggerRef`: RefObject<HTMLElement | null> — The control that opens the menu. A release over it is not outside: it acts on nothing and leaves the menu open under every pointer.
+- `options.onHighlight`: (row: HTMLElement | null) => void — Move the highlight; null clears it. Defaults to moving DOM focus with preventScroll onto the row, and onto the menu root when there is no row. A picker that highlights through aria-activedescendant supplies its own.
+- `options.onActivate`: (row: HTMLElement, release: PointerEvent) => void — Act on the row under the release. Defaults to dispatching a click on the row that carries the release button and modifier keys.
+- `options.onDismiss`: () => void — A MOUSE was released outside the menu with nothing acting: close it. A finger released outside leaves the menu open, so this is never called then.
+- `options.getScroller`: () => HTMLElement | null — The element to scroll while a tracked pointer rests near its top or bottom edge. Defaults to the menu root when it overflows.
+- `options.isEnabled`: boolean = true — Whether the model is live.
+
+Returns:
+- `menuProps`: {onPointerDown; "data-astryx-menu-press": ""} — Spread onto the menu root. Claims presses that begin inside it and marks the root as carrying the press model.
+- `cancel`: () => void — End the gesture in flight with nothing acting, for when the menu closes under it.
 
 ### usePopover
 

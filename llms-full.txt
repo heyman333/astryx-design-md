@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `967a936` (2026-10-03) of https://github.com/facebook/astryx.
+Generated from commit `f372744` (2026-10-04) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -297,12 +297,13 @@ Props:
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when the menu opens or closes.
 - `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — Presentation policy. `popover` opens at the pointer position, `bottom-sheet` always uses an action sheet, and `adaptive` uses the BottomSheet at 768px and below when the primary pointer is coarse.
 - `isDisabled`: boolean = false — When true, right-click shows the native browser context menu instead.
+- `triggerAs`: 'div' | 'span' = 'div' — The element the trigger wrapper renders as. 'div' is a block; 'span' an inline wrapper, so a reference inside prose can own a context menu without breaking the text flow.
 
 ### Trigger button
 
 Import: `import {Trigger button} from '@astryxdesign/core/DropdownMenu';`
 
-A dropdown menu that displays a list of actionable items in a popup triggered by a button. Use to present action options as a next step in a process, or to offer contextual actions without cluttering the interface. Like the menus of macOS and iOS, the row under the pointer when it is released is the row that acts, and the highlight follows a held mouse or finger.
+A dropdown menu that displays a list of actionable items in a popup triggered by a button. Use to present action options as a next step in a process, or to offer contextual actions without cluttering the interface. Like the menus of macOS and iOS, the row under the pointer when it is released is the row that acts, the highlight follows a held mouse or finger, a mouse opens it on press and can drag straight into it, and a finger held on the trigger opens it with the finger down.
 
 Do:
 - Keep menu items concise and action-oriented so users can scan options quickly.
@@ -318,17 +319,19 @@ Don't:
 - Place more than 10–12 items in a single menu without grouping them into sections.
 
 Props:
-- `button`: DropdownMenuButtonProps = { label: 'Menu' } — Props for the trigger button (Button props except onClick).
-- `items`: DropdownMenuOption[] (required) — Array of menu entries. Each entry is one of: an action item `{label, onClick?, icon?, description?, endContent?, isDisabled?, variant?, hasCloseOnSelect?, id?}` (variant `"destructive"` renders it in the error color; `endContent` holds trailing content such as a keyboard-shortcut hint; `id` is the row's stable React key, needed only when the array reorders or filters), a divider `{type: "divider"}`, or a section `{type: "section", title?, id?, items: [...action items]}`.
+- `button`: DropdownMenuButtonProps = { label: 'Menu' } — Props for the trigger button (Button props except onClick). Mutually exclusive with `trigger`.
+- `renderTrigger`: (props: DropdownMenuTriggerProps) => ReactNode — Render the control the menu hangs off — an IconButton, a chip, an avatar, a list row — instead of the built-in Button. Spread the given props onto it: they carry the press model (a mouse opens on press-down, a held finger opens with the finger down), the keyboard opens, the toggle click, and `aria-haspopup`/`aria-expanded`/`aria-controls`/`id`; the menu is then named by that control through `aria-labelledby`. Mutually exclusive with `button`.
+- `items`: DropdownMenuOption[] (required) — Array of menu entries. Each entry is one of: an action item `{label, onClick?, href?, target?, rel?, icon?, description?, endContent?, isDisabled?, variant?, hasCloseOnSelect?, id?}` (`href` makes the row a real link, so a modified click keeps the browser's meaning; variant `"destructive"` renders it in the error color; `endContent` holds trailing content such as a keyboard-shortcut hint; `id` is the row's stable React key, needed only when the array reorders or filters), a divider `{type: "divider"}`, or a section `{type: "section", title?, id?, items: [...action items]}`.
 - `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — Presentation surface for data-driven items. 'popover' stays anchored, 'bottom-sheet' always renders the actions in a modal BottomSheet, and 'adaptive' uses a BottomSheet on compact coarse-pointer layouts while remaining anchored elsewhere. Compound children currently support popover only.
 - `isMenuOpen`: boolean — Controlled open state for the menu. Mounting with true renders the menu open without moving focus into it; focus moves to the first item only when the menu opens after mount.
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when the open state changes.
 - `menuWidth`: number | string — Minimum width for the popover presentation. Length values may grow for content; intrinsic and CSS-wide keywords select the preferred inline size. Every form is capped to the available viewport space. Defaults to matching the trigger width up to that cap.
+- `menuMaxHeight`: number — Maximum height in pixels for the popover presentation, for a menu that must fit its rows. Lifts the default 300px cap; the viewport still bounds it.
 - `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Popover placement relative to the trigger. Ignored by the bottom-sheet presentation. Logical: start/end resolve against the menu's own inherited direction (RTL mirrors).
 - `alignment`: 'start' | 'center' | 'end' = 'start' — Popover alignment along the placement axis. Ignored by the bottom-sheet presentation. Logical: start/end follow the menu's own inherited direction (RTL mirrors).
 - `onClick`: () => void — Callback fired for accepted trigger activation. The trailing click from the same press that light-dismissed the menu is ignored.
 - `hasChevron`: boolean = true — Whether to show a chevron icon on the trigger button. Set to false for icon-only triggers.
-- `children`: ReactNode — Compound-mode menu content: DropdownMenuItem, DropdownMenuDivider, DropdownMenuSubMenu, and the selectable items. Mutually exclusive with `items`.
+- `children`: ReactNode — Compound-mode menu content: DropdownMenuItem, DropdownMenuDivider, DropdownMenuSubMenu (a flyout on a laptop, a drilled-in view with a Back row on a phone), and the selectable items. Mutually exclusive with `items`.
 
 ### Trigger button
 
@@ -398,6 +401,10 @@ Props:
 - `icon`: IconType — Icon to display before the label. See `astryx docs icons` for valid semantic names.
 - `label`: ReactNode — Primary label text.
 - `description`: ReactNode — Secondary description text displayed below the label.
+- `onClick`: (event: MouseEvent) => void — Callback when the item is selected. A keyboard activation arrives as a synthesized click carrying the key's modifiers. On a row with `href` it runs before the browser navigates and is skipped for a modified click (⌘, Ctrl, Shift, Alt, middle button), which is left to the browser.
+- `href`: string — Address the row navigates to. The row then renders as a real anchor with role="menuitem" (through LinkProvider), so a modified click or a middle click keeps the browser's meaning — a new tab — instead of running onClick.
+- `target`: '_blank' | '_self' — Link target. Only used with href.
+- `rel`: string — Link relationship. noopener noreferrer is added for target="_blank". Only used with href.
 - `endContent`: ReactNode — Additional content rendered after the label and description.
 - `hasCloseOnSelect`: boolean = true — Whether activating the item closes the menu. Set false for an action that reports its result on the item itself.
 - `variant`: 'default' | 'destructive' = 'default' — Visual variant. 'destructive' renders the label, description, and icon in the error color for dangerous actions (e.g. Delete).
@@ -441,6 +448,7 @@ Props:
 - `hasSpinner`: boolean = false — Show a spinner in place of the caret, e.g. while a lazy submenu's children are loading.
 - `menuWidth`: number | string — Minimum flyout width. The flyout may grow for its content, but it is capped to the available viewport space. Defaults to intrinsic sizing (min 160px).
 - `onOpenChange`: (isOpen: boolean) => void — Called when the flyout opens or closes.
+- `presentation`: 'flyout' | 'drill-in' | 'adaptive' = 'adaptive' — How the sub-menu shows its rows. 'flyout' opens them beside the row; 'drill-in' replaces the menu's rows with them and a Back row, in the same box; 'adaptive' drills in when a finger opened the menu (a coarse pointer, decided when the menu opened) and flies out otherwise.
 - `xstyle`: StyleXStyles — StyleX styles for the trigger row. Must be a stylex.create() value: not an inline style object like style={{}}.
 
 ### SegmentedControlItem (subcomponent/hook)
@@ -633,7 +641,7 @@ Props:
 - `onChange`: (value: string) => void — Called when the input value changes. The serialized string includes token placeholders.
 - `placeholder`: string = 'Type a message...' — Placeholder text shown when the input is empty.
 - `maxRows`: number = 8 — Maximum visible rows before the input scrolls. Use a lower value in compact layouts.
-- `triggers`: ChatComposerTrigger[] — Trigger definitions for typeahead menus. Each trigger specifies a character (@ or /), a search source, and an onSelect handler that returns the token to insert.
+- `triggers`: ChatComposerTrigger[] — Trigger definitions for typeahead menus. Each trigger specifies a character (@ or /), a search source, and an onSelect handler that returns the token to insert. Per-trigger emptySearchText (ReactNode) is the message when the query matched nothing; the older emptySearchResultsText (string) is deprecated and still works.
 - `debounceMs`: number = 150 — Debounce delay for async search sources to avoid excessive network requests.
 - `hasHistory`: boolean = true — Enable ArrowUp/Down to recall previously submitted messages.
 - `label`: string = 'Message input' — Accessible label announced by screen readers.
@@ -888,7 +896,7 @@ Props:
 - `onClick`: (event: MouseEvent) => void — Click handler: fires on card surface only.
 - `href`: string — Navigation URL. Plain, new-tab, Cmd/Ctrl-click, and middle-click activation all follow the shared navigation rule described on the Link `href` prop.
 - `target`: string = '_self' — Link target.
-- `isDisabled`: boolean = false — Disables the card.
+- `isDisabled`: boolean = false — Disables the card, removes a link destination, and leaves the card out of the tab order.
 - `children`: ReactNode — Card content.
 - `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 = 4 — Inner padding.
 - `variant`: 'default' | 'transparent' | 'muted' | 'blue' | 'cyan' | 'gray' | 'green' | 'orange' | 'pink' | 'purple' | 'red' | 'teal' | 'yellow' = 'default' — Background color variant.
@@ -1066,6 +1074,30 @@ Props:
 - `number`: number (required) — The display index for this citation.
 - `variant`: 'label' | 'number' = 'label' — Display style: a label chip showing the source title or a compact numbered badge.
 
+### Code
+
+Import: `import {Code} from '@astryxdesign/core/Code';`
+
+Code marks short inline references such as function names, variables, file paths, and command-line flags. Use CodeBlock for standalone or multi-line snippets.
+
+Do:
+- Use Code for short technical terms inside prose, such as a function name, prop, file path, or command-line flag.
+- Set size to 'inherit' when inline code should match the surrounding text size and line height.
+
+Don't:
+- Use Code for multi-line or standalone snippets. Use CodeBlock instead so readers get appropriate block formatting and syntax support.
+- Use Code as an interactive copy or navigation control. Pair it with the appropriate Button or Link when an action is required.
+
+Props:
+- `children`: ReactNode (required) — The inline code content.
+- `color`: 'primary' | 'secondary' | 'inherit' = 'primary' — Text color. Use 'inherit' to take the surrounding text color.
+- `size`: 'inherit' — Set to 'inherit' to take the surrounding font size and line height. Omit it to use the code type-scale size.
+- `ref`: React.Ref<HTMLElement> — Ref forwarded to the semantic code element.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value, not an inline style object like style={{}}.
+- `className`: string — CSS class name for the root element. Prefer xstyle for styling.
+- `style`: CSSProperties — Inline styles for the root element. Prefer xstyle for StyleX-optimized styling.
+- `data-testid`: string — Test selector for automated testing frameworks.
+
 ### CodeBlock
 
 Import: `import {CodeBlock} from '@astryxdesign/core/CodeBlock';`
@@ -1125,7 +1157,8 @@ Do:
 - Use inlinePlugins for prefixed identifiers, mentions, and other prose-only shorthand instead of preprocessing the markdown string.
 - Provide components.math only for documents that use dollar-delimited math. The renderer owns typesetting and accessible output; Astryx passes the expression as text and never executes raw HTML.
 - For direct parsing, use MathParseOptions and handle InlineNodeWithMath or BlockNodeWithMath. Incremental math parsing also uses createIncrementalState<true>() and IncrementalParseState<true>; default calls and ParseOptions annotations keep the legacy unions.
-- Pair with Outline and useOutlineFromMarkdown for section navigation: headings render generated id attributes that match the outline item ids, so hash links scroll to their target.
+- Install createMarkdownHeadingLinks() through plugins when a document needs copyable h1–h6 permalinks. The returned entry carries its validated namespace and URL base across compatible Core package copies. Each built-in heading keeps its incoming fragment ID and gains an inline trailing # copy button: it is hidden at fine-pointer rest through useContainerReveal, reveals on heading-row hover or keyboard focus, and stays visible under the hook’s coarse/touch semantics. Unmodified tap, click, Enter, or Space copies the canonical URL without navigation, hash mutation, or scrolling; a check confirms success for 1.5 seconds. The no-plugin path stays unchanged, and nested headings use the same depth-first identity projection as Markdown-derived Outline.
+- For multiple documents, create one heading-links plugin per document with headingIdPrefix and pass that same plugin to Markdown and useOutlineFromMarkdown. Use the same stable value for Markdown id when the root also needs a DOM id; permalinkBaseUrl may supply a safe caller-owned URL before the fragment.
 
 Don't:
 - Use Markdown for hand-authored layouts; use Text and Heading directly when you control the content.
@@ -1411,17 +1444,6 @@ Props:
 - `variant`: 'success' | 'neutral' | 'error' = 'success' — Semantic variant pairing colour with a distinct shape: success = filled green dot, neutral = grey ring, error = red dot with a minus bar.
 - `label`: string — Accessible label describing the status. Inside an Avatar it is composed into the avatar's accessible name (e.g. "Jane Doe, Online"); the Avatar root is role="img", which prunes child semantics, so the composed name is how the status reaches assistive tech. Standalone dots expose role="img" with this label directly.
 - `icon`: ReactNode — Icon centered inside the dot (hidden at tiny sizes). A rendered icon replaces the built-in shape glyph, so use a different icon per status.
-
-### Code (subcomponent/hook)
-
-Import: `import {Code} from '@astryxdesign/core/CodeBlock';`
-
-Props:
-- `children`: ReactNode (required) — Code content.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
-- `className`: string — CSS class name for the root element. Prefer xstyle for styling.
-- `style`: CSSProperties — Inline styles. Prefer xstyle for StyleX-optimized styling.
-- `data-testid`: string — Test selector for automated testing frameworks.
 
 ### Heading (subcomponent/hook)
 
@@ -1728,6 +1750,7 @@ Parameters:
 - `options.onEscape`: () => void — Callback when Escape key is pressed (e.g., close menu). Supplying it also consumes the key (preventDefault); without it Escape passes through to the surrounding layer.
 - `options.orientation`: 'horizontal' | 'vertical' | 'both' = 'vertical' — Navigation orientation. 'horizontal' uses ArrowLeft/ArrowRight, 'vertical' uses ArrowUp/ArrowDown, 'both' accepts all four arrows.
 - `options.hasHomeEnd`: boolean = true — Whether Home/End jump to the first/last enabled item.
+- `options.hasPaging`: boolean = false — Whether PageDown/PageUp page through a scrolling list: PageDown moves to the last enabled item fully visible in the container, and pressed there again one viewport further; PageUp mirrors it. Neither wraps; in a list that does not scroll they act as End/Home.
 - `options.hasRovingTabIndex`: boolean = false — Opt into roving-tabindex ownership: the hook stamps a single tab stop (one item tabindex="0", the rest -1), repairs it as items mount/unmount or toggle disabled, and moves it with arrow navigation. When false, the hook only moves focus and never touches tabindex.
 - `options.hasCaretGuard`: boolean = false — When true, arrow keys are not stolen from a nested text input/textarea whose caret is not at the boundary in the direction of travel (or that has a selection), and are never stolen from a nested contenteditable (rich-text editor / chat composer). Preserves inline text editing within the list.
 
@@ -2058,6 +2081,7 @@ Props:
 - `width`: SizeValue — Width of the field.
 - `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Popup placement.
 - `alignment`: 'start' | 'center' | 'end' = 'start' — Popup alignment along the placement axis.
+- `renderTrigger`: (props: ComplexSelectorRenderTriggerProps) => ReactNode — Render the control the popup hangs off — a glyph in a list row, a chip, an icon button — instead of the selector's own field and button. Spread the given props ({ref, id, onClick, onKeyDown, aria-haspopup, aria-expanded, aria-controls, aria-busy}) onto it; the popup is anchored to that control and still labelled by `label`. The field chrome is not rendered. Pair with handleRef to open from a keystroke elsewhere.
 - `handleRef`: React.Ref<ComplexSelectorHandle> — Imperative handle for programmatic control. Exposes open(), close(), toggle(), and isOpen().
 - `onOpenChange`: (isOpen: boolean) => void — Called whenever the surface opens or closes, however it happened — trigger, keyboard, light dismiss, Escape, close(), or the imperative handle.
 - `contentXstyle`: StyleXStyles — StyleX styles for the popup content container.
@@ -2141,8 +2165,8 @@ Props:
 - `selectAllLabel`: string = 'Select all' — Label for the select-all checkbox.
 - `hasSearch`: boolean — Whether to show a search input for filtering options. As the user types, the match count (or "No results found") is announced to screen readers via a polite live region. The search field has built-in affordances: a leading magnifier icon and, once a query is typed, a trailing clear (✕) button that resets the query and returns focus to the input.
 - `searchPlaceholder`: string = 'Search...' — Placeholder text for the search input.
-- `emptyText`: ReactNode = 'No options' — Content shown in the dropdown panel when there are no options to show, and announced in a polite live region when the panel opens (a string override is announced verbatim; a richer node falls back to the default text). Not shown while isLoading.
-- `emptySearchText`: ReactNode = 'No results found' — Content shown in the dropdown panel when a search query matches no options, and announced in a polite live region at the same time (a string override is announced verbatim; a richer node falls back to the default text).
+- `emptyText`: ReactNode = 'No options' — Content shown in the dropdown panel when there are no options to show, and announced in a polite live region when the panel opens. The announcement is the text this content renders, read from the DOM, so an element is announced as written and aria-hidden parts are left out of both. Not shown while isLoading.
+- `emptySearchText`: ReactNode = 'No results found' — Content shown in the dropdown panel when a search query matches no options, and announced in a polite live region at the same time. The announcement is the text this content renders, read from the DOM, so an element is announced as written and aria-hidden parts are left out of both.
 - `isDisabled`: boolean — Disables the selector.
 - `isReadOnly`: boolean = false — Makes the selector read-only: the selected values stay visible, focusable, and included in form submission, and retain their combobox identity with aria-readonly. The selection surface, clear action, and disclosure indicator are removed. Unlike isDisabled, the control is not dimmed. isDisabled takes precedence when both are set.
 - `htmlName`: string — The HTML name attribute for form submissions. Renders one hidden input per selected value, like a native multi-select.
@@ -2194,8 +2218,8 @@ Props:
 - `hasClear`: boolean = false — Shows a clear (×) button when a value is selected. When true, onChange also accepts null to signal the user cleared the selection.
 - `hasSearch`: boolean = false — Whether to show a search input for filtering options. As the user types, the match count (or "No results found") is announced to screen readers via a polite live region. The search field has built-in affordances: a leading magnifier icon and, once a query is typed, a trailing clear (✕) button that resets the query and returns focus to the input.
 - `searchPlaceholder`: string = 'Search...' — Placeholder text for the search input.
-- `emptyText`: ReactNode = 'No options' — Content shown in the dropdown panel when there are no options to show, and announced in a polite live region when the panel opens (a string override is announced verbatim; a richer node falls back to the default text). Not shown while isLoading.
-- `emptySearchText`: ReactNode = 'No results found' — Content shown in the dropdown panel when a search query matches no options, and announced in a polite live region at the same time (a string override is announced verbatim; a richer node falls back to the default text).
+- `emptyText`: ReactNode = 'No options' — Content shown in the dropdown panel when there are no options to show, and announced in a polite live region when the panel opens. The announcement is the text this content renders, read from the DOM, so an element is announced as written and aria-hidden parts are left out of both. Not shown while isLoading.
+- `emptySearchText`: ReactNode = 'No results found' — Content shown in the dropdown panel when a search query matches no options, and announced in a polite live region at the same time. The announcement is the text this content renders, read from the DOM, so an element is announced as written and aria-hidden parts are left out of both.
 - `placeholder`: string = 'Select...' — Placeholder text shown when no value is selected.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant for the selector.
 - `variant`: 'input' | 'ghost' = 'input' — Visual trigger style. input is the bordered input treatment for forms; ghost is borderless and matches ghost buttons for toolbar usage.
@@ -2295,7 +2319,8 @@ Props:
 - `isRequired`: boolean = false — Marks the field as required.
 - `isOptional`: boolean = false — Shows an optional indicator on the label.
 - `labelTooltip`: string — Tooltip text shown on the label.
-- `emptySearchResultsText`: string = 'No results found' — Text shown when search returns no results.
+- `emptySearchText`: ReactNode = 'No results found' — Content shown when the query matched nothing. Takes a ReactNode, so the dead end can carry a link or a create row. Announced in a polite live region as the text it renders, read from the DOM; aria-hidden parts stay out of both, and content that renders no text announces nothing. null counts as not given, like undefined, and falls through to the default; pass an empty string to render nothing.
+- `emptySearchResultsText`: string = 'No results found' — Deprecated: renamed to emptySearchText, which takes a ReactNode rather than a string, so every existing value stays valid. Still works exactly as released; emptySearchText wins when both are set.
 - `hasAutoFocus`: boolean = false — Auto-focus the input on mount.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Input and token size.
 - `debounceMs`: number = 150 — Debounce delay in ms before triggering search. Set to 0 for synchronous sources.
@@ -2835,7 +2860,8 @@ Props:
 - `maxMenuItems`: number = 10 — Maximum number of search results to display. The hasCreate entry is offered on top of them, so a menu can show one more than this.
 - `menuWidth`: number — Fixed dropdown width in pixels. The menu never shrinks below its anchor width.
 - `minQueryLength`: number = 1 — Minimum query length before the search source is queried. Below it no search runs, and the menu stays closed — unless hasCreate is set, in which case the "Create ..." entry is still offered, being derived from the typed text rather than fetched for it.
-- `emptySearchResultsText`: string = 'No results found' — Text shown when search returns no results.
+- `emptySearchText`: ReactNode = 'No results found' — Content shown when the query matched nothing. Takes a ReactNode, so the dead end can carry a link or a create row. Announced in a polite live region as the text it renders, read from the DOM; aria-hidden parts stay out of both, and content that renders no text announces nothing. null counts as not given, like undefined, and falls through to the default; pass an empty string to render nothing.
+- `emptySearchResultsText`: string = 'No results found' — Deprecated: renamed to emptySearchText, which takes a ReactNode rather than a string, so every existing value stays valid. Still works exactly as released; emptySearchText wins when both are set.
 - `hasAutoFocus`: boolean = false — Auto-focus the input on mount.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Input and token size.
 - `debounceMs`: number = 150 — Debounce delay in ms before triggering search. Set to 0 for synchronous sources.
@@ -2905,7 +2931,8 @@ Props:
 - `maxMenuItems`: number = 10 — Maximum dropdown items to display.
 - `menuWidth`: number — Requested dropdown width in pixels before viewport clamping.
 - `minQueryLength`: number = 1 — Minimum query length before the search source is queried. Below it no search runs and the menu stays closed.
-- `emptySearchResultsText`: string = 'No results found' — Text shown when search returns no results.
+- `emptySearchText`: ReactNode = 'No results found' — Content shown when the query matched nothing. Takes a ReactNode, so the dead end can carry a link or a create row. Announced in a polite live region as the text it renders, read from the DOM; aria-hidden parts stay out of both, and content that renders no text announces nothing. null counts as not given, like undefined, and falls through to the default; pass an empty string to render nothing.
+- `emptySearchResultsText`: string = 'No results found' — Deprecated: renamed to emptySearchText, which takes a ReactNode rather than a string, so every existing value stays valid. Still works exactly as released; emptySearchText wins when both are set.
 - `isDisabled`: boolean = false — Whether the input is disabled.
 - `isFocusableDisabled`: boolean = false — Keep a disabled input focusable with aria-disabled and readOnly so a caller-owned disabled reason remains discoverable. It blocks text entry, but when applied after results are already open, Enter can still select the highlighted option.
 - `hasAutoFocus`: boolean = false — Auto-focus the input on mount.
@@ -3246,7 +3273,7 @@ Returns:
 
 Import: `import {useMenuPress} from '@astryxdesign/core/hooks';`
 
-The press model of macOS and iOS menus, for any pointer: the row under the pointer when it is RELEASED is the row that acts, and the highlight follows the pointer while it is held. The pointer is tracked at document level by pointerId, so a finger that slid off the row it landed on is still followed; the click the browser reports at the end of a touch, aimed at the row where the touch began, is swallowed so nothing acts twice. DropdownMenu, ContextMenu, DropdownMenuSubMenu, Selector and the menu bottom sheet already mount it; reach for it directly only when building a menu-like surface of your own.
+The press model of macOS and iOS menus, for any pointer: the row under the pointer when it is RELEASED is the row that acts, the highlight follows the pointer while it is held, a mouse opens the menu on press and can drag straight into it, and a finger held on the trigger opens it with the finger still down. The pointer is tracked at document level by pointerId, so a finger that slid off the row it landed on is still followed; the click the browser reports at the end of a touch, aimed at the row where the touch began, is swallowed so nothing acts twice. DropdownMenu, ContextMenu, DropdownMenuSubMenu, Selector and the menu bottom sheet already mount it; reach for it directly only when building a menu-like surface of your own.
 
 Do:
 - Pass a selector for ENABLED rows only, so a disabled row or a divider under the pointer clears the highlight instead of lighting up.
@@ -3261,15 +3288,19 @@ Parameters:
 - `options`: UseMenuPressOptions (required) — Configuration object.
 - `options.menuRef`: RefObject<HTMLElement | null> (required) — The menu or listbox root — the surface whose rows a press picks from.
 - `options.itemSelector`: string (required) — Selector matching the ENABLED rows. A pointer over anything else inside the menu (a divider, a heading, a disabled row) highlights nothing.
-- `options.triggerRef`: RefObject<HTMLElement | null> — The control that opens the menu. A release over it is not outside: it acts on nothing and leaves the menu open under every pointer.
+- `options.triggerRef`: RefObject<HTMLElement | null> — The control that opens the menu, when a press may start there.
+- `options.onTriggerPress`: (pointerType: MenuPressPointerType) => boolean — A mouse pressed the trigger, or a finger rested on it for the long-press delay: open the menu under the held pointer and return whether it opened. Return false when the press closed an open menu instead.
 - `options.onHighlight`: (row: HTMLElement | null) => void — Move the highlight; null clears it. Defaults to moving DOM focus with preventScroll onto the row, and onto the menu root when there is no row. A picker that highlights through aria-activedescendant supplies its own.
 - `options.onActivate`: (row: HTMLElement, release: PointerEvent) => void — Act on the row under the release. Defaults to dispatching a click on the row that carries the release button and modifier keys.
 - `options.onDismiss`: () => void — A MOUSE was released outside the menu with nothing acting: close it. A finger released outside leaves the menu open, so this is never called then.
 - `options.getScroller`: () => HTMLElement | null — The element to scroll while a tracked pointer rests near its top or bottom edge. Defaults to the menu root when it overflows.
+- `options.longPressDelayMs`: number = 500 — How long a finger must rest on the trigger before the menu opens under it.
 - `options.isEnabled`: boolean = true — Whether the model is live.
 
 Returns:
 - `menuProps`: {onPointerDown; "data-astryx-menu-press": ""} — Spread onto the menu root. Claims presses that begin inside it and marks the root as carrying the press model.
+- `triggerProps`: {onPointerDown; onContextMenu} — Spread onto the trigger: a mouse press opens the menu at once; a finger held for the delay opens it with the finger still down.
+- `isTriggerClickFromPress`: () => boolean — Whether the click reaching the trigger belongs to the gesture that just pressed it. That press already opened or closed the menu, so the click must neither toggle nor reopen.
 - `cancel`: () => void — End the gesture in flight with nothing acting, for when the menu closes under it.
 
 ### usePopover
@@ -4112,7 +4143,7 @@ Do:
 - Pass a flat ordered list of headings and let level control indentation.
 - Use activeId when custom scroll logic owns the active section.
 - Use density="compact" in dense sidebars where vertical space is tight.
-- Use useOutlineFromMarkdown or useOutlineFromDOM when headings are generated from content.
+- Use useOutlineFromMarkdown or useOutlineFromDOM when headings are generated from content. For linkable Markdown headings, pass the same createMarkdownHeadingLinks() entry to Markdown and Outline; configure headingIdPrefix on that plugin for multiple roots.
 - Pass scrollContainerRef when the content scrolls in a split pane, modal, or panel instead of the viewport.
 - Set offset to the height of a fixed header that overlays the content, so headings land below it instead of underneath it.
 
@@ -4942,7 +4973,7 @@ Props:
 - `startContent`: ReactNode — Content rendered before the label/description area, such as an icon, avatar, or checkbox.
 - `description`: ReactNode — Secondary text: subtitle, description, or supporting info.
 - `endContent`: ReactNode — Content rendered after the label/description area, such as badges, metadata, timestamps, or action buttons.
-- `as`: 'div' | 'li' | 'span' = 'div' — HTML element to render as the root.
+- `as`: 'div' | 'li' | 'span' | ElementType = 'div' — What the root renders as: an HTML element, or a component for a caller that needs the root to be something else. A menu row that navigates passes the application's link component here, so the row's root IS the anchor. Give a component only when the row carries a role, and only when no interactive node sits in startContent or endContent.
 - `align`: 'center' | 'start' = 'center' — Vertical alignment of start/end content slots.
 - `density`: 'compact' | 'balanced' | 'spacious' = 'balanced' — Spacing density. "compact" uses 4px block padding, "balanced" uses 8px, and "spacious" uses 12px block and inline padding.
 - `labelLines`: number — Max lines before label truncates with ellipsis.
@@ -4950,7 +4981,7 @@ Props:
 - `layout`: 'stacked' | 'inline' = 'stacked' — How the label and description sit together. stacked puts the description on its own line below the label; inline keeps both on one line, description ellipsizing first, so the row fits a fixed-height host.
 - `onClick`: (event: MouseEvent) => void — Click handler. Makes the item clickable with button semantics.
 - `interactiveRef`: RefObject<HTMLElement | null> — Ref to a nested control (e.g. a checkbox in startContent) that owns the item's keyboard access and action. The row becomes an enlarged click/tap target that delegates surface clicks to it (useClickableContainer) and renders no invisible button/anchor, so the row adds no second tab stop (WCAG 4.1.2). Mutually exclusive with onClick/href; those are ignored when set.
-- `href`: string — Link URL. Makes the item a link via an invisible anchor element. The destination follows the shared navigation rule described on the Link `href` prop.
+- `href`: string — Link URL. Makes the item a link via an invisible anchor element. A row whose root is already a link component (see `as`) carries the address on that root instead, and no invisible anchor is rendered.
 - `target`: '_blank' | '_self' — Link target. Only used with href. target="_blank" automatically adds noopener noreferrer.
 - `rel`: string — Link relationship tokens. noopener noreferrer are merged automatically for target="_blank".
 - `isHighlighted`: boolean = false — Highlighted state (hover/keyboard focus appearance).

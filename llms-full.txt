@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `f372744` (2026-10-04) of https://github.com/facebook/astryx.
+Generated from commit `f498458` (2026-10-04) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -913,6 +913,7 @@ Import: `import {Collapsible} from '@astryxdesign/core/Collapsible';`
 The trigger text must have at least 4.5:1 contrast with the surface behind it. For Pointer down, measure against the pressed overlay the trigger row paints while it is pressed.
 
 Do:
+- Give every trigger a meaningful accessible name. Visible text usually supplies it; custom trigger content should include VisuallyHidden text when its visuals do not.
 - Use hasDividers on CollapsibleGroup for FAQ-style lists: built-in row hairlines with themed border tokens, no hand-rolled borders.
 - Wrap each Collapsible in an Card for visual separation in accordion layouts, or use CollapsibleGroup's hasDividers for flat lists; don't combine both.
 - Use CollapsibleGroup with type="single" for settings or FAQ pages where only one section should be open at a time.
@@ -927,12 +928,17 @@ Don't:
 Props:
 - `trigger`: ReactNode (required) — Content shown in the trigger area (always visible).
 - `children`: ReactNode — Content that collapses and expands.
-- `defaultIsOpen`: boolean = true — Default open state (uncontrolled).
-- `isOpen`: boolean — Controlled open state.
+- `defaultIsOpen`: boolean = true — Default open state for standalone uncontrolled usage. Ignored when value binds the item to a surrounding CollapsibleGroup.
+- `isOpen`: boolean — Controlled open state for standalone usage. Ignored when value binds the item to a surrounding CollapsibleGroup.
 - `isDisabled`: boolean = false — Disable the item so its trigger can't be toggled (dimmed, aria-disabled, and out of the tab order). Doesn't collapse an already-open item.
-- `onOpenChange`: (isOpen: boolean) => void — Callback invoked when the open state changes.
+- `onOpenChange`: (isOpen: boolean) => void — Callback invoked when standalone open state changes. A surrounding CollapsibleGroup owns grouped state and calls its onChange instead.
 - `chevronPosition`: 'start' | 'end' = 'end' — Logical position of Collapsible's disclosure chevron. `end` (default) follows the label, pointing down when collapsed and up when expanded. `start` precedes the label, pointing inward toward content when collapsed (mirrored under RTL) and down when expanded. Inside a CollapsibleGroup this defaults to the group's chevronPosition.
-- `value`: string — Identifier used for group coordination. Required when placed inside an CollapsibleGroup.
+- `value`: string — Identifier used for group coordination. When set inside a CollapsibleGroup, the group owns open state and its onChange is the notification callback.
+- `ref`: React.Ref<HTMLDivElement> — Ref forwarded to the root collapsible element.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
+- `className`: string — CSS class name for the root element. Prefer xstyle for styling.
+- `style`: CSSProperties — Inline styles. Prefer xstyle for StyleX-optimized styling.
+- `data-testid`: string — Test selector for automated testing frameworks.
 
 ### SelectableCard
 
@@ -975,6 +981,11 @@ Props:
 - `density`: 'compact' | 'balanced' | 'spacious' — Row density controlling trigger and content block padding on the group's items. Defaults to 'balanced' when dividers are shown; otherwise items keep their default unpadded look.
 - `chevronPosition`: 'start' | 'end' = 'end' — Logical position shared by the group's direct Collapsible items. `end` is the default trailing indicator; `start` is a leading disclosure arrow that points inward when collapsed (mirrored under RTL) and down when expanded. An individual Collapsible can still override it.
 - `children`: ReactNode (required) — Collapsible instances to coordinate.
+- `ref`: React.Ref<HTMLElement> — Ref forwarded to the group wrapper when hasDividers renders one.
+- `xstyle`: StyleXStyles — StyleX styles for the group wrapper when hasDividers renders one. Must be a stylex.create() value.
+- `className`: string — CSS class name for the group wrapper when hasDividers renders one. Prefer xstyle for styling.
+- `style`: CSSProperties — Inline styles for the group wrapper when hasDividers renders one. Prefer xstyle for StyleX-optimized styling.
+- `data-testid`: string — Test selector forwarded to the group wrapper when hasDividers renders one.
 
 ## Content
 
@@ -1130,8 +1141,9 @@ Props:
 - `tokenizer`: (code: string, language: string) => Array<{type: string; start: number; end: number}> — Custom tokenizer override for unsupported languages.
 - `syntaxTheme`: SyntaxThemeDefinition — Per-instance syntax theme override. Shorthand for wrapping the block in <SyntaxTheme theme={...}>. Accepts a preset from @astryxdesign/core/theme/syntax or a theme created with defineSyntaxTheme(). Defaults to the nearest SyntaxTheme ancestor or the theme-level syntax colors.
 - `highlightMode`: 'auto' | 'ranges' | 'spans' = 'auto' — Syntax highlighting rendering mode.
-- `isCollapsible`: boolean = false — Allow collapsing the code body into just the header bar. Starts expanded; the header becomes clickable to toggle. Only shows the toggle when the code exceeds collapsibleThreshold lines.
+- `isCollapsible`: boolean = false — Allow collapsing the code body into just the header bar. Starts expanded; a visible header becomes clickable when the code exceeds collapsibleThreshold lines. Headerless blocks never collapse, and removing the header expands a previously collapsed block.
 - `collapsibleThreshold`: number = 10 — Minimum number of lines before the collapse toggle appears. Below this threshold the code block renders normally even when isCollapsible is true.
+- `ref`: React.Ref<HTMLPreElement> — Ref forwarded to the root code-block element.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
 - `className`: string — CSS class name for the root element. Prefer xstyle for styling.
 - `style`: CSSProperties — Inline styles. Prefer xstyle for StyleX-optimized styling.
@@ -3056,6 +3068,7 @@ Do:
 - For accordion behavior, wrap items in CollapsibleGroup and pass unique value props.
 
 Don't:
+- Pass local isOpen, defaultIsOpen, or onOpenChange expecting them to run for a value-bound group item; the group owns that state and notification path.
 - Implement your own open/close state when useCollapsible already provides it; the hook handles group coordination automatically.
 
 Parameters:

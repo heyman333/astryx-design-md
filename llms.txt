@@ -2,7 +2,7 @@
 
 > Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 232 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 
-Generated from commit `f498458` (2026-10-04) of https://github.com/facebook/astryx.
+Generated from commit `00f1ed9` (2026-10-05) of https://github.com/facebook/astryx.
 
 Key facts:
 

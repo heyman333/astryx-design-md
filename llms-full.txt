@@ -1,10 +1,10 @@
 # Astryx — Full Component Reference
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 232 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 234 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `00f1ed9` (2026-10-05) of https://github.com/facebook/astryx.
+Generated from commit `090588f` (2026-10-06) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -392,6 +392,15 @@ Import: `import {DropdownMenuDivider} from '@astryxdesign/core/DropdownMenu';`
 
 Props:
 - `xstyle`: StyleXStyles — StyleX styles applied after the menu spacing. Must be a stylex.create() value: not an inline style object like style={{}}.
+
+### DropdownMenuGroup (subcomponent/hook)
+
+Import: `import {DropdownMenuGroup} from '@astryxdesign/core/DropdownMenu';`
+
+Props:
+- `title`: ReactNode — Heading shown above the rows and used as the group's accessible name. Omit for an unnamed group.
+- `children`: ReactNode — The rows of the group: DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioGroup, DropdownMenuSubMenu.
+- `xstyle`: StyleXStyles — StyleX styles applied to the group wrapper. Must be a stylex.create() value: not an inline style object like style={{}}.
 
 ### DropdownMenuItem (subcomponent/hook)
 
@@ -825,6 +834,7 @@ Do:
 - Spacing and alignment alone create visual grouping. Not everything needs a container; try removing the card and see if the grouping is still clear from whitespace and typography.
 - Keep padding consistent across sibling cards so they align visually in a grid or list.
 - Pair a card with Layout when you need a structured header, scrollable content, and footer with actions.
+- Let cards share a row or grid on a phone: a card shrinks to fit its track and clips content that cannot wrap at its edge. Truncate long IDs, hashes, and URLs with Text maxLines={1} (the full value shows in a tooltip), and give wide content its own scroll region: Table scrolls by itself; put code or other wide content in a ScrollableArea.
 
 Don't:
 - Default to cards for visual grouping. A heading + Stack with proper spacing creates hierarchy without adding borders everywhere. Cards should be the exception, not the default.
@@ -834,7 +844,7 @@ Don't:
 - Use color variants for status; use Banner or Badge for that. Color cards are for categorization.
 
 Props:
-- `width`: SizeValue — Width of the card (number = pixels, string = used as-is).
+- `width`: SizeValue — Width of the card (number = pixels, string = used as-is). In a flex row or grid track this is the preferred width: the card shrinks below it when the row is narrower. To hold the width in a flex row, wrap the card in StackItem (static by default) and let the row wrap or scroll. In Grid, set a consumer minWidth on the Card and size the track accordingly.
 - `height`: SizeValue — Height of the card (number = pixels, string = used as-is).
 - `maxWidth`: SizeValue — Maximum width of the card.
 - `minHeight`: SizeValue — Minimum height of the card.
@@ -1158,12 +1168,15 @@ Renders a markdown string as Astryx-styled components. Use Markdown for user-gen
 Do:
 - Set headingLevelStart to match the page hierarchy, e.g. start at 3 if the markdown sits inside an h2 section.
 - Use contentWidth to keep prose at a readable line length in wide layouts.
+- Emphasis and strong pair as CommonMark specifies, so *see **bold** more* puts the bold inside the emphasis. ***text*** renders as strong around emphasis, the order RichText draws, and is announced as both. Emphasis nested more than 100 levels deep stays as written text.
 - Use plugins created by createMarkdownPlugin for reusable syntax, immutable AST transforms, and typed extension rendering. Keep the ordered list stable while its syntax configuration is unchanged.
+- To render a plugin node outside Markdown, as another surface showing the same document does, read what the plugin declares with getMarkdownPluginCapabilities (syntax and transform, nothing else), and render each parsed extension node with MarkdownPluginNodeRenderer from the client-only @astryxdesign/core/Markdown/plugin-renderer subpath. It presents the node exactly as Markdown does, fallbacks and failure reports included, with no element of its own.
 - Add markdownSoftBreaksPlugin when single line endings are meaningful. It matches remark-breaks for supported Markdown, including multiline link labels, while code and other opaque content stay unchanged.
 - Use createMarkdownTextTransform for prose matching; it preserves code, links, images, citations, math, and accepted extension syntax as protected contexts. Provide requiredSubstrings only when they conservatively cover every possible match.
 - Use createMarkdownFenceTransform for declared code-fence languages with semantic data. createNode returns an owned block extension node; its standard plugin renderer and toText own presentation. components.code still wins, and a declined or failed proposal keeps the accessible, copyable CodeBlock fallback.
 - Use createMarkdownSourceDecoration to attach non-visual metadata — search hits, review annotations — to the blocks a source range touches, and getMarkdownSourceDecorations to read it back in a later plugin. Decorations appear on the settled document rather than on partial streaming chunks, and never change rendering, copyable text, accessible names, ids, focus order, or navigation.
 - Import parseMarkdownAst or parseInlineAst from @astryxdesign/core/Markdown/parser when server or React Server Component code needs to run plugins against the canonical readonly tree. The parser and plugin subpaths have no use-client boundary. The Markdown component remains client-owned, so function-bearing plugin entries must not be passed across an RSC serialization boundary.
+- Use decodeMarkdownCharacterReferences (from @astryxdesign/core/Markdown/parser or @astryxdesign/core/Markdown) to show text the way Markdown renders its character references: &copy;, &#169;, and &#xA9; become ©, while unknown names and references without their semicolon stay as written. It decodes plain text and knows nothing of Markdown, so skip code and backslash-escaped references yourself. It uses the same table Markdown renders with.
 - Use createMarkdownFrontmatter for typed document metadata. Its parse() method gives the host metadata directly; its plugin removes a complete leading block before rendering and withholds an unfinished block during streaming.
 - Import createMarkdownRemarkTransform from '@astryxdesign/core/Markdown/remark' only to reuse an existing synchronous transform-only Remark plugin; it stays out of every other bundle. Prove each plugin with fixtures: anything outside the supported MDAST subset — async work, parser or compiler plugins, processor state, raw HTML, unsupported nodes, forged positions, or metadata Astryx cannot represent — keeps the last valid document and reports one diagnostic.
 - Use inlinePlugins for prefixed identifiers, mentions, and other prose-only shorthand instead of preprocessing the markdown string.
@@ -2165,7 +2178,7 @@ Props:
 - `label`: string (required) — Label text for accessibility.
 - `options`: MultiSelectorOptionType[] (required) — Array of items: strings, objects with value/label/icon/disabled, dividers, or sections.
 - `value`: string[] (required) — Currently selected values.
-- `onChange`: (value: string[]) => void (required) — Callback fired when the selection changes.
+- `onChange`: (value: string[], change?: MultiSelectorChange) => void (required) — Called when the selection changes. A creation (hasCreate) arrives with `{type: "create", query}` as the second argument and the query appended to value; the caller adds the matching option in that same update. Every other change passes no descriptor, so a one-argument handler keeps working.
 - `changeAction`: (value: string[]) => void | Promise<void> — Async action on change. Fires after onChange.
 - `placeholder`: string = 'Select...' — Placeholder text shown when no value is selected.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant for the selector.
@@ -2179,6 +2192,7 @@ Props:
 - `searchPlaceholder`: string = 'Search...' — Placeholder text for the search input.
 - `emptyText`: ReactNode = 'No options' — Content shown in the dropdown panel when there are no options to show, and announced in a polite live region when the panel opens. The announcement is the text this content renders, read from the DOM, so an element is announced as written and aria-hidden parts are left out of both. Not shown while isLoading.
 - `emptySearchText`: ReactNode = 'No results found' — Content shown in the dropdown panel when a search query matches no options, and announced in a polite live region at the same time. The announcement is the text this content renders, read from the DOM, so an element is announced as written and aria-hidden parts are left out of both.
+- `hasCreate`: boolean = false — With hasSearch, offers a `Create "<query>"` row first in the list when the typed text equals no option label under the search’s case-insensitive matching. Picking it, or Enter with nothing highlighted, calls onChange with the query appended to value and a `{type: "create", query}` descriptor, then clears the search; the caller must add an option for the new value in that update. Nothing is offered while isLoading. Without hasSearch it warns in development and offers nothing.
 - `isDisabled`: boolean — Disables the selector.
 - `isReadOnly`: boolean = false — Makes the selector read-only: the selected values stay visible, focusable, and included in form submission, and retain their combobox identity with aria-readonly. The selection surface, clear action, and disclosure indicator are removed. Unlike isDisabled, the control is not dimmed. isDisabled takes precedence when both are set.
 - `htmlName`: string — The HTML name attribute for form submissions. Renders one hidden input per selected value, like a native multi-select.
@@ -2197,6 +2211,9 @@ Props:
 - `startIcon`: IconType | ReactNode — Icon displayed at the start of the selector trigger.
 - `hasClear`: boolean = false — Shows a clear button when values are selected.
 - `isDefaultOpen`: boolean = false — Whether the dropdown starts open on mount.
+- `renderTrigger`: (props: MultiSelectorRenderTriggerProps) => ReactNode — Render the control the panel hangs off — a glyph in a list row, a chip, an icon button — instead of the selector's own field and button. Spread the given props ({ref, id, onClick, onKeyDown, onFocus, aria-haspopup, aria-expanded, aria-controls, aria-busy}) onto it; the listbox is anchored to that control and named by `label`. The field chrome (Field, status, clear, spinner) is not rendered. Pair with handleRef to open from a keystroke elsewhere.
+- `handleRef`: React.Ref<MultiSelectorHandle> — Imperative handle with open(), close(), toggle() and isOpen(). Prefer it over mirroring open state in the parent; the selector owns its visibility.
+- `onOpenChange`: (isOpen: boolean) => void — Called whenever the panel opens or closes, however it happened: the trigger, the keyboard, a light dismiss, Escape, or the handle.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
 
 ### Field
@@ -3358,6 +3375,23 @@ Returns:
 - `id`: string — Unique ID for aria-describedby or aria-controls.
 - `render`: (children: ReactNode, props?: ContextRenderProps) => ReactNode — Render function for anchor-positioned popover content. Pass placement and alignment here. Logical: start/end resolve against the popover's own inherited direction (RTL mirrors in pure CSS).
 - `triggerProps`: {aria-haspopup: "dialog" | "true"; aria-expanded: boolean; aria-controls: string} — ARIA attributes to spread onto the trigger element. aria-haspopup reflects the popover role.
+
+### usePressFeedback
+
+Import: `import {usePressFeedback} from '@astryxdesign/core/hooks';`
+
+The touch press model every Astryx pressable uses, for a local component that paints its own press. Under a finger, CSS `:active` paints on the touch itself and can outlive the start of a scroll; the press model instead waits 150 ms before believing a press, cancels it the moment the finger travels 10 px or a scroll claims the gesture, never brings it back inside that gesture, answers a quick tap at the lift, and fades the release over 200 ms — the clocks a native list uses. One document-level controller does this for every marked element (installed by the first pressable to mount, removed by the last to unmount), so calling the hook adds no listener or state to your element. Under a mouse nothing changes: keep your `:active` rule, and drop it under `@media (pointer: coarse)` the way the built-in components do.
+
+Do:
+- Spread the result on the element whose background paints the press and compose one of `interactionOverlayStyles` on it; the composed style is the instant onset, the hold and the fade, and it is themed through `--color-overlay-pressed`.
+- Let the composed style own the press on every pointer: it keeps `:active` for a mouse and drops it under `@media (pointer: coarse)`, so a finger sees only the press model. A rule of your own that paints `:active` would paint under a finger too, on the touch and through a scroll.
+
+Don't:
+- Add a pointer listener or React state to the element to track the press; the controller already writes the attribute, and per-element listeners are what a long list cannot afford.
+- Call it for a control rendered by an Astryx component; those are marked already, and the innermost marked element takes the press.
+
+Returns:
+- `pressableProps`: {'data-astryx-pressable': ''} — The marker attribute to spread on the element that paints the press. Compose one of `interactionOverlayStyles` (from `@astryxdesign/core/utils`) on the same element — `backgroundColor` or `backgroundImage` for a surface whose hover and press are the system's overlays, `pressedBackgroundColor` for one whose hover is its own — and it paints the pressed token at the press's strength on the first frame of a believed press and fades it over the release, keeping `:active` for a mouse. A press is themed through `--color-overlay-pressed`.
 
 ### useToast
 
@@ -5483,9 +5517,10 @@ Props:
 
 Import: `import {Layer} from '@astryxdesign/core/Layer';`
 
-Layer utilities provide the app-level provider used by overlay systems. Use LayerProvider at the app root for toast/layer configuration; use higher-level Popover, HoverCard, or Tooltip APIs for most overlay UI. Rendered layer content, not the provider’s application subtree, uses theme body text defaults and exits ancestor surface/group membership. Establish intentional groups and complete required providers inside each layer.
+Layer utilities provide the app-level provider used by overlay systems. Use LayerProvider at the app root for toast/layer configuration; use higher-level Popover, HoverCard, or Tooltip APIs for most overlay UI. Rendered layer content, not the provider’s application subtree, uses theme body text defaults and exits ancestor surface/group membership. Establish intentional groups and complete required providers inside each layer. Every anchored layer keeps a gutter from each viewport edge — the spacing-4 step or the device safe-area inset, whichever is larger — and is capped to the viewport, never to the room beside its trigger: an explicit width renders at its size, flips when it does not fit beside the trigger, and slides into view when it fits on neither side. An app that floats a persistent bar over a viewport edge declares it once as inset on LayerProvider (blockStart, blockEnd, inlineStart, inlineEnd); each edge adds to that edge\u2019s gutter for every anchored layer and moves the toast viewport by the same amount, and defaults to zero. The inset is app configuration, not a theme value.
 
 Do:
+- Declare a persistent bar floating over the viewport once, as inset on LayerProvider; every anchored layer and toast then stays clear of it.
 - Use LayerProvider once near the app root when you need shared toast/layer configuration.
 - Build on higher-level components like Popover, HoverCard, and Tooltip for common overlay patterns.
 
@@ -5498,7 +5533,8 @@ App-level provider for layer systems such as toast viewports and imperative moda
 
 Props:
 - `children`: ReactNode (required) — Application subtree that can use the shared layer context.
-- `toast`: LayerToastConfig — Toast viewport configuration. Controls position, maxVisible, and inset for toasts shown through useToast.
+- `toast`: LayerToastConfig — Toast viewport configuration. Controls position, maxVisible, and a toast-only inset that overrides the provider inset per edge for toasts shown through useToast.
+- `inset`: LayerInset — A persistent bar floating over a viewport edge, declared once: blockStart, blockEnd, inlineStart, inlineEnd as pixel numbers or CSS lengths. Each edge adds to the gutter every anchored layer keeps from that edge and moves the toast viewport by the same amount. Defaults to zero on every edge.
 
 ### LinkProvider
 

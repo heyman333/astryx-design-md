@@ -1,8 +1,8 @@
 # Astryx
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 232 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 234 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 
-Generated from commit `00f1ed9` (2026-10-05) of https://github.com/facebook/astryx.
+Generated from commit `090588f` (2026-10-06) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -36,10 +36,10 @@ Key facts:
 
 ## Components
 
-232 documented components in `packages/core/src/`. Each has a `{Name}.doc.mjs` structured doc with props, anatomy, and best practices. By category:
+234 documented components in `packages/core/src/`. Each has a `{Name}.doc.mjs` structured doc with props, anatomy, and best practices. By category:
 
 - Accessibility: useAnnounce
-- Action: Button, ButtonGroup, Trigger area, ContextMenuItem, Trigger button, DropdownMenuCheckboxItem, DropdownMenuDivider, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSubMenu, IconButton, Link, Trigger button, Control, SegmentedControlItem, ToggleButton, ToggleButtonGroup, Outer chrome
+- Action: Button, ButtonGroup, Trigger area, ContextMenuItem, Trigger button, DropdownMenuCheckboxItem, DropdownMenuDivider, DropdownMenuGroup, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSubMenu, IconButton, Link, Trigger button, Control, SegmentedControlItem, ToggleButton, ToggleButtonGroup, Outer chrome
 - Animation: useEntryAnimation
 - Chat: Chat, ChatComposer, ChatComposerDrawer, ChatComposerInput, ChatComposerTokenElement, ChatDictationButton, ChatLayout, ChatLayoutScrollButton, ChatMessage, ChatMessageBubble, ChatMessageList, ChatMessageMetadata, ChatSendButton, ChatSystemMessage, ChatTokenizedText, ChatToolCalls
 - Container: Card, Carousel, ClickableCard, Collapsible, CollapsibleGroup, SelectableCard
@@ -47,7 +47,7 @@ Key facts:
 - Feedback & Status: Badge, Banner, Progress bar, Placeholder, Spinner, Dot
 - Focus: useFocusTrap, useGridFocus, useIndicatorFocusRing, useKeyboardHint, useListFocus, useTreeFocus, useTypeahead
 - Form Controls: Calendar, CheckboxInput, Group, CheckboxListItem, Field, DateInput, DateRangeInput, DateTimeInput, Field, FieldLabel, Message box, FileInput, Indicator, InputGroup, InputGroupText, Field, NumberInput, PowerSearch, RadioList, RadioListItem, Field, SelectorOption, Label, Field, Label, TextInput, TimeInput, Tokenizer, Input, Field, TypeaheadItem
-- Interaction: useCollapsible, useHoverCard, useLayer, usePopover, useToast, useTooltip, useClickableContainer, useClipboard, useContainerReveal, useHotkeys, useInputContainer, useInputStatusIcon, useInteractiveRole, useLongPress, useMenuPress
+- Interaction: useCollapsible, useHoverCard, useLayer, usePopover, useToast, useTooltip, useClickableContainer, useClipboard, useContainerReveal, useHotkeys, useInputContainer, useInputStatusIcon, useInteractiveRole, useLongPress, useMenuPress, usePressFeedback
 - Layout: AppShell, useAppShellMobile, AspectRatio, Center, Divider group, FormLayout, Grid container, GridSpan, Layout container, LayoutContent, LayoutFooter, LayoutHeader, LayoutPanel, Handle, useResizable, ScrollableArea, Section container, Stack container, useOverflow, useScrollLock, useScrollOverflow, useScrollableArea
 - Media: useImageMode, useMediaQuery
 - Navigation: BreadcrumbItem, Breadcrumbs, Navigation overlay, Container, Menu, Outline, Pagination, SideNav, SideNavCollapseButton, SideNavHeading, SideNavItem, SideNavSection, Step, Stepper, Tab, TabList, TabMenu, TopNav, TopNavHeading, TopNavItem, TopNavMegaMenu, TopNavMegaMenuFeaturedCard, TopNavMegaMenuItem, TopNavMenu

@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `090588f` (2026-10-06) of https://github.com/facebook/astryx.
+Generated from commit `397a125` (2026-10-07) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -2100,6 +2100,7 @@ Props:
 - `isDisabled`: boolean — Disables the selector.
 - `isLoading`: boolean — Shows loading state on the trigger.
 - `status`: {type: 'warning' | 'error' | 'success', message?: string} — Validation status.
+- `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment; detached when variant is ghost); detached floats below as a separate element with spacing; tooltip reveals the message in an info-tip button.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Exact trigger height: sm 28px, md 32px, or lg 36px.
 - `variant`: 'input' | 'ghost' = 'input' — Visual trigger style. Input is the bordered form treatment; ghost matches toolbar buttons.
 - `startIcon`: ReactNode | IconType — Icon displayed at the start of the trigger.
@@ -2144,7 +2145,7 @@ Props:
 - `labelTooltip`: string — Tooltip text to display in an info icon at the end of the label.
 - `status`: {type: 'warning' | 'error' | 'success', message?: string, messageID?: string} — Status indicator with type and optional message. When message is set, displays a colored status box. messageID is for wiring aria-describedby on the input.
 - `statusVariant`: 'attached' | 'detached' = 'attached' — How the status message renders relative to the input. Attached overlaps the input border; detached floats below.
-- `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned. Prefer this over setting width via xstyle/className/style, which only size the inner control box.
+- `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned. Prefer this over setting width via xstyle/className/style, which only size the inner control box. Without a width, a row can shrink the whole field below the natural width of its control, so filter bars shrink instead of overflowing.
 - `ref`: React.Ref<HTMLDivElement> — Ref forwarded to the root element.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 - `className`: string — CSS class name(s) appended to the root element. Prefer xstyle for StyleX deduplication.
@@ -2266,7 +2267,7 @@ Props:
 - `renderValue`: (option: SelectorOptionData) => ReactNode — Custom render function for the selected option inside the closed trigger. A one-line value follows the active size token, including compact or wide spacing scales with icons or a clear control. Padding accommodates the trigger line box, and each extra line grows the control by one line (28/32/36 for one line and 48/52/56 for two with the default tokens). Content inherits the trigger line height; content that sets a larger font should set its own line height so the trigger grows to fit it. Inside an InputGroup the group owns the row height: a SelectorOption folds onto one line and ellipsizes, and any taller node is cut off at the row.
 - `indicatorPosition`: 'start' | 'end' = 'end' — Which logical edge of the option row carries a rendered selection mark. An empty mark consumes no space, so selected and unselected labels may shift or have different available width. end is the house convention shared with Typeahead and CommandPalette.
 - `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — How the option list is presented. adaptive uses a bottom sheet on compact touch screens and an anchored popover otherwise.
-- `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
+- `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned. Without a width the field follows its displayed value and can shrink with its row (the value truncates) instead of overflowing it; use `<HStack wrap="wrap">` for filter bars so selectors move to a second line on phones.
 - `startIcon`: IconType | ReactNode — Icon displayed at the start of the selector trigger.
 - `isLoading`: boolean = false — Shows a loading spinner in the trigger.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
@@ -2341,7 +2342,7 @@ Props:
 - `maxMenuItems`: number = 10 — Maximum number of dropdown items to display.
 - `minQueryLength`: number = 1 — Minimum query length before the search source is queried. Below it no search runs and the menu stays closed.
 - `status`: {type: 'warning' | 'error' | 'success', message?: string} — Validation status object with type and message for error/warning/success states.
-- `statusVariant`: 'attached' | 'detached' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing.
+- `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing; tooltip reveals the message in an info-tip button.
 - `renderItem`: (item: T) => ReactNode — Custom render function for dropdown items. Default renders TypeaheadItem.
 - `isLabelHidden`: boolean = false — Visually hides the label while keeping it accessible.
 - `description`: string — Helper text displayed below the label.
@@ -2797,7 +2798,7 @@ Props:
 - `hasClear`: boolean = false — Shows a clear (\u00d7) button when the input has a value. Clicking it clears the value and returns focus to the input.
 - `hasAutoFocus`: boolean = false — Automatically focuses the input on mount.
 - `htmlName`: string — The HTML name attribute for the input, useful for form submissions.
-- `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
+- `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned. Without a width the field can shrink with its row, so a filter bar never overflows; use `<HStack wrap="wrap">` when the controls should move to a second line instead.
 - `autoComplete`: string — The native autocomplete attribute, forwarded to the input unchanged. Does not affect the controlled value.
 
 ### TimeInput
@@ -2879,7 +2880,7 @@ Props:
 - `htmlName`: string — The HTML name attribute for form submissions. Renders one hidden input per selected item id.
 - `disabledMessage`: string — Explains why the tokenizer is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the input focusable via aria-disabled (input stays blocked). Use this instead of wrapping a disabled Tokenizer in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
 - `status`: {type: 'warning' | 'error' | 'success', message?: string} — Validation status object with type and message for error/warning/success states.
-- `statusVariant`: 'attached' | 'detached' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing.
+- `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing; tooltip reveals the message in an info-tip button.
 - `isLabelHidden`: boolean = false — Visually hides the label while keeping it accessible.
 - `description`: string — Helper text displayed below the label.
 - `isRequired`: boolean = false — Marks the field as required.
@@ -3658,7 +3659,7 @@ Props:
 - `end`: ReactNode — Logical-end slot (right in LTR). Accepts any ReactNode; use LayoutPanel when a panel region is needed.
 - `height`: 'fill' | 'auto' = 'fill' — Height behavior: fill the container or grow with content.
 - `contentWidth`: SizeValue — Maximum width of the aligned content within each slot (header, content, footer, panels), centered when narrower than the available space. Without panels, LayoutContent spans the available width so its scrollbar stays at the outer edge while its children align internally to contentWidth. With exactly one panel, the panel stays aligned to the contentWidth frame while LayoutContent extends to the opposite open edge. With both panels, contentWidth includes the complete middle composition. Percentage widths—including percentage-bearing calc(), min(), max(), and clamp() values—and intrinsic widths, plus bare var(...) values, retain the constrained composition; use calc(var(...)) for a variable guaranteed to resolve to a length. Dividers stay full-bleed. Numbers are treated as pixels, strings are used as-is (e.g. `60ch`). Common page widths: 640 for forms, settings, and text-focused pages; 960 for content pages and wider layouts.
-- `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Padding at the layout's outer edges using the spacing scale.
+- `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Padding at the layout's outer edges using the spacing scale. Applies to this Layout's own header, footer, panels, and content. A nested Layout does not inherit it: without `padding`, its regions use the enclosing Card, Section, or Dialog padding, or the default inset (spacing 4). That keeps a page Layout inside AppShell inset even though AppShell's own regions are full bleed.
 - `defaultHasDividers`: boolean — Default divider visibility for LayoutHeader and LayoutFooter children. Headers and footers that don't pass `hasDivider` use this value; when unset, nested layouts inherit from their parent context.
 
 ### ScrollableArea
@@ -4888,6 +4889,8 @@ Props:
 
 Import: `import {CommandPaletteFooter} from '@astryxdesign/core/CommandPalette';`
 
+CommandPalette renders CommandPaletteFooter automatically. Pass a CommandPaletteFooter to the footer slot only when replacing the default guidance.
+
 Props:
 - `children`: ReactNode — Custom footer content. When omitted, renders default keyboard hints via Kbd.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
@@ -5124,17 +5127,17 @@ Do:
 - Use density and divider variants to match the information density and scanning needs of your data.
 - Compose rich cell content with Astryx components like Badge, StatusDot, and Avatar via renderCell.
 - In children mode, put every row inside TableHeader, TableBody, or TableFooter. <table> cannot contain a <tr> directly: the HTML parser inserts an implied <tbody> for server-rendered markup and React does not on the client, so unwrapped rows mismatch on hydration.
-- Set explicit width on every column using proportional() or pixel(). proportional(1) gives equal flex distribution with a 120px minimum that prevents columns from collapsing on narrow viewports. Omitting width skips the minimum.
+- Omit width for equal flexible columns with a compact 60px readability floor. Give one column its own floor with proportional(1, {minWidth}), weight columns with proportional(n), and fix widths with pixel(); the Table scroll region activates when the combined floors no longer fit.
 - Use the data-driven API from React Server Components: proportional(), pixel(), and column definitions without function props are server-safe. Columns using renderCell (or any function prop) need the table wrapped in a "use client" component, since functions cannot cross the server-client boundary.
 
 Don't:
 - Use a table for data without consistent columns. Use a list or card layout for heterogeneous content.
 - Enable every plugin at once. Add only the features your use case requires to keep the interface focused.
-- Omit width on text-heavy columns; without an explicit proportional() width they have no minimum and can squish to near-zero on mobile.
+- Rely on the 60px omitted-width floor when a text-heavy column needs more room; set proportional(1, {minWidth}) on that column instead.
 
 Props:
 - `data`: T[] — Array of data items to render as rows. T must extend Record<string, unknown> (use `interface MyRow extends Record<string, unknown>` for custom types).
-- `columns`: TableColumn<T>[] — Column definitions: each column has {key, header, width?, align?, renderCell?}. The `header` field sets the column heading text. If omitted, columns are auto-generated from data object keys. The `width` field is typed as `ColumnWidth` (not a number); use `proportional(n)` or `pixel(n)` helpers imported from `@astryxdesign/core/Table`. Example: `width: pixel(120)` for 120px fixed, `width: proportional(1)` for flex distribution.
+- `columns`: TableColumn<T>[] — Column definitions: each column has {key, header, width?, align?, renderCell?}. The `header` field sets the column heading text. If omitted, columns are auto-generated from data object keys. The `width` field is typed as `ColumnWidth` (not a number); use `proportional(n)` or `pixel(n)` helpers imported from `@astryxdesign/core/Table`. Omitting `width` keeps an equal flexible share with a compact 60px readability floor. To give one column a different floor, set `width: proportional(1, {minWidth: 80})`; its `minWidth` replaces the 60px floor for that column. Example: `width: pixel(120)` for 120px fixed, `width: proportional(1)` for a flexible column with a 120px default minimum.
 - `idKey`: (keyof T & string) | ((item: T) => string | number) — Row key for React reconciliation. Pass a property name string or a function. Falls back to row index if omitted.
 - `density`: 'compact' | 'balanced' | 'spacious' = 'balanced' — Row density controlling cell padding and font size.
 - `dividers`: 'rows' | 'columns' | 'grid' | 'none' = 'rows' — Divider style rendered between cells.
@@ -5348,6 +5351,8 @@ Props:
 - `getRowKey`: (item: T) => string (required) — Derive a stable unique key from a row item.
 - `renderExpanded`: (item: T) => ReactNode (required) — Render the detail content shown in a full-width panel below the row when it is expanded. Receives the row item.
 - `getIsItemExpandable`: (item: T) => boolean — Control which rows are expandable. Non-expandable rows show no chevron, no context-menu action, and never render a panel. Defaults to all rows expandable.
+- `panelVariant`: 'muted' | 'transparent' = 'transparent' — Background behind the detail panel. 'transparent' (default) paints nothing: the panel is the row's continuation and takes whatever surface the table sits on, so a Card shows through and a striped table's zebra reads on unchanged. 'muted' washes it, marking it as commentary rather than another row of data — reach for it in a bare table with no card, dividers or striping, where nothing else makes that distinction. The wash is a low-alpha near-black, so it is close to invisible over a dark card: 'muted' is largely a light-theme effect.
+- `hasRowClickExpansion`: boolean = false — Toggle a row by clicking anywhere on it, not only on its chevron. A pointer-only convenience layered over the chevron, which stays the accessible control for keyboard and assistive tech. Clicks on interactive cell content (buttons, links, form controls) or on a text selection do not toggle, and non-expandable rows stay inert.
 
 ### useTableRowIndex (subcomponent/hook)
 

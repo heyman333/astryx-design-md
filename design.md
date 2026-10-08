@@ -1,6 +1,6 @@
 # Astryx Design System — Design Overview
 
-> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`090588f`](https://github.com/facebook/astryx/commit/090588faa24c6089e4e22491081df4fd65995ea2) (2026-10-06). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
+> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`397a125`](https://github.com/facebook/astryx/commit/397a1257322137c2b110572a5286612f6e2f0c7c) (2026-10-07). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
 
 ## What Astryx is
 
@@ -276,7 +276,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**Tooltip surface**](https://github.com/facebook/astryx/blob/main/packages/core/src/Tooltip/Tooltip.doc.mjs) — A short text hint that appears on hover or focus, anchored to a trigger element. Use it to describe icon-only buttons, show the full text of truncated labels, or provide supplementary context without cluttering the UI.
 - [**Viewer overlay**](https://github.com/facebook/astryx/blob/main/packages/core/src/Lightbox/Lightbox.doc.mjs) — A fullscreen overlay for viewing images and videos at full resolution. Supports single-item and gallery modes with prev/next navigation, optional zoom and pan for images, and native video controls.
 - [**CommandPaletteEmpty**](https://github.com/facebook/astryx/blob/main/packages/core/src/CommandPalette/CommandPaletteEmpty.doc.mjs) *(subcomponent/hook)*
-- [**CommandPaletteFooter**](https://github.com/facebook/astryx/blob/main/packages/core/src/CommandPalette/CommandPaletteFooter.doc.mjs) *(subcomponent/hook)*
+- [**CommandPaletteFooter**](https://github.com/facebook/astryx/blob/main/packages/core/src/CommandPalette/CommandPaletteFooter.doc.mjs) *(subcomponent/hook)* — CommandPalette renders CommandPaletteFooter automatically. Pass a CommandPaletteFooter to the footer slot only when replacing the default guidance.
 - [**CommandPaletteGroup**](https://github.com/facebook/astryx/blob/main/packages/core/src/CommandPalette/CommandPaletteGroup.doc.mjs) *(subcomponent/hook)*
 - [**CommandPaletteInput**](https://github.com/facebook/astryx/blob/main/packages/core/src/CommandPalette/CommandPaletteInput.doc.mjs) *(subcomponent/hook)*
 - [**CommandPaletteItem**](https://github.com/facebook/astryx/blob/main/packages/core/src/CommandPalette/CommandPaletteItem.doc.mjs) *(subcomponent/hook)*

@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `397a125` (2026-10-07) of https://github.com/facebook/astryx.
+Generated from commit `ab8805f` (2026-10-08) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -378,7 +378,7 @@ Import: `import {DropdownMenuCheckboxItem} from '@astryxdesign/core/DropdownMenu
 Props:
 - `label`: ReactNode — Primary label text identifying the item.
 - `description`: ReactNode — Secondary description text displayed below the label.
-- `icon`: IconType — Icon to display before the label. See `npx astryx docs icons` for valid semantic names.
+- `icon`: IconType — Icon to display before the label. See `npx @astryxdesign/cli docs icons` for valid semantic names.
 - `value`: boolean — Whether the item is checked. Controlled; pair with onChange.
 - `onChange`: (checked: boolean) => void — Callback fired with the next checked state when the item is toggled.
 - `isDisabled`: boolean = false — Whether the item is disabled. Disabled items stay focusable (via aria-disabled) so they remain discoverable by keyboard and assistive technology, but activation is blocked.
@@ -439,7 +439,7 @@ Props:
 - `value`: string — The value this item represents within its group. The group's value matches against this to determine the checked state.
 - `label`: ReactNode — Primary label text identifying the option.
 - `description`: ReactNode — Secondary description text displayed below the label.
-- `icon`: IconType — Icon to display before the label. See `npx astryx docs icons` for valid semantic names.
+- `icon`: IconType — Icon to display before the label. See `npx @astryxdesign/cli docs icons` for valid semantic names.
 - `isDisabled`: boolean = false — Whether this individual radio item is disabled. Disabled items stay focusable (via aria-disabled) so they remain discoverable by keyboard and assistive technology, but selection is blocked.
 - `endContent`: ReactNode — Content to render after the label and description, such as a badge or metadata.
 - `ref`: React.Ref<HTMLElement> — Ref forwarded to the row root, the element carrying role="menuitemradio". Register the row with an element-keyed observer or overlay.
@@ -2177,7 +2177,7 @@ Multi-select dropdown with checkboxes for choosing multiple items.
 
 Props:
 - `label`: string (required) — Label text for accessibility.
-- `options`: MultiSelectorOptionType[] (required) — Array of items: strings, objects with value/label/icon/disabled, dividers, or sections.
+- `options`: MultiSelectorOptionType[] (required) — Array of items: strings, objects with value/label/icon/disabled, dividers, or sections. An option may carry `action`: one node — an IconButton, a Button, a menu trigger — the caller renders and names. Once any option does, the popup is a grid whose rows pair the option with its action: Up/Down move rows, the inline-end arrow reaches the action, Enter fires it, pointer and touch press it directly, and pressing it never changes the selection.
 - `value`: string[] (required) — Currently selected values.
 - `onChange`: (value: string[], change?: MultiSelectorChange) => void (required) — Called when the selection changes. A creation (hasCreate) arrives with `{type: "create", query}` as the second argument and the query appended to value; the caller adds the matching option in that same update. Every other change passes no descriptor, so a one-argument handler keeps working.
 - `changeAction`: (value: string[]) => void | Promise<void> — Async action on change. Fires after onChange.
@@ -2443,7 +2443,7 @@ Do:
 - Reach for the canonical `components['checkbox-indicator']` override first. Replacing the component is the heavier path, for when the shape itself is wrong.
 - Match the shipped replacement-content branch with `isRenderable(children)`, not `children != null` or `children ?? mark`. The helper is deliberately shallow: it excludes nullish values, booleans, and the empty string, while React elements and containers take the replacement path even when their descendants render nothing. The owning control passes `children={isBusy && <Spinner/>}`, so a nullish check deletes the state mark whenever that value is `false` (#4893).
 - A replacement must set aria-hidden. The owning control provides the role and accessible name; a visible indicator would be announced twice.
-- Use theme tokens for every color, radius, and border width in a replacement. Run `npx astryx docs tokens` for the set.
+- Use theme tokens for every color, radius, and border width in a replacement. Run `npx @astryxdesign/cli docs tokens` for the set.
 - Render a single root ELEMENT, and let it keep the border-radius you want the focus ring to follow. A control whose real input is visually hidden cannot show focus on that input, so the owner paints the standard ring onto the indicator element itself at focus time (useIndicatorFocusRing), and `outline` then picks up that element's radius. A replacement needs no cooperation and can forget nothing: the ring is never missing (WCAG 2.4.7), it is only the wrong shape if the root has no radius of its own. Do not draw a focus ring yourself; the owner already did.
 
 Don't:
@@ -5012,6 +5012,7 @@ Do:
 - Use density="compact" for menus and dense lists, "balanced" for standard rows, and "spacious" for roomier layouts.
 - Set labelLines and descriptionLines to control truncation when content length varies.
 - Use align="start" when start or end content is taller than a single line of text.
+- Give a swipe action a second home in the row (a menu or a button in endContent): the swipe is a touch accelerator, and a verb reachable only by swipe is unreachable by keyboard and by mouse.
 
 Don't:
 - Don't nest interactive elements (buttons, links) inside an interactive Item; it creates confusing focus and click targets.
@@ -5038,6 +5039,8 @@ Props:
 - `isHighlighted`: boolean = false — Highlighted state (hover/keyboard focus appearance).
 - `isSelected`: boolean = false — Selected state.
 - `isDisabled`: boolean = false — Disabled state.
+- `swipeActions`: {leading?: ItemSwipeAction[]; trailing?: ItemSwipeAction[]} — Swipe actions for touch: the verbs a sideways drag uncovers on each side, outermost last, each `{id?, label, icon?, onActivate, isDisabled?, variant?: 'neutral' | 'accent' | 'destructive', hasRemoval?}`. `leading` is uncovered by a drag toward the inline end, `trailing` toward the inline start. A mouse never starts the drag and a mostly vertical drag stays the scroller's. The gesture is a touch accelerator and never a row's only path to a verb: a verb reachable only by swipe is unreachable by keyboard and by mouse, so every entry must also be reachable through the row's own content. Served on a row whose role permits interactive descendants (a listitem, a row with no role) and not on an option, a menu item, or a row that is the enlarged target of a native radio. The element containing the rows clips in the inline axis with overflow-inline: clip — List does; any other host does it once. `hasRemoval` only says the row holds out after the action fires instead of springing back.
+- `swipeBehavior`: 'reveal' | 'commit' = 'reveal' — What a swipe does. `reveal` rests the row open with every entry a real button and fires the outermost on a long drag or a fling; `commit` slides the row out and fires the outermost on release, with nothing resting and a presentational panel. `commit` fits one entry per side.
 - `ref`: React.Ref<HTMLDivElement> — Ref forwarded to the root element.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
 - `data-testid`: string — Test selector for automated testing frameworks.
@@ -5193,6 +5196,8 @@ Props:
 - `rel`: string — Link relationship tokens. noopener noreferrer are merged automatically for target="_blank".
 - `isDisabled`: boolean = false — Disabled state; sets aria-disabled on the item.
 - `isSelected`: boolean = false — Selected state; sets aria-selected on the item.
+- `swipeActions`: {leading?: ItemSwipeAction[]; trailing?: ItemSwipeAction[]} — Swipe actions for touch, passed through to Item unchanged: the verbs a sideways drag uncovers on each side, each `{id?, label, icon?, onActivate, isDisabled?, variant?: 'neutral' | 'accent' | 'destructive', hasRemoval?}`. See Item.swipeActions; List clips its rows in the inline axis for them.
+- `swipeBehavior`: 'reveal' | 'commit' = 'reveal' — What a swipe does, passed through to Item unchanged. See Item.swipeBehavior.
 
 ### MetadataListItem (subcomponent/hook)
 

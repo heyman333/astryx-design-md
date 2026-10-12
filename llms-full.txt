@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `693da50` (2026-10-10) of https://github.com/facebook/astryx.
+Generated from commit `5b6c747` (2026-10-11) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -327,6 +327,8 @@ Props:
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when the open state changes.
 - `menuWidth`: number | string — Minimum width for the popover presentation. Length values may grow for content; intrinsic and CSS-wide keywords select the preferred inline size. Every form is capped to the available viewport space. Defaults to matching the trigger width up to that cap.
 - `menuMaxHeight`: number — Maximum height in pixels for the popover presentation, for a menu that must fit its rows. Lifts the default 300px cap; the viewport still bounds it.
+- `header`: ReactNode — Content above the rows and outside the menu itself — a filter field, a toggle. A menu holds only its rows, so a control that is not a row goes here or in `footer`, never among the rows. It keeps its own keys and presses; Tab moves from it into the menu, and Shift+Tab before its first control closes the menu. The bottom sheet shows it above the actions.
+- `footer`: ReactNode — Content below the rows and outside the menu itself — a "Create" button. Tab from the menu moves into it, and Tab past its last control closes the menu. The bottom sheet shows it below the actions.
 - `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Popover placement relative to the trigger. Ignored by the bottom-sheet presentation. Logical: start/end resolve against the menu's own inherited direction (RTL mirrors).
 - `alignment`: 'start' | 'center' | 'end' = 'start' — Popover alignment along the placement axis. Ignored by the bottom-sheet presentation. Logical: start/end follow the menu's own inherited direction (RTL mirrors).
 - `onClick`: () => void — Callback fired for accepted trigger activation. The trailing click from the same press that light-dismissed the menu is ignored.
@@ -459,6 +461,7 @@ Props:
 - `onOpenChange`: (isOpen: boolean) => void — Called when the flyout opens or closes.
 - `presentation`: 'flyout' | 'drill-in' | 'adaptive' = 'adaptive' — How the sub-menu shows its rows. 'flyout' opens them beside the row; 'drill-in' replaces the menu's rows with them and a Back row, in the same box; 'adaptive' drills in when a finger opened the menu (a coarse pointer, decided when the menu opened) and flies out otherwise.
 - `xstyle`: StyleXStyles — StyleX styles for the trigger row. Must be a stylex.create() value: not an inline style object like style={{}}.
+- `ref`: React.Ref<HTMLElement> — Ref forwarded to the trigger row, the element carrying role="menuitem" and aria-haspopup="menu".
 
 ### SegmentedControlItem (subcomponent/hook)
 
@@ -1531,7 +1534,7 @@ Do:
 - Make info and success banners dismissable. Keep error banners visible until the user fixes the issue.
 - Keep titles short and scannable: "Payment failed" not "There was a problem processing your most recent payment."
 - Set collapsible={false} when the user needs the content to act on the message, like the list of fields that failed validation. Keep the default toggle when the detail is long enough to bury the banner's own message.
-- Error and warning banners render as role="alert"; info and success render as role="status". Mount an alert banner in response to an event rather than on first paint, so assistive tech has a change to report.
+- Banner status controls color and icon only; it does not create a live region. Announce async outcomes from the transition handler with useAnnounce. Add an explicit role="status" only when the visible banner is intended as a persistent semantic mirror; reserve role="alert" for genuinely urgent, interruptive content.
 
 Don't:
 - Use Banner for short-lived messages that disappear on their own; use Toast instead.
@@ -1929,6 +1932,7 @@ Import: `import {DateInput} from '@astryxdesign/core/DateInput';`
 DateInput lets the user type or pick a date from a calendar popover. Use it for scheduling, deadlines, booking dates, or any form field that needs a specific calendar date.
 
 Do:
+- Base props such as ref, id, data-*, aria-*, and DOM event handlers go to the date input, the element that is focused and announced. A DOM handler runs after DateInput's own handler for the same event and still receives events it handled (including ones it called preventDefault on), so it cannot cancel built-in behavior.
 - Provide clear labels and descriptions so users understand what date is expected.
 - Use min, max, and dateConstraints to restrict selectable dates to valid ranges.
 - Use hasClear when the date is optional so the user can reset it.
@@ -1955,7 +1959,7 @@ Props:
 - `isLoading`: boolean = false — Whether the input is in a loading state. Disables interaction and shows a spinner.
 - `min`: ISODateString — Minimum selectable date (YYYY-MM-DD).
 - `max`: ISODateString — Maximum selectable date (YYYY-MM-DD).
-- `dateConstraints`: Array<(date: Date) => boolean> — Array of custom constraint functions that disable specific dates.
+- `dateConstraints`: ReadonlyArray<(date: Date) => boolean> — Array of custom constraint functions that disable specific dates.
 - `placeholder`: string = 'Select a date' — Placeholder text shown in the text input.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size of the input control.
 - `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator object for error, warning, or success states with a message.
@@ -1963,12 +1967,13 @@ Props:
 - `labelTooltip`: string — Tooltip text displayed via an info icon at the end of the label.
 - `hasClear`: boolean = false — Shows a clear (\u00d7) button when a date value is set. Clicking it clears the value and returns focus to the input.
 - `numberOfMonths`: 1 | 2 = 1 — Number of months displayed simultaneously in the calendar popover.
-- `weekStartsOn`: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' = 0 — First day of week in the calendar popover. A number (0 = Sunday to 6 = Saturday) or a three-letter day name.
+- `weekStartsOn`: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' = 0 — First day of week in Astryx calendar surfaces. A number (0 = Sunday to 6 = Saturday) or a three-letter day name; native pickers remain browser/OS-owned.
 - `format`: 'date' | 'date_long' | 'date_weekday' | 'system_date' | ((value: ISODateString) => string) = 'date_long' — How the committed date value is displayed. Named values are reused from Timestamp's format vocabulary: 'date' shows 'Mar 21, 2026', 'date_long' shows 'March 21, 2026', 'date_weekday' shows 'Wed, Mar 21, 2026', 'system_date' shows '2026-03-21'. A function receives the ISO value and returns a custom string. Applies only to the committed value, never to text being typed.
 - `presentation`: 'popover' | 'bottom-sheet' | 'native' | 'adaptive-bottom-sheet' | 'adaptive-native' = 'adaptive-native' — Which surface draws the date picker. 'adaptive-native' (the default) uses Astryx's calendar popover on a fine pointer and the browser/OS picker (input type=date) on a coarse pointer, keeping Astryx fallbacks where a native control cannot express the value; 'native' always uses the browser/OS picker with no fallback; 'adaptive-bottom-sheet' uses the popover on a fine pointer and Astryx's bottom-sheet picker on a coarse pointer; 'popover' and 'bottom-sheet' force that Astryx surface on every pointer. Every value opens a picker; a typed-only field is TimeInput's alone. Use a non-native presentation for a field that needs weekStartsOn, numberOfMonths or dateConstraints, none of which a native picker can express.
 - `nativePicker`: 'touch' | 'always' | 'never' = 'touch' — Deprecated: use presentation ('touch' = 'adaptive-native', 'always' = 'native', 'never' = 'adaptive-bottom-sheet'). Still works exactly as released; presentation wins when both are set.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+- `containerXstyle`: StyleXStyles — StyleX styles for the Field box around the label, control, and status. containerClassName and containerStyle take a class name and inline styles for the same box. No effect (development warning) where no Field box renders: inside InputGroup (style the group) and in a horizontal-labels FormLayout.
+- `controlXstyle`: StyleXStyles — StyleX styles for the visual control box: the bordered element that holds the text, icons, and end controls, never the native input. controlClassName and controlStyle take a class name and inline styles for the same box. Replaces root xstyle, className, and style, which this component does not accept.
 
 ### DateRangeInput
 
@@ -1977,6 +1982,7 @@ Import: `import {DateRangeInput} from '@astryxdesign/core/DateRangeInput';`
 DateRangeInput lets users select a start and end date from a dual-month calendar popover. Use it for filtering data by time period, report generation, analytics dashboards, and booking flows.
 
 Do:
+- Base props such as ref, id, data-*, aria-*, and DOM event handlers go to the range trigger, the element that is focused and announced. A DOM handler runs after DateRangeInput's own handler for the same event and still receives events it handled (including ones it called preventDefault on), so it cannot cancel built-in behavior.
 - Use presets for common ranges like "Last 7 days" to speed up selection.
 - Use min/max to constrain selectable dates to valid ranges.
 - Keep hasClear enabled (default) so users can reset the filter.
@@ -2014,7 +2020,8 @@ Props:
 - `numberOfMonths`: 1 | 2 = 2 — Number of months in the calendar.
 - `weekStartsOn`: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' = 0 — First day of week in the calendar. A number (0 = Sunday to 6 = Saturday) or a three-letter day name.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization.
+- `containerXstyle`: StyleXStyles — StyleX styles for the Field box around the label, control, and status. containerClassName and containerStyle take a class name and inline styles for the same box. No effect (development warning) where no Field box renders: inside InputGroup (style the group) and in a horizontal-labels FormLayout.
+- `controlXstyle`: StyleXStyles — StyleX styles for the visual control box: the bordered element that holds the text, icons, and end controls, never the native input. controlClassName and controlStyle take a class name and inline styles for the same box. Replaces root xstyle, className, and style, which this component does not accept.
 
 ### DateTimeInput
 
@@ -2023,6 +2030,7 @@ Import: `import {DateTimeInput} from '@astryxdesign/core/DateTimeInput';`
 DateTimeInput combines date and time selection in one field. With presentation="adaptive-native" (the default), mouse/trackpad devices use Astryx typed fields and popovers, while coarse-pointer devices use browser/OS date and time controls in the same two-segment field. presentation="native" uses both native controls on every pointer; presentation="adaptive-bottom-sheet" keeps Astryx's own surfaces — pointer fields on fine pointers and the coordinated Date/Time bottom sheet on coarse pointers; "popover" and "bottom-sheet" force one Astryx surface on every pointer. The closed segments stay side by side when at least 400px is available and wrap into full-width rows below 400px, independent of viewport width. Use it for scheduling, event creation, deadline setting, or any form field that needs a specific datetime.
 
 Do:
+- Base props such as ref, id, data-*, aria-*, and DOM event handlers go to the date input, the element that is focused and announced. A DOM handler runs after DateTimeInput's own handler for the same event and still receives events it handled (including ones it called preventDefault on), so it cannot cancel built-in behavior.
 - Provide clear labels and descriptions so users understand what datetime is expected.
 - Use min and max to restrict selectable datetimes to valid ranges.
 - Use hasClear when the datetime is optional so the user can reset it.
@@ -2065,7 +2073,8 @@ Props:
 - `presentation`: 'popover' | 'bottom-sheet' | 'native' | 'adaptive-bottom-sheet' | 'adaptive-native' = 'adaptive-native' — Which surfaces draw the date and time pickers. 'adaptive-native' (the default) uses Astryx's typed fields and popovers on a fine pointer and browser/OS controls on a coarse pointer — with per-segment Astryx fallbacks: hasSeconds, non-default timeIncrement, or timeOptionInterval retain Astryx's time field because iOS cannot express them faithfully; 'native' always uses both browser/OS controls with no fallback; 'adaptive-bottom-sheet' uses popovers on a fine pointer and Astryx's coordinated bottom sheet on a coarse pointer; 'popover' and 'bottom-sheet' force that Astryx surface on every pointer. Every value opens pickers; typed-only fields are TimeInput's alone. Use a non-native presentation when numberOfMonths, weekStartsOn, or visible dateConstraints behavior matters. Constraints are enforced on commit; min/max are forwarded as hints. hourFormat formats the closed time, while the OS picker follows the user's locale.
 - `nativePicker`: 'touch' | 'always' | 'never' = 'touch' — Deprecated: use presentation ('touch' = 'adaptive-native', 'always' = 'native', 'never' = 'adaptive-bottom-sheet'). Still works exactly as released; presentation wins when both are set.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+- `containerXstyle`: StyleXStyles — StyleX styles for the Field box around the label, control, and status. containerClassName and containerStyle take a class name and inline styles for the same box. No effect (development warning) where no Field box renders: inside InputGroup (style the group) and in a horizontal-labels FormLayout.
+- `controlXstyle`: StyleXStyles — StyleX styles for the visual control box: the row that holds the bordered date and time segments with their icons and end controls, never a native input. controlClassName and controlStyle take a class name and inline styles for the same box. Replaces root xstyle, className, and style, which this component does not accept.
 
 ### Field
 
@@ -2112,6 +2121,14 @@ Props:
 - `handleRef`: React.Ref<ComplexSelectorHandle> — Imperative handle for programmatic control. Exposes open(), close(), toggle(), and isOpen().
 - `onOpenChange`: (isOpen: boolean) => void — Called whenever the surface opens or closes, however it happened — trigger, keyboard, light dismiss, Escape, close(), or the imperative handle.
 - `contentXstyle`: StyleXStyles — StyleX styles for the popup content container.
+- `onClick`: (event: MouseEvent) => void — Click handler on the trigger. Runs before the popup opens; call preventDefault() to keep it closed. A press elsewhere in the control box goes through the trigger too. With renderTrigger it runs after the built-in toggle and cannot cancel it.
+- `onKeyDown`: (event: KeyboardEvent) => void — Key handler on the trigger. Runs after the built-in handling and receives every key, including the ArrowDown that opens the popup. With renderTrigger it is skipped for keys the built-in handling cancels.
+- `containerXstyle`: StyleXStyles — StyleX styles for the field container (label, control, and status together). No effect inside InputGroup (style the InputGroup instead) or in a `horizontal-labels` FormLayout. Root `xstyle`, `className`, and `style` are not accepted.
+- `containerClassName`: string — Class name for the field container. Same targeting as `containerXstyle`.
+- `containerStyle`: CSSProperties — Inline styles for the field container. Same targeting as `containerXstyle`.
+- `controlXstyle`: StyleXStyles — StyleX styles for the visual control box: the element that paints the border and background and holds the value, icons, and end controls. Never the trigger button itself.
+- `controlClassName`: string — Class name for the visual control box.
+- `controlStyle`: CSSProperties — Inline styles for the visual control box.
 
 ### Field
 
@@ -2216,7 +2233,15 @@ Props:
 - `renderTrigger`: (props: MultiSelectorRenderTriggerProps) => ReactNode — Render the control the panel hangs off — a glyph in a list row, a chip, an icon button — instead of the selector's own field and button. Spread the given props ({ref, id, onClick, onKeyDown, onFocus, aria-haspopup, aria-expanded, aria-controls, aria-busy}) onto it; the listbox is anchored to that control and named by `label`. The field chrome (Field, status, clear, spinner) is not rendered. Pair with handleRef to open from a keystroke elsewhere.
 - `handleRef`: React.Ref<MultiSelectorHandle> — Imperative handle with open(), close(), toggle() and isOpen(). Prefer it over mirroring open state in the parent; the selector owns its visibility.
 - `onOpenChange`: (isOpen: boolean) => void — Called whenever the panel opens or closes, however it happened: the trigger, the keyboard, a light dismiss, Escape, or the handle.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
+- `onClick`: (event: MouseEvent) => void — Click handler on the trigger (or the renderTrigger control). Runs after the built-in toggle and cannot cancel it.
+- `onFocus`: (event: FocusEvent) => void — Focus handler on the trigger. Runs before the selector's own focus handling.
+- `onKeyDown`: (event: KeyboardEvent) => void — Key handler on the trigger button. Runs after the built-in keyboard model and is skipped for keys it handles and cancels.
+- `containerXstyle`: StyleXStyles — StyleX styles for the field container (label, control, and status together). No effect inside InputGroup (style the InputGroup instead) or in a `horizontal-labels` FormLayout. Root `xstyle`, `className`, and `style` are not accepted.
+- `containerClassName`: string — Class name for the field container. Same targeting as `containerXstyle`.
+- `containerStyle`: CSSProperties — Inline styles for the field container. Same targeting as `containerXstyle`.
+- `controlXstyle`: StyleXStyles — StyleX styles for the visual control box: the element that paints the border and background and holds the value, icons, and end controls. Never the trigger button itself.
+- `controlClassName`: string — Class name for the visual control box.
+- `controlStyle`: CSSProperties — Inline styles for the visual control box.
 
 ### Field
 
@@ -2271,7 +2296,15 @@ Props:
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned. Without a width the field follows its displayed value and can shrink with its row (the value truncates) instead of overflowing it; use `<HStack wrap="wrap">` for filter bars so selectors move to a second line on phones.
 - `startIcon`: IconType | ReactNode — Icon displayed at the start of the selector trigger.
 - `isLoading`: boolean = false — Shows a loading spinner in the trigger.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
+- `onClick`: (event: MouseEvent) => void — Click handler on the trigger button. Runs before the selector toggles its surface; preventDefault() does not keep it closed.
+- `onFocus`: (event: FocusEvent) => void — Focus handler on the trigger button. Runs before the selector's own focus handling.
+- `onKeyDown`: (event: KeyboardEvent) => void — Key handler on the trigger button. Runs after the built-in keyboard model and is skipped for keys it handles and cancels.
+- `containerXstyle`: StyleXStyles — StyleX styles for the field container (label, control, and status together). No effect inside InputGroup (style the InputGroup instead) or in a `horizontal-labels` FormLayout. Root `xstyle`, `className`, and `style` are not accepted.
+- `containerClassName`: string — Class name for the field container. Same targeting as `containerXstyle`.
+- `containerStyle`: CSSProperties — Inline styles for the field container. Same targeting as `containerXstyle`.
+- `controlXstyle`: StyleXStyles — StyleX styles for the visual control box: the element that paints the border and background and holds the value, icons, and end controls. Never the trigger button itself.
+- `controlClassName`: string — Class name for the visual control box.
+- `controlStyle`: CSSProperties — Inline styles for the visual control box.
 
 ### Field
 
@@ -2359,7 +2392,12 @@ Props:
 - `onOpenChange`: (isOpen: boolean) => void — Callback when the dropdown opens or closes.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
 - `startIcon`: IconType | ReactNode — SVG icon component displayed at the start of the input.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
+- `containerXstyle`: StyleXStyles — StyleX styles for the field container (label, control, and status together). No effect inside InputGroup (style the InputGroup instead) or in a `horizontal-labels` FormLayout. Root `xstyle`, `className`, and `style` are not accepted.
+- `containerClassName`: string — Class name for the field container. Same targeting as `containerXstyle`.
+- `containerStyle`: CSSProperties — Inline styles for the field container. Same targeting as `containerXstyle`.
+- `controlXstyle`: StyleXStyles — StyleX styles for the visual control box: the element that paints the border and background and holds icons and end controls. Never the native input.
+- `controlClassName`: string — Class name for the visual control box.
+- `controlStyle`: CSSProperties — Inline styles for the visual control box.
 
 ### FileInput
 
@@ -2400,6 +2438,12 @@ Props:
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing; tooltip hides the message box and surfaces it in a tooltip on the status icon.
 - `labelTooltip`: string — Tooltip text displayed in an info icon at the end of the label.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
+- `containerXstyle`: StyleXStyles — StyleX styles for the field container (label, control, and status together). No effect inside InputGroup (style the InputGroup instead) or in a `horizontal-labels` FormLayout. Root `xstyle`, `className`, and `style` are not accepted.
+- `containerClassName`: string — Class name for the field container. Same targeting as `containerXstyle`.
+- `containerStyle`: CSSProperties — Inline styles for the field container. Same targeting as `containerXstyle`.
+- `controlXstyle`: StyleXStyles — StyleX styles for the visual control box: the element that paints the border and background and holds icons and end controls. Never the native input.
+- `controlClassName`: string — Class name for the visual control box.
+- `controlStyle`: CSSProperties — Inline styles for the visual control box.
 
 ### Group
 
@@ -2432,7 +2476,12 @@ Props:
 - `isReadOnly`: boolean = false — Whether all checkbox items are read-only. Displays the current state at full opacity but prevents interaction. Unlike isDisabled, read-only checkboxes are not visually dimmed.
 - `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator ({ type, message }).
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
+- `containerXstyle`: StyleXStyles — StyleX styles for the field container (label, control, and status together). No effect inside InputGroup (style the InputGroup instead) or in a `horizontal-labels` FormLayout. Root `xstyle`, `className`, and `style` are not accepted.
+- `containerClassName`: string — Class name for the field container. Same targeting as `containerXstyle`.
+- `containerStyle`: CSSProperties — Inline styles for the field container. Same targeting as `containerXstyle`.
+- `controlXstyle`: StyleXStyles — StyleX styles for the visual control box: the element that paints the border and background and holds icons and end controls. Never the native input.
+- `controlClassName`: string — Class name for the visual control box.
+- `controlStyle`: CSSProperties — Inline styles for the visual control box.
 
 ### Indicator
 
@@ -2550,7 +2599,12 @@ Props:
 - `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator object (`{ type, message }`) for validation feedback.
 - `labelTooltip`: string — Tooltip text for an info icon displayed next to the label.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+- `containerXstyle`: StyleXStyles — StyleX styles for the field container (label, control, and status together). No effect inside InputGroup (style the InputGroup instead) or in a `horizontal-labels` FormLayout. Root `xstyle`, `className`, and `style` are not accepted.
+- `containerClassName`: string — Class name for the field container. Same targeting as `containerXstyle`.
+- `containerStyle`: CSSProperties — Inline styles for the field container. Same targeting as `containerXstyle`.
+- `controlXstyle`: StyleXStyles — StyleX styles for the visual control box: the element that paints the border and background and holds icons and end controls. Never the native input.
+- `controlClassName`: string — Class name for the visual control box.
+- `controlStyle`: CSSProperties — Inline styles for the visual control box.
 
 ### Label
 
@@ -2600,7 +2654,12 @@ Props:
 - `onFocus`: (e: FocusEvent<HTMLTextAreaElement>) => void — Callback fired when the textarea receives focus.
 - `onBlur`: (e: FocusEvent<HTMLTextAreaElement>) => void — Callback fired when the textarea loses focus.
 - `autoComplete`: string — The native autocomplete attribute, forwarded to the textarea unchanged. Does not affect the controlled value.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+- `containerXstyle`: StyleXStyles — StyleX styles for the field container (label, control, and status together). No effect inside InputGroup (style the InputGroup instead) or in a `horizontal-labels` FormLayout. Root `xstyle`, `className`, and `style` are not accepted.
+- `containerClassName`: string — Class name for the field container. Same targeting as `containerXstyle`.
+- `containerStyle`: CSSProperties — Inline styles for the field container. Same targeting as `containerXstyle`.
+- `controlXstyle`: StyleXStyles — StyleX styles for the visual control box: the element that paints the border and background and holds icons and end controls. Never the native input.
+- `controlClassName`: string — Class name for the visual control box.
+- `controlStyle`: CSSProperties — Inline styles for the visual control box.
 
 ### Message box
 
@@ -2673,6 +2732,12 @@ Props:
 - `onFocus`: (e: FocusEvent<HTMLInputElement>) => void — Callback fired when the input receives focus.
 - `onBlur`: (e: FocusEvent<HTMLInputElement>) => void — Callback fired when the input loses focus.
 - `onEnter`: () => void — Callback fired when the user presses the Enter key.
+- `containerXstyle`: StyleXStyles — StyleX styles for the field container (label, control, and status together). No effect inside InputGroup (style the InputGroup instead) or in a `horizontal-labels` FormLayout. Root `xstyle`, `className`, and `style` are not accepted.
+- `containerClassName`: string — Class name for the field container. Same targeting as `containerXstyle`.
+- `containerStyle`: CSSProperties — Inline styles for the field container. Same targeting as `containerXstyle`.
+- `controlXstyle`: StyleXStyles — StyleX styles for the visual control box: the element that paints the border and background and holds icons and end controls. Never the native input.
+- `controlClassName`: string — Class name for the visual control box.
+- `controlStyle`: CSSProperties — Inline styles for the visual control box.
 
 ### PowerSearch
 
@@ -2754,7 +2819,12 @@ Props:
 - `size`: 'sm' | 'md' = 'md' — Size of the radio controls.
 - `labelTooltip`: string — Tooltip text for an info icon next to the label.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
+- `containerXstyle`: StyleXStyles — StyleX styles for the field container (label, control, and status together). No effect inside InputGroup (style the InputGroup instead) or in a `horizontal-labels` FormLayout. Root `xstyle`, `className`, and `style` are not accepted.
+- `containerClassName`: string — Class name for the field container. Same targeting as `containerXstyle`.
+- `containerStyle`: CSSProperties — Inline styles for the field container. Same targeting as `containerXstyle`.
+- `controlXstyle`: StyleXStyles — StyleX styles for the visual control box: the element that paints the border and background and holds icons and end controls. Never the native input.
+- `controlClassName`: string — Class name for the visual control box.
+- `controlStyle`: CSSProperties — Inline styles for the visual control box.
 
 ### TextInput
 
@@ -2801,6 +2871,12 @@ Props:
 - `htmlName`: string — The HTML name attribute for the input, useful for form submissions.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned. Without a width the field can shrink with its row, so a filter bar never overflows; use `<HStack wrap="wrap">` when the controls should move to a second line instead.
 - `autoComplete`: string — The native autocomplete attribute, forwarded to the input unchanged. Does not affect the controlled value.
+- `containerXstyle`: StyleXStyles — StyleX styles for the field container (label, control, and status together). No effect inside InputGroup (style the InputGroup instead) or in a `horizontal-labels` FormLayout. Root `xstyle`, `className`, and `style` are not accepted.
+- `containerClassName`: string — Class name for the field container. Same targeting as `containerXstyle`.
+- `containerStyle`: CSSProperties — Inline styles for the field container. Same targeting as `containerXstyle`.
+- `controlXstyle`: StyleXStyles — StyleX styles for the visual control box: the element that paints the border and background and holds icons and end controls. Never the native input.
+- `controlClassName`: string — Class name for the visual control box.
+- `controlStyle`: CSSProperties — Inline styles for the visual control box.
 
 ### TimeInput
 
@@ -2809,6 +2885,7 @@ Import: `import {TimeInput} from '@astryxdesign/core/TimeInput';`
 TimeInput uses a browser/OS time picker on coarse pointers by default and Astryx's typed field on fine pointers. It converts values to a standard format and supports arrow-key adjustment on the typed surface. Use it in forms, scheduling flows, or any interface where users need to select a specific time.
 
 Do:
+- Base props such as ref, id, data-*, aria-*, and DOM event handlers go to the time input, the element that is focused and announced. A DOM handler runs after TimeInput's own handler for the same event and still receives events it handled (including ones it called preventDefault on), so it cannot cancel built-in behavior.
 - Choose the hour format (12h or 24h) that matches your audience's locale: 12-hour with AM/PM for US-centric UIs, 24-hour for international or technical contexts.
 - Set min and max constraints when the context has a valid range, like business hours or event windows, so users cannot submit an out-of-bounds time.
 - Provide a description or placeholder that hints at the expected format or purpose, like "Business hours: 9 AM \u2013 5 PM".
@@ -2847,7 +2924,8 @@ Props:
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing; tooltip hides the message box and surfaces it in a tooltip on the status icon.
 - `labelTooltip`: string — Tooltip text rendered as an info icon at the end of the label row.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+- `containerXstyle`: StyleXStyles — StyleX styles for the Field box around the label, control, and status. containerClassName and containerStyle take a class name and inline styles for the same box. No effect (development warning) where no Field box renders: inside InputGroup (style the group) and in a horizontal-labels FormLayout.
+- `controlXstyle`: StyleXStyles — StyleX styles for the visual control box: the bordered element that holds the text, icons, and end controls, never the native input. controlClassName and controlStyle take a class name and inline styles for the same box. Replaces root xstyle, className, and style, which this component does not accept.
 
 ### Tokenizer
 
@@ -2905,7 +2983,12 @@ Props:
 - `tokenOverflowBehavior`: 'none' | 'unfocusedInline' | 'unfocusedLayer' = 'none' — Controls how tokens overflow when the container is too narrow.
 - `onFocus`: (e: FocusEvent<HTMLInputElement>) => void — Fires when focus enters the tokenizer input.
 - `onBlur`: (e: FocusEvent<HTMLInputElement>) => void — Fires when focus leaves the tokenizer input.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value; not an inline style object like style={{}}.
+- `containerXstyle`: StyleXStyles — StyleX styles for the field container (label, control, and status together). No effect inside InputGroup (style the InputGroup instead) or in a `horizontal-labels` FormLayout. Root `xstyle`, `className`, and `style` are not accepted.
+- `containerClassName`: string — Class name for the field container. Same targeting as `containerXstyle`.
+- `containerStyle`: CSSProperties — Inline styles for the field container. Same targeting as `containerXstyle`.
+- `controlXstyle`: StyleXStyles — StyleX styles for the visual control box: the element that paints the border and background and holds icons and end controls. Never the native input.
+- `controlClassName`: string — Class name for the visual control box.
+- `controlStyle`: CSSProperties — Inline styles for the visual control box.
 
 ### CheckboxListItem (subcomponent/hook)
 
@@ -3310,7 +3393,7 @@ The press model of macOS and iOS menus, for any pointer: the row under the point
 Do:
 - Pass a selector for ENABLED rows only, so a disabled row or a divider under the pointer clears the highlight instead of lighting up.
 - Let the default highlight move focus in a menu; supply onHighlight only for a listbox that must keep focus on its combobox and highlight through aria-activedescendant.
-- Declare touch-action on the menu root: none when its rows fit, pan-y when it scrolls, so the browser — not the hook — decides when a finger is scrolling.
+- Declare touch-action on the menu root: pinch-zoom when its rows fit, pan-y pinch-zoom when it scrolls, so the browser — not the hook — decides when a finger is scrolling, and a two-finger pinch still zooms the page.
 
 Don't:
 - Act on a row from its own pointerdown or pointerup handler as well; the hook already activates the row under the release, and a second path acts twice.
@@ -3339,12 +3422,12 @@ Returns:
 
 Import: `import {usePopover} from '@astryxdesign/core/Popover';`
 
-Headless hook for click-triggered popovers with focus trapping. Combines useLayer with useFocusTrap, auto-focus, light dismiss, Escape handling, and an optional hidden close button for accessible dialog-like popover behavior. Every painted surface emits the canonical popover target and deprecated popover-surface compatibility alias. A custom composition needing a distinct stable seam should pass and document its own surfaceTarget.
+Headless hook for click-triggered popovers with focus trapping. Combines useLayer with useFocusTrap, auto-focus, light dismiss, Escape handling, and an optional hidden close button for accessible dialog-like popover behavior. Every painted surface emits the canonical popover target. A custom composition needing a distinct stable seam should pass and document its own surfaceTarget.
 
 Do:
 - Use for interactive content such as menus, pickers, forms, and command panels that need focus management.
 - Prefer the Popover component for standard trigger-content pairs; use the hook for custom trigger patterns.
-- Use popover as the broad surface target. Popover-surface remains supported compatibility output, but new theme source uses the canonical key.
+- Use popover as the broad canonical surface target.
 - When a custom composition needs its own theme refinement, pass and document an owned surfaceTarget such as selector-popup. It refines the Popover surface rather than creating another anatomy part.
 
 Don't:
@@ -3364,7 +3447,7 @@ Parameters:
 - `isModal`: boolean = true — Whether a dialog-role popover is modal (aria-modal). Only applies when role is "dialog".
 - `hasSurface`: boolean = true — Whether to apply the default popover surface background, radius, and shadow.
 - `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inner padding of the painted surface on the spacing scale (0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10). Omit it and the hook paints no padding of its own; Popover passes 3 by default and 0 for a flush surface.
-- `surfaceTarget`: string — Optional component-owned refinement target on the painted surface, without the astryx- prefix. Use and document one when a direct hook composition needs distinct theme reachability. Do not use popover-surface; it is a deprecated compatibility alias of the canonical popover target.
+- `surfaceTarget`: string — Optional component-owned refinement target on the painted surface, without the astryx- prefix. Use and document one when a direct hook composition needs distinct theme reachability.
 
 Returns:
 - `triggerRef`: (el: HTMLElement | null) => void — Ref callback to attach to the trigger element for CSS anchor positioning.
@@ -4712,7 +4795,7 @@ A click-triggered overlay anchored to a button or trigger element. Use it for se
 Do:
 - Keep popover content focused on a single task or piece of information.
 - Provide a clear way to close: either by clicking outside or with an explicit close button.
-- Theme the painted surface through popover. Existing popover-surface overrides remain supported for compatibility, while new themes use the canonical target.
+- Theme the painted surface through the canonical popover target.
 
 Don't:
 - Nest popovers inside other popovers; it creates confusing focus and navigation.
@@ -5040,7 +5123,7 @@ Props:
 - `isHighlighted`: boolean = false — Highlighted state (hover/keyboard focus appearance).
 - `isSelected`: boolean = false — Selected state.
 - `isDisabled`: boolean = false — Disabled state.
-- `swipeActions`: {leading?: ItemSwipeAction[]; trailing?: ItemSwipeAction[]} — Swipe actions for touch: the verbs a sideways drag uncovers on each side, outermost last, each `{id?, label, icon?, onActivate, isDisabled?, variant?: 'neutral' | 'accent' | 'destructive', hasRemoval?}`. `leading` is uncovered by a drag toward the inline end, `trailing` toward the inline start. A mouse never starts the drag and a mostly vertical drag stays the scroller's. The gesture is a touch accelerator and never a row's only path to a verb: a verb reachable only by swipe is unreachable by keyboard and by mouse, so every entry must also be reachable through the row's own content. Served on a row whose role permits interactive descendants (a listitem, a row with no role) and not on an option, a menu item, or a row that is the enlarged target of a native radio. The element containing the rows clips in the inline axis with overflow-inline: clip — List does; any other host does it once. `hasRemoval` only says the row holds out after the action fires instead of springing back.
+- `swipeActions`: {leading?: ItemSwipeAction[]; trailing?: ItemSwipeAction[]} — Swipe actions for touch: the verbs a sideways drag uncovers on each side, outermost last, each `{id?, label, icon?, onActivate, isDisabled?, variant?: 'neutral' | 'accent' | 'destructive', hasRemoval?}`. `leading` is uncovered by a drag toward the inline end, `trailing` toward the inline start. A mouse never starts the drag and a mostly vertical drag stays the scroller's. The gesture is a touch accelerator and never a row's only path to a verb: a verb reachable only by swipe is unreachable by keyboard and by mouse, so every entry must also be reachable through the row's own content. Served on a row whose role permits interactive descendants (a listitem, a row with no role) and not on an option, a menu item, or a row that is the enlarged target of a native radio. The element containing the rows clips in the inline axis with overflow-inline: clip — List does; any other host does it once. `hasRemoval` only says the row holds out after the action fires instead of springing back. The gesture and its panels are loaded on demand the first time a row has swipe actions, so a row without them ships none of it.
 - `swipeBehavior`: 'reveal' | 'commit' = 'reveal' — What a swipe does. `reveal` rests the row open with every entry a real button and fires the outermost on a long drag or a fling; `commit` slides the row out and fires the outermost on release, with nothing resting and a presentational panel. `commit` fits one entry per side.
 - `ref`: React.Ref<HTMLDivElement> — Ref forwarded to the root element.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.

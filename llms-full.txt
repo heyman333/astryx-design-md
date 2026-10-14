@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `30b6e1b` (2026-10-12) of https://github.com/facebook/astryx.
+Generated from commit `13ae375` (2026-10-13) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -1144,6 +1144,7 @@ Props:
 - `hasLanguageLabel`: boolean = true — Show the language name in the header bar. Hidden when language is "plaintext".
 - `hasLineNumbers`: boolean = false — Show a line number gutter.
 - `highlightLines`: number[] — 1-indexed line numbers to highlight.
+- `isDiff`: boolean = false — Render the code as a unified diff over `language`: lines starting with + are added, - removed, @@ is a hunk header (a `--- `/`+++ ` file-header pair directly before one is a header too), anything else is context. The language label reads `diff` or `<language> diff`. The glyph sits in its own column and the rest of each line keeps syntax highlighting; copy returns the exact source. Markdown ```diff and ```diff-<lang> fences set this.
 - `hasCopyButton`: boolean = true — Show a copy-to-clipboard button.
 - `onCopy`: () => void — Callback after the code is copied.
 - `isWrapped`: boolean = false — Wrap long lines instead of enabling horizontal scroll.
@@ -2538,6 +2539,7 @@ InputGroup connects an input with prefix/suffix addons in a single visual unit. 
 Do:
 - Use text addons to show units, prefixes, or suffixes that clarify the input format (e.g., "$", "kg", "https://").
 - Use InputGroupText for static prefixes/suffixes like "$", "kg", or "https://".
+- Use Button for an action attached to the input; InputGroup connects its corners automatically.
 - Use InputGroup with compatible single-line inputs: TextInput, NumberInput, TimeInput, DateInput, Typeahead, Selector, and MultiSelector.
 - Keep each inner input's label specific; grouped inputs automatically combine the group label with their own label and inherit the group description/status context.
 
@@ -2547,7 +2549,7 @@ Don't:
 - Don't use InputGroup with TextArea, Slider, Switch, CheckboxInput, or RadioList.
 
 Props:
-- `children`: ReactNode (required) — InputGroupText and compatible input children: TextInput, NumberInput, TimeInput, DateInput, Typeahead, Selector, or MultiSelector.
+- `children`: ReactNode (required) — InputGroupText, Button addons, and compatible input children: TextInput, NumberInput, TimeInput, DateInput, Typeahead, Selector, or MultiSelector.
 - `label`: string (required) — Accessible label for the group.
 - `isLabelHidden`: boolean = false — Visually hide the label.
 - `description`: string — Helper text between label and input group.

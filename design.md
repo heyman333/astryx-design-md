@@ -1,6 +1,6 @@
 # Astryx Design System — Design Overview
 
-> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`13ae375`](https://github.com/facebook/astryx/commit/13ae375a39f6ca1096cf1707c8d47727b8ae5bc4) (2026-10-13). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
+> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`9d2b656`](https://github.com/facebook/astryx/commit/9d2b65628e7057582510acbaa71cbf4e2bf5d243) (2026-10-14). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
 
 ## What Astryx is
 
@@ -212,7 +212,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**Center**](https://github.com/facebook/astryx/blob/main/packages/core/src/Center/Center.doc.mjs) — Center aligns content to the middle of its container. Use it for empty states, loading screens, login forms, or any content that should sit in the center of the available space.
 - [**Divider group**](https://github.com/facebook/astryx/blob/main/packages/core/src/Divider/Divider.doc.mjs) — A visual separator that divides content into distinct sections. Use to create clear boundaries between groups of related content, or to demarcate interactive regions within a layout.
 - [**FormLayout**](https://github.com/facebook/astryx/blob/main/packages/core/src/FormLayout/FormLayout.doc.mjs) — A layout container that arranges form fields with consistent spacing and direction. FormLayout handles where fields go, not state or submission. Wrap it in a <form> for that. Supports vertical (default), horizontal, and horizontal-labels directions, and can be nested to mix them.
-- [**Grid container**](https://github.com/facebook/astryx/blob/main/packages/core/src/Grid/Grid.doc.mjs) — A CSS grid layout container for arranging children in rows and columns. Use Grid for card galleries, dashboards, and any multi-column layout. Supports fixed column counts and responsive columns that reflow based on available width.
+- [**Grid container**](https://github.com/facebook/astryx/blob/main/packages/core/src/Grid/Grid.doc.mjs) — A CSS grid layout container for arranging children in rows and columns. Use Grid for card galleries, dashboards, and any multi-column layout. For columns that reflow on small screens, use `columns={{minWidth, max}}`; a numeric `columns` is exactly N columns at every width and never reflows.
 - [**Handle**](https://github.com/facebook/astryx/blob/main/packages/core/src/Resizable/Resizable.doc.mjs) — Hook-based resizable panel system. useResizable() manages size state 
 - [**Layout container**](https://github.com/facebook/astryx/blob/main/packages/core/src/Layout/Layout.doc.mjs) — Layout is a general five-slot primitive for arranging header, start, content, end, and footer regions within a page or bounded container. AppShell owns the page shell and app-wide navigation behavior; use HStack or VStack for simple directional stacking.
 - [**ScrollableArea**](https://github.com/facebook/astryx/blob/main/packages/core/src/ScrollableArea/ScrollableArea.doc.mjs) — Provides a native scroll viewport and a real observed content box. The viewport enters the tab order only while a requested logical axis is effectively scrollable, and containment applies only to effective axes.
@@ -279,7 +279,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**CommandPaletteFooter**](https://github.com/facebook/astryx/blob/main/packages/core/src/CommandPalette/CommandPaletteFooter.doc.mjs) *(subcomponent/hook)* — CommandPalette renders CommandPaletteFooter automatically. Pass a CommandPaletteFooter to the footer slot only when replacing the default guidance.
 - [**CommandPaletteGroup**](https://github.com/facebook/astryx/blob/main/packages/core/src/CommandPalette/CommandPaletteGroup.doc.mjs) *(subcomponent/hook)*
 - [**CommandPaletteInput**](https://github.com/facebook/astryx/blob/main/packages/core/src/CommandPalette/CommandPaletteInput.doc.mjs) *(subcomponent/hook)*
-- [**CommandPaletteItem**](https://github.com/facebook/astryx/blob/main/packages/core/src/CommandPalette/CommandPaletteItem.doc.mjs) *(subcomponent/hook)*
+- [**CommandPaletteItem**](https://github.com/facebook/astryx/blob/main/packages/core/src/CommandPalette/CommandPaletteItem.doc.mjs) *(subcomponent/hook)* — Use CommandPaletteItem for one non-interactive result row inside CommandPaletteList or CommandPaletteGroup. CommandPalette owns the composite keyboard model; standalone items expose only their explicit visual state and pointer activation.
 - [**CommandPaletteList**](https://github.com/facebook/astryx/blob/main/packages/core/src/CommandPalette/CommandPaletteList.doc.mjs) *(subcomponent/hook)*
 - [**DialogHeader**](https://github.com/facebook/astryx/blob/main/packages/core/src/Dialog/DialogHeader.doc.mjs) *(subcomponent/hook)* — Use DialogHeader to give a dialog a labelled title area and optional close control.
 - [**useImperativeAlertDialog**](https://github.com/facebook/astryx/blob/main/packages/core/src/AlertDialog/useImperativeAlertDialog.doc.mjs) *(subcomponent/hook)*

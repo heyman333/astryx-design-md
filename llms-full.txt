@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `13ae375` (2026-10-13) of https://github.com/facebook/astryx.
+Generated from commit `9d2b656` (2026-10-14) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -1974,7 +1974,11 @@ Props:
 - `nativePicker`: 'touch' | 'always' | 'never' = 'touch' — Deprecated: use presentation ('touch' = 'adaptive-native', 'always' = 'native', 'never' = 'adaptive-bottom-sheet'). Still works exactly as released; presentation wins when both are set.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
 - `containerXstyle`: StyleXStyles — StyleX styles for the Field box around the label, control, and status. containerClassName and containerStyle take a class name and inline styles for the same box. No effect (development warning) where no Field box renders: inside InputGroup (style the group) and in a horizontal-labels FormLayout.
+- `containerClassName`: string — Class name for the Field box. Same targeting as containerXstyle.
+- `containerStyle`: CSSProperties — Inline styles for the Field box. Same targeting as containerXstyle.
 - `controlXstyle`: StyleXStyles — StyleX styles for the visual control box: the bordered element that holds the text, icons, and end controls, never the native input. controlClassName and controlStyle take a class name and inline styles for the same box. Replaces root xstyle, className, and style, which this component does not accept.
+- `controlClassName`: string — Class name for the visual control box. Same targeting as controlXstyle.
+- `controlStyle`: CSSProperties — Inline styles for the visual control box. Same targeting as controlXstyle.
 
 ### DateRangeInput
 
@@ -2084,7 +2088,7 @@ Import: `import {Field} from '@astryxdesign/core/ComplexSelector';`
 Use ComplexSelector when a selection needs richer custom content than a Selector option row. It is intentionally one component: ComplexSelector owns the field, trigger, popover, focus restore, and changeAction flow, while the content render prop owns the selector-specific accessible structure.
 
 Do:
-- Use variant="ghost" with a startIcon when the selector is triggered from a toolbar. Use alignment="end" when a wide surface should align its end edge to the trigger.
+- Use variant="secondary" beside secondary buttons, or variant="ghost" beside ghost buttons; add a startIcon when it helps identify the trigger. Use alignment="end" when a wide surface should align its end edge to the trigger.
 - For staged editors, keep draft state in the composed content and call the provided onChange helper only from Apply. Cancel or dismiss without committing.
 - Compose the dialog content from the appropriate accessible structure for the job: RadioList for a simple choice, Calendar/date inputs for date picking, TreeList or a searchable list for hierarchy, or a custom grid when two-dimensional arrow navigation is useful.
 - Use the provided onChange helper from children; it already calls both onChange and changeAction and updates optimistic busy state.
@@ -2111,9 +2115,9 @@ Props:
 - `isDisabled`: boolean — Disables the selector.
 - `isLoading`: boolean — Shows loading state on the trigger.
 - `status`: {type: 'warning' | 'error' | 'success', message?: string} — Validation status.
-- `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment; detached when variant is ghost); detached floats below as a separate element with spacing; tooltip reveals the message in an info-tip button.
+- `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' for input selectors; 'detached' for secondary and ghost selectors — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment; detached when variant is secondary or ghost); detached floats below as a separate element with spacing; tooltip reveals the message in an info-tip button.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Exact trigger height: sm 28px, md 32px, or lg 36px.
-- `variant`: 'input' | 'ghost' = 'input' — Visual trigger style. Input is the bordered form treatment; ghost matches toolbar buttons.
+- `variant`: 'input' | 'secondary' | 'ghost' = 'input' — Visual trigger style. Input is the bordered form treatment; secondary is borderless and neutral-filled to match secondary buttons; ghost is borderless and transparent to match ghost buttons.
 - `startIcon`: ReactNode | IconType — Icon displayed at the start of the trigger.
 - `width`: SizeValue — Width of the field.
 - `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Popup placement.
@@ -2182,7 +2186,7 @@ Do:
 - Use renderOption for custom option rows; the checkbox affordance remains owned by MultiSelector.
 - Enable select-all when most users will want all or nearly all options selected.
 - Use inside InputGroup only when the control needs a short prefix or suffix addon as part of one decorated input surface; prefer count or labels trigger display so the group stays single-line.
-- Use variant="ghost" when a multi-selector sits in a toolbar with ghost buttons. If validation status is needed there, prefer statusVariant="tooltip" so the toolbar height stays compact.
+- Use variant="secondary" when a multi-selector sits beside secondary buttons or segmented controls, and variant="ghost" when it sits beside ghost buttons. If validation status is needed there, prefer statusVariant="tooltip" so the toolbar height stays compact.
 - Use presentation="adaptive" when the multi-selector should become a bottom sheet on compact touch screens.
 
 Don't:
@@ -2202,7 +2206,7 @@ Props:
 - `changeAction`: (value: string[]) => void | Promise<void> — Async action on change. Fires after onChange.
 - `placeholder`: string = 'Select...' — Placeholder text shown when no value is selected.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant for the selector.
-- `variant`: 'input' | 'ghost' = 'input' — Visual trigger style. input is the bordered input treatment for forms; ghost is borderless and matches ghost buttons for toolbar usage.
+- `variant`: 'input' | 'secondary' | 'ghost' = 'input' — Visual trigger style. input is the bordered input treatment for forms; secondary is borderless and neutral-filled, matching secondary buttons for navs and toolbars; ghost is borderless and transparent, matching ghost buttons for toolbar usage.
 - `triggerDisplay`: 'count' | 'labels' | 'badges' = 'count' — How to display selected items in the trigger.
 - `formatValue`: (items: {value: string; label: string}[]) => string — Formats the trigger text when triggerDisplay="count" or "labels". Receives the selected items (value plus resolved label); the count is items.length. Not used by triggerDisplay="badges".
 - `maxBadges`: number = 3 — Maximum badges to show before "+N". Only for triggerDisplay="badges".
@@ -2223,7 +2227,7 @@ Props:
 - `isRequired`: boolean — Marks the field as required.
 - `isLoading`: boolean — Shows a loading spinner in the trigger.
 - `status`: {type: 'error' | 'warning' | 'success', message?: string} — Validation status with an optional message.
-- `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' for input selectors; 'detached' for ghost selectors — How the status message is placed relative to the input. attached overlaps directly below the bordered input and is only valid for the input variant; ghost selectors detach attached status messages by default. Use tooltip for compact toolbar controls.
+- `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' for input selectors; 'detached' for secondary and ghost selectors — How the status message is placed relative to the input. attached overlaps directly below the bordered input and is only valid for the input variant; secondary and ghost selectors detach attached status messages by default. Use tooltip for compact toolbar controls.
 - `renderOption`: (option: MultiSelectorOptionData) => ReactNode — Custom render function for each selectable option in the dropdown. Not called for dividers, sections, or the select-all row.
 - `indicatorPosition`: 'start' | 'end' = 'start' — Which edge of the option row carries the checkbox. end pushes it to the far edge of the row, including on the select-all row.
 - `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — How the option list is presented. adaptive uses a bottom sheet on compact touch screens and an anchored popover otherwise.
@@ -2256,7 +2260,7 @@ Do:
 - Use renderOption for custom option rows. Do not pass SelectorOption directly as JSX children.
 - Set a meaningful placeholder that hints at the expected selection (e.g. "Choose a country" not "Select...").
 - Use inside InputGroup only when the selector needs a short prefix or suffix addon as part of one decorated input surface.
-- Use variant="ghost" when a selector sits in a toolbar with ghost buttons. If validation status is needed there, prefer statusVariant="tooltip" so the toolbar height stays compact.
+- Use variant="secondary" when a selector sits in a nav or toolbar beside secondary buttons or a segmented control, so it shares their neutral fill instead of reading as a form field. Use variant="ghost" when a selector sits in a toolbar with ghost buttons. If validation status is needed there, prefer statusVariant="tooltip" so the toolbar height stays compact.
 - Use presentation="adaptive" when the selector should become a bottom sheet on compact touch screens.
 
 Don't:
@@ -2279,7 +2283,7 @@ Props:
 - `emptySearchText`: ReactNode = 'No results found' — Content shown in the dropdown panel when a search query matches no options, and announced in a polite live region at the same time. The announcement is the text this content renders, read from the DOM, so an element is announced as written and aria-hidden parts are left out of both.
 - `placeholder`: string = 'Select...' — Placeholder text shown when no value is selected.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant for the selector.
-- `variant`: 'input' | 'ghost' = 'input' — Visual trigger style. input is the bordered input treatment for forms; ghost is borderless and matches ghost buttons for toolbar usage.
+- `variant`: 'input' | 'secondary' | 'ghost' = 'input' — Visual trigger style. input is the bordered input treatment for forms; secondary is borderless and neutral-filled, matching secondary buttons for navs and toolbars; ghost is borderless and transparent, matching ghost buttons for toolbar usage.
 - `isDisabled`: boolean = false — Disables the selector.
 - `isReadOnly`: boolean = false — Makes the selector read-only: the selected value stays visible, focusable, and included in form submission, and retains its combobox identity with aria-readonly. The selection surface, clear action, and disclosure indicator are removed. Unlike isDisabled, the control is not dimmed. isDisabled takes precedence when both are set.
 - `htmlName`: string — The HTML name attribute for form submissions. Renders a hidden input carrying the selected value, like a native select.
@@ -2289,7 +2293,7 @@ Props:
 - `isOptional`: boolean = false — Marks the field as optional.
 - `isRequired`: boolean = false — Marks the field as required.
 - `status`: {type: 'error' | 'warning' | 'success', message?: string} — Validation status with an optional message.
-- `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' for input selectors; 'detached' for ghost selectors — How the status message is placed relative to the input. attached overlaps directly below the bordered input and is only valid for the input variant; ghost selectors detach attached status messages by default. Use tooltip for compact toolbar controls.
+- `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' for input selectors; 'detached' for secondary and ghost selectors — How the status message is placed relative to the input. attached overlaps directly below the bordered input and is only valid for the input variant; secondary and ghost selectors detach attached status messages by default. Use tooltip for compact toolbar controls.
 - `renderOption`: (option: SelectorOptionData) => ReactNode — Custom render function for each selectable option in the dropdown. Use this instead of JSX children; dividers and sections are rendered by the selector.
 - `renderValue`: (option: SelectorOptionData) => ReactNode — Custom render function for the selected option inside the closed trigger. A one-line value follows the active size token, including compact or wide spacing scales with icons or a clear control. Padding accommodates the trigger line box, and each extra line grows the control by one line (28/32/36 for one line and 48/52/56 for two with the default tokens). Content inherits the trigger line height; content that sets a larger font should set its own line height so the trigger grows to fit it. Inside an InputGroup the group owns the row height: a SelectorOption folds onto one line and ellipsizes, and any taller node is cut off at the row.
 - `indicatorPosition`: 'start' | 'end' = 'end' — Which logical edge of the option row carries a rendered selection mark. An empty mark consumes no space, so selected and unselected labels may shift or have different available width. end is the house convention shared with Typeahead and CommandPalette.
@@ -3664,20 +3668,21 @@ Props:
 
 Import: `import {Grid container} from '@astryxdesign/core/Grid';`
 
-A CSS grid layout container for arranging children in rows and columns. Use Grid for card galleries, dashboards, and any multi-column layout. Supports fixed column counts and responsive columns that reflow based on available width.
+A CSS grid layout container for arranging children in rows and columns. Use Grid for card galleries, dashboards, and any multi-column layout. For columns that reflow on small screens, use `columns={{minWidth, max}}`; a numeric `columns` is exactly N columns at every width and never reflows.
 
 Do:
-- Use responsive columns for layouts that should adapt to screen size: `columns={{minWidth: 280}}`.
-- Cap the column count with `max` to prevent rows from getting too wide on large screens.
+- Default to responsive columns for anything that must survive a phone: `columns={{minWidth: 240, max: 4}}` renders at most 4 columns, each at least 240px, and drops to one full-width column when narrow.
+- Always pair `minWidth` with `max`: `max` caps the count on wide screens and lets the last column shrink to a narrow container; `{minWidth}` alone overflows a phone narrower than `minWidth`.
 - Use `repeat: 'fill'` (the default) for consistent item widths. Use `'fit'` when items should stretch to fill leftover space.
 - Track templates use CSS-variable indirection (not raw inline styles), so `xstyle` overrides of `gridTemplateColumns` (including inside `@media` queries) take effect.
 
 Don't:
+- Use `columns={4}` for a row that must work on small screens; a number never reflows and renders four narrow tracks on a phone. Reserve numbers for rows that must stay fixed, such as a 7-day week.
 - Write manual CSS grid; Grid handles spacing and responsive behavior for you.
 - Use `HStack` with wrapping for grids; use Grid instead.
 
 Props:
-- `columns`: number | {minWidth: number, max?: number, repeat?: 'fill' | 'fit'} — Column configuration. Use a number for fixed columns (e.g. `columns={3}`). Use an object for responsive columns: `minWidth` sets the minimum column width in px, `repeat` controls track behavior (`"fill"` preserves empty tracks for consistent widths, `"fit"` collapses empty tracks so items stretch; defaults to `"fill"`), and `max` caps the maximum number of columns.
+- `columns`: number | {minWidth: number, max?: number, repeat?: 'fill' | 'fit'} — Column configuration. A number is exactly N equal columns at every width and never reflows (e.g. `columns={3}`); for columns that reflow on small screens, use `{minWidth, max}`. Use an object for responsive columns: `minWidth` sets the minimum column width in px, `repeat` controls track behavior (`"fill"` preserves empty tracks for consistent widths, `"fit"` collapses empty tracks so items stretch; defaults to `"fill"`), and `max` caps the maximum number of columns.
 - `width`: SizeValue — Container width. Numbers are treated as pixels, strings are used as-is.
 - `height`: SizeValue — Container height. Numbers are treated as pixels, strings are used as-is.
 - `maxWidth`: SizeValue — Maximum container width. Numbers are treated as pixels, strings are used as-is.
@@ -4675,6 +4680,7 @@ CommandPalette is a searchable dialog for quick access to commands, navigation, 
 Do:
 - Provide a searchSource with bootstrap results so users see useful options before typing.
 - Use auxiliaryData.group on items to automatically organize results into labeled sections.
+- Keep renderItem content non-interactive; each rendered row is one option, so buttons and links cannot be nested inside it.
 
 Don't:
 - Use CommandPalette for simple dropdowns or menus; use Menu or Selector for inline selections.
@@ -4686,7 +4692,7 @@ Props:
 - `searchSource`: SearchSource<T> (required) — Search source providing items via search(query) and bootstrap(). Use createStaticSource for static lists.
 - `input`: ReactNode = <CommandPaletteInput /> — Input slot. Defaults to CommandPaletteInput with standard behavior.
 - `footer`: ReactNode = <CommandPaletteFooter /> — Footer slot. Defaults to CommandPaletteFooter showing keyboard hints.
-- `renderItem`: (item: T, isSelected: boolean) => ReactNode — Per-item render function. Auto-grouping by auxiliaryData.group is preserved. When omitted, renders label text.
+- `renderItem`: (item: T, isSelected: boolean) => ReactNode — Per-item render function for non-interactive presentation content such as labels, icons, descriptions, and shortcut hints. Do not return buttons or links inside the option. Auto-grouping by auxiliaryData.group is preserved. When omitted, renders label text.
 - `emptySearchText`: ReactNode = 'No results' — Content shown when a search query returns no results.
 - `emptyBootstrapText`: ReactNode = 'Type to search' — Content shown when there is no search query and bootstrap() returns nothing.
 - `value`: string — Controlled selected value for picker mode.
@@ -5004,13 +5010,22 @@ Props:
 
 Import: `import {CommandPaletteItem} from '@astryxdesign/core/CommandPalette';`
 
+Use CommandPaletteItem for one non-interactive result row inside CommandPaletteList or CommandPaletteGroup. CommandPalette owns the composite keyboard model; standalone items expose only their explicit visual state and pointer activation.
+
+Do:
+- Keep each value unique within the result list so highlight, active-descendant identity, and selection resolve to the same item.
+- Use non-interactive child content such as icons, descriptions, and shortcut hints; activate the option itself instead of nesting buttons or links.
+
+Don't:
+- Treat isHighlighted as selection. Highlight is the active keyboard result; isSelected represents the chosen value.
+
 Props:
-- `value`: string (required) — Unique value for identification and selection.
-- `children`: ReactNode (required) — Item content: render icons, descriptions, keyboard shortcuts, etc.
-- `onSelect`: (value: string) => void — Called when this item is selected via click or Enter.
-- `isHighlighted`: boolean = false — Whether this item has keyboard focus. Derived from context when inside CommandPalette.
-- `isSelected`: boolean = false — Whether this item is selected in picker mode.
-- `isDisabled`: boolean = false — Whether the item is non-interactive.
+- `value`: string (required) — Unique value used for item identity, highlight lookup, and selection.
+- `children`: ReactNode (required) — Non-interactive item content such as a label, icon, description, or keyboard shortcut.
+- `onSelect`: (value: string) => void — Called after this item is activated by pointer. Keyboard selection in CommandPalette reports through CommandPalette onValueChange.
+- `isHighlighted`: boolean = false — Whether this item is the active keyboard result. Derived from context when omitted inside CommandPalette.
+- `isSelected`: boolean = false — Whether this item represents the selected value in picker mode.
+- `isDisabled`: boolean = false — Whether the item is unavailable and suppresses pointer activation.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
 
 ### CommandPaletteList (subcomponent/hook)

@@ -1,10 +1,10 @@
 # Astryx — Full Component Reference
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 234 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 236 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `9d2b656` (2026-10-14) of https://github.com/facebook/astryx.
+Generated from commit `db3a2e7` (2026-10-15) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -67,7 +67,7 @@ Props:
 - `name`: string — HTML name attribute for form submission.
 - `value`: string | number | readonly string[] — HTML value attribute for form submission.
 - `form`: string — Associates the button with a form element by ID.
-- `isLoading`: boolean = false — Shows a loading spinner and disables interaction. Announces "Loading" via a live region.
+- `isLoading`: boolean = false — Shows a loading spinner and blocks re-activation while staying focusable (aria-busy + aria-disabled, not native disabled, so keyboard focus is never dropped mid-action). Announces "Loading" via a live region.
 - `isInterruptible`: boolean = false — Keep the button clickable while a clickAction is pending: the spinner and aria-busy still show, but the button is not disabled and the action is not deduped, so a re-click lands and interrupts the in-flight action with a fresh one.
 - `isDisabled`: boolean = false — Disables the button. When a tooltip is present, uses aria-disabled instead of native disabled so the button stays focusable.
 - `icon`: ReactNode — Icon element rendered before the label text. An Astryx Icon with no explicit size defaults to sm for sm/md buttons and md for lg buttons.
@@ -160,7 +160,7 @@ Props:
 - `variant`: 'primary' | 'secondary' | 'ghost' | 'destructive' = 'secondary' — Visual style variant.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant.
 - `elevation`: 'none' | 'low' | 'med' | 'high' = 'none' — Resting shadow depth. The most common FAB shape is an icon-only button, so raise it with `low`/`med`/`high` for a floating action button. `none` is the default flat button.
-- `isLoading`: boolean = false — Shows a loading spinner and disables interaction.
+- `isLoading`: boolean = false — Shows a loading spinner and blocks re-activation while staying focusable (aria-busy + aria-disabled, not native disabled).
 - `isDisabled`: boolean = false — Disables the button.
 - `tooltip`: string — Tooltip text shown on hover.
 - `onClick`: (e: MouseEvent) => void — Standard click handler.
@@ -297,6 +297,7 @@ Props:
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when the menu opens or closes.
 - `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — Presentation policy. `popover` opens at the pointer position, `bottom-sheet` always uses an action sheet, and `adaptive` uses the BottomSheet at 768px and below when the primary pointer is coarse.
 - `isDisabled`: boolean = false — When true, right-click shows the native browser context menu instead.
+- `triggerXstyle`: StyleXStyles | StyleXStyles[] — Styles applied to the trigger wrapper. Accepts `stylex.create()` values, not inline style objects.
 - `triggerAs`: 'div' | 'span' = 'div' — The element the trigger wrapper renders as. 'div' is a block; 'span' an inline wrapper, so a reference inside prose can own a context menu without breaking the text flow.
 
 ### Trigger button
@@ -327,8 +328,8 @@ Props:
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when the open state changes.
 - `menuWidth`: number | string — Minimum width for the popover presentation. Length values may grow for content; intrinsic and CSS-wide keywords select the preferred inline size. Every form is capped to the available viewport space. Defaults to matching the trigger width up to that cap.
 - `menuMaxHeight`: number — Maximum height in pixels for the popover presentation, for a menu that must fit its rows. Lifts the default 300px cap; the viewport still bounds it.
-- `header`: ReactNode — Content above the rows and outside the menu itself — a filter field, a toggle. A menu holds only its rows, so a control that is not a row goes here or in `footer`, never among the rows. It keeps its own keys and presses; Tab moves from it into the menu, and Shift+Tab before its first control closes the menu. The bottom sheet shows it above the actions.
-- `footer`: ReactNode — Content below the rows and outside the menu itself — a "Create" button. Tab from the menu moves into it, and Tab past its last control closes the menu. The bottom sheet shows it below the actions.
+- `header`: ReactNode — Content above the rows and outside the menu itself — a filter field, a toggle. A menu holds only its rows, so a control that is not a row goes here or in `footer`, never among the rows. It keeps its own keys and presses. With a header or footer the popover is a modal dialog around the menu: Tab and Shift+Tab move through the header, the menu and the footer and wrap at either end, and Escape closes. The bottom sheet shows it above the actions.
+- `footer`: ReactNode — Content below the rows and outside the menu itself — a "Create" button. Tab from the menu moves into it, and Tab past its last control wraps to the start of the dialog (see `header`). The bottom sheet shows it below the actions.
 - `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Popover placement relative to the trigger. Ignored by the bottom-sheet presentation. Logical: start/end resolve against the menu's own inherited direction (RTL mirrors).
 - `alignment`: 'start' | 'center' | 'end' = 'start' — Popover alignment along the placement axis. Ignored by the bottom-sheet presentation. Logical: start/end follow the menu's own inherited direction (RTL mirrors).
 - `onClick`: () => void — Callback fired for accepted trigger activation. The trailing click from the same press that light-dismissed the menu is ignored.
@@ -362,6 +363,23 @@ Props:
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when the menu opens or closes.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
+### Checkable row (subcomponent/hook)
+
+Import: `import {Checkable row} from '@astryxdesign/core/DropdownMenu';`
+
+An independently checkable option inside DropdownMenu. The row owns menuitemcheckbox semantics while the shared Indicator supplies decorative checkbox paint.
+
+Props:
+- `label`: ReactNode — Primary label text identifying the item.
+- `description`: ReactNode — Secondary description text displayed below the label.
+- `icon`: IconType — Icon to display before the label. See `npx @astryxdesign/cli docs icons` for valid semantic names.
+- `value`: boolean — Whether the item is checked. Controlled; pair with onChange.
+- `onChange`: (checked: boolean) => void — Callback fired with the next checked state when the item is toggled.
+- `isDisabled`: boolean = false — Whether the item is disabled. Disabled items expose aria-disabled, block activation, and are currently skipped by DropdownMenu arrow-key navigation.
+- `hasCloseOnSelect`: boolean = false — Whether toggling the item closes the menu. Checkbox items default to staying open so several can be toggled in a single session.
+- `ref`: React.Ref<HTMLElement> — Ref forwarded to the row root, the element carrying role="menuitemcheckbox". Register the row with an element-keyed observer or overlay.
+- `endContent`: ReactNode — Content to render after the label and description, such as a keyboard shortcut hint or badge.
+
 ### ContextMenuItem (subcomponent/hook)
 
 Import: `import {ContextMenuItem} from '@astryxdesign/core/ContextMenu';`
@@ -372,21 +390,6 @@ Props:
 - `description`: ReactNode — Secondary description text displayed below the label.
 - `endContent`: ReactNode — Additional content rendered after the label and description.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization.
-
-### DropdownMenuCheckboxItem (subcomponent/hook)
-
-Import: `import {DropdownMenuCheckboxItem} from '@astryxdesign/core/DropdownMenu';`
-
-Props:
-- `label`: ReactNode — Primary label text identifying the item.
-- `description`: ReactNode — Secondary description text displayed below the label.
-- `icon`: IconType — Icon to display before the label. See `npx @astryxdesign/cli docs icons` for valid semantic names.
-- `value`: boolean — Whether the item is checked. Controlled; pair with onChange.
-- `onChange`: (checked: boolean) => void — Callback fired with the next checked state when the item is toggled.
-- `isDisabled`: boolean = false — Whether the item is disabled. Disabled items stay focusable (via aria-disabled) so they remain discoverable by keyboard and assistive technology, but activation is blocked.
-- `hasCloseOnSelect`: boolean = false — Whether toggling the item closes the menu. Checkbox items default to staying open so several can be toggled in a single session.
-- `ref`: React.Ref<HTMLElement> — Ref forwarded to the row root, the element carrying role="menuitemcheckbox". Register the row with an element-keyed observer or overlay.
-- `endContent`: ReactNode — Content to render after the label and description, such as a keyboard shortcut hint or badge.
 
 ### DropdownMenuDivider (subcomponent/hook)
 
@@ -653,7 +656,7 @@ Props:
 - `onChange`: (value: string) => void — Called when the input value changes. The serialized string includes token placeholders.
 - `placeholder`: string = 'Type a message...' — Placeholder text shown when the input is empty.
 - `maxRows`: number = 8 — Maximum visible rows before the input scrolls. Use a lower value in compact layouts.
-- `triggers`: ChatComposerTrigger[] — Trigger definitions for typeahead menus. Each trigger specifies a character (@ or /), a search source, and an onSelect handler that returns the token to insert. Per-trigger emptySearchText (ReactNode) is the message when the query matched nothing.
+- `triggers`: ChatComposerTrigger[] — Trigger definitions for typeahead menus. Each trigger specifies a character (@ or /), a search source, and an onSelect handler that returns the token to insert. Set hasMultiWordQuery: true when suggestions contain spaces (people, topics): the query then runs to a line break or about 64 characters instead of ending at the first space. Per-trigger emptySearchText (ReactNode) is the message when the query matched nothing.
 - `debounceMs`: number = 150 — Debounce delay for async search sources to avoid excessive network requests.
 - `hasHistory`: boolean = true — Enable ArrowUp/Down to recall previously submitted messages.
 - `label`: string = 'Message input' — Accessible label announced by screen readers.
@@ -710,10 +713,10 @@ Import: `import {ChatMessage} from '@astryxdesign/core/Chat';`
 Props:
 - `sender`: 'user' | 'assistant' | 'system' (required) — Who sent this message: controls alignment and layout.
 - `children`: ReactNode (required) — Free-form content: bubbles, asset lists, tool calls, images. Custom (non-bubble) children render flush with the message edge; wrap them in a ghost ChatMessageBubble to align them with the bubble text column.
-- `avatar`: ReactNode — Avatar element rendered beside the message. Typically Avatar.
-- `name`: ReactNode — Sender name rendered above the message body. Use when the first child is raw content (not a bubble). If the first child is a bubble, put the name on the bubble's `name` prop instead.
-- `metadata`: ReactNode — Metadata rendered below the message body. Use when the last child is raw content (not a bubble). If the last child is a bubble, put metadata on the bubble's `metadata` prop instead.
-- `density`: 'compact' | 'balanced' | 'spacious' — Visual density. Inherited from list context if not set.
+- `avatar`: ReactNode — Avatar element rendered beside the message. Typically Avatar. `null`, booleans, and empty strings create no slot; any other content that renders nothing collapses its slot.
+- `name`: ReactNode — Sender name rendered above the message body; it labels the message. `null`, booleans, and empty strings create no slot, and any other content that renders nothing collapses its slot; either way the message is labelled by the translated sender fallback. Use when the first child is raw content (not a bubble). If the first child is a bubble, put the name on the bubble's `name` prop instead.
+- `metadata`: ReactNode — Metadata rendered below the message body. `null`, booleans, and empty strings create no slot; any other content that renders nothing collapses its slot. Use when the last child is raw content (not a bubble). If the last child is a bubble, put metadata on the bubble's `metadata` prop instead.
+- `density`: 'compact' | 'balanced' | 'spacious' = 'balanced' — Visual density. Inherited from list context if not set.
 
 ### ChatMessageBubble (subcomponent/hook)
 
@@ -1655,6 +1658,43 @@ Props:
 
 ## Focus
 
+### useCombobox
+
+Import: `import {useCombobox} from '@astryxdesign/core/Selector';`
+
+Tracks the active option of a single-select combobox and handles its keys, while DOM focus stays on the control. It powers Selector and CommandPalette; use it to build a combobox those components do not cover. It renders nothing and sets no attributes: the caller renders the control, the listbox and the options, and wires `role`, `aria-expanded`, `aria-controls` and `aria-activedescendant` from what it returns.
+
+Do:
+- Render each option with `id={getItemId(index)}` and set the control's `aria-activedescendant` only while `isOpen` and `highlightedIndex` points at a rendered option, as CommandPalette does.
+- For type-to-select without a search field, run useTypeahead's handler first and fall through to this `onKeyDown` when it returns false, as Selector does.
+- Announce the number of results through useAnnounce when the options change for a new query.
+
+Don't:
+- Move DOM focus onto the options; the active option is announced through `aria-activedescendant` while focus stays on the control.
+
+Parameters:
+- `options`: UseComboboxOptions (required) — Configuration object.
+- `options.selectableItems`: SelectorOptionData[] (required) — The options in the same order as they render. Options with `disabled` cannot be picked and are skipped while moving through the open list; ArrowDown or ArrowUp that opens the list still lands on the first or last option.
+- `options.isOpen`: boolean (required) — Whether the list is shown. The caller owns this state.
+- `options.onOpen`: () => unknown (required) — Called to show the list. Return `false` to refuse; the hook then leaves the highlight alone.
+- `options.onClose`: () => void (required) — Called when the hook hides the list; the hook resets the highlight first. When the caller closes the list itself (an outside press, say), it should also call `setHighlightedIndex(-1)`.
+- `options.listboxId`: string (required) — The listbox element's id. Option ids are derived from it through `getItemId`.
+- `options.value`: string — The selected value. Without search, opening by a press, Enter or Space highlights it, or the first option when nothing is selected; ArrowDown and ArrowUp open on the first and last option.
+- `options.onSelect`: (value: string) => void — Called with the picked value. Picking also closes the list.
+- `options.onClear`: () => void — Clears the value. When provided, Delete or Backspace on the closed control clears it, so clearing is not pointer-only. Ignored while the list is open or with `hasSearch`.
+- `options.hasSearch`: boolean = false — Whether the list has its own search field. Space then types instead of picking, opening by a press or Enter does not pre-highlight (ArrowDown and ArrowUp still open on the first and last option), and printable keys on the closed control go to `onSearchSeed`.
+- `options.onSearchSeed`: (char: string) => void — With `hasSearch`, receives each printable character except Space typed while the control has focus, opening the list first when it is closed, so type-to-find needs no separate open step.
+- `options.isDisabled`: boolean = false — Whether the control ignores clicks and keys.
+
+Returns:
+- `highlightedIndex`: number — Index of the active option, or -1 when none is active. With `hasSearch`, opening by a press or Enter does not set one, so it stays -1 after the hook itself closes the list; ArrowDown and ArrowUp still open on the first or last option. Render it as the active option and name it in `aria-activedescendant` only while it points at a rendered option.
+- `setHighlightedIndex`: (index: number) => void — Sets the active option, for example from a filter that changes the options.
+- `getItemId`: (index: number) => string — The id to render on the option at `index`. Set the control's `aria-activedescendant` to `isOpen && highlightedIndex >= 0 && highlightedIndex < selectableItems.length ? getItemId(highlightedIndex) : undefined`, so it never names an option that does not exist, including in an empty list.
+- `onTriggerClick`: () => void — Toggles the list from a press on the control.
+- `onKeyDown`: (e: React.KeyboardEvent) => void — Key handler for the control that keeps focus. ArrowDown and ArrowUp open the list or move the active option; Enter (and Space without search) picks it or opens the list; Escape and Tab close it; Home, End, PageUp and PageDown jump to the first or last option. An editable control that keeps Home and End for the caret does not pass them to this handler, as CommandPalette does.
+- `onItemSelect`: (item: SelectorOptionData) => void — Picks an option from a press on it, then closes the list.
+- `onItemMouseEnter`: (item: SelectorOptionData, index: number) => void — Makes the hovered option active without scrolling the list or moving focus.
+
 ### useFocusTrap
 
 Import: `import {useFocusTrap} from '@astryxdesign/core/hooks';`
@@ -1793,6 +1833,47 @@ Returns:
 - `focusLast`: () => boolean — Focus the last enabled item. Returns true when an item was focused.
 - `ownsEvent`: (e: React.KeyboardEvent) => boolean — Whether a key event belongs to this list level rather than a nested list sharing the same boundarySelector. Always true when no boundarySelector is set. Use to guard consumer-added key handling (Enter/Space, typeahead).
 - `getItems`: () => HTMLElement[] — This level's focusable items in DOM order (already scoped by boundarySelector). Build typeahead targets from this instead of re-querying.
+
+### useMultiCombobox
+
+Import: `import {useMultiCombobox} from '@astryxdesign/core/MultiSelector';`
+
+Tracks the active option of a multi-select combobox and handles its keys, while DOM focus stays on the control. It powers MultiSelector; unlike useCombobox, toggling an option keeps the list open, and rows can carry an action cell. It renders nothing and sets no attributes: the caller renders the control and the list, and wires the ARIA attributes from what it returns.
+
+Do:
+- Render each option with `id={getItemId(index)}` and pass `activeDescendantId` as the control's `aria-activedescendant`.
+- Use `isGrid` only when rows carry a control next to the option; give each action cell `id={getActionCellId(index)}`.
+- Announce the number of results through useAnnounce when the options change for a new query.
+
+Don't:
+- Close the list after each toggle; a multi-select stays open so several options can be picked in a row.
+
+Parameters:
+- `options`: UseMultiComboboxOptions (required) — Configuration object.
+- `options.selectableItems`: MultiSelectorOptionData[] (required) — The options in the same order as they render. Options with `disabled` cannot be toggled and are skipped while moving through the open list; ArrowDown or ArrowUp that opens the list still lands on the first or last option.
+- `options.isOpen`: boolean (required) — Whether the list is shown. The caller owns this state.
+- `options.onOpen`: () => unknown (required) — Called to show the list. Return `false` to refuse; the hook then leaves the highlight alone.
+- `options.onClose`: () => void (required) — Called to hide the list. The highlight resets first.
+- `options.onToggle`: (itemValue: string) => void (required) — Called with the value of the option to add or remove. Toggling keeps the list open.
+- `options.listboxId`: string (required) — The listbox (or grid) element's id. Option and action-cell ids are derived from it.
+- `options.hasSearch`: boolean = false — Whether the list has its own search field. Space then types instead of toggling, opening by a press or Enter does not pre-highlight (ArrowDown and ArrowUp still open on the first and last option), Delete and Backspace edit the query, and type-to-select is off. Home and End still jump to the first and last option, so a search input that keeps them for the caret should stop them before this handler and rely on PageUp and PageDown.
+- `options.onClear`: () => void — Clears every selected value. When provided, Delete or Backspace on the closed control clears them, so clearing is not pointer-only. Ignored while the list is open or with `hasSearch`.
+- `options.hasValue`: boolean = false — Whether anything is selected. The Delete and Backspace clear is skipped when false.
+- `options.isGrid`: boolean = false — Whether each row pairs an option cell with an action cell. The inline-end arrow then moves the highlight to the row's action and the inline-start arrow back, following visual direction in right-to-left layouts, and Enter on the action runs `onActivateAction` instead of toggling.
+- `options.rowHasAction`: (index: number) => boolean — In a grid, whether the row at `index` has an action cell to move to.
+- `options.onActivateAction`: (index: number) => void — In a grid, runs the control in the highlighted row's action cell. The selection does not change.
+- `options.isDisabled`: boolean = false — Whether the control ignores clicks and keys.
+
+Returns:
+- `highlightedIndex`: number — Index of the active row, or -1 when none is active.
+- `setHighlightedIndex`: (index: number) => void — Sets the active row, for example after filtering. The highlight lands on the row's option cell.
+- `highlightedCell`: 'option' | 'action' — Which cell of the active row is highlighted; `'action'` only in a grid.
+- `activeDescendantId`: string | undefined — The id to pass as the control's `aria-activedescendant`: the active option, or its action cell in a grid. Undefined while the list is closed or nothing is active.
+- `getItemId`: (index: number) => string — The id to render on the option at `index`.
+- `getActionCellId`: (index: number) => string — In a grid, the id to render on the action cell of row `index`.
+- `onTriggerClick`: () => void — Toggles the list from a press on the control.
+- `onKeyDown`: (e: React.KeyboardEvent) => void — Key handler for the control that keeps focus. ArrowDown and ArrowUp open the list or move the active row; Enter (and Space without search) toggles the active option and keeps the list open; Escape and Tab close it; Home, End, PageUp and PageDown jump to the first or last option; without search, typed characters move to the first option whose label starts with them.
+- `onItemMouseEnter`: (item: MultiSelectorOptionData, index: number, cell?: 'option' | 'action') => void — Makes the hovered option, or its action cell, active without scrolling the list or moving focus.
 
 ### useTreeFocus
 
@@ -2117,7 +2198,7 @@ Props:
 - `status`: {type: 'warning' | 'error' | 'success', message?: string} — Validation status.
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' for input selectors; 'detached' for secondary and ghost selectors — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment; detached when variant is secondary or ghost); detached floats below as a separate element with spacing; tooltip reveals the message in an info-tip button.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Exact trigger height: sm 28px, md 32px, or lg 36px.
-- `variant`: 'input' | 'secondary' | 'ghost' = 'input' — Visual trigger style. Input is the bordered form treatment; secondary is borderless and neutral-filled to match secondary buttons; ghost is borderless and transparent to match ghost buttons.
+- `variant`: 'input' | 'secondary' | 'ghost' = 'input' — Visual trigger style. Input is the bordered form treatment; secondary matches the secondary buttons of the active theme (borderless and neutral-filled by default); ghost is borderless and transparent to match ghost buttons.
 - `startIcon`: ReactNode | IconType — Icon displayed at the start of the trigger.
 - `width`: SizeValue — Width of the field.
 - `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Popup placement.
@@ -2206,7 +2287,7 @@ Props:
 - `changeAction`: (value: string[]) => void | Promise<void> — Async action on change. Fires after onChange.
 - `placeholder`: string = 'Select...' — Placeholder text shown when no value is selected.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant for the selector.
-- `variant`: 'input' | 'secondary' | 'ghost' = 'input' — Visual trigger style. input is the bordered input treatment for forms; secondary is borderless and neutral-filled, matching secondary buttons for navs and toolbars; ghost is borderless and transparent, matching ghost buttons for toolbar usage.
+- `variant`: 'input' | 'secondary' | 'ghost' = 'input' — Visual trigger style. input is the bordered input treatment for forms; secondary matches the secondary buttons of the active theme (borderless and neutral-filled by default) for navs and toolbars; ghost is borderless and transparent, matching ghost buttons for toolbar usage.
 - `triggerDisplay`: 'count' | 'labels' | 'badges' = 'count' — How to display selected items in the trigger.
 - `formatValue`: (items: {value: string; label: string}[]) => string — Formats the trigger text when triggerDisplay="count" or "labels". Receives the selected items (value plus resolved label); the count is items.length. Not used by triggerDisplay="badges".
 - `maxBadges`: number = 3 — Maximum badges to show before "+N". Only for triggerDisplay="badges".
@@ -2260,7 +2341,7 @@ Do:
 - Use renderOption for custom option rows. Do not pass SelectorOption directly as JSX children.
 - Set a meaningful placeholder that hints at the expected selection (e.g. "Choose a country" not "Select...").
 - Use inside InputGroup only when the selector needs a short prefix or suffix addon as part of one decorated input surface.
-- Use variant="secondary" when a selector sits in a nav or toolbar beside secondary buttons or a segmented control, so it shares their neutral fill instead of reading as a form field. Use variant="ghost" when a selector sits in a toolbar with ghost buttons. If validation status is needed there, prefer statusVariant="tooltip" so the toolbar height stays compact.
+- Use variant="secondary" when a selector sits in a nav or toolbar beside secondary buttons or a segmented control, so it shares their treatment instead of reading as a form field. Use variant="ghost" when a selector sits in a toolbar with ghost buttons. If validation status is needed there, prefer statusVariant="tooltip" so the toolbar height stays compact.
 - Use presentation="adaptive" when the selector should become a bottom sheet on compact touch screens.
 
 Don't:
@@ -2283,7 +2364,7 @@ Props:
 - `emptySearchText`: ReactNode = 'No results found' — Content shown in the dropdown panel when a search query matches no options, and announced in a polite live region at the same time. The announcement is the text this content renders, read from the DOM, so an element is announced as written and aria-hidden parts are left out of both.
 - `placeholder`: string = 'Select...' — Placeholder text shown when no value is selected.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant for the selector.
-- `variant`: 'input' | 'secondary' | 'ghost' = 'input' — Visual trigger style. input is the bordered input treatment for forms; secondary is borderless and neutral-filled, matching secondary buttons for navs and toolbars; ghost is borderless and transparent, matching ghost buttons for toolbar usage.
+- `variant`: 'input' | 'secondary' | 'ghost' = 'input' — Visual trigger style. input is the bordered input treatment for forms; secondary matches the secondary buttons of the active theme (borderless and neutral-filled by default) for navs and toolbars; ghost is borderless and transparent, matching ghost buttons for toolbar usage.
 - `isDisabled`: boolean = false — Disables the selector.
 - `isReadOnly`: boolean = false — Makes the selector read-only: the selected value stays visible, focusable, and included in form submission, and retains its combobox identity with aria-readonly. The selection surface, clear action, and disclosure indicator are removed. Unlike isDisabled, the control is not dimmed. isDisabled takes precedence when both are set.
 - `htmlName`: string — The HTML name attribute for form submissions. Renders a hidden input carrying the selected value, like a native select.
@@ -3637,7 +3718,7 @@ Don't:
 
 Props:
 - `orientation`: 'horizontal' | 'vertical' = 'horizontal' — Orientation of the divider.
-- `label`: ReactNode — Optional label centered on the divider.
+- `label`: ReactNode — Optional label centered on the divider. Numeric zero is preserved; null, booleans, and empty strings render no label.
 - `variant`: 'subtle' | 'strong' = 'subtle' — Visual weight of the divider line.
 - `isFullBleed`: boolean = false — Extend the divider to container edges with negative margins.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
@@ -4329,9 +4410,9 @@ Props:
 - `pageSize`: number = 10 — Number of items per page. Coerced to a positive integer; non-finite values fall back to the default.
 - `pageSizeOptions`: number[] — Available page size options. Shows a page size selector dropdown when provided.
 - `onPageSizeChange`: (pageSize: number) => void — Called when the page size changes. Automatically resets to page 1.
-- `variant`: 'pages' | 'count' | 'compact' | 'dots' | 'input' | 'none' = 'pages' — Visual variant controlling what appears between prev/next buttons. 'pages' shows page number buttons with ellipsis, 'count' shows 'X-Y of Z' text, 'compact' shows 'Page X of Y', 'dots' shows dot indicators, 'input' shows an editable page-number box with a leading label ('Page [ n ] / N') flanked by first/last buttons by default (the box needs a known total to clamp against, so it is disabled in cursor/hasMore mode), 'none' shows just prev/next buttons.
+- `variant`: 'pages' | 'count' | 'compact' | 'dots' | 'input' | 'none' = 'pages' — Visual variant controlling what appears between prev/next buttons. 'pages' shows page number buttons with ellipsis, 'count' shows 'X-Y of Z' text, 'compact' shows 'Page X of Y' (add first/last buttons with hasFirstLast), 'dots' shows dot indicators, 'input' shows an editable page-number box with a leading label ('Page [ n ] / N') flanked by first/last buttons by default (the box needs a known total to clamp against, so it is disabled in cursor/hasMore mode), 'none' shows just prev/next buttons.
 - `pageLabel`: string — The noun rendered before the editable box in the 'input' variant, e.g. 'Page' or 'Row'. Navigation is always page-based (via onChange); this only relabels the box. Defaults to the localized 'Page'.
-- `hasFirstLast`: boolean = true — Whether to show first/last («/») double-chevron buttons flanking prev/next. Only applies to the 'input' variant; omitted when the page count is unknown (cursor/hasMore pagination).
+- `hasFirstLast`: boolean = true for 'input'; false for 'compact' — Whether to show first/last («/») double-chevron buttons flanking prev/next. Applies to the 'input' variant (shown unless false) and the 'compact' variant (shown only when true); other variants ignore it. Omitted when the page count is unknown (cursor/hasMore pagination).
 - `step`: number = 1 — Number of pages the previous/next buttons advance per click. Clamped to the valid page range, so a step that would overshoot lands on the first/last page. When greater than 1, the buttons' accessible names reflect the stride. Non-integer or values < 1 fall back to 1.
 - `siblingCount`: number = 1 — Number of page buttons to show on each side of the current page. Only applies when variant='pages'.
 - `size`: 'sm' | 'md' = 'md' — Size of the pagination controls.
@@ -4680,9 +4761,11 @@ CommandPalette is a searchable dialog for quick access to commands, navigation, 
 Do:
 - Provide a searchSource with bootstrap results so users see useful options before typing.
 - Use auxiliaryData.group on items to automatically organize results into labeled sections.
+- Provide a specific label when more than one command palette can appear in the same product surface.
 - Keep renderItem content non-interactive; each rendered row is one option, so buttons and links cannot be nested inside it.
 
 Don't:
+- Intercept query-field keyboard events without preserving active IME composition and native Home/End caret movement.
 - Use CommandPalette for simple dropdowns or menus; use Menu or Selector for inline selections.
 - Add too many groups or items; curate results to keep the palette fast and scannable.
 
@@ -4997,9 +5080,18 @@ Props:
 
 Import: `import {CommandPaletteInput} from '@astryxdesign/core/CommandPalette';`
 
+Use CommandPaletteInput inside CommandPalette for a popup-backed command query, or as an independent search field when no result popup is present.
+
+Do:
+- Pass a concise label that identifies what can be searched when "Search commands" does not describe it; the placeholder is never the field's name.
+- Use endContent for short supporting controls or shortcut hints at the trailing edge.
+
+Don't:
+- Override combobox role or popup state. CommandPaletteInput owns those semantics when connected to CommandPalette.
+
 Props:
-- `placeholder`: string = 'Search...' — Placeholder text for the input.
-- `label`: string — Accessible label for the combobox input, announced by screen readers. Falls back to the placeholder text when omitted.
+- `placeholder`: string = 'Search…' — Placeholder text for the input.
+- `label`: string — Accessible label for the query field, announced by screen readers. Defaults to the translated "Search commands"; the placeholder is never used as the name.
 - `hasAutoFocus`: boolean = true — Auto-focus the input when mounted. Automatically disabled when inside an inline command palette.
 - `endContent`: ReactNode — Content rendered at the trailing end of the input, after the spinner. Use for clear buttons or keyboard shortcut hints.
 - `value`: string — Search value. When omitted inside CommandPalette, reads from context.
@@ -5283,7 +5375,7 @@ Props:
 Import: `import {ListItem} from '@astryxdesign/core/List';`
 
 Props:
-- `label`: string (required) — Primary text.
+- `label`: ReactNode (required) — Primary content. A plain string gets single-line truncation automatically; a ReactNode renders as given, so child components control their own text behavior.
 - `description`: ReactNode — Secondary content below the label. A plain string gets single-line truncation automatically; a ReactNode lets child components control their own wrapping and line-clamp behavior.
 - `startContent`: ReactNode — Content rendered before the label area (e.g. icon, avatar).
 - `endContent`: ReactNode — Content rendered after the label area (e.g. badge, chevron).

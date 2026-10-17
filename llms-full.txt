@@ -1,10 +1,10 @@
 # Astryx — Full Component Reference
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 236 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 238 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `db3a2e7` (2026-10-15) of https://github.com/facebook/astryx.
+Generated from commit `d3ec0b2` (2026-10-16) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -499,7 +499,7 @@ Props:
 
 Import: `import {useEntryAnimation} from '@astryxdesign/core/hooks';`
 
-Returns a StyleX style for animating an element on mount. Only animates when the element is dynamically inserted after the initial page paint; elements rendered on page load are not animated. Uses Astryx motion tokens (duration, easing) for consistent animation timing. Requires "use client"; does not support SSR.
+Returns a StyleX style for animating an element on mount. Only animates when the element is dynamically inserted after the initial page paint; elements rendered on page load are not animated. Uses Astryx motion tokens (duration, easing) for consistent animation timing. Server-rendered elements hydrate without the entry style and never animate; elements mounted after hydration animate.
 
 Do:
 - Use for conditionally rendered elements like validation messages, toasts, or expanding sections.
@@ -512,7 +512,7 @@ Parameters:
 - `preset`: 'slideDown' | 'slideUp' | 'fadeIn' | 'scaleIn' = 'slideDown' — Animation preset to apply on mount.
 
 Returns:
-- `entryStyle`: StyleXStyles | null — A StyleX style object for the entry animation, or null if the element was rendered on initial page load (no animation needed).
+- `entryStyle`: StyleXStyles | null — A StyleX style object for the entry animation, or null if the element was rendered on initial page load or hydrated from server HTML (no animation needed).
 
 ## Chat
 
@@ -3085,6 +3085,7 @@ Props:
 - `value`: string — Identity key. Required when the parent CheckboxList has a value array; the item throws without it there.
 - `description`: ReactNode — Secondary content below the label. String or ReactNode. Exposed as the checkbox's accessible description through aria-describedby, so assistive technology can tell it is the explanation for that choice.
 - `endContent`: ReactNode — Content rendered after the label area.
+- `align`: 'center' | 'start' | 'first-line' = 'center' — Vertical alignment of the start and end content against the label, passed through to Item unchanged. `first-line` keeps a small mark (a checkbox) level with the first line of a wrapped label. See Item.align.
 - `isDisabled`: boolean = false — Whether this individual item is disabled.
 - `isLoading`: boolean = false — Whether this item is loading. Shows a spinner inside the checkbox and blocks interaction on this item. In collection mode, the toggled item also shows this automatically while the parent changeAction is pending.
 - `isChecked`: boolean | 'indeterminate' — Direct checked state in standalone mode: inside List, or inside a CheckboxList without value (for example, a select-all item). Ignored when the parent CheckboxList has a value array.
@@ -3166,6 +3167,7 @@ Props:
 - `aria-label`: string — Plain-text accessible name for the radio, applied to the control rather than the row. It overrides the name derived from the label. Use it when a rich label has no visible text; otherwise retain every visible label word.
 - `value`: string (required) — Value of this radio item.
 - `description`: ReactNode — Secondary content displayed below the label. Links and buttons keep their own click behaviour — the row only delegates clicks from its non-interactive surface to the radio.
+- `align`: 'center' | 'start' | 'first-line' = 'center' — Vertical alignment of the start and end content against the label, passed through to Item unchanged. `first-line` keeps a small mark (a radio) level with the first line of a wrapped label. See Item.align.
 - `isDisabled`: boolean = false — Whether this individual radio item is disabled.
 - `startContent`: ReactNode — Content to render before the radio circle.
 - `endContent`: ReactNode — Content to render after the label.
@@ -4874,6 +4876,38 @@ Props:
 - `style`: React.CSSProperties — Inline styles applied to the root element. Prefer xstyle for design-system styling.
 - `ref`: Ref<HTMLDivElement> — Ref forwarded to the overlay root element.
 
+### Panel
+
+Import: `import {Panel} from '@astryxdesign/core/Drawer';`
+
+A side panel that floats above page content for inspectors and detail views: the "click a table row, see its details" pattern. Unlike a docked panel it overlays the layout instead of reflowing it. Works on desktop and touch: the width budget applies on desktop and the panel preserves a 56px page reveal below 640px without exceeding the width budget. Escape closes the drawer (unless purpose is required) and focus returns to the element that opened it. Entry/exit slide animation respects prefers-reduced-motion. Stacking contract: sibling drawers stack last-opened on top, Escape closes only the topmost, and closing peels innermost-first; render them as siblings, never nested.\n\nLike Dialog, the drawer is a container: its content area is inset by --spacing-4 (16px) by default, by the padding prop, or by a theme's padding on drawer. Compose the header, body, and footer the way Dialog does, with a Layout: DrawerHeader in the header slot (it shows a close button when you pass it onOpenChange, like DialogHeader), the body in LayoutContent, and actions in LayoutFooter. The Layout redistributes the inset to those regions so they line up on one content line, and the header is not inset twice. A lone Section child also escapes the inset. Drawer renders no close button of its own, so give every drawer a visible way to close, especially a non-modal one, which has no scrim to click. Put data-autofocus on the control that should receive focus on open.\n\nChoosing a surface: use Dialog for a centered decision or short form, Drawer for full-height side detail that keeps the page in sight, BottomSheet for block-axis sheets on touch, and a docked panel (a layout column) when content should reflow the page instead of floating over it.\n\nTheming: the panel is the single stable target (astryx-drawer, with data-side reflecting side), and the scrim is the panel's native ::backdrop. DrawerHeader exposes astryx-drawer-header targets for its row, slots, and close icon.
+
+Do:
+- Use for contextual detail views (row inspectors, entity details) where the user should keep the underlying list in sight.
+- Keep the caller as the source of truth: derive isOpen from selection state and clear the selection in onOpenChange.
+- Use hasScrim={false} for master-detail flows; non-modal drawers do not trap focus and the page behind stays interactive.
+- Keep the last-selected item rendered on close: children stay mounted during the exit animation, so nulling content mid-close blanks the panel while it slides out.
+- Give every drawer a visible close action, usually DrawerHeader with onOpenChange; a non-modal drawer has no scrim to click.
+- Use purpose="form" when a stray scrim click would discard unsaved input.
+
+Don't:
+- Use a Drawer for short confirmations or small forms; use Dialog or AlertDialog instead.
+- Reach for a Drawer when the content should push the page aside; a Drawer floats over content, so use a docked panel or layout column instead.
+- Use a Drawer as a bottom or top sheet; it is inline-axis only, so use BottomSheet for block-axis sheets.
+- Nest a Drawer inside another Drawer; render drawers as siblings; the last-opened stacks on top and Escape closes it first.
+
+Props:
+- `isOpen`: boolean (required) — Whether the drawer is open. Fully controlled; pair with onOpenChange.
+- `onOpenChange`: (isOpen: boolean) => void (required) — Called when the drawer requests an open-state change. Escape and a scrim click call it with false as purpose allows; a DrawerHeader given the same callback calls it from its close button. The caller owns the open state. With sibling drawers open, Escape only closes the last-opened one.
+- `label`: string (required) — Accessible label for the drawer. Required; the drawer has no built-in heading to derive a name from.
+- `children`: ReactNode (required) — Drawer content, rendered inside a full-height scrollable area. Compose your own header/body/footer; an element with data-autofocus is focused on open. Children stay mounted during the exit animation; keep the last-selected item rendered instead of nulling content on close.
+- `side`: 'start' | 'end' = 'end' — Edge the drawer slides from: 'end' is right in LTR (the inspector convention), 'start' is left. Inline axis only; for a bottom sheet use BottomSheet.
+- `width`: number | string = 400 — Desktop width budget. A number is pixels; a string is any CSS length ('50%', '32rem'). Below the 640px mobile breakpoint this remains the maximum while the drawer preserves a 56px reveal of the page behind.
+- `experimental`: {isFullWidthOnMobile?: boolean} — Experimental options: anything in this object may change or be removed in a patch release, and omitting it keeps the stable behavior. isFullWidthOnMobile (default false) covers the full viewport width below the 640px mobile breakpoint instead of preserving the default 56px reveal of the page behind, which makes the drawer read as an overlay, not a navigation.
+- `hasScrim`: boolean = true — Modal scrim behind the drawer. true uses showModal() (top layer, focus trap, scroll lock; clicking the scrim closes unless purpose prevents it; modal only); false uses the manual Popover API for a non-modal top-layer overlay that does NOT trap focus and keeps the page behind interactive.
+- `purpose`: 'required' | 'form' | 'info' = 'info' — Configures implicit dismissal, matching Dialog. info: Escape and a scrim click close. form: Escape closes, a scrim click does not. required: neither closes (Escape is consumed) and a modal drawer is exposed as an alertdialog, so give its content a way out. A non-modal drawer has no scrim, so form and info behave the same.
+- `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Internal padding of the drawer content using the spacing scale, matching Dialog. When omitted, uses the theme default for drawers: --spacing-4 (16px) unless the theme sets padding on drawer. Pass 0 for a full-bleed content area. A lone Section child escapes the padding, bleed children such as Table and Divider compensate against it, and a Layout picks it up for its regions. The content area's block-end edge adds the home-indicator safe area on top in every mode.
+
 ### Popover
 
 Import: `import {Popover} from '@astryxdesign/core/Popover';`
@@ -5144,6 +5178,21 @@ Props:
 - `endContentEdgeCompensation`: 'inline' | 'block' | 'all' — Selects compensation axes for the end-content slot. Omit to preserve automatic close-action compensation.
 - `hasDivider`: boolean = true — Adds border at the bottom edge.
 
+### DrawerHeader (subcomponent/hook)
+
+Import: `import {DrawerHeader} from '@astryxdesign/core/Drawer';`
+
+Compose DrawerHeader in the header slot of a Layout inside the Drawer, as DialogHeader is composed in Dialog, for a title row and, when you pass onOpenChange, a close button. The Layout keeps the header on the drawer inset instead of padding it twice. Drawer renders no close button of its own. Unlike DialogHeader it does not take focus on open (Drawer uses data-autofocus) and does not name the drawer (Drawer label does).
+
+Props:
+- `title`: ReactNode (required) — Drawer title, rendered as an h2. Keep it inline and non-interactive. It does not name the drawer; pass Drawer a label.
+- `subtitle`: ReactNode — Subtitle below the title. Accepts inline content such as a Link; avoid block elements.
+- `onOpenChange`: (isOpen: boolean) => unknown — Close button callback, called with false (no button if omitted). Pass the Drawer's own onOpenChange.
+- `startContent`: ReactNode — Content before the title (e.g., a back button).
+- `endContent`: ReactNode — Content after the title, before the close button.
+- `endContentEdgeCompensation`: 'inline' | 'block' | 'all' — Selects compensation axes for the end-content slot. Omit to preserve automatic close-action compensation.
+- `hasDivider`: boolean — Adds a border at the bottom edge. Defaults to the parent Layout's defaultHasDividers.
+
 ### useImperativeAlertDialog (subcomponent/hook)
 
 Import: `import {useImperativeAlertDialog} from '@astryxdesign/core/AlertDialog';`
@@ -5201,7 +5250,7 @@ Do:
 - Use named slots (startContent, label, description, endContent) for the common layout. These cover the 80% case.
 - Use density="compact" for menus and dense lists, "balanced" for standard rows, and "spacious" for roomier layouts.
 - Set labelLines and descriptionLines to control truncation when content length varies.
-- Use align="start" when start or end content is taller than a single line of text.
+- Use align="first-line" when a wrapping label sits beside a small mark (a status dot, a radio, a timestamp) that belongs to its first line. Use align="start" to line up the tops of a tall slot and the text.
 - Give a swipe action a second home in the row (a menu or a button in endContent): the swipe is a touch accelerator, and a verb reachable only by swipe is unreachable by keyboard and by mouse.
 
 Don't:
@@ -5216,7 +5265,7 @@ Props:
 - `description`: ReactNode — Secondary text: subtitle, description, or supporting info.
 - `endContent`: ReactNode — Content rendered after the label/description area, such as badges, metadata, timestamps, or action buttons.
 - `as`: 'div' | 'li' | 'span' | ElementType = 'div' — What the root renders as: an HTML element, or a component for a caller that needs the root to be something else. A menu row that navigates passes the application's link component here, so the row's root IS the anchor. Give a component only when the row carries a role, and only when no interactive node sits in startContent or endContent.
-- `align`: 'center' | 'start' = 'center' — Vertical alignment of start/end content slots.
+- `align`: 'center' | 'start' | 'first-line' = 'center' — Vertical alignment of start/end content slots. 'center' centers each slot on the whole text block; 'start' lines up slot tops with the text's top; 'first-line' centers each slot on the label's first line, so a small mark stays level with the first line of a wrapped label. A slot taller than that line moves the text down. The `item` theme target reflects the value as `align`.
 - `density`: 'compact' | 'balanced' | 'spacious' = 'balanced' — Spacing density. "compact" uses 4px block padding, "balanced" uses 8px, and "spacious" uses 12px block and inline padding.
 - `labelLines`: number — Max lines before label truncates with ellipsis.
 - `descriptionLines`: number — Max lines before description truncates with ellipsis.
@@ -5244,6 +5293,8 @@ A vertical collection of items with consistent spacing, dividers, and optional m
 Do:
 - Provide a header to label the list and give context to screen readers.
 - Use start and end content slots to add icons, avatars, or badges to each item.
+- Set edge to line row text up with a heading above the list: flush for static rows, outset or bleed for rows in a Card, Section, or Dialog.
+- To line text up with a heading and keep room around the highlight where there is no Card, such as a sidebar, put the heading and the list in a Section with variant="transparent" and set edge="outset".
 
 Don't:
 - Place interactive elements inside an interactive list item; it creates nested click targets and confusing focus behavior.
@@ -5254,7 +5305,8 @@ Props:
 - `children`: ReactNode — List items (ListItem components).
 - `density`: 'compact' | 'balanced' | 'spacious' = 'balanced' — Spacing density for items.
 - `hasDividers`: boolean = false — Show dividers between items.
-- `edgeCompensation`: 'inline' — Compensate for item content inset on each inline edge by cancelling the smaller of each item's built-in horizontal inset and the container's published inline padding. The margin reads the same variable the items derive their inline padding from, so it tracks density and theme padding overrides automatically without pulling rows outside zero-padding or full-bleed surfaces. Use under a section heading to bring row text toward the heading text. Content aligns when container padding is at least the item inset; smaller padding leaves some inset uncompensated. Omit to leave item positions unchanged.
+- `edge`: 'padded' | 'flush' | 'outset' | 'bleed' = 'padded' — Where each row's text, dividers, and hover and selection backgrounds sit, relative to the list's edges and the container around it. 'padded' keeps text inside each row's padding, so it starts a little in from a heading above the list and backgrounds have room around it. 'flush' drops the rows' side padding: text starts on the heading's line, and dividers and backgrounds stop at the row's content, with no room beyond it on either side. It works anywhere and suits static rows. 'outset' puts text on the heading's line and reaches dividers and backgrounds a little past it into the container's padding; it suits interactive rows in a container. 'bleed' puts text on the heading's line and reaches dividers and backgrounds to the container's edges with square corners, like Table rows in a Card. A row's first content is what lines up with the heading: its marker, icon, or avatar when it has one, otherwise its label. 'outset' and 'bleed' reach into the padding of the nearest container that shares its padding: a Card, Section, Dialog, or BottomSheet, or a transparent container such as a Layout region with explicit padding or a padded ScrollableArea. Place the List directly in that container's padding: padding that Stack, Center, or your own styles add in between is not counted. Drawers and the automatic padding of LayoutContent and LayoutPanel aren't supported yet. With no such container, including in a Popover, they look like 'padded'. In a container with less padding than the rows' own, text starts a little after the heading's line. A theme's inline padding on `item` replaces the row padding of every value, including the zero padding of flush.
+- `edgeCompensation`: 'inline' — Deprecated: use edge="outset", which this sets. Still works; edge wins when both are set. `astryx upgrade` rewrites existing usage.
 - `header`: ReactNode — Header content, associated with the list via aria-labelledby.
 - `listStyle`: 'none' | 'disc' | 'decimal' | 'circle' = 'none' — List marker style. 'decimal' renders an <ol> element instead of <ul>.
 - `start`: number = 1 — Starting number for ordered lists (listStyle='decimal'). Sets the CSS counter to begin at this value.
@@ -5384,6 +5436,7 @@ Props:
 - `href`: string — Link URL; enables the invisible anchor pattern. The destination follows the shared navigation rule described on the Link `href` prop.
 - `target`: string — Link target attribute, only applicable when href is provided. target="_blank" automatically adds noopener noreferrer.
 - `rel`: string — Link relationship tokens. noopener noreferrer are merged automatically for target="_blank".
+- `align`: 'center' | 'start' | 'first-line' = 'center' — Vertical alignment of the start and end content against the label, passed through to Item unchanged. `first-line` keeps a small mark (a status dot, an icon) level with the first line of a wrapped label. See Item.align.
 - `isDisabled`: boolean = false — Disabled state; sets aria-disabled on the item.
 - `isSelected`: boolean = false — Selected state; sets aria-selected on the item.
 - `swipeActions`: {leading?: ItemSwipeAction[]; trailing?: ItemSwipeAction[]} — Swipe actions for touch, passed through to Item unchanged: the verbs a sideways drag uncovers on each side, each `{id?, label, icon?, onActivate, isDisabled?, variant?: 'neutral' | 'accent' | 'destructive', hasRemoval?}`. See Item.swipeActions; List clips its rows in the inline axis for them.

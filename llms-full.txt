@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `d3ec0b2` (2026-10-16) of https://github.com/facebook/astryx.
+Generated from commit `52c26fb` (2026-10-17) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -1028,7 +1028,7 @@ Props:
 - `fallbackSrc`: string — Fallback image when primary fails.
 - `name`: string — User name for initials and alt text.
 - `alt`: string — Alt text (falls back to name).
-- `size`: 'xsm' | 'sm' | 'md' | 'lg' | 'xl' | number = 'md' — Avatar size. Use a named size ('xsm' 20px, 'sm' 24px, 'md' 36px, 'lg' 48px, 'xl' 128px) or a numeric pixel value. Avatar shares Icon's abbreviated scale, but its tiers are larger because avatars align with media rather than glyphs. Inside an AvatarGroup the group's size wins and this prop is ignored.
+- `size`: 'xsm' | 'sm' | 'md' | 'lg' | 'xl' | 16 | 20 | 24 | 32 | 36 | 40 | 48 | 60 | 64 | 72 | 96 | 128 | 144 | 180 = 'md' — Avatar size: named sizes are 'xsm' (20px), 'sm' (24px), 'md' (36px), 'lg' (48px), and 'xl' (128px); numeric sizes must be one of the pixel values listed in the type. Inside an AvatarGroup, the group's size always overrides this prop, including when the group uses its default size.
 - `shape`: 'circle' | 'rounded' | 'square' = 'circle' — Shape variant of the avatar. 'circle' (default) stays fully round. 'rounded' uses the element radius token so it matches UI corner rounding and can be set globally via theme. 'square' has no radius. Status dot positioning adapts automatically: 4-o'clock on circle, bottom-right corner on rounded/square.
 - `status`: ReactNode — Corner content for status indicators. AvatarStatusDot reports its `label` to the avatar, which composes it into the accessible name (e.g. "Jane Doe, Online") so screen readers announce the status. Reporting goes through context, so it still works when the dot sits inside a wrapper component of your own.
 - `tooltip`: string | boolean = true — Tooltip shown on hover and keyboard focus. Omitted or true shows the avatar's name; a string shows that text instead; false shows no tooltip. Not auto-disabled when wrapped in your own Tooltip/HoverCard. Set tooltip={false} if you supply your own overlay. No tooltip is shown when tooltip is true/omitted and there is no name.
@@ -1057,7 +1057,7 @@ Don't:
 
 Props:
 - `children`: ReactNode (required) — Avatar children, optionally followed by one AvatarGroupOverflow. Consumers handle slicing to the desired visible count.
-- `size`: AvatarSize = 'md' — Size applied to all avatars via context. This wins over each child Avatar's own size prop, including when it is left at the default, so set the size here rather than on the children.
+- `size`: 'xsm' | 'sm' | 'md' | 'lg' | 'xl' | 16 | 20 | 24 | 32 | 36 | 40 | 48 | 60 | 64 | 72 | 96 | 128 | 144 | 180 = 'md' — Size applied to all avatars: named sizes are 'xsm' (20px), 'sm' (24px), 'md' (36px), 'lg' (48px), and 'xl' (128px); numeric sizes must be one of the pixel values listed in the type. The group's size always overrides each child Avatar's size, including when the group uses its default size.
 - `shape`: 'circle' | 'rounded' | 'square' = 'circle' — Shape applied to all avatars via context, overriding each avatar's own shape prop. Also applied to AvatarGroupOverflow's "+N" indicator.
 - `ref`: React.Ref<HTMLDivElement> — Ref forwarded to the root element.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization.
@@ -1259,7 +1259,7 @@ Don't:
 - Use an EmptyState for error messages that require immediate action; use a Banner instead.
 
 Props:
-- `title`: string (required) — Primary message rendered as an <h3> heading inside the empty state.
+- `title`: string (required) — Primary message rendered as the configured heading level inside the empty state.
 - `description`: string — Optional secondary text providing additional context below the title.
 - `icon`: ReactNode — Optional icon or illustration displayed above the title; rendered as decorative (aria-hidden="true").
 - `actions`: ReactNode — Optional action buttons displayed below the description, laid out horizontally by default and stacked vertically when isCompact is true.
@@ -2226,10 +2226,10 @@ Do:
 - Wrap custom controls, native inputs, or third-party widgets that need labeling, helper text, optional/required indicators, or validation status.
 - Always provide a label for accessibility, even if visually hidden with isLabelHidden.
 - Use inputID and descriptionID to connect the label and description to the inner control with htmlFor and aria-describedby.
+- Use attached status only when the wrapped control is opaque, bordered, and fixed-height; use detached for custom, tall, translucent, or non-bordered controls.
 
 Don't:
 - Nest Field around styled inputs such as TextInput, Typeahead, Select, DateInput, or TextArea; those components already render their own Field shell.
-- Use the attached status variant on non-bordered controls such as sliders, switches, or checkboxes; use detached so the message does not overlap the control.
 - Set both isOptional and isRequired on the same field.
 - Hide the label without providing an alternative way for the user to understand the field purpose.
 
@@ -2245,10 +2245,10 @@ Props:
 - `descriptionID`: string — ID for the description element (use for aria-describedby on the input).
 - `isOptional`: boolean = false — Whether the field is optional (mutually exclusive with isRequired).
 - `isRequired`: boolean = false — Whether the field is required (mutually exclusive with isOptional).
-- `labelIcon`: IconType — Icon to display before the label text. See `astryx docs icons` for valid semantic names.
+- `labelIcon`: ReactNode | IconType — Icon to display before the label text. See `astryx docs icons` for valid semantic names.
 - `labelTooltip`: string — Tooltip text to display in an info icon at the end of the label.
 - `status`: {type: 'warning' | 'error' | 'success', message?: string, messageID?: string} — Status indicator with type and optional message. When message is set, displays a colored status box. messageID is for wiring aria-describedby on the input.
-- `statusVariant`: 'attached' | 'detached' = 'attached' — How the status message renders relative to the input. Attached overlaps the input border; detached floats below.
+- `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How status feedback is placed. Attached overlaps an eligible opaque, bordered, fixed-height control; detached renders a message below custom or non-bordered controls; tooltip leaves the visible affordance to the wrapped input and announces its message without a FieldStatus box.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned. Prefer this over setting width via xstyle/className/style, which only size the inner control box. Without a width, a row can shrink the whole field below the natural width of its control, so filter bars shrink instead of overflowing.
 - `ref`: React.Ref<HTMLDivElement> — Ref forwarded to the root element.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
@@ -5356,7 +5356,7 @@ Don't:
 Props:
 - `children`: ReactNode (required) — Metadata items (MetadataListItem components).
 - `columns`: 'multi' | 'single' | number = 'single' — Column layout mode.
-- `label`: { position?: 'start' | 'top', width?: number | string } = { position: 'start' } (single-column) / { position: 'top' } (multi-column) — Label display configuration. position controls label placement, width sets a custom label column width. Defaults to { position: 'top' } for multi-column layouts.
+- `label`: { position?: 'start' | 'top', width?: number | string } = { position: 'start' } (vertical single-column) / { position: 'top' } (multi-column or horizontal) — Label display configuration. position controls label placement, width sets a custom label column width. Defaults to { position: 'top' } for multi-column layouts. Position is ignored in horizontal mode, which always uses { position: 'top' }.
 - `maxNumOfItems`: number — Maximum items to show before collapsing with a show more/less toggle.
 - `orientation`: 'vertical' | 'horizontal' = 'vertical' — Layout orientation. Horizontal mode flows items in a row with flex-wrap.
 - `title`: ReactNode — Optional title or heading above the list.

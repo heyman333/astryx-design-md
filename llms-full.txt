@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `cbb7fa3` (2026-10-18) of https://github.com/facebook/astryx.
+Generated from commit `a2f0c93` (2026-10-19) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -289,8 +289,8 @@ Don't:
 
 Props:
 - `children`: ReactNode (required) — The trigger area: right-click on this content to open the menu.
-- `items`: ContextMenuOption[] (required) — Array of menu entries. Each entry is one of: an action item `{label, onClick?, icon?, isDisabled?, variant?, items?}` (nested `items` open a flyout in popover presentation and drill into a new view in bottom-sheet presentation; variant `"destructive"` renders it in the error color), a divider `{type: "divider"}`, or a section `{type: "section", title?, items: [...action items]}`.
-- `menuContent`: ReactNode — Custom JSX menu content for compound mode. Use instead of items for dynamic or stateful menus.
+- `items`: ContextMenuOption[] — Data-driven menu entries. Pass exactly one of `items` or `menuContent`. Each entry is one of: an action item `{label, onClick?, icon?, isDisabled?, variant?, items?}` (nested `items` open a flyout in popover presentation and drill into a new view in bottom-sheet presentation; variant `"destructive"` renders it in the error color), a divider `{type: "divider"}`, or a section `{type: "section", title?, items: [...action items]}`.
+- `menuContent`: ReactNode — Custom JSX menu content for compound mode. Pass exactly one of `menuContent` or `items`.
 - `menuWidth`: number | string = '160px' — Custom menu width.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size of menu items: controls padding density.
 - `label`: string = 'Context menu' — Accessible name for the menu surface, announced when it opens.
@@ -4604,7 +4604,7 @@ Props:
 - `onClick`: (e: MouseEvent) => void — Click handler.
 - `endContent`: ReactNode — Passive right-side content only (badges, counts). Interactive controls go in actions.
 - `actions`: ReactNode — Row-level secondary controls (icon buttons, menus) rendered as siblings of the primary element at the trailing edge of the row: after the expand/collapse toggle, before any nested children in DOM and focus order. Each control owns its accessible name and behavior. Controls inherit the row control size through SizeContext, so an unsized icon button matches the built-in expand/collapse toggle; an explicit size still wins. Hidden while the SideNav rail is collapsed. Use endContent for passive content (badges, counts); use actions for anything interactive.
-- `children`: ReactNode — Sub-items for nesting.
+- `children`: ReactNode — Sub-items for nesting. Nested items span the full width of the nav list, like top-level items; their content is indented one step per nesting level.
 - `collapsible`: boolean | { defaultIsCollapsed?: boolean, isCollapsed?: boolean, onCollapsedChange?: (isCollapsed: boolean) => void } = false — Enables collapse behavior for items with children. Pass true for uncontrolled (starts expanded), or an object for controlled mode.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant for the nav item row.
 

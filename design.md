@@ -1,6 +1,6 @@
 # Astryx Design System — Design Overview
 
-> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`a2f0c93`](https://github.com/facebook/astryx/commit/a2f0c93dfaac775317f5a121a55dade7a7f0abd8) (2026-10-19). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
+> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`4a2f608`](https://github.com/facebook/astryx/commit/4a2f608f8e14c72a4ab7496148827245c341ea35) (2026-10-20). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
 
 ## What Astryx is
 
@@ -72,7 +72,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**Checkable row**](https://github.com/facebook/astryx/blob/main/packages/core/src/DropdownMenu/DropdownMenuCheckboxItem.doc.mjs) *(subcomponent/hook)* — An independently checkable option inside DropdownMenu. The row owns menuitemcheckbox semantics while the shared Indicator supplies decorative checkbox paint.
 - [**ContextMenuItem**](https://github.com/facebook/astryx/blob/main/packages/core/src/ContextMenu/ContextMenuItem.doc.mjs) *(subcomponent/hook)*
 - [**DropdownMenuDivider**](https://github.com/facebook/astryx/blob/main/packages/core/src/DropdownMenu/DropdownMenuDivider.doc.mjs) *(subcomponent/hook)*
-- [**DropdownMenuGroup**](https://github.com/facebook/astryx/blob/main/packages/core/src/DropdownMenu/DropdownMenuGroup.doc.mjs) *(subcomponent/hook)*
+- [**DropdownMenuGroup**](https://github.com/facebook/astryx/blob/main/packages/core/src/DropdownMenu/DropdownMenuGroup.doc.mjs) *(subcomponent/hook)* — Use DropdownMenuGroup to give related compound-menu rows one visible and programmatic name. Use an untitled group only when a separate name would not help people understand the rows.
 - [**DropdownMenuItem**](https://github.com/facebook/astryx/blob/main/packages/core/src/DropdownMenu/DropdownMenuItem.doc.mjs) *(subcomponent/hook)*
 - [**DropdownMenuRadioGroup**](https://github.com/facebook/astryx/blob/main/packages/core/src/DropdownMenu/DropdownMenuRadioGroup.doc.mjs) *(subcomponent/hook)*
 - [**DropdownMenuRadioItem**](https://github.com/facebook/astryx/blob/main/packages/core/src/DropdownMenu/DropdownMenuRadioItem.doc.mjs) *(subcomponent/hook)*

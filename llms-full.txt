@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `a2f0c93` (2026-10-19) of https://github.com/facebook/astryx.
+Generated from commit `4a2f608` (2026-10-20) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -402,10 +402,23 @@ Props:
 
 Import: `import {DropdownMenuGroup} from '@astryxdesign/core/DropdownMenu';`
 
+Use DropdownMenuGroup to give related compound-menu rows one visible and programmatic name. Use an untitled group only when a separate name would not help people understand the rows.
+
+Do:
+- Use short, descriptive title content that explains what the grouped rows have in common.
+- Keep the title non-interactive so every available action remains in the menu arrow-key order.
+
+Don't:
+- Place buttons, links, fields, or other controls in title. Put them in DropdownMenu header or footer instead.
+- Wrap rows that do not form a meaningful set; a group adds structure only when its relationship helps users.
+
 Props:
-- `title`: ReactNode — Heading shown above the rows and used as the group's accessible name. Omit for an unnamed group.
-- `children`: ReactNode — The rows of the group: DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioGroup, DropdownMenuSubMenu.
-- `xstyle`: StyleXStyles — StyleX styles applied to the group wrapper. Must be a stylex.create() value: not an inline style object like style={{}}.
+- `title`: ReactNode — Non-interactive heading content shown above the rows and used as the group's accessible name. Omit for an unnamed group; place controls in DropdownMenu header or footer.
+- `children`: ReactNode — The grouped rows: DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioGroup, or DropdownMenuSubMenu.
+- `xstyle`: StyleXStyles — StyleX styles applied to the role="group" wrapper. Must be a stylex.create() value, not an inline style object.
+- `className`: string — CSS class name applied to the role="group" wrapper.
+- `style`: React.CSSProperties — Inline styles applied to the role="group" wrapper.
+- `ref`: React.Ref<HTMLDivElement> — Ref forwarded to the role="group" wrapper.
 
 ### DropdownMenuItem (subcomponent/hook)
 
@@ -3096,14 +3109,22 @@ Props:
 Import: `import {FieldLabel} from '@astryxdesign/core/Field';`
 
 Props:
-- `label`: string (required) — Label text.
+- `label`: string (required) — Label text, always rendered for accessibility.
 - `inputID`: string (required) — ID of the input this label is for.
-- `isLabelHidden`: boolean = false — Visually hide the label.
-- `isDisabled`: boolean = false — Whether the associated input is disabled.
-- `isOptional`: boolean = false — Show "Optional" indicator.
-- `isRequired`: boolean = false — Show "Required" indicator.
-- `labelIcon`: IconType — Icon before the label text. See `astryx docs icons` for valid semantic names.
-- `labelTooltip`: string — Tooltip text for info icon at end of label.
+- `labelID`: string — ID applied to the label element itself. Use it with `aria-labelledby` when `isGroupLabel` is true.
+- `isGroupLabel`: boolean = false — Render a span that can name a group instead of a native label for one control.
+- `isLabelHidden`: boolean = false — Visually hide the label and description while keeping both available to assistive technology.
+- `isDisabled`: boolean = false — Use disabled label presentation for the associated control.
+- `isOptional`: boolean = false — Show the localized optional indicator unless it matches FormLayout's default optionality.
+- `isRequired`: boolean = false — Show the localized required indicator unless it matches FormLayout's default optionality.
+- `labelIcon`: ReactNode | IconType — Icon or rendered icon content before the label text. See `astryx docs icons` for semantic names.
+- `labelTooltip`: string — Tooltip text for the info icon after the label.
+- `description`: ReactNode — Supporting content displayed below the label and kept separate from the control's accessible name.
+- `descriptionID`: string — ID applied to the supporting description for caller-owned `aria-describedby` wiring.
+- `ref`: React.Ref<HTMLLabelElement> — Ref forwarded to the label element. Group mode currently renders a span.
+- `xstyle`: StyleXStyles — StyleX styles applied to the label element after its base and state styles.
+- `className`: string — CSS class name appended to the label element.
+- `style`: React.CSSProperties — Inline styles applied to the label element after StyleX inline styles.
 
 ### Input (subcomponent/hook)
 

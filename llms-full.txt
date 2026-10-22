@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `4a2f608` (2026-10-20) of https://github.com/facebook/astryx.
+Generated from commit `29f09ee` (2026-10-21) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -372,7 +372,7 @@ An independently checkable option inside DropdownMenu. The row owns menuitemchec
 Props:
 - `label`: ReactNode — Primary label text identifying the item.
 - `description`: ReactNode — Secondary description text displayed below the label.
-- `icon`: IconType — Icon to display before the label. See `npx @astryxdesign/cli docs icons` for valid semantic names.
+- `icon`: IconType — Icon to display before the label. See `astryx docs icons` for valid semantic names.
 - `value`: boolean — Whether the item is checked. Controlled; pair with onChange.
 - `onChange`: (checked: boolean) => void — Callback fired with the next checked state when the item is toggled.
 - `isDisabled`: boolean = false — Whether the item is disabled. Disabled items expose aria-disabled, block activation, and are currently skipped by DropdownMenu arrow-key navigation.
@@ -457,7 +457,7 @@ Props:
 - `value`: string — The value this item represents within its group. The group's value matches against this to determine the checked state.
 - `label`: ReactNode — Primary label text identifying the option.
 - `description`: ReactNode — Secondary description text displayed below the label.
-- `icon`: IconType — Icon to display before the label. See `npx @astryxdesign/cli docs icons` for valid semantic names.
+- `icon`: IconType — Icon to display before the label. See `astryx docs icons` for valid semantic names.
 - `isDisabled`: boolean = false — Whether this individual radio item is disabled. Disabled items stay focusable (via aria-disabled) so they remain discoverable by keyboard and assistive technology, but selection is blocked.
 - `endContent`: ReactNode — Content to render after the label and description, such as a badge or metadata.
 - `ref`: React.Ref<HTMLElement> — Ref forwarded to the row root, the element carrying role="menuitemradio". Register the row with an element-keyed observer or overlay.
@@ -476,8 +476,10 @@ Props:
 - `menuWidth`: number | string — Minimum flyout width. The flyout may grow for its content, but it is capped to the available viewport space. Defaults to intrinsic sizing (min 160px).
 - `onOpenChange`: (isOpen: boolean) => void — Called when the flyout opens or closes.
 - `presentation`: 'flyout' | 'drill-in' | 'adaptive' = 'adaptive' — How the sub-menu shows its rows. 'flyout' opens them beside the row; 'drill-in' replaces the menu's rows with them and a Back row, in the same box; 'adaptive' drills in when a finger opened the menu (a coarse pointer, decided when the menu opened) and flies out otherwise.
+- `header`: ReactNode — Content above the sub-menu's rows and outside its menu, a field that filters them, say. It keeps its own keys and presses. With a header or footer the sub-menu's surface (the flyout, or the drilled-in view on a phone) is a modal dialog named by the row, beside the menu rather than inside it: the row says aria-haspopup="dialog", Tab and Shift+Tab move through the header, the rows and the footer and wrap, Escape returns to the row, and a pointer leaving the flyout closes it only once focus leaves too. A ContextMenu does not show it.
+- `footer`: ReactNode — Content below the sub-menu's rows and outside its menu, a door to where the options are managed, say. Same rules as header.
 - `xstyle`: StyleXStyles — StyleX styles for the trigger row. Must be a stylex.create() value: not an inline style object like style={{}}.
-- `ref`: React.Ref<HTMLElement> — Ref forwarded to the trigger row, the element carrying role="menuitem" and aria-haspopup="menu".
+- `ref`: React.Ref<HTMLElement> — Ref forwarded to the trigger row, the element carrying role="menuitem" and aria-haspopup="menu" ("dialog" with a header or footer).
 
 ### SegmentedControlItem (subcomponent/hook)
 
@@ -925,7 +927,7 @@ Props:
 - `onClick`: (event: MouseEvent) => void — Click handler: fires on card surface only.
 - `href`: string — Navigation URL. Plain, new-tab, Cmd/Ctrl-click, and middle-click activation all follow the shared navigation rule described on the Link `href` prop.
 - `target`: string = '_self' — Link target.
-- `isDisabled`: boolean = false — Disables the card, removes a link destination, and leaves the card out of the tab order.
+- `isDisabled`: boolean = false — Disables the card and removes a link destination; the card keeps its tab stop and is announced as disabled.
 - `children`: ReactNode — Card content.
 - `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 = 4 — Inner padding.
 - `variant`: 'default' | 'transparent' | 'muted' | 'blue' | 'cyan' | 'gray' | 'green' | 'orange' | 'pink' | 'purple' | 'red' | 'teal' | 'yellow' = 'default' — Background color variant.
@@ -2038,7 +2040,7 @@ Don't:
 - Use a DateInput for free-form text that does not represent a calendar date.
 - Hide the label without surrounding context that makes the field purpose obvious.
 - Rely on the calendar alone; the text input lets users type dates directly, which is faster for known dates.
-- Wrap a disabled DateInput in Tooltip to explain why it is disabled; disabled triggers swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
+- Wrap a disabled DateInput in Tooltip to explain why it is disabled. Use the disabledMessage prop instead, which ties the reason to the field.
 
 Props:
 - `label`: string (required) — Label text.
@@ -2046,8 +2048,8 @@ Props:
 - `description`: string — Helper text displayed below the label.
 - `isOptional`: boolean = false — Show an "(optional)" indicator next to the label.
 - `isRequired`: boolean = false — Mark the field as required.
-- `isDisabled`: boolean = false — Disable the input and calendar.
-- `disabledMessage`: string — Explains why the input is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the field focusable via aria-disabled (activation stays blocked). Use this instead of wrapping a disabled DateInput in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
+- `isDisabled`: boolean = false — Disable the input and calendar. The field stays focusable and exposes `aria-disabled`; typing and opening are blocked.
+- `disabledMessage`: string — Explains why the input is disabled. With isDisabled, shows a tooltip on hover/keyboard focus (activation stays blocked). Use this instead of wrapping a disabled DateInput in Tooltip.
 - `value`: ISODateString — Selected date in YYYY-MM-DD format.
 - `onChange`: (value: ISODateString | undefined) => void — Callback invoked when the selected date changes.
 - `changeAction`: (value: ISODateString | undefined) => void | Promise<void> — Async action fired after onChange. Drives optimistic UI updates via useTransition.
@@ -2286,7 +2288,7 @@ Do:
 Don't:
 - Use for single-value selection; use Selector instead.
 - Show more than ~20 options without enabling search.
-- Wrap a disabled MultiSelector in Tooltip to explain why it is disabled; disabled triggers swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
+- Wrap a disabled MultiSelector in Tooltip to explain why it is disabled. Use the disabledMessage prop, which attaches the reason to the trigger itself.
 
 #### MultiSelector
 
@@ -2314,7 +2316,7 @@ Props:
 - `isDisabled`: boolean — Disables the selector.
 - `isReadOnly`: boolean = false — Makes the selector read-only: the selected values stay visible, focusable, and included in form submission, and retain their combobox identity with aria-readonly. The selection surface, clear action, and disclosure indicator are removed. Unlike isDisabled, the control is not dimmed. isDisabled takes precedence when both are set.
 - `htmlName`: string — The HTML name attribute for form submissions. Renders one hidden input per selected value, like a native multi-select.
-- `disabledMessage`: string — Explains why the selector is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the trigger focusable via aria-disabled (activation stays blocked). Use this instead of wrapping a disabled MultiSelector in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
+- `disabledMessage`: string — Explains why the selector is disabled. With isDisabled, shows the reason as a tooltip on hover and keyboard focus of the trigger, which stays focusable (aria-disabled) like every disabled selector; activation stays blocked. Use this instead of wrapping a disabled MultiSelector in Tooltip.
 - `isLabelHidden`: boolean — Visually hides the label while keeping it accessible.
 - `description`: string — Helper text displayed below the label.
 - `isOptional`: boolean — Marks the field as optional.
@@ -2363,7 +2365,7 @@ Don't:
 - Use Selector for navigation; links should be links, not dropdown options.
 - Use for yes/no or on/off choices; use Switch or CheckboxInput instead.
 - Put more than ~20 options without sections; consider Typeahead for large lists.
-- Wrap a disabled Selector in Tooltip to explain why it is disabled; disabled triggers swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
+- Wrap a disabled Selector in Tooltip to explain why it is disabled. Use the disabledMessage prop, which attaches the reason to the trigger itself.
 
 Props:
 - `label`: string (required) — Label text for accessibility.
@@ -2381,7 +2383,7 @@ Props:
 - `isDisabled`: boolean = false — Disables the selector.
 - `isReadOnly`: boolean = false — Makes the selector read-only: the selected value stays visible, focusable, and included in form submission, and retains its combobox identity with aria-readonly. The selection surface, clear action, and disclosure indicator are removed. Unlike isDisabled, the control is not dimmed. isDisabled takes precedence when both are set.
 - `htmlName`: string — The HTML name attribute for form submissions. Renders a hidden input carrying the selected value, like a native select.
-- `disabledMessage`: string — Explains why the selector is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the trigger focusable via aria-disabled (activation stays blocked). Use this instead of wrapping a disabled Selector in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
+- `disabledMessage`: string — Explains why the selector is disabled. With isDisabled, shows the reason as a tooltip on hover and keyboard focus of the trigger, which stays focusable (aria-disabled) like every disabled selector; activation stays blocked. Use this instead of wrapping a disabled Selector in Tooltip.
 - `isLabelHidden`: boolean = false — Visually hides the label while keeping it accessible.
 - `description`: string — Helper text displayed below the label.
 - `isOptional`: boolean = false — Marks the field as optional.
@@ -2591,7 +2593,7 @@ Do:
 - Reach for the canonical `components['checkbox-indicator']` override first. Replacing the component is the heavier path, for when the shape itself is wrong.
 - Match the shipped replacement-content branch with `isRenderable(children)`, not `children != null` or `children ?? mark`. The helper is deliberately shallow: it excludes nullish values, booleans, and the empty string, while React elements and containers take the replacement path even when their descendants render nothing. The owning control passes `children={isBusy && <Spinner/>}`, so a nullish check deletes the state mark whenever that value is `false` (#4893).
 - A replacement must set aria-hidden. The owning control provides the role and accessible name; a visible indicator would be announced twice.
-- Use theme tokens for every color, radius, and border width in a replacement. Run `npx @astryxdesign/cli docs tokens` for the set.
+- Use theme tokens for every color, radius, and border width in a replacement. Run `astryx docs tokens` for the set.
 - Render a single root ELEMENT, and let it keep the border-radius you want the focus ring to follow. A control whose real input is visually hidden cannot show focus on that input, so the owner paints the standard ring onto the indicator element itself at focus time (useIndicatorFocusRing), and `outline` then picks up that element's radius. A replacement needs no cooperation and can forget nothing: the ring is never missing (WCAG 2.4.7), it is only the wrong shape if the root has no radius of its own. Do not draw a focus ring yourself; the owner already did.
 
 Don't:
@@ -3014,7 +3016,7 @@ Props:
 - `hasSeconds`: boolean = false — Includes seconds in the time display and parsing.
 - `hasClear`: boolean = false — Shows a clear button when a value is set and the input is not disabled.
 - `hourFormat`: '12h' | '24h' = '12h' — Controls the display format. '12h' shows AM/PM (e.g. '2:30 PM'); '24h' uses 24-hour notation (e.g. '14:30').
-- `increment`: number = 1 — Number of minutes to add or subtract when the user presses the up or down arrow key.
+- `increment`: number = 1 — Number of minutes to add or subtract when the user presses the up or down arrow key. Steps are whole minutes; a fractional value leaves the time unchanged.
 - `presentation`: 'text-input' | 'popover' | 'bottom-sheet' | 'native' | 'adaptive-bottom-sheet' | 'adaptive-native' = 'adaptive-native' — Which surface selects the time. 'adaptive-native' (the default) uses Astryx's typed field on a fine pointer and the browser/OS input type=time on a coarse pointer — except hasSeconds or increment other than 1, which retain the typed field because iOS has no seconds wheel and treats step as validation rather than picker cadence; 'native' always uses the browser/OS control with no Astryx fallback; 'adaptive-bottom-sheet' uses the typed field on a fine pointer and Astryx's bottom-sheet time wheels on a coarse pointer; 'bottom-sheet' forces the wheels on every pointer; 'text-input' (like 'popover', which has no distinct TimeInput surface) keeps only the typed field. Native mode forwards min/max and enforces them on commit. hourFormat formats the closed value; the open OS picker follows the device locale.
 - `nativePicker`: 'touch' | 'always' | 'never' = 'touch' — Deprecated: use presentation ('touch' = 'adaptive-native', 'always' = 'native', 'never' = 'text-input'). Still works exactly as released; presentation wins when both are set.
 - `placeholder`: string = 'Select a time' — Placeholder text shown when no time is selected. When the input is focused and empty, a format hint overrides this text.
@@ -3763,7 +3765,7 @@ Don't:
 - Nest horizontal-labels inside another FormLayout. It uses CSS Grid and needs to be the outermost container.
 
 Props:
-- `direction`: 'vertical' | 'horizontal' | 'horizontal-labels' = 'vertical' — Controls field arrangement. Vertical stacks top-to-bottom, horizontal arranges left-to-right with equal flex-grow, and horizontal-labels uses CSS Grid with labels to the left of inputs (collapses to vertical on narrow viewports <=480px).
+- `direction`: 'vertical' | 'horizontal' | 'horizontal-labels' = 'vertical' — Controls field arrangement. Vertical stacks top-to-bottom, horizontal uses one fractional grid track per field in logical inline order, and horizontal-labels uses CSS Grid with labels beside inputs on the inline-start side (collapsing to vertical when the viewport is <=480px).
 - `defaultOptionality`: 'optional' | 'required' — The state the form treats as its default, so only the exception shows an optional/required indicator. With "optional", only fields marked isRequired show an indicator; with "required", only fields marked isOptional do. A field that restates the default shows nothing. Under "required" the unmarked fields also expose aria-required so screen readers match the visual default; aria-required only, never the native required attribute. Leave unset for today's per-field behavior.
 - `children`: ReactNode — Form fields to arrange. Accepts Astryx inputs (TextInput, Selector, etc.) and Field-wrapped custom controls.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
@@ -3786,7 +3788,7 @@ Don't:
 - Use `HStack` with wrapping for grids; use Grid instead.
 
 Props:
-- `columns`: number | {minWidth: number, max?: number, repeat?: 'fill' | 'fit'} — Column configuration. A number is exactly N equal columns at every width and never reflows (e.g. `columns={3}`); for columns that reflow on small screens, use `{minWidth, max}`. Use an object for responsive columns: `minWidth` sets the minimum column width in px, `repeat` controls track behavior (`"fill"` preserves empty tracks for consistent widths, `"fit"` collapses empty tracks so items stretch; defaults to `"fill"`), and `max` caps the maximum number of columns.
+- `columns`: number | {minWidth: number, max?: number, repeat?: 'fill' | 'fit'} — Column configuration. A number creates exactly N `1fr` tracks at every width and never reflows (e.g. `columns={3}`); a child's minimum content may widen its track. For columns that reflow on small screens, use `{minWidth, max}`. Use an object for responsive columns: `minWidth` sets the minimum column width in px, `repeat` controls track behavior (`"fill"` preserves empty tracks for consistent widths, `"fit"` collapses empty tracks so items stretch; defaults to `"fill"`), and `max` caps the maximum number of columns.
 - `width`: SizeValue — Container width. Numbers are treated as pixels, strings are used as-is.
 - `height`: SizeValue — Container height. Numbers are treated as pixels, strings are used as-is.
 - `maxWidth`: SizeValue — Maximum container width. Numbers are treated as pixels, strings are used as-is.
@@ -3794,6 +3796,7 @@ Props:
 - `gap`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Spacing between all items.
 - `rowGap`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Row spacing; overrides `gap` for the row axis.
 - `columnGap`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Column spacing; overrides `gap` for the column axis.
+- `rowHeight`: number — Height of each implicit row track in pixels. Pair with `GridSpan rows={N}` for masonry-style layouts.
 - `align`: 'start' | 'center' | 'end' | 'stretch' = 'stretch' — Vertical alignment of items.
 - `justify`: 'start' | 'center' | 'end' | 'stretch' = 'stretch' — Horizontal alignment of items.
 - `children`: ReactNode — Grid content.
@@ -4185,7 +4188,7 @@ Returns:
 Import: `import {GridSpan} from '@astryxdesign/core/Grid';`
 
 Props:
-- `columns`: number | 'full' — Columns to span; use `'full'` to span the entire row.
+- `columns`: number | 'full' — Columns to span; use `'full'` to span all explicit columns.
 - `rows`: number — Rows to span.
 - `children`: ReactNode — Content.
 

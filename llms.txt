@@ -2,7 +2,7 @@
 
 > Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 238 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 
-Generated from commit `4a2f608` (2026-10-20) of https://github.com/facebook/astryx.
+Generated from commit `29f09ee` (2026-10-21) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -31,6 +31,7 @@ Key facts:
 - [@astryxdesign/cli](https://github.com/facebook/astryx/blob/main/packages/cli/README.md): Scaffold projects, browse templates, generate themes, and get agent-ready docs from the command line.
 - [@astryxdesign/core](https://github.com/facebook/astryx/blob/main/packages/core/README.md): The component library. Accessible, themeable React components with built-in spacing, dark mode, and StyleX styling.
 - [@astryxdesign/lab](https://github.com/facebook/astryx/blob/main/packages/lab/README.md): Experimental Astryx components — published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version.
+- [@astryxdesign/native](https://github.com/facebook/astryx/blob/main/packages/native/README.md): Experimental native platforms for Astryx (iOS, Android, macOS, Windows) — published to npm only under the @canary dist-tag; never released as a stable (latest) version.
 - [@astryxdesign/richtext](https://github.com/facebook/astryx/blob/main/packages/richtext/README.md): Astryx rich text — a Lexical-based rich text editor and viewer, styled with Astryx design tokens.
 - [@astryxdesign/vega](https://github.com/facebook/astryx/blob/main/packages/vega/README.md): Astryx Vega wrapper — chart and data visualization components. Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version.
 

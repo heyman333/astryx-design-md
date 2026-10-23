@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `29f09ee` (2026-10-21) of https://github.com/facebook/astryx.
+Generated from commit `626f01e` (2026-10-22) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -424,15 +424,25 @@ Props:
 
 Import: `import {DropdownMenuItem} from '@astryxdesign/core/DropdownMenu';`
 
+Use DropdownMenuItem inside DropdownMenu compound mode for one action or destination. Keep label, description, icon, and endContent non-interactive; controls belong in separate rows or the menu header/footer.
+
+Do:
+- Use href for a destination so LinkProvider, modified clicks, middle clicks, and browser link affordances remain available.
+- Use hasCloseOnSelect=false only when activation reports a result in place on the same row.
+
+Don't:
+- Put buttons, links, or other focusable controls inside label, description, or endContent. Each menu row is one interactive target.
+
 Props:
 - `icon`: IconType — Icon to display before the label. See `astryx docs icons` for valid semantic names.
-- `label`: ReactNode — Primary label text.
+- `label`: ReactNode (required) — Primary label text.
 - `description`: ReactNode — Secondary description text displayed below the label.
 - `onClick`: (event: MouseEvent) => void — Callback when the item is selected. A keyboard activation arrives as a synthesized click carrying the key's modifiers. On a row with `href` it runs before the browser navigates and is skipped for a modified click (⌘, Ctrl, Shift, Alt, middle button), which is left to the browser.
 - `href`: string — Address the row navigates to. The row then renders as a real anchor with role="menuitem" (through LinkProvider), so a modified click or a middle click keeps the browser's meaning — a new tab — instead of running onClick.
 - `target`: '_blank' | '_self' — Link target. Only used with href.
 - `rel`: string — Link relationship. noopener noreferrer is added for target="_blank". Only used with href.
-- `endContent`: ReactNode — Additional content rendered after the label and description.
+- `isDisabled`: boolean = false — Whether the row is unavailable. Disabled rows expose aria-disabled, remove link destinations, and suppress activation.
+- `endContent`: ReactNode — Non-interactive content rendered after the label and description.
 - `hasCloseOnSelect`: boolean = true — Whether activating the item closes the menu. Set false for an action that reports its result on the item itself.
 - `variant`: 'default' | 'destructive' = 'default' — Visual variant. 'destructive' renders the label, description, and icon in the error color for dangerous actions (e.g. Delete).
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
@@ -442,12 +452,24 @@ Props:
 
 Import: `import {DropdownMenuRadioGroup} from '@astryxdesign/core/DropdownMenu';`
 
+Use DropdownMenuRadioGroup inside compound-mode DropdownMenu when several commands represent one mutually exclusive choice. Keep value in caller state, provide a concise accessible label, and render each choice as DropdownMenuRadioItem.
+
+Do:
+- Keep value controlled and update it from onChange so checked state follows caller data.
+- Provide a concise label even when aria-labelledby points to visible text; label remains required and supplies the aria-label fallback.
+- Set hasCloseOnSelect=false only when the menu must stay open to show another selection or an in-place result.
+
+Don't:
+- Place buttons, links, checkboxes, or arbitrary menu rows inside the radio group.
+- Add a second key handler or roving-focus model; DropdownMenu owns keyboard navigation.
+
 Props:
-- `value`: string | undefined — The currently selected value in the group. Pass undefined when nothing is selected yet.
-- `onChange`: (value: string) => void — Callback fired when the selected value changes.
-- `label`: string — Accessible name for the group, applied as aria-label so screen readers announce the radios as a named set, e.g. "Sort by". Required. Pass aria-labelledby (via base props) instead when the name already exists as a visible element.
+- `value`: string | undefined (required) — The currently selected value in the group. Pass undefined when nothing is selected yet.
+- `onChange`: (value: string) => void (required) — Callback fired when the selected value changes.
+- `label`: string (required) — Accessible name for the group, applied as aria-label so screen readers announce the radios as a named set, e.g. "Sort by". Required even when aria-labelledby (via base props) points to visible text; that visible reference becomes the computed name while label remains the fallback.
 - `hasCloseOnSelect`: boolean = true — Whether selecting a value closes the menu. Radio items default to closing on selection (a single-choice commit).
-- `children`: ReactNode — The DropdownMenuRadioItems that make up the group.
+- `ref`: React.Ref<HTMLDivElement> — Ref forwarded to the role="group" root.
+- `children`: ReactNode (required) — The DropdownMenuRadioItems that make up the group.
 
 ### DropdownMenuRadioItem (subcomponent/hook)
 
@@ -806,7 +828,7 @@ Props:
 
 Import: `import {ChatSystemMessage} from '@astryxdesign/core/Chat';`
 
-Use ChatSystemMessage for concise, non-sender content inside a chat transcript. Choose the default variant for factual status notices and the divider variant for date or section breaks. Long default content wraps within the available width. The component exposes status semantics and the divider branch includes a labelled separator.
+Use ChatSystemMessage for concise, non-sender content inside a chat transcript. Choose the default variant for factual status notices and the divider variant for date or section breaks. Long default content wraps within the available width. It carries no live role: inside a ChatMessageList, the log announces new notices. The divider branch includes a labelled separator.
 
 Do:
 - Keep the visible message concise and self-contained so it remains understandable without an icon.
@@ -1420,7 +1442,7 @@ Don't:
 
 Props:
 - `value`: string | number (required) — The date/time to display. Accepts Unix timestamps (seconds) or ISO 8601 strings.
-- `format`: 'relative' | 'relative_short' | 'auto' | 'date' | 'date_long' | 'date_weekday' | 'date_time' | 'time' | 'system_date' | 'system_date_time' | 'system_time' | 'unix_seconds' = 'auto' — Display format. 'relative' uses the locale's native long relative-time wording ('2 hours ago' in English), 'relative_short' uses its narrow pattern ('2h ago' in English) for compact surfaces, 'date' shows 'Mar 21, 2025', 'date_long' shows 'March 21, 2025', 'date_weekday' shows 'Wed, Mar 21, 2025', 'date_time' shows 'Mar 21, 2025, 2:51 PM', 'time' shows '2:51 PM', 'system_*' variants use ISO-style formatting, 'unix_seconds' shows the Unix time in whole seconds since the epoch (an absolute, zone-independent value), 'auto' switches from relative to date_time based on recency.
+- `format`: 'relative' | 'relative_short' | 'auto' | 'date' | 'date_long' | 'date_weekday' | 'date_time' | 'time' | 'system_date' | 'system_date_time' | 'system_time' | 'unix_seconds' = 'auto' — Display format. 'relative' uses the locale's native long relative-time wording ('2 hours ago' in English), 'relative_short' uses its narrow pattern ('2h ago' in English) for compact surfaces, 'date' shows 'Mar 21, 2025', 'date_long' shows 'March 21, 2025', 'date_weekday' shows 'Wed, Mar 21, 2025', 'date_time' shows 'Mar 21, 2025, 2:51 PM', 'time' shows '2:51 PM', 'system_*' variants use ISO-style formatting, 'unix_seconds' shows the Unix time in whole seconds since the epoch (an absolute, zone-independent value), 'auto' switches from relative to date_time based on recency. Absolute formats never read the current time. 'relative', 'relative_short' and 'auto' read it on the client only: a server render or static prerender shows the full date and time in UTC, labelled, and the client switches to the format's normal output after hydration.
 - `autoThreshold`: number = 604800 — Threshold in seconds for 'auto' format to switch from relative to date_time.
 - `hasTooltip`: boolean = true — Whether to show a copyable hover card with the full date/time on hover. Applies to relative timestamps and to any format once tooltipEntries is configured.
 - `tooltipEntries`: ReadonlyArray<{timezoneID?: string; format?: TimestampTooltipFormat; label?: string; isCopyable?: boolean}> — Lines to show on hover, so one instant can be read (and optionally copied) in several time zones and/or formats at once. Each entry is one line, in the order given. Omit timezoneID (or pass 'local') for the viewer's own zone; format defaults to the full absolute style and also accepts 'full' alongside every non-relative TimestampFormat. Rows are read-only unless they set isCopyable (default false); copyable rows show a copy button in a dedicated trailing action column so buttons align, and the column is only present when some row is copyable. With no entries the card shows a single default row with the full absolute time, which is copyable. Configuring entries also attaches the surface to absolute formats, which otherwise have none.
@@ -2092,7 +2114,7 @@ Do:
 Don't:
 - Use DateRangeInput when only a single date is needed; use DateInput instead.
 - Hide the label without surrounding context that makes the purpose obvious.
-- Wrap a disabled DateRangeInput in Tooltip to explain why it is disabled; disabled triggers swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
+- Wrap a disabled DateRangeInput in Tooltip to explain why it is disabled. Use the disabledMessage prop instead, which ties the reason to the field.
 
 Props:
 - `label`: string (required) — Label text.
@@ -2100,8 +2122,8 @@ Props:
 - `description`: string — Helper text displayed below the label.
 - `isOptional`: boolean = false — Show an "(optional)" indicator.
 - `isRequired`: boolean = false — Mark the field as required.
-- `isDisabled`: boolean = false — Disable the trigger and picker.
-- `disabledMessage`: string — Explains why the input is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the field focusable via aria-disabled (activation stays blocked). Use this instead of wrapping a disabled DateRangeInput in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
+- `isDisabled`: boolean = false — Disable the trigger and picker. The trigger stays focusable and exposes `aria-disabled`; opening is blocked.
+- `disabledMessage`: string — Explains why the input is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and describes the trigger (activation stays blocked). Use this instead of wrapping a disabled DateRangeInput in Tooltip.
 - `value`: DateRange | null (required) — Selected date range or null. Import the `DateRange` type from `@astryxdesign/core/DateRangeInput`; it is `{start: ISODateString, end: ISODateString}`. Do NOT redeclare your own DateRange type; use the exported one so TypeScript structurally matches.
 - `onChange`: (value: DateRange | null) => void (required) — Callback when the range changes. Called with null on clear.
 - `changeAction`: (value: DateRange | null) => void | Promise<void> — Async action fired after onChange. Drives optimistic UI updates via useTransition.
@@ -2141,7 +2163,7 @@ Don't:
 - Use DateTimeInput when only a date is needed; use DateInput instead.
 - Use DateTimeInput when only a time is needed; use TimeInput instead.
 - Hide the label without surrounding context that makes the field purpose obvious.
-- Wrap a disabled DateTimeInput in Tooltip to explain why it is disabled; disabled triggers swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
+- Wrap a disabled DateTimeInput in Tooltip to explain why it is disabled. Use the disabledMessage prop instead, which ties the reason to the field.
 
 Props:
 - `label`: string (required) — Label text.
@@ -2149,8 +2171,8 @@ Props:
 - `description`: string — Helper text displayed below the label.
 - `isOptional`: boolean = false — Show an "(optional)" indicator next to the label.
 - `isRequired`: boolean = false — Mark the field as required.
-- `isDisabled`: boolean = false — Disable the input and picker.
-- `disabledMessage`: string — Explains why the input is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the field focusable via aria-disabled (activation stays blocked). Use this instead of wrapping a disabled DateTimeInput in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
+- `isDisabled`: boolean = false — Disable the input and picker. The fields stay focusable and expose `aria-disabled`; typing and opening are blocked.
+- `disabledMessage`: string — Explains why the input is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and describes the fields (activation stays blocked). Use this instead of wrapping a disabled DateTimeInput in Tooltip.
 - `value`: ISODateTimeString — Selected datetime in ISO 8601 format (YYYY-MM-DDTHH:MM or YYYY-MM-DDTHH:MM:SS).
 - `onChange`: (value: ISODateTimeString | undefined) => void (required) — Callback invoked when the selected datetime changes.
 - `changeAction`: (value: ISODateTimeString | undefined) => void | Promise<void> — Async action fired after onChange. Drives optimistic UI updates via useTransition.
@@ -2997,7 +3019,7 @@ Do:
 Don't:
 - Don't use TimeInput for combined date-and-time selection; pair it with a separate DateInput instead.
 - Don't hide the label; even when space is tight, keep the label visible or provide a description so the purpose is clear.
-- Wrap a disabled TimeInput in Tooltip to explain why it is disabled; disabled triggers swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
+- Wrap a disabled TimeInput in Tooltip to explain why it is disabled. Use the disabledMessage prop instead, which ties the reason to the field.
 
 Props:
 - `label`: string (required) — Label text for the input (required for accessibility).
@@ -3005,8 +3027,8 @@ Props:
 - `description`: string — Description text displayed between the label and input.
 - `isOptional`: boolean = false — Shows an "(optional)" indicator next to the label. Mutually exclusive with isRequired.
 - `isRequired`: boolean = false — Marks the field as required and sets aria-required. Mutually exclusive with isOptional.
-- `isDisabled`: boolean = false — Disables the input and suppresses interactions.
-- `disabledMessage`: string — Explains why the input is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the field focusable via aria-disabled (activation stays blocked). Use this instead of wrapping a disabled TimeInput in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
+- `isDisabled`: boolean = false — Disables the input and suppresses interactions. The input stays focusable and exposes `aria-disabled`.
+- `disabledMessage`: string — Explains why the input is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and describes the input (activation stays blocked). Use this instead of wrapping a disabled TimeInput in Tooltip.
 - `value`: ISOTimeString — Controlled time value in ISO format (HH:MM or HH:MM:SS).
 - `onChange`: (value: ISOTimeString | undefined) => void — Callback fired when the time changes. Receives undefined when the input is cleared.
 - `changeAction`: (value: ISOTimeString | undefined) => void | Promise<void> — Async action fired after onChange. Wrapped in a React transition to provide optimistic UI; triggers the loading spinner while pending.
@@ -4969,11 +4991,11 @@ Props:
 - `hasEscapeDismiss`: boolean = true — Whether pressing Escape dismisses the popover. Only takes full effect together with hasLightDismiss={false}, since native light dismiss also closes on Escape.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
-### Shared dialog
+### Sheet dialogs
 
-Import: `import {Shared dialog} from '@astryxdesign/core/BottomSheet';`
+Import: `import {Sheet dialogs} from '@astryxdesign/core/BottomSheet';`
 
-Coordinates a multi-step bottom-sheet flow in one shared dialog; set activeSheet to a nested BottomSheet's sheetId to open or switch steps, and to null to close.
+Coordinates a multi-step bottom-sheet flow, one native dialog per sheet; set activeSheet to a nested BottomSheet's sheetId to open or switch steps, and to null to close.
 
 Do:
 - Use when each step depends on the previous one and only one step needs attention at a time.
@@ -4984,11 +5006,11 @@ Don't:
 - Don't use the switcher when multiple panels must stay interactive or visible together; activeSheet intentionally selects one interactive step.
 
 Props:
-- `ref`: Ref<HTMLDialogElement> — Ref forwarded to the one shared native dialog.
-- `onCancel`: (event: SyntheticEvent<HTMLDialogElement>) => void — Called before the switcher handles a native dialog cancel request. Calling preventDefault() keeps the controlled flow open.
+- `ref`: Ref<HTMLDialogElement> — Ref resolved to the native dialog hosting the flow: the active sheet's dialog, which changes to the next sheet's on a handoff; the exiting sheet's through its exit; and, while the flow is closed, the dialog that hosted it last (or the first mounted sheet's). It is never null while a sheet is mounted, from the first commit on. id and data-testid render on this dialog only: a flow that mounts open carries them on the active sheet's dialog in server markup too; a flow that mounts closed carries them from the first commit's synchronous re-render on, and its server markup carries them on no element. Other dialog props apply to every sheet dialog.
+- `onCancel`: (event: SyntheticEvent<HTMLDialogElement>) => void — Called before the switcher handles a native cancel request (Escape or the platform close). Attached to every sheet dialog; the browser raises cancel on the dialog it is presenting, the active sheet's. Calling preventDefault() keeps the controlled flow open.
 - `activeSheet`: string | null (required) — ID of the interactive BottomSheet, or null when the flow should close. Match a nested BottomSheet's unique sheetId; the previous sheet may remain visually present and inert while the new sheet enters, simultaneously align downward behind a shorter step, then fade away.
 - `onActiveSheetChange`: (activeSheet: string | null) => void (required) — Called with null when the active sheet dismisses according to its purpose. Child BottomSheets may use purpose='form' or purpose='required' to limit implicit dismissal while flow controls can still use the same state setter to switch sheets or close the flow.
-- `hasScrim`: boolean = true — Whether the shared dialog is modal. true uses showModal() once for one native ::backdrop, focus trap, scroll lock, and click-to-dismiss when the active BottomSheet has purpose='info'. false uses show() with no backdrop and leaves the page interactive; avoid transformed, contained, or clipping ancestors because the non-modal dialog remains in its containing context.
+- `hasScrim`: boolean = true — Whether the sheet dialogs are modal. true presents each sheet with showModal() for a native ::backdrop, native focus containment, one body scroll lock held for the whole flow, and click-to-dismiss when the active BottomSheet has purpose='info'; only one backdrop paints at a time. false uses show() with no backdrop and leaves the page interactive; avoid transformed, contained, or clipping ancestors because a non-modal dialog remains in its containing context.
 - `children`: ReactNode (required) — BottomSheets identified by unique sheetId values.
 
 ### Sheet panel
@@ -5016,7 +5038,7 @@ Props:
 - `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Internal padding of the sheet content using the spacing scale, matching Dialog. When omitted, uses the theme default for bottom sheets (--spacing-4 unless the theme sets padding on bottom-sheet). A lone Section child escapes the padding, and bleed children such as Table and Divider compensate against it. Use 0 for edge-to-edge content that supplies its own inset.
 - `height`: 'hug' | 'capped' | 'tall' | number | string = 'capped' — How tall the sheet is. Named budgets: 'hug' fits its content up to 92% of the viewport, 'capped' is a scrolling mid-height panel (~62%), and 'tall' is a pinned near-full panel (~92%) for content that streams in. Or pass a number (px) / CSS length for a custom budget. Give snapPoints to let the user drag between heights. On shorter viewports the sheet fills the available height. Only a fully expanded 'tall' sheet provides mobile-keyboard accommodation: it stays put and scrolls each focused control above the keyboard. Hug, Capped, numeric and CSS-length heights never do, and a Tall sheet stops doing it the moment the user drags it to a shorter detent, resuming when they drag it back. Outside that state the sheet neither moves nor adds keyboard scroll space, and the browser's own focus reveal is left in place; on iOS that reveal can shift the whole page.
 - `snapPoints`: ReadonlyArray<number | string> — Extra heights the sheet can rest at when dragged; its own height is always the tallest stop, and omitting this gives a sheet that only opens and closes. Each stop is the sheet's visible height: a number is a viewport fraction (0.5 is half the screen), '50%' the same in CSS, '320px' an absolute length. A stop of a quarter of the sheet or less is a peek: it slides away instead of reflowing, and thins the scrim.
-- `hasScrim`: boolean = true — For a standalone BottomSheet, whether to render a scrim, the semi-transparent overlay that covers and blocks the background. true (default) uses showModal(): top layer, focus trap, ::backdrop scrim, body scroll lock, and tap-scrim-to-dismiss when purpose='info', with the background inert. false uses show() with no scrim, leaving the page behind interactive and scrollable. For a multi-step flow, configure hasScrim on BottomSheetSwitcher instead; it owns one shared dialog across every child.
+- `hasScrim`: boolean = true — For a standalone BottomSheet, whether to render a scrim, the semi-transparent overlay that covers and blocks the background. true (default) uses showModal(): top layer, native focus containment, ::backdrop scrim, body scroll lock, and tap-scrim-to-dismiss when purpose='info', with the background inert. false uses show() with no scrim, leaving the page behind interactive and scrollable. For a multi-step flow, configure hasScrim on BottomSheetSwitcher instead; it applies to every child's dialog.
 
 ### Toast
 

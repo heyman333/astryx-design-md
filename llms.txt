@@ -2,7 +2,7 @@
 
 > Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 238 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 
-Generated from commit `29f09ee` (2026-10-21) of https://github.com/facebook/astryx.
+Generated from commit `626f01e` (2026-10-22) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -52,7 +52,7 @@ Key facts:
 - Layout: AppShell, useAppShellMobile, AspectRatio, Center, Divider group, FormLayout, Grid container, GridSpan, Layout container, LayoutContent, LayoutFooter, LayoutHeader, LayoutPanel, Handle, useResizable, ScrollableArea, Section container, Stack container, useOverflow, useScrollLock, useScrollOverflow, useScrollableArea
 - Media: useImageMode, useMediaQuery
 - Navigation: BreadcrumbItem, Breadcrumbs, Navigation overlay, Container, Menu, Outline, Pagination, SideNav, SideNavCollapseButton, SideNavHeading, SideNavItem, SideNavSection, Step, Stepper, Tab, TabList, TabMenu, TopNav, TopNavHeading, TopNavItem, TopNavMegaMenu, TopNavMegaMenuFeaturedCard, TopNavMegaMenuItem, TopNavMenu
-- Overlay: AlertDialog, useImperativeAlertDialog, Sheet panel, Shared dialog, Dialog, CommandPaletteEmpty, CommandPaletteFooter, CommandPaletteGroup, CommandPaletteInput, CommandPaletteItem, CommandPaletteList, Dialog, DialogHeader, useImperativeDialog, Panel, DrawerHeader, HoverCard, Viewer overlay, Overlay, Popover, Toast, Tooltip surface
+- Overlay: AlertDialog, useImperativeAlertDialog, Sheet panel, Sheet dialogs, Dialog, CommandPaletteEmpty, CommandPaletteFooter, CommandPaletteGroup, CommandPaletteInput, CommandPaletteItem, CommandPaletteList, Dialog, DialogHeader, useImperativeDialog, Panel, DrawerHeader, HoverCard, Viewer overlay, Overlay, Popover, Toast, Tooltip surface
 - Streaming: useStreamingText
 - Table & List: Item, List, ListItem, MetadataList, MetadataListItem, List, Table, TableBody, TableCell, TableFooter, TableHeader, TableHeaderCell, TableRow, TableSelectionToolbar, useTableColumnResize, useTableColumnSettings, useTableFilterState, useTableFiltering, useTableGroupedRows, useTablePagination, useTableRowExpansion, useTableRowIndex, useTableRowStatus, useTableSelection, useTableSelectionState, useTableSortable, useTableStickyColumns, useTableTreeData, useTableTreeState, Tree list
 - Utilities: useCollator, useLocale, useTranslator

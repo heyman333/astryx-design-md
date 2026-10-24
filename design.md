@@ -1,6 +1,6 @@
 # Astryx Design System — Design Overview
 
-> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`626f01e`](https://github.com/facebook/astryx/commit/626f01ec76dfb0f4aa08b63fd5a908454c8a20ca) (2026-10-22). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
+> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`e769940`](https://github.com/facebook/astryx/commit/e769940915af0d932d7e5547faf111e91f0b887e) (2026-10-23). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
 
 ## What Astryx is
 
@@ -30,13 +30,13 @@ A pnpm monorepo (Node 22+, pnpm 11):
 
 | Package | Version | Description |
 | --- | --- | --- |
-| [`@astryxdesign/build`](https://github.com/facebook/astryx/blob/main/packages/build/README.md) | 0.7.4 | Build plugins for Astryx source builds — babel, PostCSS, and Vite integrations |
+| [`@astryxdesign/build`](https://github.com/facebook/astryx/blob/main/packages/build/README.md) | 0.7.5 | Build plugins for Astryx source builds — babel, PostCSS, and Vite integrations |
 | [`@astryxdesign/charts`](https://github.com/facebook/astryx/blob/main/packages/charts/README.md) | 0.1.9 (canary) | Astryx charts — a config-model data visualization library (d3-based). Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
-| [`@astryxdesign/cli`](https://github.com/facebook/astryx/blob/main/packages/cli/README.md) | 0.7.4 | Scaffold projects, browse templates, generate themes, and get agent-ready docs from the command line. |
-| [`@astryxdesign/core`](https://github.com/facebook/astryx/blob/main/packages/core/README.md) | 0.7.4 | The component library. Accessible, themeable React components with built-in spacing, dark mode, and StyleX styling. |
+| [`@astryxdesign/cli`](https://github.com/facebook/astryx/blob/main/packages/cli/README.md) | 0.7.5 | Scaffold projects, browse templates, generate themes, and get agent-ready docs from the command line. |
+| [`@astryxdesign/core`](https://github.com/facebook/astryx/blob/main/packages/core/README.md) | 0.7.5 | The component library. Accessible, themeable React components with built-in spacing, dark mode, and StyleX styling. |
 | [`@astryxdesign/lab`](https://github.com/facebook/astryx/blob/main/packages/lab/README.md) | 0.1.9 (canary) | Experimental Astryx components — published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
 | [`@astryxdesign/native`](https://github.com/facebook/astryx/blob/main/packages/native/README.md) | 0.1.0 (canary) | Experimental native platforms for Astryx (iOS, Android, macOS, Windows) — published to npm only under the @canary dist-tag; never released as a stable (latest) version. |
-| [`@astryxdesign/richtext`](https://github.com/facebook/astryx/blob/main/packages/richtext/README.md) | 0.7.4 | Astryx rich text — a Lexical-based rich text editor and viewer, styled with Astryx design tokens. |
+| [`@astryxdesign/richtext`](https://github.com/facebook/astryx/blob/main/packages/richtext/README.md) | 0.7.5 | Astryx rich text — a Lexical-based rich text editor and viewer, styled with Astryx design tokens. |
 | [`@astryxdesign/vega`](https://github.com/facebook/astryx/blob/main/packages/vega/README.md) | 0.1.3 (canary) | Astryx Vega wrapper — chart and data visualization components. Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
 
 ## Styling architecture
@@ -344,7 +344,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**useDevWarning**](https://github.com/facebook/astryx/blob/main/packages/core/src/hooks/useDevWarning.doc.mjs) — Fires a dev-only "Component: message" console warning once per mount while the condition holds. It is the render-safe way for a component to flag misuse: warning straight from the render body repeats on every render, and gating it with state adds a re-render, so this uses a ref and an effect instead. For a warning outside a component, use the imperative devWarn utility.
 - [**useMergedRefs**](https://github.com/facebook/astryx/blob/main/packages/core/src/hooks/useMergedRefs.doc.mjs) — Combines multiple object or callback refs into one stable callback ref. Use it when a component must forward a consumer ref while also attaching internal refs. Unlike calling mergeRefs during render, the callback identity stays stable across unrelated rerenders, so React does not detach and reattach the element.
 - [**useTheme**](https://github.com/facebook/astryx/blob/main/packages/core/src/theme/useTheme.doc.mjs) — Programmatic access to theme tokens for non-CSS consumers like SVG, canvas, Vega, D3, maps, or chart libraries that need values in JavaScript instead of CSS custom property references.
-- [**VisuallyHidden**](https://github.com/facebook/astryx/blob/main/packages/core/src/VisuallyHidden/VisuallyHidden.doc.mjs) — Renders content in the accessibility tree while hiding it visually. Use for accessible names on icon-only controls, aria-live announcement regions, and supplementary screen-reader context. Deliberately has no styling props; the whole point is to stay invisible.
+- [**VisuallyHidden**](https://github.com/facebook/astryx/blob/main/packages/core/src/VisuallyHidden/VisuallyHidden.doc.mjs) — Renders content in the accessibility tree while hiding it visually. Use for accessible names on icon-only controls, aria-live announcement regions, and supplementary screen-reader context. Deliberately has no styling props; the whole point is to stay invisible. `xstyle` is still accepted and ignored, only so code written against 0.7.2 keeps compiling; a planned minor removes it.
 
 ## Documentation & tooling model
 

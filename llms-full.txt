@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `626f01e` (2026-10-22) of https://github.com/facebook/astryx.
+Generated from commit `e769940` (2026-10-23) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -1560,7 +1560,7 @@ Don't:
 
 Props:
 - `variant`: 'neutral' | 'info' | 'success' | 'warning' | 'error' | 'blue' | 'cyan' | 'green' | 'orange' | 'pink' | 'purple' | 'red' | 'teal' | 'yellow' = 'neutral' — Visual style variant. Semantic variants (neutral, info, success, warning, error) use solid backgrounds. Non-semantic color variants use tinted backgrounds with colored text for categorization and tagging.
-- `label`: ReactNode — Badge text content. A badge is one line, so a label wider than the space available is cut with an ellipsis rather than escaping its container; a string or number label is also set as the badge's title so the full text stays reachable on hover.
+- `label`: ReactNode (required) — Badge text content. A badge is one line, so a label wider than the space available is cut with an ellipsis rather than escaping its container; a string or number label is also set as the badge's title so the full text stays reachable on hover.
 - `icon`: ReactNode — Optional leading icon.
 
 ### Banner
@@ -2056,6 +2056,7 @@ Do:
 - Use min, max, and dateConstraints to restrict selectable dates to valid ranges.
 - Use hasClear when the date is optional so the user can reset it.
 - Show a loading state with changeAction when the date triggers a server-side save.
+- On a fine pointer the field follows the WAI-ARIA combobox pattern with a dialog popup, as in the APG date picker combobox: ArrowDown or Alt+ArrowDown opens the calendar, and Escape closes it and returns focus to the field.
 - Use DateInput inside InputGroup when adding a short static prefix or suffix, such as a due-date hint.
 
 Don't:
@@ -2075,7 +2076,7 @@ Props:
 - `value`: ISODateString — Selected date in YYYY-MM-DD format.
 - `onChange`: (value: ISODateString | undefined) => void — Callback invoked when the selected date changes.
 - `changeAction`: (value: ISODateString | undefined) => void | Promise<void> — Async action fired after onChange. Drives optimistic UI updates via useTransition.
-- `isLoading`: boolean = false — Whether the input is in a loading state. Disables interaction and shows a spinner.
+- `isLoading`: boolean = false — Whether the input is in a loading state. The field stays focusable and exposes `aria-busy` with a spinner; typing, picking, and clearing are blocked until loading ends.
 - `min`: ISODateString — Minimum selectable date (YYYY-MM-DD).
 - `max`: ISODateString — Maximum selectable date (YYYY-MM-DD).
 - `dateConstraints`: ReadonlyArray<(date: Date) => boolean> — Array of custom constraint functions that disable specific dates.
@@ -5186,9 +5187,10 @@ Use CommandPaletteItem for one non-interactive result row inside CommandPaletteL
 
 Do:
 - Keep each value unique within the result list so highlight, active-descendant identity, and selection resolve to the same item.
-- Use non-interactive child content such as icons, descriptions, and shortcut hints; activate the option itself instead of nesting buttons or links.
+- Inside CommandPalette, each item is an option in the listbox popup of the WAI-ARIA combobox pattern: keyboard focus stays in the query field, arrow keys move the highlight through aria-activedescendant, and Enter selects the highlighted item.
 
 Don't:
+- Nest buttons, links, or other interactive controls inside an item. Option semantics make descendants presentational, so use non-interactive content such as icons, descriptions, and shortcut hints, and activate the option itself.
 - Treat isHighlighted as selection. Highlight is the active keyboard result; isSelected represents the chosen value.
 
 Props:
@@ -5196,7 +5198,7 @@ Props:
 - `children`: ReactNode (required) — Non-interactive item content such as a label, icon, description, or keyboard shortcut.
 - `onSelect`: (value: string) => void — Called after this item is activated by pointer. Keyboard selection in CommandPalette reports through CommandPalette onValueChange.
 - `isHighlighted`: boolean = false — Whether this item is the active keyboard result. Derived from context when omitted inside CommandPalette.
-- `isSelected`: boolean = false — Whether this item represents the selected value in picker mode.
+- `isSelected`: boolean = false — Whether this item represents the selected value in picker mode. Derived from the CommandPalette value when omitted inside CommandPalette.
 - `isDisabled`: boolean = false — Whether the item is unavailable and suppresses pointer activation.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
 
@@ -5962,7 +5964,7 @@ Returns:
 
 Import: `import {VisuallyHidden} from '@astryxdesign/core/VisuallyHidden';`
 
-Renders content in the accessibility tree while hiding it visually. Use for accessible names on icon-only controls, aria-live announcement regions, and supplementary screen-reader context. Deliberately has no styling props; the whole point is to stay invisible.
+Renders content in the accessibility tree while hiding it visually. Use for accessible names on icon-only controls, aria-live announcement regions, and supplementary screen-reader context. Deliberately has no styling props; the whole point is to stay invisible. `xstyle` is still accepted and ignored, only so code written against 0.7.2 keeps compiling; a planned minor removes it.
 
 Do:
 - Use to give icon-only buttons and controls an accessible name that screen readers announce.

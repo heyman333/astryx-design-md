@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `e769940` (2026-10-23) of https://github.com/facebook/astryx.
+Generated from commit `216ad57` (2026-10-24) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -36,7 +36,7 @@ Don't:
 - Announce content that is already visible and correctly labeled in the DOM; that doubles up for screen reader users.
 
 Returns:
-- `announce`: (message: string, politeness?: "polite" | "assertive") => void — Speaks a message through the shared live region. Politeness defaults to "polite"; an empty message clears any lingering status instead of announcing.
+- `announce`: (message: string, politeness?: "polite" | "assertive") => void — Speaks a message through the shared live region. Politeness defaults to "polite"; messages announced in the same frame are joined, in order, into one announcement, and an identical repeat is kept once. An empty message clears any lingering status, including joined messages not yet spoken, instead of announcing.
 
 ## Action
 
@@ -476,11 +476,11 @@ Props:
 Import: `import {DropdownMenuRadioItem} from '@astryxdesign/core/DropdownMenu';`
 
 Props:
-- `value`: string — The value this item represents within its group. The group's value matches against this to determine the checked state.
-- `label`: ReactNode — Primary label text identifying the option.
+- `value`: string (required) — The value this item represents within its group. The group's value matches against this to determine the checked state.
+- `label`: ReactNode (required) — Primary label text identifying the option.
 - `description`: ReactNode — Secondary description text displayed below the label.
 - `icon`: IconType — Icon to display before the label. See `astryx docs icons` for valid semantic names.
-- `isDisabled`: boolean = false — Whether this individual radio item is disabled. Disabled items stay focusable (via aria-disabled) so they remain discoverable by keyboard and assistive technology, but selection is blocked.
+- `isDisabled`: boolean = false — Whether this individual radio item is disabled. Disabled items expose aria-disabled, block selection, and are currently skipped by DropdownMenu arrow-key navigation.
 - `endContent`: ReactNode — Content to render after the label and description, such as a badge or metadata.
 - `ref`: React.Ref<HTMLElement> — Ref forwarded to the row root, the element carrying role="menuitemradio". Register the row with an element-keyed observer or overlay.
 
@@ -489,10 +489,10 @@ Props:
 Import: `import {DropdownMenuSubMenu} from '@astryxdesign/core/DropdownMenu';`
 
 Props:
-- `label`: ReactNode — Primary label text for the trigger row.
+- `label`: ReactNode (required) — Primary label text for the trigger row.
 - `icon`: IconType — Icon to display before the label. See `astryx docs icons` for valid semantic names.
 - `description`: ReactNode — Secondary description text displayed below the label.
-- `children`: ReactNode — The flyout menu items: the same components used at the top level (DropdownMenuItem, nested DropdownMenuSubMenu, selectable items).
+- `children`: ReactNode (required) — The flyout menu items: the same components used at the top level (DropdownMenuItem, nested DropdownMenuSubMenu, selectable items).
 - `isDisabled`: boolean = false — A disabled submenu renders its trigger row but never opens the flyout.
 - `hasSpinner`: boolean = false — Show a spinner in place of the caret, e.g. while a lazy submenu's children are loading.
 - `menuWidth`: number | string — Minimum flyout width. The flyout may grow for its content, but it is capped to the available viewport space. Defaults to intrinsic sizing (min 160px).
@@ -500,6 +500,7 @@ Props:
 - `presentation`: 'flyout' | 'drill-in' | 'adaptive' = 'adaptive' — How the sub-menu shows its rows. 'flyout' opens them beside the row; 'drill-in' replaces the menu's rows with them and a Back row, in the same box; 'adaptive' drills in when a finger opened the menu (a coarse pointer, decided when the menu opened) and flies out otherwise.
 - `header`: ReactNode — Content above the sub-menu's rows and outside its menu, a field that filters them, say. It keeps its own keys and presses. With a header or footer the sub-menu's surface (the flyout, or the drilled-in view on a phone) is a modal dialog named by the row, beside the menu rather than inside it: the row says aria-haspopup="dialog", Tab and Shift+Tab move through the header, the rows and the footer and wrap, Escape returns to the row, and a pointer leaving the flyout closes it only once focus leaves too. A ContextMenu does not show it.
 - `footer`: ReactNode — Content below the sub-menu's rows and outside its menu, a door to where the options are managed, say. Same rules as header.
+- `menuDataTestId`: string — Test id for the sub-menu's own role="menu" element: the flyout, or the drilled-in list on a phone. The trigger row takes data-testid.
 - `xstyle`: StyleXStyles — StyleX styles for the trigger row. Must be a stylex.create() value: not an inline style object like style={{}}.
 - `ref`: React.Ref<HTMLElement> — Ref forwarded to the trigger row, the element carrying role="menuitem" and aria-haspopup="menu" ("dialog" with a header or footer).
 
@@ -1187,6 +1188,7 @@ Props:
 - `isDiff`: boolean = false — Render the code as a unified diff over `language`: lines starting with + are added, - removed, @@ is a hunk header (a `--- `/`+++ ` file-header pair directly before one is a header too), anything else is context. The language label reads `diff` or `<language> diff`. The glyph sits in its own column and the rest of each line keeps syntax highlighting; copy returns the exact source. Markdown ```diff and ```diff-<lang> fences set this.
 - `hasCopyButton`: boolean = true — Show a copy-to-clipboard button.
 - `onCopy`: () => void — Callback after the code is copied.
+- `endContent`: ReactNode — Your own controls, shown just before Copy: in the header when the block has one, otherwise beside the code in the top inline-end corner, never over it. It never creates a header and never collapses the block. Use ghost sm IconButtons to match Copy.
 - `isWrapped`: boolean = false — Wrap long lines instead of enabling horizontal scroll.
 - `maxHeight`: number | string — Max height before the block scrolls vertically.
 - `size`: 'sm' | 'md' = 'md' — Text size variant.
@@ -2241,7 +2243,7 @@ Props:
 - `width`: SizeValue — Width of the field.
 - `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Popup placement.
 - `alignment`: 'start' | 'center' | 'end' = 'start' — Popup alignment along the placement axis.
-- `renderTrigger`: (props: ComplexSelectorRenderTriggerProps) => ReactNode — Render the control the popup hangs off — a glyph in a list row, a chip, an icon button — instead of the selector's own field and button. Spread the given props ({ref, id, onClick, onKeyDown, aria-haspopup, aria-expanded, aria-controls, aria-busy}) onto it; the popup is anchored to that control and still labelled by `label`. The field chrome is not rendered. Pair with handleRef to open from a keystroke elsewhere.
+- `renderTrigger`: (props: ComplexSelectorRenderTriggerProps) => ReactNode — Render the control the popup hangs off — a glyph in a list row, a chip, an icon button — instead of the selector's own field and button. Spread the given props ({ref, id, onClick, onKeyDown, role, aria-haspopup, aria-expanded, aria-controls, aria-busy, aria-required, aria-disabled}) onto it: the control becomes the selector's combobox field, the popup is anchored to it and still labelled by `label`, and a disabled control keeps its tab stop but does not open. The field chrome is not rendered. Pair with handleRef to open from a keystroke elsewhere.
 - `handleRef`: React.Ref<ComplexSelectorHandle> — Imperative handle for programmatic control. Exposes open(), close(), toggle(), and isOpen().
 - `onOpenChange`: (isOpen: boolean) => void — Called whenever the surface opens or closes, however it happened — trigger, keyboard, light dismiss, Escape, close(), or the imperative handle.
 - `contentXstyle`: StyleXStyles — StyleX styles for the popup content container.
@@ -2746,7 +2748,7 @@ Don't:
 - Avoid using TextArea for short, single-line values like names or emails; use TextInput instead.
 - Don't rely solely on placeholder text to communicate the purpose of the field; placeholders disappear on focus and are not accessible labels.
 - Don't show a status message without also setting the status type; the colored border and icon are what draw the user's attention to the message.
-- Don't wrap a disabled TextArea in Tooltip to explain why it's disabled; disabled controls swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
+- Don't wrap a disabled TextArea in Tooltip to explain why it's disabled. Use the disabledMessage prop, which attaches the reason to the field itself.
 
 Props:
 - `ref`: React.Ref<HTMLTextAreaElement> — Ref forwarded to the underlying <textarea> element.
@@ -2759,8 +2761,8 @@ Props:
 - `isOptional`: boolean = false — Displays an "Optional" indicator next to the label. Mutually exclusive with isRequired.
 - `isRequired`: boolean = false — Displays a "Required" indicator next to the label and sets aria-required. Mutually exclusive with isOptional.
 - `isDisabled`: boolean = false — Disables the textarea, preventing interaction.
-- `isReadOnly`: boolean = false — Makes the textarea read-only: the value is shown at full opacity and still submits with the form, but cannot be edited. Unlike isDisabled, a read-only textarea is not dimmed and stays in the tab order. isDisabled takes precedence when both are set.
-- `disabledMessage`: string — Explains why the textarea is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the textarea focusable via aria-disabled (the field becomes read-only). Use this instead of wrapping a disabled TextArea in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
+- `isReadOnly`: boolean = false — Makes the textarea read-only: the value is shown at full opacity and still submits with the form, but cannot be edited. Unlike isDisabled, a read-only textarea is not dimmed and keeps its form value. isDisabled takes precedence when both are set.
+- `disabledMessage`: string — Explains why the textarea is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the textarea focusable via aria-disabled (the field becomes read-only). Use this instead of wrapping a disabled TextArea in Tooltip, so the reason is attached to the field itself.
 - `isLoading`: boolean = false — Puts the textarea in a loading state, showing a spinner inside the input.
 - `placeholder`: string — Placeholder text shown when the textarea is empty.
 - `rows`: number = 3 — Number of visible text rows.
@@ -2819,7 +2821,7 @@ Do:
 Don't:
 - Use NumberInput for free-form text that happens to contain numbers; use TextInput instead.
 - Set both isOptional and isRequired on the same field.
-- Wrap a disabled NumberInput in Tooltip to explain why it's disabled; disabled controls swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
+- Wrap a disabled NumberInput in Tooltip to explain why it's disabled. Use the disabledMessage prop, which attaches the reason to the field itself.
 
 Props:
 - `label`: string (required) — Label text for the input (always rendered for accessibility).
@@ -2832,7 +2834,7 @@ Props:
 - `onKeyDown`: (e: KeyboardEvent<HTMLInputElement>) => void — Callback fired on keydown events on the input.
 - `isRequired`: boolean — Whether the field is required (mutually exclusive with isOptional).
 - `isDisabled`: boolean — Whether the input is disabled.
-- `isReadOnly`: boolean = false — Makes the input read-only: the value is shown at full opacity and still submits with the form, but cannot be edited. Unlike isDisabled, a read-only input is not dimmed and stays in the tab order. Stepping is off in every form while read-only: arrow keys, the wheel, and the number steppers. isDisabled takes precedence when both are set.
+- `isReadOnly`: boolean = false — Makes the input read-only: the value is shown at full opacity and still submits with the form, but cannot be edited. Unlike isDisabled, a read-only input is not dimmed and keeps its form value. Stepping is off in every form while read-only: arrow keys, the wheel, and the number steppers. isDisabled takes precedence when both are set.
 - `disabledMessage`: string — Explains why the input is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the input focusable via aria-disabled (the field becomes read-only). Use this instead of wrapping a disabled NumberInput in Tooltip.
 - `placeholder`: string — Placeholder text.
 - `labelTooltip`: string — Tooltip text to display in an info icon at the end of the label.
@@ -2966,7 +2968,7 @@ Don't:
 - Don't use placeholder text as a replacement for a label; placeholders disappear on focus and are not reliably read by screen readers.
 - Don't use TextInput for multi-line content like comments or descriptions; use TextArea instead.
 - Don't mark every field as required; only flag mandatory fields so users are not overwhelmed by validation errors.
-- Don't wrap a disabled TextInput in Tooltip to explain why it's disabled; disabled controls swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
+- Don't wrap a disabled TextInput in Tooltip to explain why it's disabled. Use the disabledMessage prop, which attaches the reason to the field itself.
 
 Props:
 - `type`: 'text' | 'password' | 'email' = 'text' — The HTML input type.
@@ -2982,8 +2984,8 @@ Props:
 - `onEnter`: () => void — Callback fired when the user presses the Enter key. IME-safe: Enter used to commit a Japanese/Chinese/Korean conversion does not fire it.
 - `onKeyDown`: (e: KeyboardEvent<HTMLInputElement>) => void — Callback fired on keydown events on the input.
 - `isDisabled`: boolean = false — Disables the input, preventing interaction and dimming the element.
-- `isReadOnly`: boolean = false — Makes the input read-only: the value is shown at full opacity and still submits with the form, but cannot be edited. Unlike isDisabled, a read-only input is not dimmed and stays in the tab order. isDisabled takes precedence when both are set.
-- `disabledMessage`: string — Explains why the input is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the input focusable via aria-disabled (the field becomes read-only). Use this instead of wrapping a disabled TextInput in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
+- `isReadOnly`: boolean = false — Makes the input read-only: the value is shown at full opacity and still submits with the form, but cannot be edited. Unlike isDisabled, a read-only input is not dimmed and keeps its form value. isDisabled takes precedence when both are set.
+- `disabledMessage`: string — Explains why the input is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the input focusable via aria-disabled (the field becomes read-only). Use this instead of wrapping a disabled TextInput in Tooltip, so the reason is attached to the field itself.
 - `isLoading`: boolean = false — Puts the input in a loading state, showing a spinner and setting aria-busy.
 - `placeholder`: string — Placeholder text shown when the input is empty.
 - `labelTooltip`: string — Tooltip text displayed in an info icon at the end of the label.
@@ -3537,7 +3539,7 @@ Parameters:
 - `options.itemSelector`: string (required) — Selector matching the ENABLED rows. A pointer over anything else inside the menu (a divider, a heading, a disabled row) highlights nothing.
 - `options.triggerRef`: RefObject<HTMLElement | null> — The control that opens the menu, when a press may start there.
 - `options.onTriggerPress`: (pointerType: MenuPressPointerType) => boolean — A mouse pressed the trigger, or a finger rested on it for the long-press delay: open the menu under the held pointer and return whether it opened. Return false when the press closed an open menu instead.
-- `options.onHighlight`: (row: HTMLElement | null) => void — Move the highlight; null clears it. Defaults to moving DOM focus with preventScroll onto the row, and onto the menu root when there is no row. A picker that highlights through aria-activedescendant supplies its own.
+- `options.onHighlight`: (row: HTMLElement | null) => void — Move the highlight; null clears it. Defaults to moving DOM focus with preventScroll onto the row, and onto the menu root when there is no row; after a pointer press that focus does not match :focus-visible. A picker that highlights through aria-activedescendant supplies its own.
 - `options.onActivate`: (row: HTMLElement, release: PointerEvent) => void — Act on the row under the release. Defaults to dispatching a click on the row that carries the release button and modifier keys.
 - `options.onDismiss`: () => void — A MOUSE was released outside the menu with nothing acting: close it. A finger released outside leaves the menu open, so this is never called then.
 - `options.getScroller`: () => HTMLElement | null — The element to scroll while a tracked pointer rests near its top or bottom edge. Defaults to the menu root when it overflows.
@@ -5486,7 +5488,7 @@ Props:
 - `rel`: string — Link relationship tokens. noopener noreferrer are merged automatically for target="_blank".
 - `align`: 'center' | 'start' | 'first-line' = 'center' — Vertical alignment of the start and end content against the label, passed through to Item unchanged. `first-line` keeps a small mark (a status dot, an icon) level with the first line of a wrapped label. See Item.align.
 - `isDisabled`: boolean = false — Disabled state; sets aria-disabled on the item.
-- `isSelected`: boolean = false — Selected state; sets aria-selected on the item.
+- `isSelected`: boolean = false — Selected state; marks the item as the current one with aria-current="true" (a list item cannot carry aria-selected).
 - `swipeActions`: {leading?: ItemSwipeAction[]; trailing?: ItemSwipeAction[]} — Swipe actions for touch, passed through to Item unchanged: the verbs a sideways drag uncovers on each side, each `{id?, label, icon?, onActivate, isDisabled?, variant?: 'neutral' | 'accent' | 'destructive', hasRemoval?}`. See Item.swipeActions; List clips its rows in the inline axis for them.
 - `swipeBehavior`: 'reveal' | 'commit' = 'reveal' — What a swipe does, passed through to Item unchanged. See Item.swipeBehavior.
 

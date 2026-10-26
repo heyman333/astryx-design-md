@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `216ad57` (2026-10-24) of https://github.com/facebook/astryx.
+Generated from commit `6322d94` (2026-10-25) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -295,7 +295,7 @@ Props:
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size of menu items: controls padding density.
 - `label`: string = 'Context menu' — Accessible name for the menu surface, announced when it opens.
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when the menu opens or closes.
-- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — Presentation policy. `popover` opens at the pointer position, `bottom-sheet` always uses an action sheet, and `adaptive` uses the BottomSheet at 768px and below when the primary pointer is coarse.
+- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — Presentation policy. `popover` opens at the pointer position, `bottom-sheet` always uses an action sheet, and `adaptive` uses the BottomSheet on a compact touch screen: a coarse primary pointer, and a viewport narrower than the theme `md` breakpoint (768px by default) or shorter than 500px.
 - `isDisabled`: boolean = false — When true, right-click shows the native browser context menu instead.
 - `triggerXstyle`: StyleXStyles | StyleXStyles[] — Styles applied to the trigger wrapper. Accepts `stylex.create()` values, not inline style objects.
 - `triggerAs`: 'div' | 'span' = 'div' — The element the trigger wrapper renders as. 'div' is a block; 'span' an inline wrapper, so a reference inside prose can own a context menu without breaking the text flow.
@@ -359,7 +359,7 @@ Props:
 - `isDisabled`: boolean = false — Whether the menu trigger is disabled.
 - `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Position of the menu relative to the trigger. Logical: start/end resolve against the menu's own inherited direction (RTL mirrors).
 - `alignment`: 'start' | 'center' | 'end' = 'start' — Alignment along the placement axis. Use 'end' to align the menu with the trigger's trailing edge, which is usually what an overflow menu wants.
-- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — Presentation policy forwarded to DropdownMenu. `adaptive` keeps the anchored popover on pointer-based layouts and uses a BottomSheet at 768px and below when the primary pointer is coarse.
+- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — Presentation policy forwarded to DropdownMenu. `adaptive` keeps the anchored popover on pointer-based layouts and uses a BottomSheet on a compact touch screen: a coarse primary pointer, and a viewport narrower than the theme `md` breakpoint (768px by default) or shorter than 500px.
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when the menu opens or closes.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
@@ -1001,12 +1001,13 @@ Import: `import {SelectableCard} from '@astryxdesign/core/SelectableCard';`
 A card that toggles between selected and unselected states with an accent border. For navigation use ClickableCard.
 
 Do:
-- Use for plan pickers, filter chips, or option grids.
-- For single-select track one ID; for multi-select use a Set.
+- Use for multi-select choices: filter chips, feature add-ons, or option grids where several can be on.
+- Use for multi-select groups; track the selected IDs in a Set.
 - When focused, toggle selection with Space or Enter.
 
 Don't:
 - Use for navigation; use ClickableCard for that.
+- Use for a single-select group: each card is a checkbox, so assistive technology announces a multi-select group with one tab stop per card.
 
 Props:
 - `label`: string (required) — Accessibility label.

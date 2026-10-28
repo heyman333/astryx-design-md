@@ -1,6 +1,6 @@
 # Astryx Design System — Design Overview
 
-> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`0cbddea`](https://github.com/facebook/astryx/commit/0cbddeac0270ffa06819330dd9b07686e833e6a2) (2026-10-26). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
+> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`84faa0d`](https://github.com/facebook/astryx/commit/84faa0d94b6f3bc757710bd32404fd1636e278da) (2026-10-27). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
 
 ## What Astryx is
 
@@ -52,7 +52,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 
 ## Component library
 
-`@astryxdesign/core` currently documents **238 components** across **193 component groups** and **18 categories**. Each component directory contains the implementation (`{Name}.tsx`), colocated tests, and a `{Name}.doc.mjs` structured doc (props, anatomy, best practices) consumed by the CLI and docsite.
+`@astryxdesign/core` currently documents **239 components** across **194 component groups** and **18 categories**. Each component directory contains the implementation (`{Name}.tsx`), colocated tests, and a `{Name}.doc.mjs` structured doc (props, anatomy, best practices) consumed by the CLI and docsite.
 
 ### Accessibility (1)
 
@@ -81,8 +81,9 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**SegmentedControlItem**](https://github.com/facebook/astryx/blob/main/packages/core/src/SegmentedControl/SegmentedControlItem.doc.mjs) *(subcomponent/hook)*
 - [**ToggleButtonGroup**](https://github.com/facebook/astryx/blob/main/packages/core/src/ToggleButton/ToggleButtonGroup.doc.mjs) *(subcomponent/hook)*
 
-### Animation (1)
+### Animation (2)
 
+- [**useAnimatedLayout**](https://github.com/facebook/astryx/blob/main/packages/core/src/hooks/useAnimatedLayout.doc.mjs) — Returns a handle to pass to a component whose size changes, such as TreeList or Collapsible. When that component changes size, it and the content after it inside `containerRef` animate together on one shared motion role. Fixed and stuck sticky elements stay put, the glide never scrolls the area, and Reduce Motion is respected. It applies under every pointer, a mouse included. Without the handle a component keeps its jump: content after it takes its place at once. Content after the change may mix Astryx components and your own elements; none of it opts in.
 - [**useEntryAnimation**](https://github.com/facebook/astryx/blob/main/packages/core/src/hooks/useEntryAnimation.doc.mjs) — Returns a StyleX style for animating an element on mount. Only animates when the element is dynamically inserted after the initial page paint; elements rendered on page load are not animated. Uses Astryx motion tokens (duration, easing) for consistent animation timing. Server-rendered elements hydrate without the entry style and never animate; elements mounted after hydration animate.
 
 ### Chat (16)

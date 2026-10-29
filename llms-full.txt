@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `84faa0d` (2026-10-27) of https://github.com/facebook/astryx.
+Generated from commit `248380e` (2026-10-28) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -1355,6 +1355,7 @@ Props:
 - `icon`: IconName | ComponentType<SVGProps> (required) — Semantic icon name or SVG component. Valid semantic names: close, chevronDown, chevronLeft, chevronRight, chevronsLeft, chevronsRight, check, success, error, warning, info, calendar, clock, externalLink, menu, moreHorizontal, search, upload, arrowUp, arrowDown, arrowsUpDown, funnel, eyeSlash, viewColumns, copy, checkDouble, wrench, stop, microphone. For any icon not in this list, pass an SVG component directly (e.g. import from lucide-react or @heroicons/react). Note: this prop is called `icon`, not `name`.
 - `color`: 'primary' | 'secondary' | 'tertiary' | 'disabled' | 'accent' | 'info' | 'success' | 'error' | 'warning' | 'inherit' = 'inherit' — Color variant mapped to Astryx icon color tokens.
 - `size`: 'xsm' | 'sm' | 'md' | 'lg' = Contextual; otherwise 'md' — Icon size. xsm, sm, md, and lg are 12, 16, 20, and 24px at a 16px root and scale with the root font size; a theme sets a size's glyph dimension with width and height, in px or rem, on components.icon['size:sm'] (and the other sizes). An explicit value wins. When omitted, Icon uses the nearest default supplied by an owning Astryx component for its icon slot, then falls back to md when no contextual default exists.
+- `variant`: IconVariant — Requests the active theme's alternate artwork for a semantic icon name, such as 'filled'. Names come from IconVariantMap, which an application augments from @astryxdesign/core/Icon; Astryx defines none. The theme's icon entry receives the variant only when the active theme lists it in iconVariants (and, for an entry the theme inherited, the theme that defined the entry lists it too); otherwise it draws its normal artwork. Ignored by an icon component passed directly. Selects artwork only: it is not written to the DOM and has no theming selector.
 - `label`: string — Accessible name for a MEANINGFUL, standalone icon (a status glyph or icon-only indicator with no adjacent text). Setting it exposes the icon to screen readers as role="img" with this text as the accessible name (aria-label) and removes the default aria-hidden. Omit it (default) for decorative icons and the icon stays hidden from assistive tech (aria-hidden="true"). This is the accessible-name / alt-text prop for icons: one prop instead of manually setting aria-label + role + aria-hidden. An empty string is treated as decorative. Do not set it when an interactive parent (Button, IconButton, link) already names the control.
 - `xstyle`: StyleXStyles — StyleX styles for customization (color, size, opacity). Folded into the icon's own stylex.props() call so it composes with the base color/size styles. Must be a stylex.create() value, not an inline style object like style={{}}.
 
@@ -1720,43 +1721,6 @@ Props:
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
 ## Focus
-
-### useCombobox
-
-Import: `import {useCombobox} from '@astryxdesign/core/Selector';`
-
-Tracks the active option of a single-select combobox and handles its keys, while DOM focus stays on the control. It powers Selector and CommandPalette; use it to build a combobox those components do not cover. It renders nothing and sets no attributes: the caller renders the control, the listbox and the options, and wires `role`, `aria-expanded`, `aria-controls` and `aria-activedescendant` from what it returns.
-
-Do:
-- Render each option with `id={getItemId(index)}` and set the control's `aria-activedescendant` only while `isOpen` and `highlightedIndex` points at a rendered option, as CommandPalette does.
-- For type-to-select without a search field, run useTypeahead's handler first and fall through to this `onKeyDown` when it returns false, as Selector does.
-- Announce the number of results through useAnnounce when the options change for a new query.
-
-Don't:
-- Move DOM focus onto the options; the active option is announced through `aria-activedescendant` while focus stays on the control.
-
-Parameters:
-- `options`: UseComboboxOptions (required) — Configuration object.
-- `options.selectableItems`: SelectorOptionData[] (required) — The options in the same order as they render. Options with `disabled` cannot be picked and are skipped while moving through the open list; ArrowDown or ArrowUp that opens the list still lands on the first or last option.
-- `options.isOpen`: boolean (required) — Whether the list is shown. The caller owns this state.
-- `options.onOpen`: () => unknown (required) — Called to show the list. Return `false` to refuse; the hook then leaves the highlight alone.
-- `options.onClose`: () => void (required) — Called when the hook hides the list; the hook resets the highlight first. When the caller closes the list itself (an outside press, say), it should also call `setHighlightedIndex(-1)`.
-- `options.listboxId`: string (required) — The listbox element's id. Option ids are derived from it through `getItemId`.
-- `options.value`: string — The selected value. Without search, opening by a press, Enter or Space highlights it, or the first option when nothing is selected; ArrowDown and ArrowUp open on the first and last option.
-- `options.onSelect`: (value: string) => void — Called with the picked value. Picking also closes the list.
-- `options.onClear`: () => void — Clears the value. When provided, Delete or Backspace on the closed control clears it, so clearing is not pointer-only. Ignored while the list is open or with `hasSearch`.
-- `options.hasSearch`: boolean = false — Whether the list has its own search field. Space then types instead of picking, opening by a press or Enter does not pre-highlight (ArrowDown and ArrowUp still open on the first and last option), and printable keys on the closed control go to `onSearchSeed`.
-- `options.onSearchSeed`: (char: string) => void — With `hasSearch`, receives each printable character except Space typed while the control has focus, opening the list first when it is closed, so type-to-find needs no separate open step.
-- `options.isDisabled`: boolean = false — Whether the control ignores clicks and keys.
-
-Returns:
-- `highlightedIndex`: number — Index of the active option, or -1 when none is active. With `hasSearch`, opening by a press or Enter does not set one, so it stays -1 after the hook itself closes the list; ArrowDown and ArrowUp still open on the first or last option. Render it as the active option and name it in `aria-activedescendant` only while it points at a rendered option.
-- `setHighlightedIndex`: (index: number) => void — Sets the active option, for example from a filter that changes the options.
-- `getItemId`: (index: number) => string — The id to render on the option at `index`. Set the control's `aria-activedescendant` to `isOpen && highlightedIndex >= 0 && highlightedIndex < selectableItems.length ? getItemId(highlightedIndex) : undefined`, so it never names an option that does not exist, including in an empty list.
-- `onTriggerClick`: () => void — Toggles the list from a press on the control.
-- `onKeyDown`: (e: React.KeyboardEvent) => void — Key handler for the control that keeps focus. ArrowDown and ArrowUp open the list or move the active option; Enter (and Space without search) picks it or opens the list; Escape and Tab close it; Home, End, PageUp and PageDown jump to the first or last option. An editable control that keeps Home and End for the caret does not pass them to this handler, as CommandPalette does.
-- `onItemSelect`: (item: SelectorOptionData) => void — Picks an option from a press on it, then closes the list.
-- `onItemMouseEnter`: (item: SelectorOptionData, index: number) => void — Makes the hovered option active without scrolling the list or moving focus.
 
 ### useFocusTrap
 
@@ -3623,18 +3587,18 @@ Returns:
 
 Import: `import {usePressFeedback} from '@astryxdesign/core/hooks';`
 
-The touch press model every Astryx pressable uses, for a local component that paints its own press. Under a finger, CSS `:active` paints on the touch itself and can outlive the start of a scroll; the press model instead waits 150 ms before believing a press, cancels it the moment the finger travels 10 px or a scroll claims the gesture, never brings it back inside that gesture, answers a quick tap at the lift, and fades the release over 200 ms — the clocks a native list uses. One document-level controller does this for every marked element (installed by the first pressable to mount, removed by the last to unmount), so calling the hook adds no listener or state to your element. Under a mouse nothing changes: keep your `:active` rule, and drop it under `@media (pointer: coarse)` the way the built-in components do.
+The touch press model every Astryx pressable uses, for a local component that paints its own press. Under a finger, CSS `:active` paints on the touch itself and can outlive the start of a scroll; the press model instead waits 150 ms before believing a press, cancels it the moment the finger travels 10 px or a scroll claims the gesture, never brings it back inside that gesture, answers a quick tap at the lift, and fades the release over 200 ms — the clocks a native list uses. One document-level controller does this for every marked element (installed by the first pressable to mount, removed by the last to unmount), so calling the hook adds no listener or state to your element. On a desktop a mouse press is still your `:active` rule: keep it, and drop it under `@media (pointer: coarse)` the way the built-in components do. That query reads the primary pointer, so on a phone or tablet it also drops `:active` for a connected mouse, trackpad or keyboard; the controller paints those presses there (at once, faded at the release), so nothing goes unanswered.
 
 Do:
 - Spread the result on the element whose background paints the press and compose one of `interactionOverlayStyles` on it; the composed style is the instant onset, the hold and the fade, and it is themed through `--color-overlay-pressed`.
-- Let the composed style own the press on every pointer: it keeps `:active` for a mouse and drops it under `@media (pointer: coarse)`, so a finger sees only the press model. A rule of your own that paints `:active` would paint under a finger too, on the touch and through a scroll.
+- Let the composed style own the press on every pointer: it keeps `:active` for a desktop mouse and drops it under `@media (pointer: coarse)`, where the controller paints every press (a finger through the press model, a mouse or Space key at once). A rule of your own that paints `:active` would paint under a finger too, on the touch and through a scroll.
 
 Don't:
 - Add a pointer listener or React state to the element to track the press; the controller already writes the attribute, and per-element listeners are what a long list cannot afford.
 - Call it for a control rendered by an Astryx component; those are marked already, and the innermost marked element takes the press.
 
 Returns:
-- `pressableProps`: {'data-astryx-pressable': ''} — The marker attribute to spread on the element that paints the press. Compose one of `interactionOverlayStyles` (from `@astryxdesign/core/utils`) on the same element — `backgroundColor` or `backgroundImage` for a surface whose hover and press are the system's overlays, `pressedBackgroundColor` for one whose hover is its own — and it paints the pressed token at the press's strength on the first frame of a believed press and fades it over the release, keeping `:active` for a mouse. A press is themed through `--color-overlay-pressed`.
+- `pressableProps`: {'data-astryx-pressable': ''} — The marker attribute to spread on the element that paints the press. Compose one of `interactionOverlayStyles` (from `@astryxdesign/core/utils`) on the same element — `backgroundColor` or `backgroundImage` for a surface whose hover and press are the system's overlays, `pressedBackgroundColor` for one whose hover is its own — and it paints the pressed token at the press's strength on the first frame of a believed press and fades it over the release, keeping `:active` for a mouse on a desktop. On a phone or tablet, where the stylesheet drops `:active`, the controller also paints a mouse, trackpad or Space-key press: at once, held while the button or key is down, faded at the release. A press is themed through `--color-overlay-pressed`.
 
 ### useToast
 
@@ -5290,6 +5254,50 @@ Props:
 - `isOpen`: boolean — Whether the dialog is currently open.
 - `element`: ReactNode — The dialog element: render this in your JSX tree.
 
+## Semantics
+
+### useCombobox
+
+Import: `import {useCombobox} from '@astryxdesign/core/Selector';`
+
+Tracks the active option of a single-select combobox and handles its keys, while DOM focus stays on the control. It powers Selector and CommandPalette; use it to build a combobox those components do not cover, including one over a single-line text field you render yourself, such as a search field whose results replace a page section, or an \u201cadd people\u201d field in a dialog. It renders nothing: you render the field, the listbox and the options, and spread `getFieldProps`, `getListboxProps` and `getOptionProps` onto them, or wire `role`, `aria-expanded`, `aria-controls` and `aria-activedescendant` yourself from `onKeyDown` and `getItemId` for a control such as a button.
+
+Do:
+- Render each option with `id={getItemId(index)}` and set the control's `aria-activedescendant` only while `isOpen` and `highlightedIndex` points at a rendered option, as CommandPalette does.
+- For type-to-select without a search field, run useTypeahead's handler first and fall through to this `onKeyDown` when it returns false, as Selector does.
+- For a field you render, spread the prop getters, and set the active option yourself when a new query changes the options: the first option so Enter picks it, or -1 so Enter stays the field\u2019s.
+- Announce the number of results through useAnnounce when the options change for a new query (AST-075 DEC-2). When nothing matches, announce the words the field shows for it.
+
+Don't:
+- Render controls that are not options, such as a create button or an empty message, inside the listbox; render them beside it.
+- Move DOM focus onto the options; the active option is announced through `aria-activedescendant` while focus stays on the control.
+
+Parameters:
+- `options`: UseComboboxOptions (required) — Configuration object.
+- `options.selectableItems`: ReadonlyArray<T extends {value: string; disabled?: boolean}> (required) — The options in the same order as they render: `SelectorOptionData`, or any option type with a string `value` and an optional `disabled`. Options with `disabled` cannot be picked and are skipped while moving through the open list; ArrowDown or ArrowUp that opens the list from `onKeyDown` still lands on the first or last option.
+- `options.isOpen`: boolean (required) — Whether the list is shown. The caller owns this state.
+- `options.onOpen`: () => unknown (required) — Called to show the list. Return `false` to refuse; the hook then leaves the highlight alone.
+- `options.onClose`: () => void (required) — Called when the hook hides the list; the hook resets the highlight first. When the caller closes the list itself (an outside press, say), it should also call `setHighlightedIndex(-1)`.
+- `options.listboxId`: string (required) — The listbox element's id. Option ids are derived from it through `getItemId`.
+- `options.value`: string — The selected value. Without search, opening by a press, Enter or Space highlights it, or the first option when nothing is selected; ArrowDown and ArrowUp open on the first and last option.
+- `options.onSelect`: (value: string) => void — Called with the picked value. Picking also closes the list.
+- `options.onClear`: () => void — Clears the value. When provided, Delete or Backspace on the closed control clears it, so clearing is not pointer-only. Ignored while the list is open or with `hasSearch`.
+- `options.hasSearch`: boolean = false — Whether the list has its own search field. Space then types instead of picking, opening by a press or Enter does not pre-highlight (ArrowDown and ArrowUp still open on the first and last option), and printable keys on the closed control go to `onSearchSeed`.
+- `options.onSearchSeed`: (char: string) => void — With `hasSearch`, receives each printable character except Space typed while the control has focus, opening the list first when it is closed, so type-to-find needs no separate open step.
+- `options.isDisabled`: boolean = false — Whether the control ignores clicks and keys.
+
+Returns:
+- `highlightedIndex`: number — Index of the active option, or -1 when none is active. With `hasSearch`, opening by a press or Enter does not set one, so it stays -1 after the hook itself closes the list; ArrowDown and ArrowUp still open on the first or last option. Render it as the active option and name it in `aria-activedescendant` only while it points at a rendered option.
+- `setHighlightedIndex`: (index: number) => void — Sets the active option, for example from a filter that changes the options.
+- `getItemId`: (index: number) => string — The id to render on the option at `index`. Set the control's `aria-activedescendant` to `isOpen && highlightedIndex >= 0 && highlightedIndex < selectableItems.length ? getItemId(highlightedIndex) : undefined`, so it never names an option that does not exist, including in an empty list.
+- `onTriggerClick`: () => void — Toggles the list from a press on the control.
+- `onKeyDown`: (e: React.KeyboardEvent) => void — Key handler for the control that keeps focus. ArrowDown and ArrowUp open the list or move the active option; Enter (and Space without search) picks it or opens the list; Escape and Tab close it; Home, End, PageUp and PageDown jump to the first or last option. An editable control that keeps Home and End for the caret does not pass them to this handler, as CommandPalette does.
+- `onItemSelect`: (item: T) => void — Picks an option from a press on it, then closes the list.
+- `onItemMouseEnter`: (item: T, index: number) => void — Makes the hovered option active without scrolling the list or moving focus.
+- `getFieldProps`: (props?: {onKeyDown?(event: React.KeyboardEvent): void}) => object — Props for a single-line `input` you render: `role="combobox"`, `aria-expanded`, `aria-autocomplete="list"`, `aria-controls` only while the listbox renders (`isOpen` with at least one option), `aria-activedescendant` only while an option is active, and the field\u2019s key handler. Pass your own `onKeyDown` here rather than beside the spread: it runs after the hook\u2019s handler unless that handler claimed the key, and it may be typed for its element.
+- `getListboxProps`: () => object — Props for the listbox you render, anywhere in the document, including the page\u2019s flow: its `id` and `role`, and a press handler that keeps focus in the field. Render it while `isOpen` and there are options, and name it with `aria-label` or `aria-labelledby`.
+- `getOptionProps`: (index: number) => object — Props for the option at `index`: its `id`, `role`, `aria-selected` (true on the active option), `aria-disabled` on a disabled one, a pointer move that makes it active without moving focus, and a press that picks it.
+
 ## Streaming
 
 ### useStreamingText
@@ -5679,6 +5687,7 @@ Props:
 - `getIsItemExpandable`: (item: T) => boolean — Control which rows are expandable. Non-expandable rows show no chevron, no context-menu action, and never render a panel. Defaults to all rows expandable.
 - `panelVariant`: 'muted' | 'transparent' = 'transparent' — Background behind the detail panel. 'transparent' (default) paints nothing: the panel is the row's continuation and takes whatever surface the table sits on, so a Card shows through and a striped table's zebra reads on unchanged. 'muted' washes it, marking it as commentary rather than another row of data — reach for it in a bare table with no card, dividers or striping, where nothing else makes that distinction. The wash is a low-alpha near-black, so it is close to invisible over a dark card: 'muted' is largely a light-theme effect.
 - `hasRowClickExpansion`: boolean = false — Toggle a row by clicking anywhere on it, not only on its chevron. A pointer-only convenience layered over the chevron, which stays the accessible control for keyboard and assistive tech. Clicks on interactive cell content (buttons, links, form controls) or on a text selection do not toggle, and non-expandable rows stay inert.
+- `animatedLayout`: AnimatedLayout — A handle from useAnimatedLayout. With it, opening or closing a panel glides the rows after it (and the content after the table) to their new places instead of jumping, the opening panel plays in on the same motion, and each row's divider moves with it. Under Reduce Motion the rows fade in place on a touch screen and change at once with a mouse; in a table with column lines (dividers columns or grid, which do not move yet) they change at once. Without it, rows jump.
 
 ### useTableRowIndex (subcomponent/hook)
 

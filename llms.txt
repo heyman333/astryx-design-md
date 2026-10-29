@@ -2,7 +2,7 @@
 
 > Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 239 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 
-Generated from commit `84faa0d` (2026-10-27) of https://github.com/facebook/astryx.
+Generated from commit `248380e` (2026-10-28) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -46,13 +46,14 @@ Key facts:
 - Container: Card, Carousel, ClickableCard, Collapsible, CollapsibleGroup, SelectableCard
 - Content: Avatar, AvatarStatusDot, AvatarGroup, AvatarGroupOverflow, Blockquote, Citation, Code, CodeBlock, EmptyState, Glyph, Shortcut, Document, Heading, Text, Thumbnail, Elapsed time, Timestamp, Token
 - Feedback & Status: Badge, Banner, Progress bar, Placeholder, Spinner, Dot
-- Focus: useMultiCombobox, useCombobox, useFocusTrap, useGridFocus, useIndicatorFocusRing, useKeyboardHint, useListFocus, useTreeFocus, useTypeahead
+- Focus: useMultiCombobox, useFocusTrap, useGridFocus, useIndicatorFocusRing, useKeyboardHint, useListFocus, useTreeFocus, useTypeahead
 - Form Controls: Calendar, CheckboxInput, Group, CheckboxListItem, Field, DateInput, DateRangeInput, DateTimeInput, Field, FieldLabel, Message box, FileInput, Indicator, InputGroup, InputGroupText, Field, NumberInput, PowerSearch, RadioList, RadioListItem, Field, SelectorOption, Label, Field, Label, TextInput, TimeInput, Tokenizer, Input, Field, TypeaheadItem
 - Interaction: useCollapsible, useHoverCard, useLayer, usePopover, useToast, useTooltip, useClickableContainer, useClipboard, useContainerReveal, useHotkeys, useInputContainer, useInputStatusIcon, useInteractiveRole, useLongPress, useMenuPress, usePressFeedback
 - Layout: AppShell, useAppShellMobile, AspectRatio, Center, Divider group, FormLayout, Grid container, GridSpan, Layout container, LayoutContent, LayoutFooter, LayoutHeader, LayoutPanel, Handle, useResizable, ScrollableArea, Section container, Stack container, useOverflow, useScrollLock, useScrollOverflow, useScrollableArea
 - Media: useImageMode, useMediaQuery
 - Navigation: BreadcrumbItem, Breadcrumbs, Navigation overlay, Container, Menu, Outline, Pagination, SideNav, SideNavCollapseButton, SideNavHeading, SideNavItem, SideNavSection, Step, Stepper, Tab, TabList, TabMenu, TopNav, TopNavHeading, TopNavItem, TopNavMegaMenu, TopNavMegaMenuFeaturedCard, TopNavMegaMenuItem, TopNavMenu
 - Overlay: AlertDialog, useImperativeAlertDialog, Sheet panel, Sheet dialogs, Dialog, CommandPaletteEmpty, CommandPaletteFooter, CommandPaletteGroup, CommandPaletteInput, CommandPaletteItem, CommandPaletteList, Dialog, DialogHeader, useImperativeDialog, Panel, DrawerHeader, HoverCard, Viewer overlay, Overlay, Popover, Toast, Tooltip surface
+- Semantics: useCombobox
 - Streaming: useStreamingText
 - Table & List: Item, List, ListItem, MetadataList, MetadataListItem, List, Table, TableBody, TableCell, TableFooter, TableHeader, TableHeaderCell, TableRow, TableSelectionToolbar, useTableColumnResize, useTableColumnSettings, useTableFilterState, useTableFiltering, useTableGroupedRows, useTablePagination, useTableRowExpansion, useTableRowIndex, useTableRowStatus, useTableSelection, useTableSelectionState, useTableSortable, useTableStickyColumns, useTableTreeData, useTableTreeState, Tree list
 - Utilities: useCollator, useLocale, useTranslator

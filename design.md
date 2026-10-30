@@ -1,6 +1,6 @@
 # Astryx Design System — Design Overview
 
-> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`248380e`](https://github.com/facebook/astryx/commit/248380ebd2fb826d07b31bfd3643b76a1c253d53) (2026-10-28). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
+> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`2743132`](https://github.com/facebook/astryx/commit/274313294d7c2f18e0f9e5d4bdea95dfdfcc695a) (2026-10-29). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
 
 ## What Astryx is
 

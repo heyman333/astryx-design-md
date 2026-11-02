@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `995036e` (2026-10-31) of https://github.com/facebook/astryx.
+Generated from commit `6c432db` (2026-11-01) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -131,7 +131,7 @@ Do:
 Don't:
 - Use for page-level navigation; use TabList instead. TabList is a navigation component, while SegmentedControl is an input that always has exactly one selected option.
 - Use for simple on/off states; use ToggleButton instead. ToggleButton can be toggled on or off independently, while SegmentedControl enforces a single selection from a group.
-- Wrap a disabled SegmentedControl in Tooltip to explain why it is disabled; disabled controls swallow the hover events the wrapper needs. Use the disabledMessage prop instead.
+- Wrap a disabled SegmentedControl in Tooltip to explain why it is disabled; the reason is then not attached to the control or its segments. Use the disabledMessage prop instead.
 
 Props:
 - `value`: string (required) — The currently selected value (controlled).
@@ -139,8 +139,8 @@ Props:
 - `label`: string (required) — Accessible label for the radio group (used as aria-label, never rendered visually).
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant for the control.
 - `layout`: 'hug' | 'fill' = 'hug' — Layout mode. hug (default) sizes segments to content, capped at the container width (segment labels truncate when it is too narrow); fill stretches them equally to fill the container.
-- `isDisabled`: boolean = false — Whether the entire control is disabled.
-- `disabledMessage`: string — Explains why the control is disabled. Applies to the whole-group disabled state (isDisabled), not per segment. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the control focusable via aria-disabled (selection stays blocked). Use this instead of wrapping a disabled SegmentedControl in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
+- `isDisabled`: boolean = false — Whether the entire control is disabled. The selected segment keeps the Tab stop, announced as disabled (aria-disabled), and nothing can be selected.
+- `disabledMessage`: string — Explains why the control is disabled. Applies to the whole-group disabled state (isDisabled), not per segment. With isDisabled, shows a tooltip on hover/keyboard focus, and the reason describes each segment (selection stays blocked). Use this instead of wrapping a disabled SegmentedControl in Tooltip, so the reason is attached to the control itself.
 - `children`: ReactNode (required) — SegmentedControlItem children.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 
@@ -325,7 +325,7 @@ Don't:
 - Place more than 10–12 items in a single menu without grouping them into sections.
 
 Props:
-- `button`: DropdownMenuButtonProps = { label: 'Menu' } — Props for the trigger button (Button props except onClick). Mutually exclusive with `trigger`.
+- `button`: DropdownMenuButtonProps = { label: 'Menu' } — Props for the trigger button (Button props except onClick). Mutually exclusive with `renderTrigger`.
 - `renderTrigger`: (props: DropdownMenuTriggerProps) => ReactNode — Render the control the menu hangs off — an IconButton, a chip, an avatar, a list row — instead of the built-in Button. Spread the given props onto it: they carry the press model (a mouse opens on press-down, a held finger opens with the finger down), the keyboard opens, the toggle click, and `aria-haspopup`/`aria-expanded`/`aria-controls`/`id`; the menu is then named by that control through `aria-labelledby`. Mutually exclusive with `button`.
 - `items`: DropdownMenuOption[] (required) — Array of menu entries. Each entry is one of: an action item `{label, onClick?, href?, target?, rel?, icon?, description?, endContent?, isDisabled?, variant?, hasCloseOnSelect?, id?}` (`href` makes the row a real link, so a modified click keeps the browser's meaning; variant `"destructive"` renders it in the error color; `endContent` holds trailing content such as a keyboard-shortcut hint; `id` is the row's stable React key, needed only when the array reorders or filters), a divider `{type: "divider"}`, or a section `{type: "section", title?, id?, items: [...action items]}`.
 - `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — Presentation surface for data-driven items. 'popover' stays anchored, 'bottom-sheet' always renders the actions in a modal BottomSheet, and 'adaptive' uses a BottomSheet on compact coarse-pointer layouts while remaining anchored elsewhere. Compound children currently support popover only.
@@ -380,7 +380,7 @@ Props:
 - `icon`: IconType — Icon to display before the label. See `astryx docs icons` for valid semantic names.
 - `value`: boolean — Whether the item is checked. Controlled; pair with onChange.
 - `onChange`: (checked: boolean) => void — Callback fired with the next checked state when the item is toggled.
-- `isDisabled`: boolean = false — Whether the item is disabled. Disabled items expose aria-disabled, block activation, and are currently skipped by DropdownMenu arrow-key navigation.
+- `isDisabled`: boolean = false — Whether the item is disabled. A disabled item stays in the accessibility tree as disabled (aria-disabled) but takes no focus: the arrow keys, typeahead, and the pointer highlight skip it, and activation is blocked.
 - `hasCloseOnSelect`: boolean = false — Whether toggling the item closes the menu. Checkbox items default to staying open so several can be toggled in a single session.
 - `ref`: React.Ref<HTMLElement> — Ref forwarded to the row root, the element carrying role="menuitemcheckbox". Register the row with an element-keyed observer or overlay.
 - `endContent`: ReactNode — Content to render after the label and description, such as a keyboard shortcut hint or badge.
@@ -485,7 +485,7 @@ Props:
 - `label`: ReactNode (required) — Primary label text identifying the option.
 - `description`: ReactNode — Secondary description text displayed below the label.
 - `icon`: IconType — Icon to display before the label. See `astryx docs icons` for valid semantic names.
-- `isDisabled`: boolean = false — Whether this individual radio item is disabled. Disabled items expose aria-disabled, block selection, and are currently skipped by DropdownMenu arrow-key navigation.
+- `isDisabled`: boolean = false — Whether this individual radio item is disabled. A disabled item stays in the accessibility tree as disabled (aria-disabled) but takes no focus: the arrow keys, typeahead, and the pointer highlight skip it, and selection is blocked.
 - `endContent`: ReactNode — Content to render after the label and description, such as a badge or metadata.
 - `ref`: React.Ref<HTMLElement> — Ref forwarded to the row root, the element carrying role="menuitemradio". Register the row with an element-keyed observer or overlay.
 
@@ -518,7 +518,7 @@ Props:
 - `label`: string (required) — Accessible label for this segment. Rendered as visible text unless isLabelHidden is true.
 - `isLabelHidden`: boolean = false — Whether the label is visually hidden. When true, only the icon is displayed and label is used as aria-label.
 - `icon`: ReactNode — Icon element displayed before the label.
-- `isDisabled`: boolean = false — Whether this individual item is disabled.
+- `isDisabled`: boolean = false — Whether this individual item is disabled. A disabled selected item keeps the control's Tab stop.
 
 ### ToggleButtonGroup (subcomponent/hook)
 
@@ -1412,7 +1412,7 @@ Props:
 - `as`: 'span' | 'p' | 'div' | 'label' = 'span' — HTML element to render.
 - `maxLines`: number = 0 — Maximum lines before truncation. 0 means no truncation. When set, shows a tooltip on hover if content is truncated.
 - `hasTruncateTooltip`: boolean | 'above' | 'below' | 'start' | 'end' = true — Controls tooltip behavior for truncated text. true shows the tooltip at the default position, false disables it, or a placement string ('above' | 'below' | 'start' | 'end') sets a specific position.
-- `wordBreak`: 'break-word' | 'break-all' — Word break behavior when truncating. Defaults to 'break-all' for single-line truncation, 'break-word' otherwise.
+- `wordBreak`: 'break-word' | 'break-all' — Word break behavior when truncating. Defaults to 'break-all' for single-line truncation, 'break-word' otherwise. Without truncation, a token longer than its line (a URL, an ID) wraps (`overflow-wrap: break-word`), so in ordinary flow text does not make the page scroll sideways. Inside a flex row, give the flex child `min-width: 0` so it can shrink. A container you style with `overflow-wrap: anywhere` does not reach this text; Astryx's own containers pass their wrap through.
 - `textWrap`: 'wrap' | 'nowrap' | 'balance' | 'pretty' — Text wrapping behavior.
 - `justify`: 'start' | 'center' | 'end' = 'start' — Text alignment (justification). Uses logical values (start/end) for i18n/RTL compatibility.
 - `hasCapsize`: boolean = false — Enable optical alignment using text-box-trim. Forces block display.
@@ -1561,12 +1561,16 @@ Props:
 - `display`: 'inline' | 'block' = 'block' — Display type. Silently overridden to 'block' when maxLines > 0 or hasCapsize is true.
 - `maxLines`: number = 0 — Maximum lines before truncation. 0 means no truncation. When set, shows a tooltip on hover if content is truncated.
 - `hasTruncateTooltip`: boolean | 'above' | 'below' | 'start' | 'end' = true — Controls tooltip behavior for truncated text. true shows the tooltip at the default position, false disables it, or a placement string ('above' | 'below' | 'start' | 'end') sets a specific position.
-- `wordBreak`: 'break-word' | 'break-all' — Word break behavior when truncating. Defaults to 'break-all' for single-line truncation, 'break-word' otherwise.
+- `wordBreak`: 'break-word' | 'break-all' — Word break behavior when truncating. Defaults to 'break-all' for single-line truncation, 'break-word' otherwise. Without truncation, a token longer than its line (a URL, an ID) wraps (`overflow-wrap: break-word`), so in ordinary flow text does not make the page scroll sideways. Inside a flex row, give the flex child `min-width: 0` so it can shrink. A container you style with `overflow-wrap: anywhere` does not reach this text; Astryx's own containers pass their wrap through.
 - `textWrap`: 'wrap' | 'nowrap' | 'balance' | 'pretty' — Text wrapping behavior.
 - `justify`: 'start' | 'center' | 'end' = 'start' — Text alignment (justification). Uses logical values (start/end) for i18n/RTL compatibility.
 - `hasCapsize`: boolean = false — Enable optical alignment using text-box-trim. Forces block display.
 - `hasStrikethrough`: boolean = false — Apply strikethrough text decoration.
 - `id`: string — HTML id attribute.
+- `xstyle`: StyleXStyles — StyleX styles applied to the heading element. Must be a stylex.create() value: not an inline style object like style={{}}.
+- `className`: string — CSS class name applied to the heading element.
+- `style`: React.CSSProperties — Inline styles applied to the heading element. When `maxLines` is above 1, its line clamp replaces any `WebkitLineClamp` in `style`.
+- `ref`: React.Ref<HTMLHeadingElement> — Ref forwarded to the heading element.
 
 ## Feedback & Status
 
@@ -1929,7 +1933,7 @@ Parameters:
 - `options.onActivate`: (item: HTMLElement, id: string | undefined) => boolean | void — Called when Enter/Space activates a treeitem. Return true when handled; return false/undefined to let the hook fall back to toggling expansion.
 - `options.onActiveChange`: (id: string | undefined) => void — Notified when the hook moves focus to a treeitem. Consumers use this to move a single roving tab stop.
 - `options.hasRovingTabIndex`: boolean = false — When true, the hook owns a single roving tab stop across the visible treeitems (stamps tabindex 0/-1, repairs on mount, moves with navigation). Preserves an existing tabindex="0" seed on mount. Attach the returned `handleFocus` to keep the stop in sync after clicks.
-- `options.typeahead`: boolean = true — Whether typeahead (jump to next item whose text starts with the typed characters) is enabled.
+- `options.typeahead`: boolean = true — Whether typeahead (jump to next item whose text starts with the typed characters, ignoring case, accents, the stroked letters đ ł ø ħ ŧ ƀ and Turkish ı/İ in every locale) is enabled.
 
 Returns:
 - `treeRef`: React.RefObject<HTMLElement | null> — Ref to attach to the tree container element (role="tree").
@@ -1942,7 +1946,7 @@ Returns:
 
 Import: `import {useTypeahead} from '@astryxdesign/core/hooks';`
 
-Adds APG type-to-focus search to a collection: printable keystrokes are buffered (resetting after a pause), and the first item whose label starts with the buffer is reported through onMatch. Pressing the same letter repeatedly cycles through the matches rather than filtering deeper. It moves nothing itself; pair it with the collection's own focus management, most often useListFocus or useGridFocus.
+Adds APG type-to-focus search to a collection: printable keystrokes are buffered (resetting after a pause), and the first item whose label starts with the buffer (ignoring case, accents, the stroked letters đ ł ø ħ ŧ ƀ and Turkish ı/İ, the same in every locale; a typed accent prefers the exact match) is reported through onMatch. Pressing the same letter repeatedly cycles through the matches rather than filtering deeper. It moves nothing itself; pair it with the collection's own focus management, most often useListFocus or useGridFocus.
 
 Do:
 - Wire onMatch to the focus manager you already have (useListFocus.focusItem) instead of moving focus yourself.
@@ -2491,8 +2495,8 @@ Props:
 - `placeholder`: string — Input placeholder text.
 - `hasEntriesOnFocus`: boolean = false — Show bootstrap results on focus before typing.
 - `hasClear`: boolean = true — Show clear button to deselect the current value.
-- `isDisabled`: boolean = false — Disables the input.
-- `disabledMessage`: string — Explains why the input is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the field focusable via aria-disabled (activation stays blocked). Use this instead of wrapping a disabled Typeahead in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
+- `isDisabled`: boolean = false — Disables the input. The field keeps its tab stop: it is announced as disabled (aria-disabled), is read-only, and opens and picks nothing.
+- `disabledMessage`: string — Explains why the input is disabled. With isDisabled, shows a tooltip on hover/keyboard focus, and the reason describes the field (activation stays blocked). Use this instead of wrapping a disabled Typeahead in Tooltip, so the reason is attached to the field itself.
 - `maxMenuItems`: number = 10 — Maximum number of dropdown items to display.
 - `minQueryLength`: number = 1 — Minimum query length before the search source is queried. Below it no search runs and the menu stays closed.
 - `status`: {type: 'warning' | 'error' | 'success', message?: string} — Validation status object with type and message for error/warning/success states.
@@ -2554,7 +2558,7 @@ Props:
 - `placeholder`: string = "Choose file" or "Choose files" — Placeholder text shown when no file is selected.
 - `mode`: 'input' | 'dropzone' = 'input' — Visual mode. 'input' is a compact inline style; 'dropzone' is a larger area with drag-and-drop support.
 - `status`: {type: 'error' | 'warning' | 'success', message?: string} — Validation status: applies a colored border. If message is provided, displays a floating message below the input. Error type also sets aria-invalid.
-- `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing; tooltip hides the message box and surfaces it in a tooltip on the status icon.
+- `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing; tooltip hides the message box and surfaces it in a tooltip on the status icon. Dropzone mode does not support attached: use detached or tooltip. From the next minor release, a dropzone resolves attached to detached and defaults to it.
 - `labelTooltip`: string — Tooltip text displayed in an info icon at the end of the label.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
 - `containerXstyle`: StyleXStyles — StyleX styles for the field container (label, control, and status together). No effect inside InputGroup (style the InputGroup instead) or in a `horizontal-labels` FormLayout. Root `xstyle`, `className`, and `style` are not accepted.
@@ -3075,9 +3079,9 @@ Props:
 - `hasClear`: boolean = false — Show a clear-all button for bulk removal of all tokens.
 - `renderToken`: (item: T, onRemove: () => void) => ReactNode — Custom render function for selected tokens. Default renders Token with label and onRemove.
 - `renderItem`: (item: T) => ReactNode — Custom render function for dropdown items. Default renders TypeaheadItem.
-- `isDisabled`: boolean = false — Disables the input and all token interactions.
+- `isDisabled`: boolean = false — Disables the input and all token interactions. The input keeps its tab stop: it is announced as disabled (aria-disabled), is read-only, and opens and picks nothing. With tokenOverflowBehavior="unfocusedLayer" and no disabledMessage, the input is natively disabled and out of the tab order.
 - `htmlName`: string — The HTML name attribute for form submissions. Renders one hidden input per selected item id.
-- `disabledMessage`: string — Explains why the tokenizer is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the input focusable via aria-disabled (input stays blocked). Use this instead of wrapping a disabled Tokenizer in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
+- `disabledMessage`: string — Explains why the tokenizer is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the input focusable via aria-disabled (input stays blocked). Use this instead of wrapping a disabled Tokenizer in Tooltip, so the reason is attached to the field itself.
 - `status`: {type: 'warning' | 'error' | 'success', message?: string} — Validation status object with type and message for error/warning/success states.
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing; tooltip reveals the message in an info-tip button.
 - `isLabelHidden`: boolean = false — Visually hides the label while keeping it accessible.
@@ -3372,7 +3376,7 @@ Parameters:
 - `delay`: number = 300 — Delay before showing the hover card on hover, in milliseconds.
 - `hideDelay`: number = 200 — Delay before hiding after mouse or focus leaves, in milliseconds.
 - `focusTrigger`: 'auto' | 'always' | 'never' = 'auto' — When focus should open the hover card. auto only attaches focus listeners to naturally focusable elements.
-- `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own; tap always opens; none never opens on touch.
+- `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own (an aria-disabled control performs none); tap always opens; none never opens on touch.
 - `isEnabled`: boolean = true — Whether hover and focus triggers are enabled.
 - `label`: string — Accessible name for the hover card popup. When provided, the popup is exposed as a named role="dialog"; when omitted, it falls back to role="group" (a group may validly be unnamed).
 - `isOpen`: boolean — Controlled open state. true force-shows, false force-hides, undefined lets hover/focus manage visibility.
@@ -3641,8 +3645,8 @@ Parameters:
 - `alignment`: 'start' | 'center' | 'end' = 'center' — Alignment along the placement axis. Logical: start/end resolve against the popover's own inherited direction (RTL mirrors in pure CSS).
 - `delay`: number = 200 — Delay before showing on hover, in milliseconds.
 - `hideDelay`: number = 0 — Delay before hiding after mouse or focus leaves, in milliseconds.
-- `focusTrigger`: 'auto' | 'always' | 'never' = 'auto' — When focus should open the tooltip. auto only attaches focus listeners to naturally focusable elements.
-- `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own; tap always opens (an info icon rendered as a button); none never opens on touch.
+- `focusTrigger`: 'auto' | 'always' | 'never' = 'auto' — When focus should open the tooltip. auto opens when the trigger itself takes focus, or focus lands inside a trigger that is focusable at that moment, so a roving-tabindex member opens when the arrow keys reach it.
+- `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own (an aria-disabled control performs none); tap always opens (an info icon rendered as a button); none never opens on touch.
 - `isEnabled`: boolean = true — Whether hover and focus triggers are enabled.
 - `isOpen`: boolean — Controlled open state. true force-shows, false force-hides, undefined lets hover/focus manage visibility.
 - `isDefaultOpen`: boolean = false — Whether the tooltip should be shown on mount.
@@ -3816,8 +3820,8 @@ Props:
 - `rowGap`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Row spacing; overrides `gap` for the row axis.
 - `columnGap`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Column spacing; overrides `gap` for the column axis.
 - `rowHeight`: number — Height of each implicit row track in pixels. Pair with `GridSpan rows={N}` for masonry-style layouts.
-- `align`: 'start' | 'center' | 'end' | 'stretch' = 'stretch' — Vertical alignment of items.
-- `justify`: 'start' | 'center' | 'end' | 'stretch' = 'stretch' — Horizontal alignment of items.
+- `align`: 'start' | 'center' | 'end' | 'stretch' — Vertical alignment of items (`align-items`). Unset leaves the browser default, `normal`, which stretches items that have no natural size or aspect ratio.
+- `justify`: 'start' | 'center' | 'end' | 'stretch' — Horizontal alignment of items (`justify-items`). Unset leaves the browser default, `normal`, which stretches items that have no natural size or aspect ratio.
 - `children`: ReactNode — Grid content.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 
@@ -4210,6 +4214,10 @@ Props:
 - `columns`: number | 'full' — Columns to span; use `'full'` to span all explicit columns.
 - `rows`: number — Rows to span.
 - `children`: ReactNode — Content.
+- `xstyle`: StyleXStyles — StyleX styles applied to the span wrapper. Must be a stylex.create() value: not an inline style object like style={{}}.
+- `className`: string — CSS class name applied to the span wrapper.
+- `style`: React.CSSProperties — Inline styles applied to the span wrapper. When `columns` or `rows` is set, its `grid-column` or `grid-row` replaces the same property in `style`.
+- `ref`: React.Ref<HTMLDivElement> — Ref forwarded to the span wrapper.
 
 ### LayoutContent (subcomponent/hook)
 
@@ -4885,7 +4893,7 @@ Props:
 - `delay`: number = 300 — Show delay in milliseconds.
 - `hideDelay`: number = 200 — Hide delay in milliseconds.
 - `focusTrigger`: 'auto' | 'always' | 'never' = 'auto' — Controls when focus events trigger the hover card.
-- `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own (a button, link, or form control), whose tap belongs to the control. tap always opens. none never opens on touch. A tap-opened card is dismissed by a tap outside it.
+- `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own (a button, link, or form control), whose tap belongs to the control; an aria-disabled control performs none, so a tap on it opens its reason. tap always opens. none never opens on touch. A tap-opened card is dismissed by a tap outside it.
 - `isEnabled`: boolean = true — Enables or disables the hover and focus triggers.
 - `label`: string — Accessible name for the hover card popup. When provided, the popup is exposed as a named role="dialog"; when omitted, it falls back to role="group" (a group may validly be unnamed).
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when hover card visibility changes. Called with true when shown and false when hidden.
@@ -5097,7 +5105,7 @@ Props:
 - `delay`: number = 200 — Show delay in milliseconds.
 - `hideDelay`: number = 0 — Hide delay in milliseconds.
 - `focusTrigger`: 'auto' | 'always' | 'never' = 'auto' — Controls when focus events trigger the tooltip.
-- `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own (a button, link, or form control), whose tap belongs to the control. tap always opens; use it for an info icon rendered as a button, whose only job is to reveal the tooltip. none never opens on touch.
+- `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own (a button, link, or form control), whose tap belongs to the control; an aria-disabled control performs none, so a tap on it opens its reason. tap always opens; use it for an info icon rendered as a button, whose only job is to reveal the tooltip. none never opens on touch.
 - `isEnabled`: boolean = true — Enables or disables the tooltip triggers.
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when tooltip visibility changes. Called with true when shown and false when hidden.
 - `hasHoverIndication`: 'auto' | boolean = 'auto' — Shows a dashed underline on the trigger element.

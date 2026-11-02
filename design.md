@@ -1,6 +1,6 @@
 # Astryx Design System — Design Overview
 
-> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`995036e`](https://github.com/facebook/astryx/commit/995036e69e0ea948f0579798f4131f6c75fe4861) (2026-10-31). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
+> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`6c432db`](https://github.com/facebook/astryx/commit/6c432dbac255bce75d9c7fb31fac5432072760eb) (2026-11-01). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
 
 ## What Astryx is
 
@@ -153,7 +153,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**useListFocus**](https://github.com/facebook/astryx/blob/main/packages/core/src/hooks/useListFocus.doc.mjs) — Manages keyboard navigation within a linear list following WAI-ARIA menu/listbox/toolbar patterns. Supports arrow key navigation (vertical, horizontal, or both), Home/End for boundaries, optional wrap-around, RTL, and Escape to close. Opt into hasRovingTabIndex for composite widgets (toolbars, segmented controls, tab strips) that own a single tab stop. Suitable for dropdown menus, toolbars, and any 1D focusable list.
 - [**useMultiCombobox**](https://github.com/facebook/astryx/blob/main/packages/core/src/MultiSelector/useMultiCombobox.doc.mjs) — Tracks the active option of a multi-select combobox and handles its keys, while DOM focus stays on the control. It powers MultiSelector; unlike useCombobox, toggling an option keeps the list open, and rows can carry an action cell. It renders nothing and sets no attributes: the caller renders the control and the list, and wires the ARIA attributes from what it returns.
 - [**useTreeFocus**](https://github.com/facebook/astryx/blob/main/packages/core/src/hooks/useTreeFocus.doc.mjs) — Manages roving-tabindex focus and the WAI-ARIA tree keyboard model. ArrowUp/ArrowDown/Home/End roam linearly over the visible treeitems (skipping disabled ones), while ArrowRight/ArrowLeft carry tree semantics (expand/collapse, move to first-child/parent). Enter/Space activate, and printable characters trigger typeahead.
-- [**useTypeahead**](https://github.com/facebook/astryx/blob/main/packages/core/src/hooks/useTypeahead.doc.mjs) — Adds APG type-to-focus search to a collection: printable keystrokes are buffered (resetting after a pause), and the first item whose label starts with the buffer is reported through onMatch. Pressing the same letter repeatedly cycles through the matches rather than filtering deeper. It moves nothing itself; pair it with the collection's own focus management, most often useListFocus or useGridFocus.
+- [**useTypeahead**](https://github.com/facebook/astryx/blob/main/packages/core/src/hooks/useTypeahead.doc.mjs) — Adds APG type-to-focus search to a collection: printable keystrokes are buffered (resetting after a pause), and the first item whose label starts with the buffer (ignoring case, accents, the stroked letters đ ł ø ħ ŧ ƀ and Turkish ı/İ, the same in every locale; a typed accent prefers the exact match) is reported through onMatch. Pressing the same letter repeatedly cycles through the matches rather than filtering deeper. It moves nothing itself; pair it with the collection's own focus management, most often useListFocus or useGridFocus.
 
 ### Form Controls (31)
 

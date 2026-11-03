@@ -1,6 +1,6 @@
 # Astryx Design System — Design Overview
 
-> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`6c432db`](https://github.com/facebook/astryx/commit/6c432dbac255bce75d9c7fb31fac5432072760eb) (2026-11-01). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
+> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`95438ff`](https://github.com/facebook/astryx/commit/95438ffaf99a6cc9f39ddceba606dec8f4a992a5) (2026-11-02). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
 
 ## What Astryx is
 
@@ -30,13 +30,13 @@ A pnpm monorepo (Node 22+, pnpm 11):
 
 | Package | Version | Description |
 | --- | --- | --- |
-| [`@astryxdesign/build`](https://github.com/facebook/astryx/blob/main/packages/build/README.md) | 0.7.6 | Build plugins for Astryx source builds — babel, PostCSS, and Vite integrations |
+| [`@astryxdesign/build`](https://github.com/facebook/astryx/blob/main/packages/build/README.md) | 0.7.7 | Build plugins for Astryx source builds — babel, PostCSS, and Vite integrations |
 | [`@astryxdesign/charts`](https://github.com/facebook/astryx/blob/main/packages/charts/README.md) | 0.1.9 (canary) | Astryx charts — a config-model data visualization library (d3-based). Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
-| [`@astryxdesign/cli`](https://github.com/facebook/astryx/blob/main/packages/cli/README.md) | 0.7.6 | Scaffold projects, browse templates, generate themes, and get agent-ready docs from the command line. |
-| [`@astryxdesign/core`](https://github.com/facebook/astryx/blob/main/packages/core/README.md) | 0.7.6 | The component library. Accessible, themeable React components with built-in spacing, dark mode, and StyleX styling. |
+| [`@astryxdesign/cli`](https://github.com/facebook/astryx/blob/main/packages/cli/README.md) | 0.7.7 | Scaffold projects, browse templates, generate themes, and get agent-ready docs from the command line. |
+| [`@astryxdesign/core`](https://github.com/facebook/astryx/blob/main/packages/core/README.md) | 0.7.7 | The component library. Accessible, themeable React components with built-in spacing, dark mode, and StyleX styling. |
 | [`@astryxdesign/lab`](https://github.com/facebook/astryx/blob/main/packages/lab/README.md) | 0.1.9 (canary) | Experimental Astryx components — published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
 | [`@astryxdesign/native`](https://github.com/facebook/astryx/blob/main/packages/native/README.md) | 0.1.0 (canary) | Experimental native platforms for Astryx (iOS, Android, macOS, Windows) — published to npm only under the @canary dist-tag; never released as a stable (latest) version. |
-| [`@astryxdesign/richtext`](https://github.com/facebook/astryx/blob/main/packages/richtext/README.md) | 0.7.6 | Astryx rich text — a Lexical-based rich text editor and viewer, styled with Astryx design tokens. |
+| [`@astryxdesign/richtext`](https://github.com/facebook/astryx/blob/main/packages/richtext/README.md) | 0.7.7 | Astryx rich text — a Lexical-based rich text editor and viewer, styled with Astryx design tokens. |
 | [`@astryxdesign/vega`](https://github.com/facebook/astryx/blob/main/packages/vega/README.md) | 0.1.3 (canary) | Astryx Vega wrapper — chart and data visualization components. Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
 
 ## Styling architecture
@@ -52,7 +52,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 
 ## Component library
 
-`@astryxdesign/core` currently documents **239 components** across **194 component groups** and **19 categories**. Each component directory contains the implementation (`{Name}.tsx`), colocated tests, and a `{Name}.doc.mjs` structured doc (props, anatomy, best practices) consumed by the CLI and docsite.
+`@astryxdesign/core` currently documents **240 components** across **195 component groups** and **19 categories**. Each component directory contains the implementation (`{Name}.tsx`), colocated tests, and a `{Name}.doc.mjs` structured doc (props, anatomy, best practices) consumed by the CLI and docsite.
 
 ### Accessibility (1)
 
@@ -62,7 +62,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 
 - [**Button**](https://github.com/facebook/astryx/blob/main/packages/core/src/Button/Button.doc.mjs) — Button triggers an action when clicked. Use it for form submissions, confirmations, navigation, or any interaction that needs a clear call to action.
 - [**ButtonGroup**](https://github.com/facebook/astryx/blob/main/packages/core/src/ButtonGroup/ButtonGroup.doc.mjs) — ButtonGroup joins related actions into a single connected control. Use it when multiple buttons represent related choices or operations that belong together visually, like copy/cut/paste, or undo/redo.
-- [**Control**](https://github.com/facebook/astryx/blob/main/packages/core/src/SegmentedControl/SegmentedControl.doc.mjs) — A segmented button group that allows users to make a single selection from a small set of mutually exclusive options. Use SegmentedControl when all options should be visible at once and the selection controls a value or mode, not page navigation.
+- [**Control**](https://github.com/facebook/astryx/blob/main/packages/core/src/SegmentedControl/SegmentedControl.doc.mjs) — A segmented button group that allows users to make a single selection from a small set of mutually exclusive options. Use SegmentedControl when all options should be visible at once and the selection controls a value or mode, not page navigation. Under a finger, on a touch device (a coarse primary pointer), the selection slides to the new segment, whether a tap, an arrow key or a new value moved it; with Reduce Motion nothing travels: the old selection fades out as the new one fades in. There, dragging the selected segment carries the selection along with the selected label’s colour following it, and the segment under the finger is chosen when it lets go (letting go outside the control selects nothing); a tap selects through the browser’s click; a pressed segment shows the shared pressed overlay, and nothing lifts or dims. With a mouse or a pen every change, a click included, slides on the theme’s duration and easing, and dragging the selected segment carries it as a finger does.
 - [**IconButton**](https://github.com/facebook/astryx/blob/main/packages/core/src/IconButton/IconButton.doc.mjs) — A button that shows only an icon with no visible text. Use IconButton in toolbars, table rows, and compact UI where space is tight and the icon is universally understood.
 - [**Link**](https://github.com/facebook/astryx/blob/main/packages/core/src/Link/Link.doc.mjs) — Link text must have at least 4.5:1 contrast with the background behind it. For Pointer down, measure against the pressed overlay the link paints behind its text.
 - [**Outer chrome**](https://github.com/facebook/astryx/blob/main/packages/core/src/Toolbar/Toolbar.doc.mjs) — Toolbar is a horizontal bar with left, center, and right areas. Use it for contextual actions within a content area (above a table, inside a card, or in a panel), not as a page-level header. Set the size once on the toolbar and all buttons, inputs, and tabs inside it match automatically.
@@ -135,13 +135,14 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**AvatarStatusDot**](https://github.com/facebook/astryx/blob/main/packages/core/src/Avatar/AvatarStatusDot.doc.mjs) *(subcomponent/hook)*
 - [**Heading**](https://github.com/facebook/astryx/blob/main/packages/core/src/Text/Heading.doc.mjs) *(subcomponent/hook)*
 
-### Feedback & Status (6)
+### Feedback & Status (7)
 
 - [**Badge**](https://github.com/facebook/astryx/blob/main/packages/core/src/Badge/Badge.doc.mjs) — Badge highlights a status or category at a glance. Use it sparingly: only when a value represents a distinct state (Active, Failed) or a grouping tag (Engineering, Design). Most metadata (dates, durations, counts, descriptions) should be plain description text, not badges.
 - [**Banner**](https://github.com/facebook/astryx/blob/main/packages/core/src/Banner/Banner.doc.mjs) — Banner shows a persistent message at the top of a page or section. Use it for form errors, system updates, maintenance notices, or success confirmations that the user needs to see until they act on it.
 - [**Dot**](https://github.com/facebook/astryx/blob/main/packages/core/src/StatusDot/StatusDot.doc.mjs) — A small colored dot that communicates status like online/offline presence or severity levels. Supports five semantic variants and an optional pulse animation. Always pair with a visible text label, as color alone should not carry meaning.
+- [**InfoTip**](https://github.com/facebook/astryx/blob/main/packages/core/src/InfoTip/InfoTip.doc.mjs) — An info icon that reveals help: a small "i" button. Hover and keyboard focus preview the help, and a click, tap, Enter, or Space pins it open until Escape, a second press, a press outside, or focus leaving. Use it next to labels, values, and metrics for permission notes, metric definitions, and field help. Its value over hand-composing Icon inside Tooltip is the pre-wired accessible trigger: a real button with an aria-label, Tab-reachable, tooltip on hover AND focus AND tap, and Escape dismissal.
 - [**Placeholder**](https://github.com/facebook/astryx/blob/main/packages/core/src/Skeleton/Skeleton.doc.mjs) — An animated shimmer placeholder that previews the shape of content while it loads. Use it to build loading screens that match the layout of the real content. For content with unknown dimensions, use Spinner instead.
-- [**Progress bar**](https://github.com/facebook/astryx/blob/main/packages/core/src/ProgressBar/ProgressBar.doc.mjs) — A horizontal bar showing the completion progress of a task. Use it for operations where the duration is known, or as an animated indicator when progress can't be calculated. Supports semantic color variants, value labels, and custom formatting.
+- [**Progress bar**](https://github.com/facebook/astryx/blob/main/packages/core/src/ProgressBar/ProgressBar.doc.mjs) — A horizontal bar showing the completion progress of a task. Use it for operations where the duration is known, or as an animated indicator when progress can't be calculated. Supports semantic color variants, value labels, and custom formatting. Under a finger a new value animates as on iOS: linearly, in proportion to how far it moves (a full track takes one second at the theme's default tempo), and the fill keeps a minimum visible length above zero.
 - [**Spinner**](https://github.com/facebook/astryx/blob/main/packages/core/src/Spinner/Spinner.doc.mjs) — An animated loading indicator for processes with unknown duration, such as data fetching or form submission. Supports visible labels, multiple sizes, and a dark background variant. For content with known dimensions, use Skeleton instead.
 
 ### Focus (8)
@@ -236,7 +237,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 ### Media (2)
 
 - [**useImageMode**](https://github.com/facebook/astryx/blob/main/packages/core/src/hooks/useImageMode.doc.mjs) — Detects whether an image is predominantly dark or light by sampling pixels via OffscreenCanvas. Uses APCA perceptual lightness (sRGB linearization + power curve) for accurate detection, especially on saturated colors. Runs entirely off the paint path: no visible canvas, no layout thrash. Supports regional sampling for detecting luminance where text overlays will appear. Returns null while loading and falls back gracefully on CORS or network errors.
-- [**useMediaQuery**](https://github.com/facebook/astryx/blob/main/packages/core/src/hooks/useMediaQuery.doc.mjs) — SSR-safe media query hook that subscribes to window.matchMedia changes. Returns whether the given media query matches. Always returns false on first render for SSR compatibility.
+- [**useMediaQuery**](https://github.com/facebook/astryx/blob/main/packages/core/src/hooks/useMediaQuery.doc.mjs) — SSR-safe media query hook that subscribes to window.matchMedia changes. Returns whether the given media query matches. Always returns false on first render for SSR compatibility. Where `window.matchMedia` is missing, it returns its server default and never throws.
 
 ### Navigation (24)
 

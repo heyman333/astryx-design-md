@@ -1,10 +1,10 @@
 # Astryx — Full Component Reference
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 239 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 240 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `6c432db` (2026-11-01) of https://github.com/facebook/astryx.
+Generated from commit `95438ff` (2026-11-02) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -122,7 +122,7 @@ Props:
 
 Import: `import {Control} from '@astryxdesign/core/SegmentedControl';`
 
-A segmented button group that allows users to make a single selection from a small set of mutually exclusive options. Use SegmentedControl when all options should be visible at once and the selection controls a value or mode, not page navigation.
+A segmented button group that allows users to make a single selection from a small set of mutually exclusive options. Use SegmentedControl when all options should be visible at once and the selection controls a value or mode, not page navigation. Under a finger, on a touch device (a coarse primary pointer), the selection slides to the new segment, whether a tap, an arrow key or a new value moved it; with Reduce Motion nothing travels: the old selection fades out as the new one fades in. There, dragging the selected segment carries the selection along with the selected label’s colour following it, and the segment under the finger is chosen when it lets go (letting go outside the control selects nothing); a tap selects through the browser’s click; a pressed segment shows the shared pressed overlay, and nothing lifts or dims. With a mouse or a pen every change, a click included, slides on the theme’s duration and easing, and dragging the selected segment carries it as a finger does.
 
 Do:
 - Use for switching between 2–5 mutually exclusive views or modes where all options should be visible.
@@ -729,6 +729,7 @@ Props:
 - `onFiles`: (files: File[]) => void — Called when files are pasted or dropped onto the input. Use to handle attachments.
 - `onSubmit`: (value: string) => void — Called when the user presses Enter without Shift. The serialized value includes token placeholders.
 - `onKeyDown`: (event) => void — Key-down handler invoked before the built-in Enter/history behavior (after any open trigger menu). The seam for platform-specific keys: call event.preventDefault() to suppress the default submit (e.g. newline on a touch keyboard), or act on the event yourself to add behavior (e.g. submit on Cmd/Ctrl+Enter). IME composition is always respected; Enter never submits mid-composition.
+- `enterKeyHint`: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send' = 'send' — What the Return key of a touch keyboard says (the native enterkeyhint). Enter sends the message, so it defaults to send and iOS shows its Send key. When onKeyDown makes Enter insert a line break on touch keyboards, pass enter so the key shows Return again.
 
 ### ChatComposerTokenElement (subcomponent/hook)
 
@@ -1658,6 +1659,27 @@ Props:
 - `icon`: ReactNode — Optional icon rendered centered inside the dot, painted in currentColor (the variant's ink). Gives the status a non-color mark, so use a different icon per status. Booleans and empty strings are ignored, so `cond && <Icon />` is safe. Same contract as AvatarStatusDot.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
+### InfoTip
+
+Import: `import {InfoTip} from '@astryxdesign/core/InfoTip';`
+
+An info icon that reveals help: a small "i" button. Hover and keyboard focus preview the help, and a click, tap, Enter, or Space pins it open until Escape, a second press, a press outside, or focus leaving. Use it next to labels, values, and metrics for permission notes, metric definitions, and field help. Its value over hand-composing Icon inside Tooltip is the pre-wired accessible trigger: a real button with an aria-label, Tab-reachable, tooltip on hover AND focus AND tap, and Escape dismissal.
+
+Do:
+- Keep tooltip content concise, plain, and non-interactive; use Popover or HoverCard for links and buttons.
+- Override label when "More information" is too generic, e.g. "About this metric".
+- Rely on InfoTip rather than a hand-rolled info button on touch: it sets Tooltip triggerBehavior to toggle, so a tap, a click, Enter, or Space pins the tooltip even though the trigger is a button, and a tap outside dismisses it.
+
+Don't:
+- Hand-compose Icon inside Tooltip for info affordances; the bare Icon is aria-hidden and unfocusable, so keyboard and screen-reader users never see it.
+- Use InfoTip for essential information users must see to complete a task; put that text inline instead.
+
+Props:
+- `content`: ReactNode (required) — Content to display in the tooltip. Typically short, non-interactive text. Mirrors Tooltip's content prop.
+- `label`: string = 'More information' — Accessible name for the trigger button. Defaults to the translated "More information".
+- `size`: 'xsm' | 'sm' | 'md' | 'lg' = 'sm' — Size of the info icon (12px, 16px, 20px, 24px). Maps 1:1 to Icon sizes.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+
 ### Placeholder
 
 Import: `import {Placeholder} from '@astryxdesign/core/Skeleton';`
@@ -1683,7 +1705,7 @@ Props:
 
 Import: `import {Progress bar} from '@astryxdesign/core/ProgressBar';`
 
-A horizontal bar showing the completion progress of a task. Use it for operations where the duration is known, or as an animated indicator when progress can't be calculated. Supports semantic color variants, value labels, and custom formatting.
+A horizontal bar showing the completion progress of a task. Use it for operations where the duration is known, or as an animated indicator when progress can't be calculated. Supports semantic color variants, value labels, and custom formatting. Under a finger a new value animates as on iOS: linearly, in proportion to how far it moves (a full track takes one second at the theme's default tempo), and the fill keeps a minimum visible length above zero.
 
 Do:
 - Use a determinate bar when the total amount of work is known, and indeterminate when it's not.
@@ -1703,7 +1725,7 @@ Props:
 - `hasValueLabel`: boolean = false — Show formatted value text (ignored when indeterminate).
 - `formatValueLabel`: (value: number, max: number) => string — Custom value label formatter; defaults to a percentage string.
 - `variant`: 'accent' | 'success' | 'warning' | 'error' | 'neutral' = 'accent' — Semantic color variant.
-- `isIndeterminate`: boolean = false — Animated loading indicator for unknown progress.
+- `isIndeterminate`: boolean = false — Animated loading indicator for unknown progress. Under reduced motion it pulses in place instead of sliding.
 - `marks`: ReadonlyArray<{value: number; label: string}> — Fixed target marks drawn on the track at values in the same 0..max scale as value (e.g. a goal line). They stay visible whether progress is below or past them, and take their color from what they sit on: a mark inside the filled area uses the fill variant's on-color (on-accent, on-warning, on-error, and so on), a mark still out on the bare track uses the primary text color (the secondary one on a disabled bar, which dims everything it draws). Each mark requires a label: it is the mark's accessible name and the text revealed via a tooltip on hover/focus. Ignored when indeterminate.
 - `isDisabled`: boolean = false — Visually disabled state: grays out the fill and text. Use for canceled or inactive operations.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
@@ -2133,7 +2155,7 @@ Props:
 - `dateConstraints`: Array<(date: Date) => boolean> — Custom constraint functions to disable specific dates.
 - `maxRangeSpan`: number — Maximum days a selected range may span, counting both endpoints (`7` = a 7-day window, start + 6). Once a start is picked, days beyond this distance are disabled so the range cannot stretch past the cap. Rolling window relative to the start; for fixed calendar bounds use `min`/`max`. Constrains selection only; it never rewrites a `value` already wider than the cap (flag that with `status`).
 - `minRangeSpan`: number — Minimum days a selected range must span, counting both endpoints (`2` forbids a single-day range). Once a start is picked, days closer than this are disabled. Clicking the start again commits a one-day range when allowed, or cancels the in-progress selection when the minimum is longer. Defaults to 1 (same-day start and end allowed).
-- `presets`: Array<DateRangePreset> — Preset ranges shown as quick-select options beside the calendar. A preset is disabled when either endpoint violates min, max, or dateConstraints, or when its span violates minRangeSpan or maxRangeSpan.
+- `presets`: Array<DateRangePreset> — Preset ranges shown as quick-select options beside the calendar, or above it when the two do not fit side by side. A preset is disabled when either endpoint violates min, max, or dateConstraints, or when its span violates minRangeSpan or maxRangeSpan.
 - `hasClear`: boolean = true — Shows a clear button when a range is selected.
 - `placeholder`: string = 'Select date range' — Placeholder text when no range is selected.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size of the trigger.
@@ -2739,6 +2761,7 @@ TextArea is a multi-line text input for collecting longer-form content like comm
 Do:
 - Provide a visible label so users know what to enter. If the label must be hidden, set isLabelHidden with a descriptive label for screen readers.
 - Set maxLength with a character counter when there is a defined limit; it helps users stay within bounds before they submit.
+- Keep Return a line break in a multi-line field. Relabel it with enterKeyHint (send, done) only when your own Enter handling does what the label says.
 - Use the status prop to surface validation feedback inline: show success when input is valid, warning for soft limits, and error for hard failures.
 - Add a description or placeholder to clarify expected content, like "Describe the issue in detail," but never rely on placeholder alone as the only label.
 
@@ -2778,6 +2801,10 @@ Props:
 - `onFocus`: (e: FocusEvent<HTMLTextAreaElement>) => void — Callback fired when the textarea receives focus.
 - `onBlur`: (e: FocusEvent<HTMLTextAreaElement>) => void — Callback fired when the textarea loses focus.
 - `autoComplete`: string — The native autocomplete attribute, forwarded to the textarea unchanged. Does not affect the controlled value.
+- `enterKeyHint`: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send' — What the Return key of a touch keyboard says (the native `enterkeyhint`). iOS gives `done`, `go`, `next`, `search` and `send` their own key (a glyph on iOS 26: a checkmark, an arrow, a chevron, a magnifier, an up arrow); `enter` and `previous` keep the plain Return key. Chrome on Android (Gboard) gives every value its own key; with no hint a TextArea keeps Return. It only labels the key: what Enter does stays with your handlers.
+- `inputMode`: 'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search' — Which touch keyboard the field asks for (the native `inputmode`) without changing what it accepts: `numeric` brings up the number pad, `decimal` the decimal pad, `tel` the phone pad, `search` the web-search keyboard (whose Return key reads Go on iOS even with `enterKeyHint="search"`).
+- `autoCapitalize`: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters' — When a touch keyboard capitalizes as you type (the native `autocapitalize`). Unset, iOS capitalizes sentences. `off` and `none` never capitalize; `on` and `sentences` capitalize each sentence.
+- `hasAutoCorrect`: boolean — Whether a touch keyboard corrects words as you type (the native `autocorrect`). Unset, the browser decides; turn it off for usernames, codes and other values that are not words.
 - `containerXstyle`: StyleXStyles — StyleX styles for the field container (label, control, and status together). No effect inside InputGroup (style the InputGroup instead) or in a `horizontal-labels` FormLayout. Root `xstyle`, `className`, and `style` are not accepted.
 - `containerClassName`: string — Class name for the field container. Same targeting as `containerXstyle`.
 - `containerStyle`: CSSProperties — Inline styles for the field container. Same targeting as `containerXstyle`.
@@ -2961,6 +2988,7 @@ Do:
 - Use validation status with a message to explain what went wrong: "Email must include @" is better than just turning the border red.
 - Size the input to match the expected content length so users can gauge how much to type: small for zip codes, medium for names, large for URLs.
 - Add a clear button for search and filter inputs so users can quickly reset without selecting all text.
+- Tell a touch keyboard what the field holds: `type="email"`, `"tel"` or `"url"` for those values, `inputMode="numeric"` for digits that are not a number (a one-time code), `enterKeyHint` for what Return does (Search, Send, Next), and `autoComplete` so AutoFill can fill it.
 
 Don't:
 - Don't use placeholder text as a replacement for a label; placeholders disappear on focus and are not reliably read by screen readers.
@@ -2969,7 +2997,7 @@ Don't:
 - Don't wrap a disabled TextInput in Tooltip to explain why it's disabled. Use the disabledMessage prop, which attaches the reason to the field itself.
 
 Props:
-- `type`: 'text' | 'password' | 'email' = 'text' — The HTML input type.
+- `type`: 'text' | 'password' | 'email' | 'search' | 'tel' | 'url' = 'text' — The HTML input type. `email`, `tel` and `url` also bring up the matching touch keyboard (email, phone pad, URL); `search` makes the field a search box (pair it with `enterKeyHint="search"` for a Search key on iOS; Chrome on Android shows one for `type="search"` alone).
 - `label`: string (required) — Label text for the input: always rendered for accessibility.
 - `value`: string (required) — Current value of the input.
 - `onChange`: (value: string, e: ChangeEvent<HTMLInputElement>) => void — Callback fired when the input value changes.
@@ -2994,7 +3022,12 @@ Props:
 - `hasAutoFocus`: boolean = false — Automatically focuses the input on mount.
 - `htmlName`: string — The HTML name attribute for the input, useful for form submissions.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned. Without a width the field can shrink with its row, so a filter bar never overflows; use `<HStack wrap="wrap">` when the controls should move to a second line instead.
-- `autoComplete`: string — The native autocomplete attribute, forwarded to the input unchanged. Does not affect the controlled value.
+- `autoComplete`: string — The native autocomplete attribute, forwarded to the input unchanged. Does not affect the controlled value. It is also how AutoFill knows what a field holds: tag sign-in, address and payment fields (`username`, `new-password`, `one-time-code`, `email`, `tel`, `street-address`, …).
+- `enterKeyHint`: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send' — What the Return key of a touch keyboard says (the native `enterkeyhint`). iOS gives `done`, `go`, `next`, `search` and `send` their own key (a glyph on iOS 26: a checkmark, an arrow, a chevron, a magnifier, an up arrow); `enter` and `previous` keep the plain Return key. Chrome on Android (Gboard) gives every value its own key, `enter` and `previous` included; with no hint the key reads Next while another field follows, and a `type="url"` field shows Next instead of `go` while another field follows. It only labels the key: what Enter does stays with your handlers.
+- `inputMode`: 'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search' — Which touch keyboard the field asks for (the native `inputmode`) without changing what it accepts: `numeric` brings up the number pad, `decimal` the decimal pad, `tel` the phone pad, `search` the web-search keyboard (whose Return key reads Go on iOS even with `enterKeyHint="search"`; Chrome on Android shows the Enter key for `inputMode="search"` alone).
+- `autoCapitalize`: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters' — When a touch keyboard capitalizes as you type (the native `autocapitalize`). Unset, iOS capitalizes sentences, except in a URL field. `off` and `none` never capitalize; `on` and `sentences` capitalize each sentence.
+- `hasAutoCorrect`: boolean — Whether a touch keyboard corrects words as you type (the native `autocorrect`). Unset, the browser decides; turn it off for usernames, codes and other values that are not words.
+- `hasSpellCheck`: boolean — Whether misspelled words are underlined (the native `spellcheck`). Unset, the browser decides.
 - `containerXstyle`: StyleXStyles — StyleX styles for the field container (label, control, and status together). No effect inside InputGroup (style the InputGroup instead) or in a `horizontal-labels` FormLayout. Root `xstyle`, `className`, and `style` are not accepted.
 - `containerClassName`: string — Class name for the field container. Same targeting as `containerXstyle`.
 - `containerStyle`: CSSProperties — Inline styles for the field container. Same targeting as `containerXstyle`.
@@ -3646,7 +3679,8 @@ Parameters:
 - `delay`: number = 200 — Delay before showing on hover, in milliseconds.
 - `hideDelay`: number = 0 — Delay before hiding after mouse or focus leaves, in milliseconds.
 - `focusTrigger`: 'auto' | 'always' | 'never' = 'auto' — When focus should open the tooltip. auto opens when the trigger itself takes focus, or focus lands inside a trigger that is focusable at that moment, so a roving-tabindex member opens when the arrow keys reach it.
-- `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own (an aria-disabled control performs none); tap always opens (an info icon rendered as a button); none never opens on touch.
+- `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own (an aria-disabled control performs none); tap always opens; none never opens on touch. It decides only under triggerBehavior="adaptive", the default.
+- `triggerBehavior`: 'adaptive' | 'hover' | 'toggle' = 'adaptive' — How the trigger opens the tooltip. adaptive (the default) previews on hover and focus and opens on a tap unless the trigger acts (touchTrigger decides while it remains); hover previews on hover and focus, and no touch or pen tap opens it; toggle, on a button trigger, pins on a click, a tap, Enter, or Space and closes on the same press, Escape, a press outside, or focus leaving. The trigger carries aria-expanded and aria-controls, the tooltip is announced once when it pins. Astryx clickable rows and cards ignore the pinning press, except an Item row on a trigger that is not a native button; a plain onClick ancestor still receives it from the hook (the Tooltip component stops it at a child trigger).
 - `isEnabled`: boolean = true — Whether hover and focus triggers are enabled.
 - `isOpen`: boolean — Controlled open state. true force-shows, false force-hides, undefined lets hover/focus manage visibility.
 - `isDefaultOpen`: boolean = false — Whether the tooltip should be shown on mount.
@@ -3674,6 +3708,7 @@ Do:
 - Set `contentPadding` based on content type: 4 for forms and settings, 0 for tables and dashboards.
 - Give every nav slot an accessible name. AppShell renders TopNav and SideNav as separate navigation landmarks, and a screen reader lists them by name, so pass `label` to each one.
 - Start the page heading inside `children`. AppShell owns the skip link, the banner landmark and the main landmark, but it renders no heading, so the first heading in the content area is the page h1.
+- On phones, opt the page into the full screen with `viewport-fit=cover` in the viewport meta tag (`width=device-width, initial-scale=1, viewport-fit=cover`). AppShell then extends its header under the status bar and out to the screen sides, and keeps the header's items and the end of the content inside the device's safe area. An installed web app can also draw under the status bar with `<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">`. In landscape only the header is inset: an inline SideNav and the content's sides still reach under a notch, so keep content padding there. A shell with no header region or phone top bar keeps no top inset; keep top padding there.
 
 Don't:
 - Nest one AppShell inside another; it's the outermost layout frame.
@@ -3968,10 +4003,10 @@ Don't:
 
 #### Stack
 
-Unified stack layout component with a direction prop. Use direction="horizontal" for left-to-right flow or direction="vertical" (default) for top-to-bottom. For convenience, HStack and VStack are pre-configured wrappers.
+Unified stack layout component with a direction prop. Use direction="horizontal" to flow along the inline axis (left to right in LTR, right to left in RTL) or direction="vertical" (default) for top-to-bottom. For convenience, HStack and VStack are pre-configured wrappers.
 
 Props:
-- `direction`: 'horizontal' | 'vertical' = 'vertical' — Direction of the stack layout. 'horizontal' flows items left-to-right (like HStack), 'vertical' flows top-to-bottom (like VStack). Note: the value is 'horizontal', NOT 'row'.
+- `direction`: 'horizontal' | 'vertical' = 'vertical' — Direction of the stack layout. 'horizontal' flows items along the inline axis, left to right in LTR and right to left in RTL (like HStack), 'vertical' flows top-to-bottom (like VStack). Note: the value is 'horizontal', NOT 'row'.
 - `gap`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Spacing step (number literal): 0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10. Pass as a JSX number expression e.g. gap={4}, NOT a string like gap="4".
 - `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inner padding on all sides, using the spacing scale. Pass as a JSX number expression e.g. padding={3}.
 - `paddingInline`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline (horizontal) padding. Overrides padding on the inline axis when both are set.
@@ -3993,10 +4028,13 @@ Props:
 - `as`: ElementType = 'div' — HTML element to render as the stack container.
 - `children`: ReactNode — Stack content.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+- `className`: string — Class name added to the stack element, after the component styles.
+- `style`: CSSProperties — Inline styles for the stack element. width, height, maxWidth, and minHeight win over the same properties here.
+- `ref`: Ref<HTMLElement> — Ref to the rendered stack element.
 
 #### HStack
 
-Horizontal stack for arranging items left-to-right. Supports polymorphic rendering.
+Horizontal stack that arranges items along the inline axis: left to right in LTR, right to left in RTL. Supports polymorphic rendering.
 
 Props:
 - `gap`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Spacing step (number literal): 0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10. Pass as a JSX number expression e.g. gap={4}, NOT a string like gap="4".
@@ -4014,12 +4052,15 @@ Props:
 - `minHeight`: SizeValue — Minimum height of the stack container. Numbers are treated as pixels, strings are used as-is (e.g., '100%').
 - `hAlign`: 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly' — Horizontal (main-axis) alignment of items.
 - `vAlign`: 'start' | 'center' | 'end' | 'stretch' = 'stretch' — Vertical (cross-axis) alignment of items.
-- `justify`: 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly' — Main-axis alignment alias for hAlign. Mirrors CSS justify-content.
-- `align`: 'start' | 'center' | 'end' | 'stretch' — Cross-axis alignment alias for vAlign. Mirrors CSS align-items.
+- `justify`: 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly' — Main-axis alignment alias for hAlign. Mirrors CSS justify-content. When hAlign is also set, hAlign wins.
+- `align`: 'start' | 'center' | 'end' | 'stretch' — Cross-axis alignment alias for vAlign. Mirrors CSS align-items. When vAlign is also set, vAlign wins.
 - `wrap`: 'nowrap' | 'wrap' | 'wrap-reverse' = 'nowrap' — Flex wrap behavior.
 - `as`: ElementType = 'div' — HTML element to render as the stack container.
 - `children`: ReactNode — Stack content.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+- `className`: string — Class name added to the stack element, after the component styles.
+- `style`: CSSProperties — Inline styles for the stack element. width, height, maxWidth, and minHeight win over the same properties here.
+- `ref`: Ref<HTMLElement> — Ref to the rendered stack element.
 
 #### VStack
 
@@ -4046,6 +4087,10 @@ Props:
 - `wrap`: 'nowrap' | 'wrap' | 'wrap-reverse' = 'nowrap' — Flex wrap behavior.
 - `as`: ElementType = 'div' — HTML element to render as the stack container.
 - `children`: ReactNode — Stack content.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+- `className`: string — Class name added to the stack element, after the component styles.
+- `style`: CSSProperties — Inline styles for the stack element. width, height, maxWidth, and minHeight win over the same properties here.
+- `ref`: Ref<HTMLElement> — Ref to the rendered stack element.
 
 #### StackItem
 
@@ -4057,6 +4102,10 @@ Props:
 - `crossAlignSelf`: 'start' | 'center' | 'end' | 'stretch' — Override the cross-axis alignment for this individual item, ignoring the parent stack alignment.
 - `as`: ElementType = 'div' — HTML element to render as the item wrapper.
 - `children`: ReactNode — Item content.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+- `className`: string — Class name added to the item element, after the component styles.
+- `style`: CSSProperties — Inline styles for the item element.
+- `ref`: Ref<HTMLElement> — Ref to the rendered item element.
 
 ### useAppShellMobile
 
@@ -4296,7 +4345,7 @@ Returns:
 
 Import: `import {useMediaQuery} from '@astryxdesign/core/hooks';`
 
-SSR-safe media query hook that subscribes to window.matchMedia changes. Returns whether the given media query matches. Always returns false on first render for SSR compatibility.
+SSR-safe media query hook that subscribes to window.matchMedia changes. Returns whether the given media query matches. Always returns false on first render for SSR compatibility. Where `window.matchMedia` is missing, it returns its server default and never throws.
 
 Do:
 - Use for responsive layout switching based on viewport width, color scheme, or motion preferences.
@@ -4886,7 +4935,7 @@ Don't:
 - Use a HoverCard for content the user must interact with; it disappears when the cursor leaves.
 
 Props:
-- `children`: ReactNode — Trigger element that must accept a ref.
+- `children`: ReactNode — The trigger. A single string or number is wrapped in a focusable inline span. Text that reaches HoverCard in several pieces, such as `Edited {when}`, gets no trigger, so pass one string, such as a template literal, or wrap it in a focusable element. With element children, HoverCard wires the first element, so that element does not need to accept a ref.
 - `content`: ReactNode (required) — Hover card content.
 - `placement`: 'above' | 'below' | 'start' | 'end' = 'above' — Position relative to the anchor element. Logical: start/end resolve against the popover's own inherited direction (RTL mirrors in pure CSS).
 - `alignment`: 'start' | 'center' | 'end' = 'center' — Alignment along the placement axis. Logical: start/end resolve against the popover's own inherited direction (RTL mirrors in pure CSS).
@@ -4897,9 +4946,12 @@ Props:
 - `isEnabled`: boolean = true — Enables or disables the hover and focus triggers.
 - `label`: string — Accessible name for the hover card popup. When provided, the popup is exposed as a named role="dialog"; when omitted, it falls back to role="group" (a group may validly be unnamed).
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when hover card visibility changes. Called with true when shown and false when hidden.
-- `hasHoverIndication`: 'auto' | boolean = 'auto' — Shows a dashed underline on the trigger element.
+- `hasHoverIndication`: 'auto' | boolean = 'auto' — Shows a dashed underline on a text trigger. auto shows it when children is a single string or number. It has no effect on an element trigger, which keeps its own styling.
 - `isDefaultOpen`: boolean — Whether the hover card should be shown on mount. Still dismissible.
-- `isOpen`: boolean — Controlled open state for the hover card.
+- `isOpen`: boolean — Controlled open state. true holds the card open. false holds it closed against hover, but focus on the trigger still opens it. A controlled card answers Escape by calling onOpenChange(false) without closing; it closes when you set isOpen to false, and focus inside the card then returns to the trigger.
+- `xstyle`: StyleXStyles — StyleX styles for the card surface, the element that carries the hover-card theme target.
+- `className`: string — Class name added to the card surface, beside the hover-card target class.
+- `style`: CSSProperties — Inline styles for the card surface.
 
 ### Overlay
 
@@ -5086,7 +5138,7 @@ A short text hint that appears on hover or focus, anchored to a trigger element.
 Do:
 - Keep tooltip content concise: aim for under 140 characters of plain text.
 - Add a tooltip to icon-only buttons and controls that lack a visible label.
-- Set touchTrigger to tap when the trigger is a button whose only job is revealing the tooltip, such as an info icon: touch has no hover, and auto keeps the tap for triggers that perform an action.
+- Set triggerBehavior to toggle when the trigger is a button whose only job is revealing the tooltip, such as an info icon: a click, a tap, Enter, or Space pins it, and the press stops at the trigger.
 
 Don't:
 - Place interactive elements like links or buttons inside a tooltip; use HoverCard or Popover instead.
@@ -5105,7 +5157,8 @@ Props:
 - `delay`: number = 200 — Show delay in milliseconds.
 - `hideDelay`: number = 0 — Hide delay in milliseconds.
 - `focusTrigger`: 'auto' | 'always' | 'never' = 'auto' — Controls when focus events trigger the tooltip.
-- `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own (a button, link, or form control), whose tap belongs to the control; an aria-disabled control performs none, so a tap on it opens its reason. tap always opens; use it for an info icon rendered as a button, whose only job is to reveal the tooltip. none never opens on touch.
+- `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own (a button, link, or form control), whose tap belongs to the control; an aria-disabled control performs none, so a tap on it opens its reason. tap always opens. none never opens on touch. It decides only under triggerBehavior="adaptive", the default.
+- `triggerBehavior`: 'adaptive' | 'hover' | 'toggle' = 'adaptive' — How the trigger opens the tooltip. adaptive (the default): hover and focus preview it, and a tap opens it unless the trigger performs an action of its own, as touchTrigger decides while it remains. hover: hover and focus preview it, and no touch or pen tap opens it. toggle, on a button trigger: a click, a tap, Enter, or Space pins the tooltip and the same press closes it, while hover and keyboard focus still preview it. A pinned tooltip stays until Escape, a second press, a press outside, or focus leaving, and the press stops at the trigger, so a clickable row or card around it does not activate (with anchorRef, the anchored trigger still runs its own onClick, Astryx clickable rows and cards ignore the press except an Item row when the anchor is not a native button, and a plain onClick element around the anchor receives it unless that onClick stops it). The trigger reports aria-expanded and aria-controls, and the text is announced once when it pins. Use it for an info icon or any button whose only job is revealing the tooltip.
 - `isEnabled`: boolean = true — Enables or disables the tooltip triggers.
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when tooltip visibility changes. Called with true when shown and false when hidden.
 - `hasHoverIndication`: 'auto' | boolean = 'auto' — Shows a dashed underline on the trigger element.

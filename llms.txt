@@ -1,8 +1,8 @@
 # Astryx
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 239 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 240 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 
-Generated from commit `6c432db` (2026-11-01) of https://github.com/facebook/astryx.
+Generated from commit `95438ff` (2026-11-02) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -37,7 +37,7 @@ Key facts:
 
 ## Components
 
-239 documented components in `packages/core/src/`. Each has a `{Name}.doc.mjs` structured doc with props, anatomy, and best practices. By category:
+240 documented components in `packages/core/src/`. Each has a `{Name}.doc.mjs` structured doc with props, anatomy, and best practices. By category:
 
 - Accessibility: useAnnounce
 - Action: Button, ButtonGroup, Trigger area, ContextMenuItem, Trigger button, Checkable row, DropdownMenuDivider, DropdownMenuGroup, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSubMenu, IconButton, Link, Trigger button, Control, SegmentedControlItem, ToggleButton, ToggleButtonGroup, Outer chrome
@@ -45,7 +45,7 @@ Key facts:
 - Chat: Chat, ChatComposer, ChatComposerDrawer, ChatComposerInput, ChatComposerTokenElement, ChatDictationButton, ChatLayout, ChatLayoutScrollButton, ChatMessage, ChatMessageBubble, ChatMessageList, ChatMessageMetadata, ChatSendButton, ChatSystemMessage, ChatTokenizedText, ChatToolCalls
 - Container: Card, Carousel, ClickableCard, Collapsible, CollapsibleGroup, SelectableCard
 - Content: Avatar, AvatarStatusDot, AvatarGroup, AvatarGroupOverflow, Blockquote, Citation, Code, CodeBlock, EmptyState, Glyph, Shortcut, Document, Heading, Text, Thumbnail, Elapsed time, Timestamp, Token
-- Feedback & Status: Badge, Banner, Progress bar, Placeholder, Spinner, Dot
+- Feedback & Status: Badge, Banner, InfoTip, Progress bar, Placeholder, Spinner, Dot
 - Focus: useMultiCombobox, useFocusTrap, useGridFocus, useIndicatorFocusRing, useKeyboardHint, useListFocus, useTreeFocus, useTypeahead
 - Form Controls: Calendar, CheckboxInput, Group, CheckboxListItem, Field, DateInput, DateRangeInput, DateTimeInput, Field, FieldLabel, Message box, FileInput, Indicator, InputGroup, InputGroupText, Field, NumberInput, PowerSearch, RadioList, RadioListItem, Field, SelectorOption, Label, Field, Label, TextInput, TimeInput, Tokenizer, Input, Field, TypeaheadItem
 - Interaction: useCollapsible, useHoverCard, useLayer, usePopover, useToast, useTooltip, useClickableContainer, useClipboard, useContainerReveal, useHotkeys, useInputContainer, useInputStatusIcon, useInteractiveRole, useLongPress, useMenuPress, usePressFeedback

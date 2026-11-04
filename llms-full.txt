@@ -1,10 +1,10 @@
 # Astryx — Full Component Reference
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 240 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 244 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `95438ff` (2026-11-02) of https://github.com/facebook/astryx.
+Generated from commit `42ccd7c` (2026-11-03) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -166,10 +166,20 @@ Props:
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant.
 - `elevation`: 'none' | 'low' | 'med' | 'high' = 'none' — Resting shadow depth. The most common FAB shape is an icon-only button, so raise it with `low`/`med`/`high` for a floating action button. `none` is the default flat button.
 - `isLoading`: boolean = false — Shows a loading spinner and blocks re-activation while staying focusable (aria-busy + aria-disabled, not native disabled).
-- `isDisabled`: boolean = false — Disables the button.
-- `tooltip`: string — Tooltip text shown on hover.
+- `isDisabled`: boolean = false — Disables the button. When a tooltip is present, uses aria-disabled instead of native disabled so the button stays focusable.
+- `tooltip`: string — Tooltip text shown on hover and keyboard focus. It also describes the button, unless it repeats the button's accessible name.
 - `onClick`: (e: MouseEvent) => void — Standard click handler.
 - `clickAction`: (e: MouseEvent) => void | Promise<void> — Async click handler with automatic loading state.
+- `isInterruptible`: boolean = false — Keep the button clickable while a clickAction is pending: the spinner and aria-busy still show, but the button is not disabled and the action is not deduped, so a re-click lands and interrupts the in-flight action with a fresh one. Use it for interruptible actions, not fire-once actions (submit, save, pay).
+- `width`: SizeValue — Width of the button. Numbers are treated as pixels, strings are used as-is. Without it the button keeps its icon-only aspect, square by default; with it the button takes that width.
+- `type`: 'button' | 'submit' | 'reset' = 'button' — HTML button type attribute.
+- `name`: string — HTML name attribute for form submission.
+- `value`: string | number | readonly string[] — HTML value attribute for form submission.
+- `form`: string — Associates the button with a form element by ID.
+- `href`: string — When provided, renders the button as a link element (<a> or custom link component). A disabled IconButton still renders a <button>.
+- `as`: ComponentType — Custom link component to use when href is provided (e.g. Next.js Link).
+- `target`: string — HTML target attribute when rendered as a link (e.g. "_blank").
+- `rel`: string — HTML rel attribute when rendered as a link (e.g. "noopener noreferrer").
 
 ### Link
 
@@ -1212,7 +1222,8 @@ Props:
 - `title`: string — Filename or label shown in the header bar.
 - `hasLanguageLabel`: boolean = true — Show the language name in the header bar. Hidden when language is "plaintext".
 - `hasLineNumbers`: boolean = false — Show a line number gutter.
-- `highlightLines`: number[] — 1-indexed line numbers to highlight.
+- `startLineNumber`: number = 1 — First line number shown in the gutter. The gutter shows file coordinates (startLineNumber + index) so a code excerpt reads with its real line numbers. highlightLines uses the same file coordinates. Values below 1 clamp to 1.
+- `highlightLines`: number[] — 1-indexed line numbers to highlight, in the same file coordinates as the gutter (see startLineNumber). Out-of-range entries render no highlight.
 - `isDiff`: boolean = false — Render the code as a unified diff over `language`: lines starting with + are added, - removed, @@ is a hunk header (a `--- `/`+++ ` file-header pair directly before one is a header too), anything else is context. The language label reads `diff` or `<language> diff`. The glyph sits in its own column and the rest of each line keeps syntax highlighting; copy returns the exact source. Markdown ```diff and ```diff-<lang> fences set this.
 - `hasCopyButton`: boolean = true — Show a copy-to-clipboard button.
 - `onCopy`: () => void — Callback after the code is copied.
@@ -1358,12 +1369,15 @@ Don't:
 - Pass a `name` prop; Icon uses `icon` (not `name`) to specify which icon to render.
 
 Props:
-- `icon`: IconName | ComponentType<SVGProps> (required) — Semantic icon name or SVG component. Valid semantic names: close, chevronDown, chevronLeft, chevronRight, chevronsLeft, chevronsRight, check, success, error, warning, info, calendar, clock, externalLink, menu, moreHorizontal, search, upload, arrowUp, arrowDown, arrowsUpDown, funnel, eyeSlash, viewColumns, copy, checkDouble, wrench, stop, microphone. For any icon not in this list, pass an SVG component directly (e.g. import from lucide-react or @heroicons/react). Note: this prop is called `icon`, not `name`.
-- `color`: 'primary' | 'secondary' | 'tertiary' | 'disabled' | 'accent' | 'info' | 'success' | 'error' | 'warning' | 'inherit' = 'inherit' — Color variant mapped to Astryx icon color tokens.
+- `icon`: IconName | NamespacedIconName | ComponentType<SVGProps> (required) — Semantic icon name or SVG component. Valid semantic names: close, chevronDown, chevronLeft, chevronRight, chevronsLeft, chevronsRight, check, success, error, warning, info, calendar, clock, externalLink, menu, moreHorizontal, search, upload, arrowUp, arrowDown, arrowsUpDown, funnel, eyeSlash, viewColumns, copy, checkDouble, wrench, stop, microphone. A namespaced key such as `richtext:bold` names a glyph that one component or library registers, and a theme can replace it by key; a namespaced key that nothing registers renders nothing. For any icon not in this list, pass an SVG component directly (e.g. import from lucide-react or @heroicons/react). Note: this prop is called `icon`, not `name`.
+- `color`: 'primary' | 'secondary' | 'tertiary' | 'disabled' | 'accent' | 'info' | 'success' | 'error' | 'warning' | 'inherit' | 'blue' | 'red' | 'green' | 'gray' | 'cyan' | 'teal' | 'yellow' | 'orange' | 'pink' | 'purple' = 'inherit' — Color variant mapped to Astryx icon color tokens. Semantic values (primary through warning) follow the role, and inherit uses the surrounding text color. On the web, Icon also accepts the palette values blue, red, green, gray, cyan, teal, yellow, orange, pink, and purple, which pick a non-semantic hue.
 - `size`: 'xsm' | 'sm' | 'md' | 'lg' = Contextual; otherwise 'md' — Icon size. xsm, sm, md, and lg are 12, 16, 20, and 24px at a 16px root and scale with the root font size; a theme sets a size's glyph dimension with width and height, in px or rem, on components.icon['size:sm'] (and the other sizes). An explicit value wins. When omitted, Icon uses the nearest default supplied by an owning Astryx component for its icon slot, then falls back to md when no contextual default exists.
 - `variant`: IconVariant — Requests the active theme's alternate artwork for a semantic icon name, such as 'filled'. Names come from IconVariantMap, which an application augments from @astryxdesign/core/Icon; Astryx defines none. The theme's icon entry receives the variant only when the active theme lists it in iconVariants (and, for an entry the theme inherited, the theme that defined the entry lists it too); otherwise it draws its normal artwork. Ignored by an icon component passed directly. Selects artwork only: it is not written to the DOM and has no theming selector.
 - `label`: string — Accessible name for a MEANINGFUL, standalone icon (a status glyph or icon-only indicator with no adjacent text). Setting it exposes the icon to screen readers as role="img" with this text as the accessible name (aria-label) and removes the default aria-hidden. Omit it (default) for decorative icons and the icon stays hidden from assistive tech (aria-hidden="true"). This is the accessible-name / alt-text prop for icons: one prop instead of manually setting aria-label + role + aria-hidden. An empty string is treated as decorative. Do not set it when an interactive parent (Button, IconButton, link) already names the control.
 - `xstyle`: StyleXStyles — StyleX styles for customization (color, size, opacity). Folded into the icon's own stylex.props() call so it composes with the base color/size styles. Must be a stylex.create() value, not an inline style object like style={{}}.
+- `className`: string — Class name added to the rendered glyph, beside the astryx-icon target class.
+- `style`: CSSProperties — Inline styles merged onto the rendered glyph after Icon's own size and color styles.
+- `ref`: Ref<SVGSVGElement> — Ref to the rendered SVG element, for an icon component and for a semantic or namespaced name. For a name, it is the <svg> inside the wrapper, or null when the resolved glyph has no <svg>.
 
 ### Shortcut
 
@@ -1668,7 +1682,7 @@ An info icon that reveals help: a small "i" button. Hover and keyboard focus pre
 Do:
 - Keep tooltip content concise, plain, and non-interactive; use Popover or HoverCard for links and buttons.
 - Override label when "More information" is too generic, e.g. "About this metric".
-- Rely on InfoTip rather than a hand-rolled info button on touch: it sets Tooltip triggerBehavior to toggle, so a tap, a click, Enter, or Space pins the tooltip even though the trigger is a button, and a tap outside dismisses it.
+- Rely on InfoTip rather than a hand-rolled info button on touch: it pins its help on a press, so a tap, a click, Enter, or Space pins the tooltip even though the trigger is a button, and a tap outside dismisses it.
 
 Don't:
 - Hand-compose Icon inside Tooltip for info affordances; the bare Icon is aria-hidden and unfocusable, so keyboard and screen-reader users never see it.
@@ -1798,8 +1812,8 @@ Parameters:
 - `options.getFocusTarget`: (cell: HTMLElement) => HTMLElement | null — Resolves the element to focus for a cell, e.g. a button inside a role="gridcell" wrapper. Omit to focus the cell itself.
 - `options.onNavigateBefore`: (column: number, offset: number) => void — Callback when navigation would go before the first cell. Receives the column index and offset (1 for horizontal, columns for vertical).
 - `options.onNavigateAfter`: (column: number, offset: number) => void — Callback when navigation would go after the last cell. Receives the column index and offset.
-- `options.onPageUp`: () => void — Callback for Page Up key (e.g., navigate to previous month in calendars).
-- `options.onPageDown`: () => void — Callback for Page Down key (e.g., navigate to next month in calendars).
+- `options.onPageUp`: (event: React.KeyboardEvent) => void — Callback for Page Up key (e.g., navigate to previous month in calendars). Receives the key event, so `event.shiftKey` can select a larger step, such as a year.
+- `options.onPageDown`: (event: React.KeyboardEvent) => void — Callback for Page Down key (e.g., navigate to next month in calendars). Receives the key event, so `event.shiftKey` can select a larger step, such as a year.
 - `options.hasRovingTabIndex`: boolean = false — Own a single roving tab stop across the grid: one focusable cell (its resolved focus target) carries tabindex="0", the rest -1. Stamped/repaired on render and moved with arrow navigation. Attach the returned handleFocus to the container onFocus.
 
 Returns:
@@ -2614,6 +2628,7 @@ Props:
 - `changeAction`: (values: string[]) => void | Promise<void> — Async action on change with optimistic updates. While the promise is pending, the toggled item shows a spinner inside its checkbox and is marked aria-busy.
 - `isLabelHidden`: boolean = false — Whether to visually hide the label.
 - `description`: string — Description text displayed below the label.
+- `isOptional`: boolean = false — Whether the group is optional. Shows the optional indicator after the group label, unless a surrounding FormLayout already makes fields optional by default.
 - `density`: 'compact' | 'balanced' | 'spacious' = 'balanced' — Spacing density for list items.
 - `hasDividers`: boolean = false — Whether to show dividers between items.
 - `isDisabled`: boolean = false — Whether all checkbox items are disabled.
@@ -2912,7 +2927,7 @@ Props:
 - `isLabelHidden`: boolean = true — Visually hides the label while keeping it accessible.
 - `placeholder`: string = 'Search...' — Placeholder text shown when no filters are selected.
 - `hasAutoFocus`: boolean = false — Auto-focus the input on mount.
-- `hasClear`: boolean = true — Show a clear-all button for removing all filters.
+- `hasClear`: boolean = true — Show a clear-all button that removes every editable filter. Read-only filters stay.
 - `isReadOnly`: boolean = false — Prevent adding, editing, or removing filters.
 - `isDisabled`: boolean = false — Disables the entire component.
 - `disabledMessage`: string — Explains why the search is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the input focusable via aria-disabled (input stays blocked). Use this instead of wrapping a disabled PowerSearch in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
@@ -2924,7 +2939,7 @@ Props:
 - `maxSearchResults`: number = 10 — Max ranked results for a non-empty query. Does not affect a field value editor. Browsing with an empty query shows up to 1,000 fields.
 - `menuWidth`: number — Width in pixels for the main field/search menu. Does not affect field value editors.
 - `popoverSaveButtonLabel`: string = 'Apply' — Label for the save button in the edit popover.
-- `timezoneID`: string — Timezone ID for date formatting (e.g. "America/New_York").
+- `timezoneID`: string — IANA zone a date-only date_absolute value, and each absolute part of a date_range, is read and written in: the day shows, edits and stores (as that midnight) in it; unset, a day is its UTC day. A date_absolute with isDateOnly: false shows and edits its date and time in it; unset, in the viewer's zone. E.g. "America/New_York".
 - `handleRef`: Ref<PowerSearchHandle> — Imperative handle with focusTypeahead() and blurTypeahead() methods.
 - `endContent`: ReactNode — Content to display at the end of the input row. Useful for action buttons or other controls.
 - `resultCount`: number | string — Number of results matching the current filters. When a number, formatted as "N results". When a string, displayed as-is. Changes are announced to screen readers via a polite live region.
@@ -2935,6 +2950,7 @@ Props:
 - `onFocus`: (e: React.FocusEvent) => void — Fires when focus enters the search input.
 - `onBlur`: (e: React.FocusEvent) => void — Fires when focus leaves the search input.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
+- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'adaptive' — How the field presents filter editing. adaptive (the default) uses the bottom sheet on compact touch screens and the popover otherwise, resolved the same way Selector resolves it; the server render and the hydrating render are the popover. popover is the tokenizer field with its typeahead and the editor popover on every device. bottom-sheet makes the whole field, on every device, one trigger showing display-only filter tokens: it opens a Filters sheet listing the filters as rows that edit or remove a filter, with Add filter, Done, and Clear all (which asks first and keeps read-only filters); an Add filter sheet with the fields (or the content search with inline suggestions) opens above it, and a value step that stages operator → value and confirms from its footer opens above that. Dismissing a step reveals the one beneath. List values edit through the Tokenizer's own sheet. In the sheet presentation menuWidth and tokenOverflowBehavior have no surface to act on and warn in development. Pass presentation="popover" to keep the tokenizer field and the editor popover on every device.
 
 ### RadioList
 
@@ -3145,6 +3161,7 @@ Props:
 - `controlXstyle`: StyleXStyles — StyleX styles for the visual control box: the element that paints the border and background and holds icons and end controls. Never the native input.
 - `controlClassName`: string — Class name for the visual control box.
 - `controlStyle`: CSSProperties — Inline styles for the visual control box.
+- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'adaptive' — How the field presents its choices. adaptive (the default) uses the bottom sheet on compact touch screens and the popover otherwise, resolved the same way Selector resolves it; the server render and the hydrating render are the popover. popover is the inline combobox with its anchored suggestion menu on every device. bottom-sheet replaces it on every device with a trigger showing the selected tokens that opens one tall modal sheet: a search row on top, full-width checkbox rows that keep their place while the sheet is open, a Create row with hasCreate, and a footer pinned in every state with a confirmed Clear all and Save; the sheet edits a draft, so onChange fires once, when Save commits it, and a swipe, scrim or Escape close of a changed draft asks before discarding. In the sheet presentation the trigger is the control: ref, id, aria-* and data-* reach it, and ref receives the trigger button there, so type it Ref<HTMLInputElement | HTMLButtonElement>, which the component accepts (TokenizerProps keeps its released input ref type). renderItem, renderToken, endContent, hasClear, hasEntriesOnFocus, menuWidth, tokenOverflowBehavior and hasAutoFocus have no surface in the sheet, and the field warns once in development when they are passed. Pass presentation="popover" to keep the inline field and those props on every device.
 
 ### CheckboxListItem (subcomponent/hook)
 
@@ -3271,7 +3288,7 @@ Props:
 - `icon`: ReactNode — Icon or avatar to display before the label.
 - `description`: string — Description text displayed below the label.
 - `isDisabled`: boolean = false — Whether this item is visually disabled.
-- `group`: string — Group label for grouping items visually.
+- `group`: string — This prop has no effect. Set `item.auxiliaryData.group` on search-source items to group results in Typeahead or BaseTypeahead.
 
 ## Interaction
 
@@ -3408,7 +3425,7 @@ Parameters:
 - `alignment`: 'start' | 'center' | 'end' = 'center' — Alignment along the placement axis. Logical: start/end resolve against the popover's own inherited direction (RTL mirrors in pure CSS).
 - `delay`: number = 300 — Delay before showing the hover card on hover, in milliseconds.
 - `hideDelay`: number = 200 — Delay before hiding after mouse or focus leaves, in milliseconds.
-- `focusTrigger`: 'auto' | 'always' | 'never' = 'auto' — When focus should open the hover card. auto only attaches focus listeners to naturally focusable elements.
+- `focusTrigger`: 'auto' | 'always' | 'never' = 'auto' — When focus should open the hover card. auto opens when the trigger itself takes focus, or focus lands inside a trigger that is focusable at that moment, so a roving-tabindex member opens when the arrow keys reach it.
 - `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own (an aria-disabled control performs none); tap always opens; none never opens on touch.
 - `isEnabled`: boolean = true — Whether hover and focus triggers are enabled.
 - `label`: string — Accessible name for the hover card popup. When provided, the popup is exposed as a named role="dialog"; when omitted, it falls back to role="group" (a group may validly be unnamed).
@@ -3526,11 +3543,40 @@ Returns:
 - `id`: string — Unique ID for aria-describedby or other ARIA relationships.
 - `render`: (children: ReactNode, props: ContextRenderProps | FixedRenderProps) => ReactNode — Render function for the popover element. Pass placement/alignment in context mode or x/y in fixed mode. Placement/alignment are logical: they map to the self-* position-area keyword family, which resolves against the popover's own inherited direction, so RTL contexts mirror automatically in pure CSS. Pass `positioning: "custom"` in context mode to author position styles yourself via `style` (e.g. explicit anchor() insets or an anchor-size() cover): the hook keeps the popover behavior and position-anchor wiring but derives no position styles, including the automatic RTL mirroring, which becomes your responsibility. Pass `offset` (a CSS length; a number is px) in context mode for clearance from the anchor: it applies to both edges of the placement axis, so the gap survives a flip. Layers are flush by default. Context mode first renders an inert `<template>` marker in matching server and client markup. The final layer stays at that JSX position if its parent is safe; otherwise it is portaled to the nearest ancestor outside paragraphs, links, buttons, inline formatting, and structurally restricted containers. The nearest safe host keeps CSS custom properties inheriting live, while the layer preserves direction and writing mode from its JSX position. By default this resolution occurs after hydration so closed-layer DOM remains available, and it re-renders only the slot that holds the marker and the layer, not the component that called the hook (which renders again only when a resolved mount is replaced by a render call that moved to another host); `lazyMount` defers it until `show()` and unmounts the content again on hide while the marker remains. The Popover API promotes the layer to the top layer when shown, so it escapes ancestor clipping and stacking wherever it is hosted. When the layer would overflow the viewport, position-try fallbacks flip it to the opposite side; centered layers additionally slide along the alignment axis (span fallbacks) so they stay on-screen near viewport edges.
 
+### useLightbox
+
+Import: `import {useLightbox} from '@astryxdesign/core/Lightbox';`
+
+State management and accessible trigger wiring for Lightbox. Eliminates boilerplate for managing open state and current index. Returns trigger props with button role, tabIndex={0}, aria-haspopup="dialog", and keyboard activation handlers, along with a pre-wired Lightbox element that handles dismissal, next/previous navigation, and focus restoration.
+
+Do:
+- Spread getTriggerProps(index) onto image or thumbnail elements to give them accessible button semantics and keyboard activation.
+- Render lightbox.element once in your component JSX tree alongside the triggers.
+
+Don't:
+- Manage separate isOpen or index state alongside useLightbox; the hook already tracks both.
+- Add custom click or keydown handlers to open the lightbox when using triggerProps or getTriggerProps.
+
+Parameters:
+- `options`: UseLightboxOptions (required) — Configuration options for the lightbox.
+- `options.media`: LightboxMedia | LightboxMedia[] (required) — Media to display in the lightbox. Pass a single object for one item, or an array for gallery mode.
+- `options.hasZoom`: boolean = false — Enable zoom on double-click, or Enter/Space/+/- via keyboard (images only). When zoomed, drag or use arrow keys to pan.
+- `options.hasAutoPlay`: boolean = false — Whether video should autoplay when the lightbox opens.
+
+Returns:
+- `open`: (index?: number) => void — Open the lightbox, optionally at a specific gallery index (defaults to 0).
+- `close`: () => void — Close the lightbox.
+- `isOpen`: boolean — Whether the lightbox is currently open.
+- `index`: number — Current gallery index.
+- `element`: ReactNode — Pre-wired Lightbox component element to render in your JSX tree.
+- `triggerProps`: {role: 'button', tabIndex: 0, 'aria-haspopup': 'dialog', onClick: () => void, onKeyDown: (e: React.KeyboardEvent) => void} — Props to spread onto a single trigger element to open the lightbox at index 0 on click, Enter, or Space.
+- `getTriggerProps`: (index: number) => {role: 'button', tabIndex: 0, 'aria-haspopup': 'dialog', onClick: () => void, onKeyDown: (e: React.KeyboardEvent) => void} — Returns trigger props to spread onto an element to open the lightbox at a specific gallery index on click, Enter, or Space.
+
 ### useLongPress
 
 Import: `import {useLongPress} from '@astryxdesign/core/hooks';`
 
-Detects a single-finger press-and-hold and reports where it happened, so touch users can reach affordances that a pointer gets from right-click. iOS Safari never synthesizes a contextmenu event on long-press, which makes this the only touch route into a cursor-positioned surface such as ContextMenu. The press cancels on movement, lift, multi-touch or unmount.
+Detects a single-finger press-and-hold and reports where it happened, so touch users can reach affordances that a pointer gets from right-click. iOS Safari never synthesizes a contextmenu event on long-press, which makes this the only touch route into a cursor-positioned surface such as ContextMenu. The press cancels on movement, lift, multi-touch or unmount. The hold is timed on the touch events\u2019 own timestamps: when a busy page handles the lift late, a finger held for the full delay still reports its long press, before the lift acts.
 
 Do:
 - Use the reported point to position the surface you open, so it appears under the finger.
@@ -3669,6 +3715,7 @@ Headless hook for hover/focus-triggered tooltips. Builds on useLayer with hover 
 Do:
 - Use for brief text labels that describe icon buttons, truncated text, abbreviations, or compact controls.
 - Prefer the Tooltip component for standard wrapping; use the hook when the trigger is not a simple child.
+- For a toggle-style trigger, have your own button call show() and hide() on each press. Give it aria-describedby and aria-controls set to describedBy, and aria-expanded (true while show() holds the tooltip, false after hide() or onHide), and keep its own accessible name. For an info icon, use InfoTip instead.
 
 Don't:
 - Put interactive content inside tooltips: use Popover or HoverCard instead.
@@ -3679,8 +3726,7 @@ Parameters:
 - `delay`: number = 200 — Delay before showing on hover, in milliseconds.
 - `hideDelay`: number = 0 — Delay before hiding after mouse or focus leaves, in milliseconds.
 - `focusTrigger`: 'auto' | 'always' | 'never' = 'auto' — When focus should open the tooltip. auto opens when the trigger itself takes focus, or focus lands inside a trigger that is focusable at that moment, so a roving-tabindex member opens when the arrow keys reach it.
-- `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own (an aria-disabled control performs none); tap always opens; none never opens on touch. It decides only under triggerBehavior="adaptive", the default.
-- `triggerBehavior`: 'adaptive' | 'hover' | 'toggle' = 'adaptive' — How the trigger opens the tooltip. adaptive (the default) previews on hover and focus and opens on a tap unless the trigger acts (touchTrigger decides while it remains); hover previews on hover and focus, and no touch or pen tap opens it; toggle, on a button trigger, pins on a click, a tap, Enter, or Space and closes on the same press, Escape, a press outside, or focus leaving. The trigger carries aria-expanded and aria-controls, the tooltip is announced once when it pins. Astryx clickable rows and cards ignore the pinning press, except an Item row on a trigger that is not a native button; a plain onClick ancestor still receives it from the hook (the Tooltip component stops it at a child trigger).
+- `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own (an aria-disabled control performs none); tap always opens (a button whose only job is revealing the tooltip); none never opens on touch.
 - `isEnabled`: boolean = true — Whether hover and focus triggers are enabled.
 - `isOpen`: boolean — Controlled open state. true force-shows, false force-hides, undefined lets hover/focus manage visibility.
 - `isDefaultOpen`: boolean = false — Whether the tooltip should be shown on mount.
@@ -3694,6 +3740,56 @@ Returns:
 - `anchorId`: string — CSS anchor name for advanced positioning cases.
 - `describedBy`: string — ID to compose into aria-describedby on the trigger.
 - `renderTooltip`: (children: ReactNode, props?: Omit<ContextRenderProps, 'positioning'>) => ReactNode — Render function for the anchor-positioned tooltip content. The positioning opt-out is excluded: the tooltip always derives its position from placement/alignment.
+- `show`: () => void — Opens the tooltip now and keeps it open until hide(), Escape, a press outside, or focus leaving its trigger. Its text is announced once, and onShow fires. Under a controlled isOpen it only calls onShow. Does nothing while isEnabled is false.
+- `hide`: () => void — Closes the tooltip now, and onHide fires. Under a controlled isOpen it only calls onHide.
+
+## Keyboard
+
+### createAnimator
+
+Import: `import {createAnimator} from '@astryxdesign/core';`
+
+Animates one element with the motion Astryx's own components use, without React. `animate` springs an element to new values on the state-change motion, `decay` flings it with the momentum of a released scroll view, and `set` moves it directly, so a card can follow a finger, snap back and be thrown away. Use the `useAnimator` hook in React. To animate an area's layout as its items change, use `useAnimatedLayout`; for what a component already animates, such as a sheet's detents or a carousel's snapping, use the component's own props.
+
+Do:
+- Start every `animate` that follows a drag with the release velocity, so the element carries on as it was thrown.
+- Reach every state an animation shows without the animation too: a key, a button or a menu item that calls the same code.
+- `await` the promise before removing an element you animate out, and call `destroy` once it is gone.
+
+Don't:
+- Read the element\u2019s position from layout while it moves: `get` gives the value on screen, wherever the motion runs.
+
+Parameters:
+- `element`: HTMLElement (required) — The element to animate. The animator writes its `translate`, `scale`, `rotate` and `opacity`, and while it moves an inline `will-change` for them, merged with any it already has and restored 500 ms after its last motion; nothing else, so lay it out and style it as usual. Use one animator per element: two on one element overwrite each other.
+
+Returns:
+- `animate`: (target: {x?, y?, scale?, rotate?, opacity?}, options?: {velocity?}) => Promise<void> — Springs the given channels to `target` from wherever they are on screen, on the state-change motion Astryx's components use, and resolves when they arrive (or as soon as a later call takes them over). `x` and `y` are px, `scale` is 1 at the element's size, `rotate` is degrees and `opacity` runs from 0 to 1. Pass `velocity` (units per second, such as a drag's release velocity) to start with it; without it a channel keeps the velocity it has on screen, so interrupting a motion never jumps.
+- `decay`: (velocity: {x?, y?, scale?, rotate?, opacity?}) => Promise<void> — Coasts the given channels from a release velocity in their units per second, slowing as a scroll view's momentum does, and resolves when they stop (or as soon as a later call takes any of them over); opacity stops at 0 or 1. The distance follows from the velocity: use it to fling something away, then remove or reset it.
+- `set`: (values: {x?, y?, scale?, rotate?, opacity?}) => void — Puts the given channels at these values at once, ending their motion: follow a finger with it, frame by frame.
+- `get`: () => {x, y, scale, rotate, opacity} — Every channel's value on screen now.
+- `getVelocity`: () => {x, y, scale, rotate, opacity} — Every channel's velocity on screen now, in units per second.
+- `stop`: () => void — Halts every channel where it is on screen.
+- `destroy`: () => void — Stops every motion and lets the element go; the element keeps the values it shows. Call it when you remove the element or no longer animate it.
+
+### useAnimator
+
+Import: `import {useAnimator} from '@astryxdesign/core/hooks';`
+
+Animates one element with the motion Astryx's own components use. Call `animator.animate` to spring an element to new values on the state-change motion, `animator.decay` to fling it with the momentum of a released scroll view, and `animator.set` to move it directly, so a card can follow a finger, snap back and be thrown away. To animate an area's layout as its items change, use `useAnimatedLayout`; for what a component already animates, such as a sheet's detents or a carousel's snapping, use the component's own props. Outside React, use `createAnimator`.
+
+Do:
+- Call the animator from event handlers and effects: it lives outside render, so animating never re-renders the component.
+- Start every `animate` that follows a drag with the release velocity, so the element carries on as it was thrown.
+- Reach every state an animation shows without the animation too: a key, a button or a menu item that calls the same code.
+
+Don't:
+- Keep the animated values in React state: read them with `animator.get()` when you need them.
+
+Parameters:
+- `ref`: RefObject<HTMLElement | null> (required) — The ref of the one element to animate, the same ref you pass to the element: another hook, such as a gesture hook, can take it too, so a drag and an animation share one element. After every render the animator follows the element behind it. When the element unmounts its motion stops and its values return to rest, so a remount starts at rest, and so does a node that replaces it. Before the element mounts, and while it is unmounted, every call does nothing and `animate` and `decay` resolve at once.
+
+Returns:
+- `animator`: AnimatorHandle — The element's animator, the same object on every render: `animate(target, {velocity?})` springs channels to a target on the state-change motion Astryx's components use, `decay(velocity)` coasts them from a release velocity, `set(values)` jumps them, `get()` and `getVelocity()` read them, and `stop()` halts them. The channels are `x` and `y` (px), `scale` (1 at the element's size), `rotate` (degrees) and `opacity` (0 to 1). `animate` and `decay` return a promise that resolves when the motion ends. Calling it never re-renders the component. Calls before the ref attaches do nothing and resolve at once.
 
 ## Layout
 
@@ -3824,7 +3920,7 @@ Don't:
 
 Props:
 - `direction`: 'vertical' | 'horizontal' | 'horizontal-labels' = 'vertical' — Controls field arrangement. Vertical stacks top-to-bottom, horizontal uses one fractional grid track per field in logical inline order, and horizontal-labels uses CSS Grid with labels beside inputs on the inline-start side (collapsing to vertical when the viewport is <=480px).
-- `defaultOptionality`: 'optional' | 'required' — The state the form treats as its default, so only the exception shows an optional/required indicator. With "optional", only fields marked isRequired show an indicator; with "required", only fields marked isOptional do. A field that restates the default shows nothing. Under "required" the unmarked fields also expose aria-required so screen readers match the visual default; aria-required only, never the native required attribute. Leave unset for today's per-field behavior.
+- `defaultOptionality`: 'optional' | 'required' — The state the form treats as its default, so only the exception shows an optional/required indicator. With "optional", only fields marked isRequired show an indicator; with "required", only fields marked isOptional do. A field that restates the default shows nothing. Under "required" the unmarked fields also expose aria-required so screen readers match the visual default; aria-required only, never the native required attribute. CheckboxInput, Switch and CheckboxList are the exception: an unchecked box, an off switch or an empty group is an answer, so they take no required state from the default. A CheckboxInput or Switch is required only through its own isRequired. Leave unset for today's per-field behavior.
 - `children`: ReactNode — Form fields to arrange. Accepts Astryx inputs (TextInput, Selector, etc.) and Field-wrapped custom controls.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
@@ -3884,7 +3980,7 @@ Props:
 - `isDisabled`: boolean = false — Whether the handle is interactive.
 - `hasDivider`: boolean = false — Show a full-length 1px divider line through the handle. Use when adjacent panels share the same background.
 - `isAlwaysVisible`: boolean = true — Show the pill grip at rest instead of only on hover. Use when discoverability is important.
-- `pillPlacement`: 'start' | 'end' | 'center' | 'auto' = 'auto' — Which side of the divider the pill sits on. auto = content side (derived from isReversed), flips when collapsed. start = left/top, end = right/bottom, center = centered on divider.
+- `pillPlacement`: 'start' | 'end' | 'center' | 'auto' = 'auto' — Which side of the divider the pill sits on. auto = content side (derived from isReversed), flips when collapsed. start = left/top, end = right/bottom, center = centered on divider. It moves only the pill, which a drag can still take wherever it sits; the grab zone stays centred on the divider.
 - `label`: string = 'Resize handle' — Accessible label for the separator.
 - `resizable`: ResizableProps (required) — Resize props from useResizable: connects handle to panel. Carries the region's axis ('horizontal' | 'vertical'), which must match this handle's direction.
 - `children`: ReactNode — Custom handle content. Overrides the default pill + divider.
@@ -4224,7 +4320,7 @@ Returns:
 
 Import: `import {useScrollLock} from '@astryxdesign/core/hooks';`
 
-Locks body scroll when active by pinning the body with position: fixed. This prevents background scrolling behind modals and dialogs, which is necessary for iOS Safari where overscroll-behavior: contain does not work. Restores the original scroll position when unlocked. Pinning hides the document scrollbar, so where that scrollbar takes layout space (desktop) the hook holds its gutter open with scrollbar-gutter: stable for the duration of the lock. The page, including any position: fixed chrome, does not shift sideways.
+Locks page scroll while active and keeps the page where it is. The page gets overflow: hidden (on the root, or on body when its own overflow is the one the viewport uses), which stops wheel, keyboard and scrollbar scrolling, and overscroll-behavior-y: none on the root and body, which stops the overscroll bounce while the lock holds. Where the primary pointer is coarse (phones and tablets), a one-finger pan that would scroll the page is cancelled, because iOS Safari scrolls an overflow: hidden page under a finger; pans that a scroller inside the overlay can take, drags on a native range input, pinch-zoom, and one-finger drags on a pinch-zoomed page (which pan the zoomed view) still work. The scroll offset never changes, so nothing jumps when the lock starts or ends, and iOS Safari keeps its toolbar as it was. Where the hidden scrollbar takes layout space (desktop), the hook holds its gutter open with scrollbar-gutter: stable, so the page, including any position: fixed chrome, does not shift sideways.
 
 Do:
 - Use when opening full-screen modals or dialogs to prevent background content from scrolling.
@@ -4234,7 +4330,7 @@ Don't:
 - Use for non-modal overlays like popovers or tooltips; users should be able to scroll away from those.
 
 Parameters:
-- `isLocked`: boolean (required) — whether body scroll should be locked.
+- `isLocked`: boolean (required) — whether page scroll should be locked.
 
 ### useScrollOverflow
 
@@ -4456,7 +4552,7 @@ Props:
 
 Import: `import {Outline} from '@astryxdesign/core/Outline';`
 
-A table-of-contents sidebar for documentation pages, help centers, wikis, and long settings pages. Use it for navigation within a single page, not for app routes. Features a sliding indicator track that animates to the active heading. The list is a single tab stop: arrow keys move between headings, Home/End jump to the ends, and Enter/Space activate.
+A table-of-contents sidebar for documentation pages, help centers, wikis, and long settings pages. Use it for navigation within a single page, not for app routes. Features a sliding indicator track that animates to the active heading. Each link is in the normal Tab order, and Enter/Space activate.
 
 Do:
 - Pass a flat ordered list of headings and let level control indentation.
@@ -4647,6 +4743,32 @@ Props:
 - `label`: string = 'Top navigation' — Accessible label for the navigation landmark, applied as aria-label on the <nav> element.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 
+### useOutlineFromMarkdown
+
+Import: `import {useOutlineFromMarkdown} from '@astryxdesign/core/Outline';`
+
+Extracts the headings of a Markdown string for an Outline next to the rendered document. It uses the parser and heading slugs that Markdown uses, so in a complete document each item links to its heading, and fenced code never counts as a heading. The result is memoized on the source and the options. Outside React, use parseOutlineFromMarkdown.
+
+Do:
+- Pass the same string, plugin list and finality to Markdown and this hook, so items match the rendered headings once the content is complete.
+- Declare the plugin list outside the component or memoize it. A new array on each render recomputes the outline.
+- For several documents on one page, install one createMarkdownHeadingLinks per document with headingIdPrefix, so their ids do not collide.
+
+Don't:
+- Write the items by hand or find headings with a regular expression. They drift from the rendered ids.
+- Expect every item to have a target while content streams. Markdown reveals text gradually and trims unfinished syntax, so a heading can be absent or have another id until the content is complete.
+- Expect an item to link to a heading that cites a Markdown sources entry. The hook does not receive sources, so the ids differ: for '# Intro [ref]', Markdown renders intro and the hook returns intro-ref.
+- Expect an item for a nested heading, such as one in a blockquote. Only root headings become items.
+
+Parameters:
+- `markdown`: string (required) — The Markdown source. Pass the same string you render with Markdown.
+- `options`: ParseOutlineFromMarkdownOptions — Parse options. Omit them for a document that Markdown renders without plugins.
+- `options.plugins`: ReadonlyArray<MarkdownPluginEntry> — The ordered Markdown plugin list. Pass the same list to Markdown, so transforms, labels and ids agree. The outline is recomputed when the list reference changes.
+- `options.isFinal`: boolean = true — Whether the source is complete. Pass false while Markdown's isStreaming is true, so both apply the same transforms.
+
+Returns:
+- `items`: OutlineItem[] — One item per root heading, in document order, ready for Outline's items prop. id is the id Markdown renders on the heading in a complete document without sources, label is the heading's text, and level is its depth from 1 to 6.
+
 ### BreadcrumbItem (subcomponent/hook)
 
 Import: `import {BreadcrumbItem} from '@astryxdesign/core/Breadcrumbs';`
@@ -4828,7 +4950,7 @@ Props:
 
 Import: `import {AlertDialog} from '@astryxdesign/core/AlertDialog';`
 
-AlertDialog asks the user to confirm a destructive or irreversible action before it happens. Use it for things like deleting content, revoking access, or discarding unsaved changes.\n\nIt implements the WAI-ARIA APG [Alert Dialog pattern](https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/): `role="alertdialog"`, a title linked by `aria-labelledby`, a consequence description linked by `aria-describedby`, focus moved into the dialog on open and returned to the trigger on close, and no dismissal by clicking outside. Escape cancels.\n\nAlertDialog passes its requested width through to Dialog, which clamps the surface to the container and dynamic viewport with token gutters. Generic Dialog footers should wrap, but Dialog does not own action semantics or order; consumer composition controls that. AlertDialog owns its confirmation semantics: above 640px, actions render horizontally and may move onto another row; at 640px and below, the destructive action appears above Cancel and both buttons fill the footer width. Button labels retain their standard single-line behavior. The breakpoint follows available width, not pointer or hover capability. The body scrolls when block space is constrained.\n\nFor cases where you want to show an alert without managing open state, use the `useImperativeAlertDialog` hook: call `alert.show(options)` and render `alert.element` in your tree.
+AlertDialog asks the user to confirm a destructive or irreversible action before it happens. Use it for things like deleting content, revoking access, or discarding unsaved changes.\n\nIt implements the WAI-ARIA APG [Alert Dialog pattern](https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/): `role="alertdialog"`, a title linked by `aria-labelledby`, a consequence description linked by `aria-describedby`, focus moved into the dialog on open and returned to the trigger on close, and no dismissal by clicking outside. Escape cancels.\n\nAlertDialog passes its requested width through to Dialog, which clamps the surface to the container and dynamic viewport with token gutters. Generic Dialog footers should wrap, but Dialog does not own action semantics or order; consumer composition controls that. AlertDialog owns its confirmation semantics: above 640px, actions render horizontally and may move onto another row; at 640px and below, the destructive action appears above Cancel and both buttons fill the footer width. Button labels retain their standard single-line behavior. The breakpoint follows available width, not pointer or hover capability. The body scrolls when block space is constrained.\n\nThe two actions are tracked as one group under every pointer, the way iOS tracks the actions of an alert: the action under the pointer highlights as soon as it is pressed, the highlight follows the pointer from one action to the other, and the release runs the action under it. Releasing off both actions runs nothing. The keyboard and assistive technology keep the click of each button.\n\nFor cases where you want to show an alert without managing open state, use the `useImperativeAlertDialog` hook: call `alert.show(options)` and render `alert.element` in your tree.
 
 Do:
 - Make the action button label specific: "Delete project" is better than "OK" or "Confirm".
@@ -4935,18 +5057,18 @@ Don't:
 - Use a HoverCard for content the user must interact with; it disappears when the cursor leaves.
 
 Props:
-- `children`: ReactNode — The trigger. A single string or number is wrapped in a focusable inline span. Text that reaches HoverCard in several pieces, such as `Edited {when}`, gets no trigger, so pass one string, such as a template literal, or wrap it in a focusable element. With element children, HoverCard wires the first element, so that element does not need to accept a ref.
+- `children`: ReactNode — The trigger. Text children, a string or number or text written around an expression such as `Edited {when}`, are wrapped in a focusable inline span; holes such as `false` and `null` are ignored. With element children, HoverCard wires the first element, so that element does not need to accept a ref.
 - `content`: ReactNode (required) — Hover card content.
 - `placement`: 'above' | 'below' | 'start' | 'end' = 'above' — Position relative to the anchor element. Logical: start/end resolve against the popover's own inherited direction (RTL mirrors in pure CSS).
 - `alignment`: 'start' | 'center' | 'end' = 'center' — Alignment along the placement axis. Logical: start/end resolve against the popover's own inherited direction (RTL mirrors in pure CSS).
 - `delay`: number = 300 — Show delay in milliseconds.
 - `hideDelay`: number = 200 — Hide delay in milliseconds.
-- `focusTrigger`: 'auto' | 'always' | 'never' = 'auto' — Controls when focus events trigger the hover card.
+- `focusTrigger`: 'auto' | 'always' | 'never' = 'auto' — When focus should open the hover card. auto opens when the trigger itself takes focus, or focus lands inside a trigger that is focusable at that moment, so a roving-tabindex member opens when the arrow keys reach it.
 - `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own (a button, link, or form control), whose tap belongs to the control; an aria-disabled control performs none, so a tap on it opens its reason. tap always opens. none never opens on touch. A tap-opened card is dismissed by a tap outside it.
 - `isEnabled`: boolean = true — Enables or disables the hover and focus triggers.
 - `label`: string — Accessible name for the hover card popup. When provided, the popup is exposed as a named role="dialog"; when omitted, it falls back to role="group" (a group may validly be unnamed).
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when hover card visibility changes. Called with true when shown and false when hidden.
-- `hasHoverIndication`: 'auto' | boolean = 'auto' — Shows a dashed underline on a text trigger. auto shows it when children is a single string or number. It has no effect on an element trigger, which keeps its own styling.
+- `hasHoverIndication`: 'auto' | boolean = 'auto' — Shows a dashed underline on a text trigger. auto shows it when children is text: strings and numbers, such as `Edited {when}`, with holes such as `false` and `null` ignored. It has no effect on an element trigger, which keeps its own styling.
 - `isDefaultOpen`: boolean — Whether the hover card should be shown on mount. Still dismissible.
 - `isOpen`: boolean — Controlled open state. true holds the card open. false holds it closed against hover, but focus on the trigger still opens it. A controlled card answers Escape by calling onOpenChange(false) without closing; it closes when you set isOpen to false, and focus inside the card then returns to the trigger.
 - `xstyle`: StyleXStyles — StyleX styles for the card surface, the element that carries the hover-card theme target.
@@ -5127,7 +5249,7 @@ Props:
 - `collisionBehavior`: 'overwrite' | 'ignore' = 'overwrite' — Behavior when a toast with matching uniqueID already exists.
 - `onHide`: (reason: "auto" | "manual") => void — Callback fired when the toast is removed.
 - `onDismiss`: (reason: "auto" | "manual") => void (required) — Callback fired when the toast is dismissed.
-- `renderContent`: (toast: ToastContentRenderProps) => ReactNode — Replaces the content of this toast's card with your own layout. Astryx keeps the card, its astryx-toast theme target, the live-region role and auto-hide behavior, then hands the renderer the message, endContent, resolved toast settings and a dismiss callback. The custom renderer owns every control in its layout: compose the control you want and call dismiss from it. Astryx does not inject a fallback close into custom content. Per-toast: an app shares one layout by wrapping useToast and passing it on every call, while a toast raised by library code that never passes it renders as an ordinary Astryx toast. The argument is {body, endContent, type, isAutoHide, autoHideDuration, dismiss}, where type is 'info' | 'error'.
+- `renderContent`: (toast: ToastContentRenderProps) => ReactNode — Replaces the content of this toast's card with your own layout. Astryx keeps the card, its astryx-toast theme target and auto-hide behavior (inside a ToastViewport the viewport announces the toast, and while a modal hosts the viewport the card announces itself), then hands the renderer the message, endContent, resolved toast settings and a dismiss callback. The custom renderer owns every control in its layout: compose the control you want and call dismiss from it. Astryx does not inject a fallback close into custom content. Per-toast: an app shares one layout by wrapping useToast and passing it on every call, while a toast raised by library code that never passes it renders as an ordinary Astryx toast. The argument is {body, endContent, type, isAutoHide, autoHideDuration, dismiss}, where type is 'info' | 'error'.
 
 ### Tooltip surface
 
@@ -5138,7 +5260,7 @@ A short text hint that appears on hover or focus, anchored to a trigger element.
 Do:
 - Keep tooltip content concise: aim for under 140 characters of plain text.
 - Add a tooltip to icon-only buttons and controls that lack a visible label.
-- Set triggerBehavior to toggle when the trigger is a button whose only job is revealing the tooltip, such as an info icon: a click, a tap, Enter, or Space pins it, and the press stops at the trigger.
+- Set touchTrigger to tap when the trigger is a button whose only job is revealing the tooltip: touch has no hover, and auto keeps the tap for triggers that perform an action. For an info icon, use InfoTip, which also pins its help on a press.
 
 Don't:
 - Place interactive elements like links or buttons inside a tooltip; use HoverCard or Popover instead.
@@ -5157,8 +5279,7 @@ Props:
 - `delay`: number = 200 — Show delay in milliseconds.
 - `hideDelay`: number = 0 — Hide delay in milliseconds.
 - `focusTrigger`: 'auto' | 'always' | 'never' = 'auto' — Controls when focus events trigger the tooltip.
-- `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own (a button, link, or form control), whose tap belongs to the control; an aria-disabled control performs none, so a tap on it opens its reason. tap always opens. none never opens on touch. It decides only under triggerBehavior="adaptive", the default.
-- `triggerBehavior`: 'adaptive' | 'hover' | 'toggle' = 'adaptive' — How the trigger opens the tooltip. adaptive (the default): hover and focus preview it, and a tap opens it unless the trigger performs an action of its own, as touchTrigger decides while it remains. hover: hover and focus preview it, and no touch or pen tap opens it. toggle, on a button trigger: a click, a tap, Enter, or Space pins the tooltip and the same press closes it, while hover and keyboard focus still preview it. A pinned tooltip stays until Escape, a second press, a press outside, or focus leaving, and the press stops at the trigger, so a clickable row or card around it does not activate (with anchorRef, the anchored trigger still runs its own onClick, Astryx clickable rows and cards ignore the press except an Item row when the anchor is not a native button, and a plain onClick element around the anchor receives it unless that onClick stops it). The trigger reports aria-expanded and aria-controls, and the text is announced once when it pins. Use it for an info icon or any button whose only job is revealing the tooltip.
+- `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own (a button, link, or form control), whose tap belongs to the control; an aria-disabled control performs none, so a tap on it opens its reason. tap always opens, for a button whose only job is to reveal the tooltip; for an info icon, use InfoTip. none never opens on touch.
 - `isEnabled`: boolean = true — Enables or disables the tooltip triggers.
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when tooltip visibility changes. Called with true when shown and false when hidden.
 - `hasHoverIndication`: 'auto' | boolean = 'auto' — Shows a dashed underline on the trigger element.
@@ -5750,6 +5871,7 @@ Props:
 - `expandedKeys`: Set<string> (required) — Set of currently-expanded row keys. Consumer-owned.
 - `onToggle`: (key: string) => void (required) — Called with a row key when its expansion is toggled (chevron click or context-menu action).
 - `getRowKey`: (item: T) => string (required) — Derive a stable unique key from a row item.
+- `getRowLabel`: (item: T) => string — Derive a human-readable row identity for the chevron accessible name. Astryx combines it with localized expand/collapse wording. Omit it, or return blank text, to keep the generic "Expand row" and "Collapse row" labels.
 - `renderExpanded`: (item: T) => ReactNode (required) — Render the detail content shown in a full-width panel below the row when it is expanded. Receives the row item.
 - `getIsItemExpandable`: (item: T) => boolean — Control which rows are expandable. Non-expandable rows show no chevron, no context-menu action, and never render a panel. Defaults to all rows expandable.
 - `panelVariant`: 'muted' | 'transparent' = 'transparent' — Background behind the detail panel. 'transparent' (default) paints nothing: the panel is the row's continuation and takes whatever surface the table sits on, so a Card shows through and a striped table's zebra reads on unchanged. 'muted' washes it, marking it as commentary rather than another row of data — reach for it in a bare table with no card, dividers or striping, where nothing else makes that distinction. The wash is a low-alpha near-black, so it is close to invisible over a dark card: 'muted' is largely a light-theme effect.
@@ -5827,6 +5949,7 @@ Import: `import {useTableTreeData} from '@astryxdesign/core/Table';`
 Props:
 - `getRowMeta`: (item: T) => TableTreeRowMeta | undefined (required) — Structural meta for a visible row: {id, level (0-based), hasChildren, isExpanded}.
 - `onToggleItem`: (item: T) => void (required) — Toggle a row's expansion.
+- `getRowLabel`: (item: T) => string — Derive a human-readable row identity for the expander. Astryx combines it with localized expand/collapse wording. Omit it, or return blank text, to keep the generic "Expand row" and "Collapse row" labels.
 - `hasExpandableRows`: boolean (required) — Whether any row in the dataset is expandable. When false the plugin is a no-op: no expanders, no indent, no tree ARIA.
 - `hasExpandAllControl`: boolean = false — Show an expand-all/collapse-all toggle in the tree column header. Requires isAllExpanded plus onExpandAll/onCollapseAll (all supplied by useTableTreeState).
 - `isAllExpanded`: boolean | 'indeterminate' — Aggregate expansion state across every expandable row, driving the header expand-all toggle. true when all are expanded, false when none are, indeterminate when some are.

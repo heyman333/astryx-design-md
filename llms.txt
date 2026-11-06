@@ -1,8 +1,8 @@
 # Astryx
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 244 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 250 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 
-Generated from commit `189a730` (2026-11-05) of https://github.com/facebook/astryx.
+Generated from commit `add0516` (2026-11-05) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -37,27 +37,27 @@ Key facts:
 
 ## Components
 
-244 documented components in `packages/core/src/`. Each has a `{Name}.doc.mjs` structured doc with props, anatomy, and best practices. By category:
+250 documented components in `packages/core/src/`. Each has a `{Name}.doc.mjs` structured doc with props, anatomy, and best practices. By category:
 
 - Accessibility: useAnnounce
 - Action: Button, ButtonGroup, Trigger area, ContextMenuItem, Trigger button, Checkable row, DropdownMenuDivider, DropdownMenuGroup, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSubMenu, IconButton, Link, Trigger button, Control, SegmentedControlItem, ToggleButton, ToggleButtonGroup, Outer chrome
-- Animation: useAnimatedLayout, useEntryAnimation
 - Chat: Chat, ChatComposer, ChatComposerDrawer, ChatComposerInput, ChatComposerTokenElement, ChatDictationButton, ChatLayout, ChatLayoutScrollButton, ChatMessage, ChatMessageBubble, ChatMessageList, ChatMessageMetadata, ChatSendButton, ChatSystemMessage, ChatTokenizedText, ChatToolCalls
 - Container: Card, Carousel, ClickableCard, Collapsible, CollapsibleGroup, SelectableCard
 - Content: Avatar, AvatarStatusDot, AvatarGroup, AvatarGroupOverflow, Blockquote, Citation, Code, CodeBlock, EmptyState, Glyph, Shortcut, Document, Heading, Text, Thumbnail, Elapsed time, Timestamp, Token
 - Feedback & Status: Badge, Banner, Trigger button, Progress bar, Placeholder, Spinner, Dot
 - Focus: useMultiCombobox, useFocusTrap, useGridFocus, useIndicatorFocusRing, useKeyboardHint, useListFocus, useTreeFocus, useTypeahead
 - Form Controls: Calendar, CheckboxInput, Group, CheckboxListItem, Field, DateInput, DateRangeInput, DateTimeInput, Field, FieldLabel, Message box, FileInput, Indicator, InputGroup, InputGroupText, Field, NumberInput, PowerSearch, RadioList, RadioListItem, Field, SelectorOption, Label, Field, Label, TextInput, TimeInput, Tokenizer, Input, Field, TypeaheadItem
-- Interaction: useCollapsible, useHoverCard, useLayer, useLightbox, usePopover, useToast, useTooltip, useClickableContainer, useClipboard, useContainerReveal, useHotkeys, useInputContainer, useInputStatusIcon, useInteractiveRole, useLongPress, useMenuPress, usePressFeedback
-- Keyboard: createAnimator, useAnimator
+- Interaction: useCollapsible, useHoverCard, useLayer, useLightbox, useOverlay, usePopover, useToast, useTooltip, useClickableContainer, useClipboard, useContainerReveal, useHotkeys, useInputContainer, useInputStatusIcon, useInteractiveRole, useLongPress, useMenuPress
+- Keyboard: createAnimator, createPanGesture, useAnimator, usePanGesture
 - Layout: AppShell, useAppShellMobile, AspectRatio, Center, Divider group, FormLayout, Grid container, GridSpan, Layout container, LayoutContent, LayoutFooter, LayoutHeader, LayoutPanel, Handle, useResizable, ScrollableArea, Section container, Stack container, useOverflow, useScrollLock, useScrollOverflow, useScrollableArea
 - Media: useImageMode, useMediaQuery
+- Motion & Gestures: useAnimatedLayout, useEntryAnimation, usePressFeedback
 - Navigation: BreadcrumbItem, Breadcrumbs, Navigation overlay, Container, Menu, Outline, useOutlineFromMarkdown, Pagination, SideNav, SideNavCollapseButton, SideNavHeading, SideNavItem, SideNavSection, Step, Stepper, Tab, TabList, TabMenu, TopNav, TopNavHeading, TopNavItem, TopNavMegaMenu, TopNavMegaMenuFeaturedCard, TopNavMegaMenuItem, TopNavMenu
 - Overlay: AlertDialog, useImperativeAlertDialog, Sheet panel, Sheet dialogs, Dialog, CommandPaletteEmpty, CommandPaletteFooter, CommandPaletteGroup, CommandPaletteInput, CommandPaletteItem, CommandPaletteList, Dialog, DialogHeader, useImperativeDialog, Panel, DrawerHeader, HoverCard, Viewer overlay, Overlay, Popover, Toast, Tooltip surface
 - Semantics: useCombobox
 - Streaming: useStreamingText
 - Table & List: Item, List, ListItem, MetadataList, MetadataListItem, List, Table, TableBody, TableCell, TableFooter, TableHeader, TableHeaderCell, TableRow, TableSelectionToolbar, useTableColumnResize, useTableColumnSettings, useTableFilterState, useTableFiltering, useTableGroupedRows, useTablePagination, useTableRowExpansion, useTableRowIndex, useTableRowStatus, useTableSelection, useTableSelectionState, useTableSortable, useTableStickyColumns, useTableTreeData, useTableTreeState, Tree list
-- Utilities: useCollator, useLocale, useTranslator
+- Utilities: useCalendarDays, useIcon, useLinkComponent, useCollator, useLocale, useTranslator
 - Utility: Layer, LinkProvider, VisuallyHidden, useDevWarning, useMergedRefs, InternationalizationProvider, MediaTheme, SyntaxTheme, Theme, useTheme
 
 ## Optional

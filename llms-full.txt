@@ -1,10 +1,10 @@
 # Astryx — Full Component Reference
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 250 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 253 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `add0516` (2026-11-05) of https://github.com/facebook/astryx.
+Generated from commit `6cbcbf8` (2026-11-06) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -100,7 +100,7 @@ Do:
 - Use the same variant for all buttons in a group so they look like a single connected unit.
 - Keep groups small (2–4 buttons). For more actions, use a Toolbar or DropdownMenu instead.
 - Name the group for what its buttons act on. The label is the group's accessible name and a screen reader reads it before each member.
-- Keep the group a single Tab stop. Arrow keys move between members along the orientation, Home/End jump to the ends, and disabled members are skipped. This is the WAI-ARIA APG roving tabindex technique: https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/#kbd_roving_tabindex
+- Keep the group a single Tab stop. Arrow keys move between members along the orientation, and Home/End jump to the ends. This is the WAI-ARIA APG roving tabindex technique: https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/#kbd_roving_tabindex
 
 Don't:
 - Don't mix wildly different actions. A Save button next to a Delete button in the same group is confusing.
@@ -191,12 +191,15 @@ Link text must have at least 4.5:1 contrast with the background behind it. For P
 Do:
 - Write descriptive, concise link text that clearly communicates the destination.
 - Set `isStandalone` when the link appears outside of inline text, so it receives proper base font sizing.
+- Put a Link inside a <Text maxLines> to truncate it with the surrounding text; inside a clamped Text the link flows in the text's lines.
 - Only set `label` when the link content is not descriptive text (e.g. an icon-only link). For text links, the visible text is already the accessible name; adding `label` overrides it for screen readers, which is harmful.
 
 Don't:
 - Use Link for actions that do not navigate; use a Button instead.
 - Use generic text like "click here" or "read more"; describe the destination.
 - Set `label` on text links; `aria-label` prevents assistive technology from reading the actual link content.
+- Give a Link inside a clamped Text its own `display` or `maxLines`, or render it as a button (`onClick` with no `href`), and expect the outer clamp to cut it; that Link keeps its own box.
+- Put a Link with block-level content, such as an HStack with an icon, inside a clamped Text; block content breaks the clamp. Clamp a text-only Link, or place the composed Link outside the clamp.
 
 Props:
 - `as`: LinkComponentType — Custom component to render instead of <a>
@@ -514,6 +517,8 @@ Props:
 - `menuWidth`: number | string — Minimum flyout width. The flyout may grow for its content, but it is capped to the available viewport space. Defaults to intrinsic sizing (min 160px).
 - `onOpenChange`: (isOpen: boolean) => void — Called when the flyout opens or closes.
 - `presentation`: 'flyout' | 'drill-in' | 'adaptive' = 'adaptive' — How the sub-menu shows its rows. 'flyout' opens them beside the row; 'drill-in' replaces the menu's rows with them and a Back row, in the same box; 'adaptive' drills in when a finger opened the menu (a coarse pointer, decided when the menu opened) and flies out otherwise.
+- `delay`: number = 150 — How long a hovering pointer waits before the flyout opens, in milliseconds. Keyboard focus and touch never wait.
+- `hideDelay`: number = 200 — How long the flyout stays open after the pointer leaves, in milliseconds.
 - `header`: ReactNode — Content above the sub-menu's rows and outside its menu, a field that filters them, say. It keeps its own keys and presses. With a header or footer the sub-menu's surface (the flyout, or the drilled-in view on a phone) is a modal dialog named by the row, beside the menu rather than inside it: the row says aria-haspopup="dialog", Tab and Shift+Tab move through the header, the rows and the footer and wrap, Escape returns to the row, and a pointer leaving the flyout closes it only once focus leaves too. A ContextMenu does not show it.
 - `footer`: ReactNode — Content below the sub-menu's rows and outside its menu, a door to where the options are managed, say. Same rules as header.
 - `menuDataTestId`: string — Test id for the sub-menu's own role="menu" element: the flyout, or the drilled-in list on a phone. The trigger row takes data-testid.
@@ -901,6 +906,7 @@ Carousel scrolls a row of items horizontally when they overflow the available wi
 
 Do:
 - Enable scroll-snap when each item should land precisely at the start edge, like a gallery or product list.
+- For iOS paging under a finger and on a trackpad swipe, pass hasSnap={useSnapPaging()} from @astryxdesign/core/SnapPaging. A flick moves one view, or one item with useSnapPaging({pages: 'item'}). A mouse wheel keeps native snapping. Only a carousel given it loads the paging code.
 - Reach for hasLoop on small, cyclable sets like a photo gallery, where wrapping past the last item back to the first feels natural.
 - Always provide an aria-label that describes what the carousel contains, like "Featured products" or "Team members".
 - Carousel implements the WAI-ARIA APG carousel pattern (https://www.w3.org/WAI/ARIA/apg/patterns/carousel/) without auto-rotation: the region is labelled and carries aria-roledescription="carousel", each item is a group named "Slide N of M", and the scroll container is a tab stop while its content overflows, so keyboard users can pan it with the arrow keys; while everything fits it stays out of the tab order.
@@ -918,7 +924,7 @@ Props:
 - `hasButtons`: boolean = true — Show prev/next navigation buttons when content is scrollable.
 - `hasEdgeFade`: boolean = true — Show a gradient edge-fade mask when content overflows, signalling that more items exist off-screen.
 - `hasLoop`: boolean = false — Wrap-around scrolling: next at the end scrolls to the start, prev at the start scrolls to the end. Buttons stay visible at both edges. Only engages when content overflows.
-- `hasSnap`: boolean = false — Enable scroll-snap so each child snaps to the start edge.
+- `hasSnap`: boolean | SnapPaging = false — Snap each child to the start edge. hasSnap uses native CSS scroll snap. hasSnap={useSnapPaging()} adds iOS paging under a finger and on a trackpad swipe, on the same stops: a flick moves one view, or one item with useSnapPaging({pages: 'item'}). Only that value loads the paging code.
 - `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline padding inside the scroll container, with matching scroll-padding so snap points align to the content edge.
 - `aria-label`: string = 'Carousel' — Accessible label for the carousel region.
 - `ref`: React.Ref<HTMLDivElement> — Ref forwarded to the root element.
@@ -1187,6 +1193,7 @@ Props:
 - `isDiff`: boolean = false — Render the code as a unified diff over `language`: lines starting with + are added, - removed, @@ is a hunk header (a `--- `/`+++ ` file-header pair directly before one is a header too), anything else is context. The language label reads `diff` or `<language> diff`. The glyph sits in its own column and the rest of each line keeps syntax highlighting; copy returns the exact source. Markdown ```diff and ```diff-<lang> fences set this.
 - `hasCopyButton`: boolean = true — Show a copy-to-clipboard button.
 - `onCopy`: () => void — Callback after the code is copied.
+- `onCopyError`: (error: unknown) => void — Called once with the rejection when the clipboard write fails. The copy button shows a cross and is named and announced as "Failed to copy value to clipboard."; the error is not shown.
 - `endContent`: ReactNode — Your own controls, shown just before Copy: in the header when the block has one, otherwise beside the code in the top inline-end corner, never over it. It never creates a header and never collapses the block. Ghost sm IconButtons match Copy’s size and variant.
 - `isWrapped`: boolean = false — Wrap long lines instead of enabling horizontal scroll.
 - `maxHeight`: number | string — Max height before the block scrolls vertically.
@@ -1345,18 +1352,12 @@ Import: `import {Shortcut} from '@astryxdesign/core/Kbd';`
 
 Renders a keyboard shortcut as styled key badges. Use Kbd in tooltips, menus, and help text to show key combinations.
 
-Do:
-- Place shortcuts near the action they trigger: in a tooltip, menu item, or inline instruction.
-- Use mod instead of ctrl or cmd; it automatically adapts to the user's platform.
-
-Don't:
-- Use Kbd as the only way to discover an action; shortcuts should supplement visible controls, not replace them.
-
 Props:
 - `keys`: string (required) — Keyboard shortcut string. Use "+" to separate keys. Special keys: mod (Cmd on Mac), ctrl, alt, shift, enter, backspace, escape, tab, up, down, left, right, plus. Aliases: esc for escape and return for enter.
-- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+- `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 - `className`: string — CSS class name for the root element. Prefer xstyle for styling; className is provided for integration with non-StyleX systems.
 - `style`: CSSProperties — Inline styles for the root element. Prefer xstyle for styling; inline styles bypass StyleX optimization.
+- `ref`: React.Ref<HTMLSpanElement> — Ref forwarded to the shortcut group element.
 
 ### Text
 
@@ -1436,6 +1437,7 @@ Do:
 - Keep formatting consistent within the same list or table; mixing relative and absolute timestamps in the same column confuses scanning.
 - Enable isTimezoneShown when the audience spans multiple time zones, like a global team calendar or audit log.
 - Use tooltipEntries when readers must compare zones, such as an incident log where the reader's time and the event's origin zone both matter.
+- Pass timezoneID when an absolute time must read the same for every viewer and on the server, like an incident log timestamp or anything server-rendered; without it the server markup depends on the server zone.
 - Label every entry once a tooltip shows more than one zone; a bare abbreviation is not always recognizable (Tokyo renders as "GMT+9", not "JST").
 - Use isLive for active dashboards or real-time feeds so the relative time stays accurate without a page refresh.
 - Reach for tooltipEntries when readers need to grab an exact value: an incident log or deploy record where someone pastes the UTC time or Unix seconds elsewhere; configuring entries turns the hover into copy-to-clipboard rows.
@@ -1450,9 +1452,10 @@ Don't:
 Props:
 - `value`: string | number (required) — The date/time to display. Accepts Unix timestamps (seconds) or ISO 8601 strings.
 - `format`: 'relative' | 'relative_short' | 'auto' | 'date' | 'date_long' | 'date_weekday' | 'date_time' | 'time' | 'system_date' | 'system_date_time' | 'system_time' | 'unix_seconds' = 'auto' — Display format. 'relative' uses the locale's native long relative-time wording ('2 hours ago' in English), 'relative_short' uses its narrow pattern ('2h ago' in English) for compact surfaces, 'date' shows 'Mar 21, 2025', 'date_long' shows 'March 21, 2025', 'date_weekday' shows 'Wed, Mar 21, 2025', 'date_time' shows 'Mar 21, 2025, 2:51 PM', 'time' shows '2:51 PM', 'system_*' variants use ISO-style formatting, 'unix_seconds' shows the Unix time in whole seconds since the epoch (an absolute, zone-independent value), 'auto' switches from relative to date_time based on recency. Absolute formats never read the current time. 'relative', 'relative_short' and 'auto' read it on the client only: a server render or static prerender shows the full date and time in UTC, labelled, and the client switches to the format's normal output after hydration. Date-bearing formats ('date', 'date_long', 'date_weekday', 'date_time', and the full date in the hover card and the accessible name) use the InternationalizationProvider calendar, such as calendar="persian"; 'time', the relative formats, 'system_*', and 'unix_seconds' do not change.
+- `timezoneID`: string — IANA time zone the absolute formats render in, such as 'UTC' or 'America/Los_Angeles'. Omit (or pass 'local') for the viewer's own zone. An explicit zone renders identically on the server and the client, so it is the way to show an absolute time without a hydration mismatch; relative formats' visible text ignores it, while configured tooltipEntries rows still follow it. An unknown identifier warns once in development and falls back to the viewer's zone.
 - `autoThreshold`: number = 604800 — Threshold in seconds for 'auto' format to switch from relative to date_time.
 - `hasTooltip`: boolean = true — Whether to show a copyable hover card with the full date/time on hover. Applies to relative timestamps and to any format once tooltipEntries is configured.
-- `tooltipEntries`: ReadonlyArray<{timezoneID?: string; format?: TimestampTooltipFormat; label?: string; isCopyable?: boolean}> — Lines to show on hover, so one instant can be read (and optionally copied) in several time zones and/or formats at once. Each entry is one line, in the order given. Omit timezoneID (or pass 'local') for the viewer's own zone; format defaults to the full absolute style and also accepts 'full' alongside every non-relative TimestampFormat. Rows are read-only unless they set isCopyable (default false); copyable rows show a copy button in a dedicated trailing action column so buttons align, and the column is only present when some row is copyable. With no entries the card shows a single default row with the full absolute time, which is copyable. Configuring entries also attaches the surface to absolute formats, which otherwise have none.
+- `tooltipEntries`: ReadonlyArray<{timezoneID?: string; format?: TimestampTooltipFormat; label?: string; isCopyable?: boolean}> — Lines to show on hover, so one instant can be read (and optionally copied) in several time zones and/or formats at once. Each entry is one line, in the order given. An entry without timezoneID follows the Timestamp timezoneID when set, else the viewer's zone; 'local' always means the viewer's zone; format defaults to the full absolute style and also accepts 'full' alongside every non-relative TimestampFormat. Rows are read-only unless they set isCopyable (default false); copyable rows show a copy button in a dedicated trailing action column so buttons align, and the column is only present when some row is copyable. With no entries the card shows a single default row with the full absolute time, which is copyable. Configuring entries also attaches the surface to absolute formats, which otherwise have none.
 - `isTimezoneShown`: boolean = false — Whether to append the timezone abbreviation to the visible text. Applies to the date_time and time formats; system_* formats stay machine-readable and never carry one. Use tooltipEntries to control the tooltip's time zones.
 - `isLive`: boolean = false — Whether the relative time should update live (e.g. "2 min ago" \u2192 "3 min ago").
 - `type`: 'body' | 'large' | 'label' | 'supporting' | 'code' | 'display-1' | 'display-2' | 'display-3' | 'inherit' = 'supporting' — Semantic text type from Text. Determines size, weight, and line-height.
@@ -1586,7 +1589,7 @@ Do:
 - Make info and success banners dismissable. Keep error banners visible until the user fixes the issue.
 - Keep titles short and scannable: "Payment failed" not "There was a problem processing your most recent payment."
 - Set collapsible={false} when the user needs the content to act on the message, like the list of fields that failed validation. Keep the default toggle when the detail is long enough to bury the banner's own message.
-- Banner status controls color and icon only; it does not create a live region. Announce async outcomes from the transition handler with useAnnounce. Add an explicit role="status" only when the visible banner is intended as a persistent semantic mirror; reserve role="alert" for genuinely urgent, interruptive content.
+- Banner status controls color and icon only; it does not create a live region. Announce async outcomes from the transition handler with useAnnounce. Pass role="alert" only for an urgent message the person must act on now: Banner puts it on the title and description, so controls, endContent and supporting content are not read as part of the alert. Do not also announce that message with useAnnounce.
 
 Don't:
 - Use Banner for short-lived messages that disappear on their own; use Toast instead.
@@ -2286,7 +2289,7 @@ Props:
 - `isOptional`: boolean = false — Whether the field is optional (mutually exclusive with isRequired).
 - `isRequired`: boolean = false — Whether the field is required (mutually exclusive with isOptional).
 - `labelIcon`: ReactNode | IconType — Icon to display before the label text. See `astryx docs icons` for valid semantic names.
-- `labelTooltip`: string — Tooltip text to display in an info icon at the end of the label. Hover shows it; on a touch screen a tap on the icon opens it without focusing the field, while a mouse click on the icon focuses the field like the rest of the label.
+- `labelTooltip`: string — Help text for an info button after the label, named "About {label}". Hover and keyboard focus preview it; a tap, click, Enter, or Space opens it and never focuses or toggles the control.
 - `status`: {type: 'warning' | 'error' | 'success', message?: string, messageID?: string} — Status indicator with type and optional message. When message is set, displays a colored status box. messageID is for wiring aria-describedby on the input.
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How status feedback is placed. Attached overlaps an eligible opaque, bordered, fixed-height control; detached renders a message below custom or non-bordered controls; tooltip leaves the visible affordance to the wrapped input and announces its message without a FieldStatus box.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned. Prefer this over setting width via xstyle/className/style, which only size the inner control box. Without a width, a row can shrink the whole field below the natural width of its control, so filter bars shrink instead of overflowing.
@@ -3162,7 +3165,7 @@ Props:
 - `isOptional`: boolean = false — Show the localized optional indicator unless it matches FormLayout's default optionality.
 - `isRequired`: boolean = false — Show the localized required indicator unless it matches FormLayout's default optionality.
 - `labelIcon`: ReactNode | IconType — Icon or rendered icon content before the label text. See `astryx docs icons` for semantic names.
-- `labelTooltip`: string — Tooltip text for the info icon after the label. Hover shows it; on a touch screen a tap on the icon opens it without focusing the field or toggling the control, while a mouse click on the icon activates the control like the rest of the label.
+- `labelTooltip`: string — Help text for an info button after the label, named "About {label}". Hover and keyboard focus preview it; a tap, click, Enter, or Space opens it and never focuses or toggles the control.
 - `description`: ReactNode — Supporting content displayed below the label and kept separate from the control's accessible name.
 - `descriptionID`: string — ID applied to the supporting description for caller-owned `aria-describedby` wiring.
 - `ref`: React.Ref<HTMLLabelElement> — Ref forwarded to the label element. Group mode currently renders a span.
@@ -3764,6 +3767,30 @@ Returns:
 - `stop`: () => void — Halts every channel where it is on screen.
 - `destroy`: () => void — Stops every motion and lets the element go; the element keeps the values it shows. Call it when you remove the element or no longer animate it.
 
+### createDragToSnapPoints
+
+Import: `import {createDragToSnapPoints} from '@astryxdesign/core';`
+
+Lets a drag move an element along one axis and settles it on snap points when the finger lifts, the way an iOS sheet settles on its detents: on the nearest snap point to where it is, on the next one in its direction after a quick flick, and back where it started when the finger was moving back. The settle continues the release's velocity. For a bottom sheet, use BottomSheet's `snapPoints`; for a scrolling row, Carousel's `hasSnap`. Use the `useDragToSnapPoints` hook in React.
+
+Do:
+- Offer the same positions without a drag: buttons or keys that call `settleTo`.
+- Keep the snap points few and far apart, so a release clearly picks one.
+
+Don't:
+- Use it for a sheet or a carousel: their own props already settle the way people expect.
+
+Parameters:
+- `element`: HTMLElement (required) — The element a drag moves. It moves along `axis` only, by translation, so lay it out at its resting position as usual.
+- `options.axis`: 'x' | 'y' (required) — The axis the element moves along.
+- `options.snapPoints`: number[] (required) — Offsets in px along `axis` from the element's resting position, such as `[0, 240, 480]`, sorted before use (`onSettle` and `settleTo` count in that order); an empty list makes the drag do nothing. Unlike BottomSheet's `snapPoints`, they are not fractions of the viewport.
+- `options.flickThreshold`: number = 1008 — A release faster than this, in px/s, carries to the next snap point in its direction. The default is the flick speed measured for UIKit's sheet.
+- `options.onSettle`: (index: number) => void (required) — Called with the snap point's index once the element settles on it, after a drag or `settleTo`. A settle that a new drag interrupts calls nothing.
+
+Returns:
+- `settleTo`: (index: number) => void — Settles the element on the snap point at `index` without a drag, then calls `onSettle`. Wire it to keys and buttons: it is the keyboard path. An index outside the snap points does nothing and warns in development.
+- `destroy`: () => void — Removes every listener and stops the element where it is. Call it when you remove the element.
+
 ### createPanGesture
 
 Import: `import {createPanGesture} from '@astryxdesign/core';`
@@ -3806,6 +3833,29 @@ Parameters:
 
 Returns:
 - `animator`: AnimatorHandle — The element's animator, the same object on every render: `animate(target, {velocity?})` springs channels to a target on the state-change motion Astryx's components use, `decay(velocity)` coasts them from a release velocity, `set(values)` jumps them, `get()` and `getVelocity()` read them, and `stop()` halts them. The channels are `x` and `y` (px), `scale` (1 at the element's size), `rotate` (degrees) and `opacity` (0 to 1). `animate` and `decay` return a promise that resolves when the motion ends. Calling it never re-renders the component. Calls before the ref attaches do nothing and resolve at once.
+
+### useDragToSnapPoints
+
+Import: `import {useDragToSnapPoints} from '@astryxdesign/core/hooks';`
+
+Lets a drag move an element along one axis and settles it on snap points when the finger lifts, the way an iOS sheet settles on its detents: on the nearest snap point to where it is, on the next one in its direction after a quick flick, and back where it started when the finger was moving back. The settle continues the release's velocity. For a bottom sheet, use BottomSheet's `snapPoints`; for a scrolling row, Carousel's `hasSnap`. Outside React, use `createDragToSnapPoints`.
+
+Do:
+- Offer the same positions without a drag: buttons or keys that call `settleTo`.
+- Keep the settled index in state from `onSettle`, and render what the position means from it.
+
+Don't:
+- Use it for a sheet or a carousel: their own props already settle the way people expect.
+
+Parameters:
+- `ref`: RefObject<HTMLElement | null> (required) — A ref to the element a drag moves, along `axis` only.
+- `options.axis`: 'x' | 'y' (required) — The axis the element moves along. A new one creates the drag again, starting where the element is.
+- `options.snapPoints`: number[] (required) — Offsets in px along `axis` from the element's resting position, such as `[0, 240, 480]`, sorted before use (`onSettle` and `settleTo` count in that order); an empty list makes the drag do nothing. Unlike BottomSheet's `snapPoints`, they are not fractions of the viewport. New ones create the drag again and nothing more: the element stays where it is, a settle in flight included, and the next drag or `settleTo` starts there.
+- `options.flickThreshold`: number = 1008 — A release faster than this, in px/s, carries to the next snap point in its direction. The default is the flick speed measured for UIKit's sheet. A new one creates the drag again, as new snap points do.
+- `options.onSettle`: (index: number) => void (required) — Called with the snap point's index once the element settles on it. The latest function is the one called, so it may be new on every render.
+
+Returns:
+- `settleTo`: (index: number) => void — Settles the element on the snap point at `index` without a drag: the keyboard path. The same function on every render.
 
 ### usePanGesture
 
@@ -3947,7 +3997,7 @@ Props:
 
 Import: `import {FormLayout} from '@astryxdesign/core/FormLayout';`
 
-A layout container that arranges form fields with consistent spacing and direction. FormLayout handles where fields go, not state or submission. Wrap it in a <form> for that. Supports vertical (default), horizontal, and horizontal-labels directions, and can be nested to mix them.
+A layout container that arranges form fields with consistent spacing and direction. FormLayout handles where fields go, not state or submission. Wrap it in a native <form> for that; <form> has no Astryx replacement, so it stays a plain element. Supports vertical (default), horizontal, and horizontal-labels directions, and can be nested to mix them.
 
 Do:
 - Stack fields vertically for most forms. It's the easiest to scan top to bottom.
@@ -3955,7 +4005,7 @@ Do:
 - Use horizontal-labels for settings pages where labels sit beside their inputs.
 
 Don't:
-- Use FormLayout for form state or submission. It's just layout. Wrap it in a <form> for that.
+- Use FormLayout for form state or submission. It's just layout. Wrap it in a native <form> for that.
 - Put unrelated fields side by side in a horizontal layout. Save it for fields that belong together.
 - Nest horizontal-labels inside another FormLayout. It uses CSS Grid and needs to be the outermost container.
 
@@ -4047,7 +4097,7 @@ Props:
 - `footer`: ReactNode — Footer slot. Accepts any ReactNode; use LayoutFooter when a footer region is needed.
 - `start`: ReactNode — Logical-start slot (left in LTR). Accepts any ReactNode; use LayoutPanel when a panel region is needed.
 - `end`: ReactNode — Logical-end slot (right in LTR). Accepts any ReactNode; use LayoutPanel when a panel region is needed.
-- `height`: 'fill' | 'auto' = 'fill' — Height behavior: fill the container or grow with content.
+- `height`: 'fill' | 'auto' = 'fill' — Height behavior: fill the container's height or grow with content. Fill needs a container with a set height, such as AppShell's content area; under an app root with no height, the layout grows with its content.
 - `contentWidth`: SizeValue — Maximum width of the aligned content within each slot (header, content, footer, panels), centered when narrower than the available space. Without panels, LayoutContent spans the available width so its scrollbar stays at the outer edge while its children align internally to contentWidth. With exactly one panel, the panel stays aligned to the contentWidth frame while LayoutContent extends to the opposite open edge. With both panels, contentWidth includes the complete middle composition. Percentage widths—including percentage-bearing calc(), min(), max(), and clamp() values—and intrinsic widths, plus bare var(...) values, retain the constrained composition; use calc(var(...)) for a variable guaranteed to resolve to a length. Dividers stay full-bleed. Numbers are treated as pixels, strings are used as-is (e.g. `60ch`). Common page widths: 640 for forms, settings, and text-focused pages; 960 for content pages and wider layouts.
 - `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Padding at the layout's outer edges using the spacing scale. Applies to this Layout's own header, footer, panels, and content. A nested Layout does not inherit it: without `padding`, its regions use the enclosing Card, Section, or Dialog padding, or the default inset (spacing 4). That keeps a page Layout inside AppShell inset even though AppShell's own regions are full bleed.
 - `defaultHasDividers`: boolean — Default divider visibility for LayoutHeader and LayoutFooter children. Headers and footers that don't pass `hasDivider` use this value; when unset, nested layouts inherit from their parent context.
@@ -4554,6 +4604,25 @@ Don't:
 
 Returns:
 - `pressableProps`: {'data-astryx-pressable': ''} — The marker attribute to spread on the element that paints the press. Compose one of `interactionOverlayStyles` (from `@astryxdesign/core/utils`) on the same element — `backgroundColor` or `backgroundImage` for a surface whose hover and press are the system's overlays, `pressedBackgroundColor` for one whose hover is its own — and it paints the pressed token on the first frame of a press and fades it over the release, keeping `:active` for a mouse on a desktop. On a phone or tablet, where the stylesheet drops `:active`, the controller also paints a mouse, trackpad or Space-key press: at once, held while the button or key is down, faded at the release. A press is themed through `--color-overlay-pressed`.
+
+### useSnapPaging
+
+Import: `import {useSnapPaging} from '@astryxdesign/core/SnapPaging';`
+
+Gives a Carousel iOS paging on native snap's stops: pass the value as hasSnap={useSnapPaging()}. Under a finger and on a trackpad swipe, a flick moves one view, or one item with {pages: 'item'}, and the row rests on an item's start edge. A mouse wheel keeps native snapping. Only a carousel given the value loads the paging code.
+
+Do:
+- Use it for a row read one view at a time, such as onboarding screens or a photo strip, where a fast flick must not skip past the next view.
+- Pass {pages: 'item'} when several items show at once and each flick should move only one of them.
+
+Don't:
+- Use it for a row people scan quickly; plain hasSnap keeps native momentum, which can pass several items in one swipe.
+
+Parameters:
+- `options`: {pages?: 'view' | 'item'} = {pages: 'view'} — What one flick moves. 'view' moves one view and lands on the item start edge nearest one viewport on; 'item' moves one item. A new value applies from the next flick.
+
+Returns:
+- `paging`: SnapPaging — Snap paging for Carousel's hasSnap. The value is the same for the component's life, and Carousel keeps the value it first attached.
 
 ## Navigation
 
@@ -5236,7 +5305,7 @@ Props:
 
 Import: `import {Popover} from '@astryxdesign/core/Popover';`
 
-A click-triggered overlay anchored to a button or trigger element. Use it for secondary actions, inline confirmations, or supplementary information that does not warrant a full dialog. For hover previews use HoverCard, for brief helper text use Tooltip.
+A click-triggered overlay anchored to a button or trigger element. Use it for secondary actions, inline confirmations, or supplementary information that does not warrant a full dialog. For hover previews use HoverCard, for brief helper text use Tooltip. Under a finger (a coarse primary pointer), it is presented like a native popover: it grows out of its trigger and shrinks back into it on the theme\u2019s motion tokens; with reduced motion it cross-fades, opacity only, in 200 ms or less.
 
 Do:
 - Keep popover content focused on a single task or piece of information.
@@ -5274,7 +5343,7 @@ Props:
 
 Import: `import {Sheet dialogs} from '@astryxdesign/core/BottomSheet';`
 
-Deprecated: write each step as its own BottomSheet with isOpen, controlled by one state value that names the open step. Closing the top sheet and opening the next in the same update, from a control inside the open step, runs the same replace handoff (see BottomSheet, Replacing a sheet), with no sheetId and no switcher; a step changed from a control outside the flow (a page control, or code after focus left the step) closes and opens with ordinary push and pop motion. BottomSheetSwitcher keeps working until a future minor release removes it: a flow used on its own behaves as released (with two fixes: a toast raised from a step renders above the flow and can be pressed, and under reduced motion its steps follow the reduced-motion rule), and a flow stacked with other sheets is one level of the stack (it recedes and is blocked when covered, shares the one scrim, and stands down from dismissal while covered). Modal and hasScrim={false} flows migrate the same way. Set activeSheet to a nested BottomSheet's sheetId to open or switch steps, and to null to close.\n\nStacking. A scrim flow is one level in the stack of open sheets (see BottomSheet, Stacking). Open it while a standalone sheet is open and the flow sits on top of that sheet, which recedes and is blocked; open a standalone sheet while the flow is open, from a step's content or from anywhere else, and that sheet sits on top while the whole flow recedes as one. Switching the step in place never changes the flow's position. Escape, the scrim, a swipe, and a platform close request reach only the top level: the flow's onActiveSheetChange(null) when the flow is on top, the standalone sheet's onOpenChange(false) when that sheet is. A standalone sheet rendered inside a step's content is presented only while that step is the active one: it leaves when the flow switches step or closes, its isOpen stays yours, and it is presented again, on top, if the step returns while it is still open. Only the bottom level's backdrop dims the page. A no-scrim flow stays out of the stack.
+Deprecated: write each step as its own BottomSheet with isOpen, controlled by one state value that names the open step. Closing the top sheet and opening the next in the same update, from a control inside the open step, runs the same replace handoff (see BottomSheet, Replacing a sheet), with no sheetId and no switcher; a step changed from a control outside the flow (a page control, or code after focus left the step) closes and opens with ordinary push and pop motion. BottomSheetSwitcher keeps working until a future minor release removes it: a flow used on its own behaves as released (with three fixes: a toast raised from a step renders above the flow and can be pressed, under reduced motion its steps follow the reduced-motion rule, and a step with a hasAutoFocus field opens on that field in every browser), and a flow stacked with other sheets is one level of the stack (it recedes and is blocked when covered, shares the one scrim, and stands down from dismissal while covered). Modal and hasScrim={false} flows migrate the same way. Set activeSheet to a nested BottomSheet's sheetId to open or switch steps, and to null to close.\n\nStacking. A scrim flow is one level in the stack of open sheets (see BottomSheet, Stacking). Open it while a standalone sheet is open and the flow sits on top of that sheet, which recedes and is blocked; open a standalone sheet while the flow is open, from a step's content or from anywhere else, and that sheet sits on top while the whole flow recedes as one. Switching the step in place never changes the flow's position. Escape, the scrim, a swipe, and a platform close request reach only the top level: the flow's onActiveSheetChange(null) when the flow is on top, the standalone sheet's onOpenChange(false) when that sheet is. A standalone sheet rendered inside a step's content is presented only while that step is the active one: it leaves when the flow switches step or closes, its isOpen stays yours, and it is presented again, on top, if the step returns while it is still open. Only the bottom level's backdrop dims the page. A no-scrim flow stays out of the stack.
 
 Do:
 - Prefer one standalone BottomSheet per step with one state value naming the open step; the replace handoff is the same and nothing has to be nested under a switcher.
@@ -5296,7 +5365,7 @@ Props:
 
 Import: `import {Sheet panel} from '@astryxdesign/core/BottomSheet';`
 
-A mobile touch surface for filters, actions, forms, and detail views that should rise from the bottom of the viewport. For a multi-step flow, give each step its own sheet and one state value that names the open step (see Replacing a sheet); open a second sheet over the first when a step should stay visible beneath it.\n\nStacking. Every sheet keeps its own isOpen. Open a sheet while another scrim sheet is open and it stacks on top: the sheet beneath stays mounted with its scroll position and inputs, recedes behind the new one (the nearest covered sheet shrinks to 0.96 and lifts 8px, deeper ones to 0.92 and 16px), and is blocked from pointer, keyboard, and assistive technology by the top sheet's modal dialog. The sheets can be siblings, live in separate components, sit inside another sheet's content, or sit inside a BottomSheetSwitcher step; a whole switcher is one level, and switching its step in place does not change its position. Nothing moves in the DOM: each sheet's dialog stays where it is written, and no wrapper component is needed.\n\nOrder is open order. The top sheet is the one presented most recently that is still open; a sheet that closes and reopens comes back on top. When several sheets open in one update (a deep link into a flow), there is no open order between them, so tree order decides: a sheet below the sheets rendered in its content, siblings in the order they are written. That order is right in the first painted frame.\n\nOne scrim. Only the bottom sheet's backdrop dims the page; the backdrops of the sheets above it are transparent, so a stack never darkens per level. The dim holds steady while sheets push and pop, and if the bottom sheet closes while sheets remain above it, the next sheet's backdrop takes over in the same frame.\n\nDismissal. Escape, a tap on the scrim, a downward swipe, and a platform close request (Android back, a close watcher) reach only the top sheet, through that sheet's own onOpenChange, and that sheet's purpose applies: required blocks all of them, form blocks the scrim and the swipe. Nothing closes a whole stack at once; set every sheet closed in one update when a flow is done and they leave together.\n\nClosing a covered sheet from code. Sheets rendered inside the closing sheet's content are part of it: they are presented only while it is open and leave with it. Their isOpen stays yours, as with a Dialog rendered in a closed Dialog: nothing is written to it, and a nested sheet that is still open when its host reopens is presented again, on top. Set it closed yourself when the flow is done. Sheets above the closing sheet that are not in its content stay open and keep their order; the closing sheet slides out from beneath them, and if it owned the scrim, the sheet above takes it over.\n\nReplacing a sheet. Close the top sheet and open another in the same update (one state value that names the open step does this) and the new sheet replaces it instead of stacking on it: the new sheet rises above the one it replaces; if the replaced sheet is taller it moves down to meet the new sheet's top edge at the same time; the replaced sheet fades only after both motions finish, and is inert and hidden from assistive technology from the start. The scrim holds steady throughout, with no dip; focus moves into the new sheet; and when the flow closes, focus returns to the element that opened its first sheet, whichever sheet closed last. This is the handoff the deprecated BottomSheetSwitcher ran between its steps; a multi-step flow needs no switcher: give each step its own BottomSheet and one state value. A replace happens only when exactly one sheet closes and one opens in the update, the closing sheet was the top sheet of its stack, and the move was made from inside it (the control last pressed, or with no recent press the focused element, was in the closing sheet, as a step's own Continue or Back button is); a covered sheet closing while a sheet opens, a close and an open in different updates, or a close and an open driven from a control outside the closing sheet (two unrelated owners acting at once) keep the ordinary push and pop motion and their own focus return. A replace over an open stack runs one level up and leaves the sheets beneath covered. Non-modal sheets (hasScrim={false}) replace each other the same way, with no scrim: they are hosted in the browser top layer as manual popovers, so the entering step orders above the retained one with no page-level z-index, and toasts raised before or while the sheet is open stay above it. Below the Popover API support floor (Tier 2 in the browser support guide) the sheet falls back to show() in page stacking order: usable, but with no promise over later page content. A non-modal sheet returns focus to its opener on close only while focus is still inside it; focus taken elsewhere on the live page stays there.\n\nFocus. Opening a sheet moves focus into it, wherever the engine's native dialog focusing steps land: the panel in Chromium, the first focusable control in Firefox (a data-autofocus field only when it comes first). A step entering as a replacement focuses a data-autofocus descendant first, so a flow that opens on a field keeps the keyboard on it. Closing the top sheet returns focus into the sheet it reveals: to the control that opened it when that control is still there, otherwise to the revealed sheet's panel. When the last sheet closes, the standalone rules apply: finalFocusRef, else the element that opened the sheet, with a focus ring only after keyboard input. When every sheet of a stack closes in one update, focus returns once, to the bottom sheet's finalFocusRef or opener, after the last dialog has closed.\n\nCaveats. A Dialog, AlertDialog, or Popover opened from a sheet paints above the sheet and does not make it recede; a sheet opened from inside that Dialog paints above the Dialog and stacks over the sheet beneath. Sheets with hasScrim={false} stay out of the stack entirely (they replace each other, but never stack, recede, or take the scrim). A sheet React hides (a suspended Suspense boundary, Activity mode="hidden") leaves the stack and closes its dialog; when it is shown again it is presented again, on top. Only sheets rendered in the same document stack; a sheet inside an iframe is its own stack.
+A mobile touch surface for filters, actions, forms, and detail views that should rise from the bottom of the viewport. For a multi-step flow, give each step its own sheet and one state value that names the open step (see Replacing a sheet); open a second sheet over the first when a step should stay visible beneath it.\n\nStacking. Every sheet keeps its own isOpen. Open a sheet while another scrim sheet is open and it stacks on top: the sheet beneath stays mounted with its scroll position and inputs, recedes behind the new one (the nearest covered sheet shrinks to 0.96 and lifts 8px, deeper ones to 0.92 and 16px), and is blocked from pointer, keyboard, and assistive technology by the top sheet's modal dialog. The sheets can be siblings, live in separate components, sit inside another sheet's content, or sit inside a BottomSheetSwitcher step; a whole switcher is one level, and switching its step in place does not change its position. Nothing moves in the DOM: each sheet's dialog stays where it is written, and no wrapper component is needed.\n\nOrder is open order. The top sheet is the one presented most recently that is still open; a sheet that closes and reopens comes back on top. When several sheets open in one update (a deep link into a flow), there is no open order between them, so tree order decides: a sheet below the sheets rendered in its content, siblings in the order they are written. That order is right in the first painted frame.\n\nOne scrim. Only the bottom sheet's backdrop dims the page; the backdrops of the sheets above it are transparent, so a stack never darkens per level. The dim holds steady while sheets push and pop, and if the bottom sheet closes while sheets remain above it, the next sheet's backdrop takes over in the same frame.\n\nDismissal. Escape, a tap on the scrim, a downward swipe, and a platform close request (Android back, a close watcher) reach only the top sheet, through that sheet's own onOpenChange, and that sheet's purpose applies: required blocks all of them, form blocks the scrim and the swipe. Nothing closes a whole stack at once; set every sheet closed in one update when a flow is done and they leave together.\n\nClosing a covered sheet from code. Sheets rendered inside the closing sheet's content are part of it: they are presented only while it is open and leave with it. Their isOpen stays yours, as with a Dialog rendered in a closed Dialog: nothing is written to it, and a nested sheet that is still open when its host reopens is presented again, on top. Set it closed yourself when the flow is done. Sheets above the closing sheet that are not in its content stay open and keep their order; the closing sheet slides out from beneath them, and if it owned the scrim, the sheet above takes it over.\n\nReplacing a sheet. Close the top sheet and open another in the same update (one state value that names the open step does this) and the new sheet replaces it instead of stacking on it: the new sheet rises above the one it replaces; if the replaced sheet is taller it moves down to meet the new sheet's top edge at the same time; the replaced sheet fades only after both motions finish, and is inert and hidden from assistive technology from the start. The scrim holds steady throughout, with no dip; focus moves into the new sheet; and when the flow closes, focus returns to the element that opened its first sheet, whichever sheet closed last. This is the handoff the deprecated BottomSheetSwitcher ran between its steps; a multi-step flow needs no switcher: give each step its own BottomSheet and one state value. A replace happens only when exactly one sheet closes and one opens in the update, the closing sheet was the top sheet of its stack, and the move was made from inside it (the control last pressed, or with no recent press the focused element, was in the closing sheet, as a step's own Continue or Back button is); a covered sheet closing while a sheet opens, a close and an open in different updates, or a close and an open driven from a control outside the closing sheet (two unrelated owners acting at once) keep the ordinary push and pop motion and their own focus return. A replace over an open stack runs one level up and leaves the sheets beneath covered. Non-modal sheets (hasScrim={false}) replace each other the same way, with no scrim: they are hosted in the browser top layer as manual popovers, so the entering step orders above the retained one with no page-level z-index, and toasts raised before or while the sheet is open stay above it. Below the Popover API support floor (Tier 2 in the browser support guide) the sheet falls back to show() in page stacking order: usable, but with no promise over later page content. A non-modal sheet returns focus to its opener on close only while focus is still inside it; focus taken elsewhere on the live page stays there.\n\nFocus. Opening a sheet, modal or not, focuses its data-autofocus field (a TextInput with hasAutoFocus) in every browser. Without one, focus goes wherever the engine's native dialog focusing steps land: the panel in Chromium, the first focusable control in Firefox. A step entering as a replacement also focuses a data-autofocus descendant first, so a flow that opens on a field keeps the keyboard on it. Closing the top sheet returns focus into the sheet it reveals: to the control that opened it when that control is still there, otherwise to the revealed sheet's panel. When the last sheet closes, the standalone rules apply: finalFocusRef, else the element that opened the sheet, with a focus ring only after keyboard input. When every sheet of a stack closes in one update, focus returns once, to the bottom sheet's finalFocusRef or opener, after the last dialog has closed.\n\nCaveats. A Dialog, AlertDialog, or Popover opened from a sheet paints above the sheet and does not make it recede; a sheet opened from inside that Dialog paints above the Dialog and stacks over the sheet beneath. Sheets with hasScrim={false} stay out of the stack entirely (they replace each other, but never stack, recede, or take the scrim). A sheet React hides (a suspended Suspense boundary, Activity mode="hidden") leaves the stack and closes its dialog; when it is shown again it is presented again, on top. Only sheets rendered in the same document stack; a sheet inside an iframe is its own stack.
 
 Do:
 - Use for mobile-first surfaces (filters, share sheets, quick actions) where the content should rise from the bottom edge.
@@ -5406,7 +5475,7 @@ Props:
 - `media`: LightboxMedia | LightboxMedia[] (required) — Media to display. Pass a single object for one item, or an array for gallery mode with prev/next navigation. Each item is {src: string, alt: string, caption?: ReactNode, type?: 'image' | 'video'}; type defaults to 'image', and zoom/pan is disabled for 'video'.
 - `index`: number — Current index in gallery mode (when media is an array).
 - `onIndexChange`: (index: number) => void — Callback when the gallery index changes via prev/next navigation.
-- `hasZoom`: boolean = false — Enable zoom on double-click, or Enter/Space/+/- via keyboard (images only). When zoomed, drag or use arrow keys to pan.
+- `hasZoom`: boolean = false — Enable zoom (images only): pinch (or ctrl-wheel), or double-tap or double-click to zoom in at that point and back; Enter/Space/+/- zoom 2× about the centre and back. When zoomed, drag or scroll a trackpad to pan, or use arrow keys; on a phone or a tablet, the pan has momentum.
 - `defaultIndex`: number = 0 — Initial image index in gallery mode for uncontrolled usage.
 - `hasAutoPlay`: boolean = false — Automatically start video playback when a video media item is shown.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be stylex.create() value.
@@ -6223,11 +6292,11 @@ Do:
 - Build on higher-level components like Popover, HoverCard, and Tooltip for common overlay patterns.
 
 Don't:
-- Add nested LayerProvider instances: nested providers are ignored and add unnecessary tree depth.
+- Nest a LayerProvider to change toast settings: a nested provider keeps the outer toast configuration and mounts no second toast viewport.
 
 #### LayerProvider
 
-App-level provider for layer systems such as toast viewports and imperative modals. Nested providers pass through.
+App-level configuration for toasts and the viewport inset. A nested provider mounts no second toast viewport and keeps the outer toast configuration; one that declares an inset applies its declared edges to the anchored layers in its subtree.
 
 Props:
 - `children`: ReactNode (required) — Application subtree that can use the shared layer context.

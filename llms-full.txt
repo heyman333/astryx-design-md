@@ -1,10 +1,10 @@
 # Astryx — Full Component Reference
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 255 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 257 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `47cad74` (2026-11-07) of https://github.com/facebook/astryx.
+Generated from commit `259190b` (2026-11-08) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -247,7 +247,7 @@ General-purpose toolbar container with three content slots and roving tabindex.
 Props:
 - `label`: string (required) — Accessible label for the toolbar, applied as aria-label.
 - `startContent`: ReactNode — Content aligned to the start (left in LTR).
-- `centerContent`: ReactNode — Centered content. Switches layout to CSS grid (1fr auto 1fr).
+- `centerContent`: ReactNode — Centered content. Switches to the three-lane layout: centered while each side lane fits in half of the width it leaves, and the row wraps when the lanes do not fit.
 - `endContent`: ReactNode — Content aligned to the end (right in LTR).
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size of the toolbar. Controls minimum height and coordinates with Button, TextInput, TabList, and Selector; children inherit this size as their default via SizeContext.
 - `gap`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 = 1 — Gap between items within each slot.
@@ -1354,7 +1354,7 @@ Import: `import {Shortcut} from '@astryxdesign/core/Kbd';`
 Renders a keyboard shortcut as styled key badges. Use Kbd in tooltips, menus, and help text to show key combinations.
 
 Props:
-- `keys`: string (required) — Keyboard shortcut string. Use "+" to separate keys. Special keys: mod (⌘ on Apple platforms, Ctrl elsewhere), ctrl, alt and shift (Apple symbols on Apple platforms, Ctrl, Alt and Shift text elsewhere), meta (Win elsewhere and before hydration), enter, backspace, escape, tab, up, down, left, right, plus. Aliases: esc for escape and return for enter.
+- `keys`: string (required) — Keyboard shortcut string. Use "+" to separate keys. Special keys: mod (⌘ on Apple platforms, Ctrl elsewhere), ctrl, alt and shift (Apple symbols on Apple platforms, Ctrl, Alt and Shift text elsewhere), meta (⌘ on Apple platforms, Win elsewhere and before hydration), enter, backspace, escape, tab, up, down, left, right, plus. Aliases: esc for escape and return for enter.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 - `className`: string — CSS class name for the root element. Prefer xstyle for styling; className is provided for integration with non-StyleX systems.
 - `style`: CSSProperties — Inline styles for the root element. Prefer xstyle for styling; inline styles bypass StyleX optimization.
@@ -1455,7 +1455,7 @@ Props:
 - `format`: 'relative' | 'relative_short' | 'auto' | 'date' | 'date_long' | 'date_weekday' | 'date_time' | 'time' | 'system_date' | 'system_date_time' | 'system_time' | 'unix_seconds' = 'auto' — Display format. 'relative' uses the locale's native long relative-time wording ('2 hours ago' in English), 'relative_short' uses its narrow pattern ('2h ago' in English) for compact surfaces, 'date' shows 'Mar 21, 2025', 'date_long' shows 'March 21, 2025', 'date_weekday' shows 'Wed, Mar 21, 2025', 'date_time' shows 'Mar 21, 2025, 2:51 PM', 'time' shows '2:51 PM', 'system_*' variants use ISO-style formatting, 'unix_seconds' shows the Unix time in whole seconds since the epoch (an absolute, zone-independent value), 'auto' switches from relative to date_time based on recency. Absolute formats never read the current time. 'relative', 'relative_short' and 'auto' read it on the client only: a server render or static prerender shows the full date and time in UTC, labelled, and the client switches to the format's normal output after hydration. Date-bearing formats ('date', 'date_long', 'date_weekday', 'date_time', and the full date in the hover card and the accessible name) use the InternationalizationProvider calendar, such as calendar="persian"; 'time', the relative formats, 'system_*', and 'unix_seconds' do not change.
 - `timezoneID`: string — IANA time zone the absolute formats render in, such as 'UTC' or 'America/Los_Angeles'. Omit (or pass 'local') for the viewer's own zone. An explicit zone renders identically on the server and the client, so it is the way to show an absolute time without a hydration mismatch; relative formats' visible text ignores it, while configured tooltipEntries rows still follow it. An unknown identifier warns once in development and falls back to the viewer's zone.
 - `autoThreshold`: number = 604800 — Threshold in seconds for 'auto' format to switch from relative to date_time.
-- `hasTooltip`: boolean = true — Whether to show a copyable hover card with the full date/time on hover. Applies to relative timestamps and to any format once tooltipEntries is configured.
+- `hasTooltip`: boolean = true — Whether to show a copyable hover card with the full date/time on hover or keyboard focus. Applies to relative timestamps and to any format once tooltipEntries is configured.
 - `tooltipEntries`: ReadonlyArray<{timezoneID?: string; format?: TimestampTooltipFormat; label?: string; isCopyable?: boolean}> — Lines to show on hover, so one instant can be read (and optionally copied) in several time zones and/or formats at once. Each entry is one line, in the order given. An entry without timezoneID follows the Timestamp timezoneID when set, else the viewer's zone; 'local' always means the viewer's zone; format defaults to the full absolute style and also accepts 'full' alongside every non-relative TimestampFormat. Rows are read-only unless they set isCopyable (default false); copyable rows show a copy button in a dedicated trailing action column so buttons align, and the column is only present when some row is copyable. With no entries the card shows a single default row with the full absolute time, which is copyable. Configuring entries also attaches the surface to absolute formats, which otherwise have none.
 - `isTimezoneShown`: boolean = false — Whether to append the timezone abbreviation to the visible text. Applies to the date_time and time formats; system_* formats stay machine-readable and never carry one. Use tooltipEntries to control the tooltip's time zones.
 - `isLive`: boolean = false — Whether the relative time should update live (e.g. "2 min ago" \u2192 "3 min ago").
@@ -3276,6 +3276,27 @@ Props:
 
 ## Interaction
 
+### createReorderable
+
+Import: `import {createReorderable} from '@astryxdesign/core';`
+
+Makes a collection's rows reorderable. On a touch screen a finger held still on a row's handle for a moment picks it up (a flick on the handle still scrolls): the row stays in its place, dimmed, while a copy of it follows the finger and an accent line marks where it would land; the other rows stay still, the page scrolls near its edges, and on release the rows rearrange. A pen held still on a handle where the primary pointer is coarse picks the row up as a finger does. A mouse, or a pen where the primary pointer is fine, drags a handle at once the same way, and the rows take their places without motion; a cancelled drag puts everything back at once. Without a drag, the handle toggles reorder mode for its row (a click, Space or Enter): each arrow key moves the row a place at once, and Escape or another activation ends the mode, keeping the moves; screen readers hear each move with the row's place and neighbours, and a hint shows the moves and Done as buttons, for taps alone. The reorder code ships with this function: a collection without the prop loads none of it.
+
+Do:
+- Give each row a stable key from your data, a string or a number (`itemKey={item.id}`), and apply each move by rendering the items in their new order in the same task.
+- Use `isReorderable` for rows that must stay put, such as a pinned first row.
+- Offer reorder mode from your own UI too, such as a row's context menu, with `reorderable.start(item.id)`.
+
+Don't:
+- Use React's `key` as the reorder key, or index-based keys: a move changes every index after it.
+
+Parameters:
+- `onReorder`: (move: {key: Key; to: number}) => void (required) — Called once per committed move (a drop, or each move in reorder mode) with the moved item's key and its index after the move, in the full order of the collection's items. Apply it by rendering the items in their new order. A cancelled move calls nothing. The latest function given is the one called, so the object may be made on every render.
+- `isReorderable`: (key: Key) => boolean — Whether the item with this key can move. An item it rejects shows no handle and cannot be picked up; one at either end of the collection also bounds the others, so nothing drops beyond it and a keyboard move into it is refused. Every item moves without it.
+
+Returns:
+- `reorderable`: Reorderable — The collection's reorder behavior: pass it as `List`'s `reorderable` prop, with an `itemKey` on each `ListItem`. Make it once per collection (with useMemo); one made on every render still works. Its one method, `start(key)`, enters reorder mode for that item from your own UI (a Move item in its context menu, a toolbar button): the focus moves to its handle, as activating it does; a key that cannot move or is not mounted does nothing and warns in development. One object may serve several collections, each reordering on its own; `start` then uses the one mounted last.
+
 ### useClickableContainer
 
 Import: `import {useClickableContainer} from '@astryxdesign/core/hooks';`
@@ -3725,9 +3746,9 @@ Parameters:
 - `focusTrigger`: 'auto' | 'always' | 'never' = 'auto' — When focus should open the tooltip. auto opens when the trigger itself takes focus, or focus lands inside a trigger that is focusable at that moment, so a roving-tabindex member opens when the arrow keys reach it.
 - `touchTrigger`: 'auto' | 'tap' | 'none' = 'auto' — What a tap does where there is no hover. auto opens on tap unless the trigger performs an action of its own (an aria-disabled control performs none); tap always opens (a button whose only job is revealing the tooltip); none never opens on touch.
 - `isEnabled`: boolean = true — Whether hover and focus triggers are enabled.
-- `isOpen`: boolean — Controlled open state. true force-shows, false force-hides, undefined lets hover/focus manage visibility.
+- `isOpen`: boolean — Controlled open state. true force-shows; false force-hides, and focus that would show it calls onShow; undefined lets hover/focus manage visibility.
 - `isDefaultOpen`: boolean = false — Whether the tooltip should be shown on mount.
-- `onShow`: () => void — Callback fired when the tooltip becomes visible.
+- `onShow`: () => void — Callback fired when the tooltip becomes visible. Under isOpen={false}, it reports focus that would show the tooltip.
 - `onHide`: () => void — Callback fired when the tooltip is hidden.
 
 Returns:
@@ -4374,12 +4395,12 @@ Parameters:
 - `maxSize`: ResizableSize = Infinity — Maximum size. Numbers, exact "Npx", and pixel(value) remain pixels; exact "N%" has no additional pixel bound; percent(value, {min: pixel(value)}) or percent(value, {max: pixel(value)}) adds exactly one. Percentage maximums re-resolve when their basis changes and clamp the current pixel selection.
 - `containerRef`: RefObject<HTMLElement | null> — The element a percentage is a share of. Caller-owned: the hook never infers one. Omitted, percentages use the viewport, which is the released behaviour. The ref may point at a different element over time — the basis follows it. Until that element is actually laid out (not yet mounted, display:none, detached) percentages use a temporary 1200px basis rather than its zero measurement, and nothing is persisted from it.
 - `direction`: 'horizontal' | 'vertical' = 'horizontal' — Which axis this region resizes along. Selects the container's inline or block content-box size as the percentage basis, and must match the direction given to ResizeHandle.
-- `collapsible`: boolean = false — Whether dragging below the collapsed threshold collapses the region to zero.
+- `collapsible`: boolean = false — Whether a lift or a key step below the collapsed threshold collapses the region to zero.
 - `snaps`: number[] — Pixel values to snap to during drag.
 - `autoSaveId`: string — Key for localStorage persistence of size and collapse state across sessions.
 - `defaultIsCollapsed`: boolean = false — Initial collapse state (uncontrolled). A persisted entry wins over it.
-- `isCollapsed`: boolean — Controlled collapse state. collapse(), expand() and a drag past the threshold then report through onCollapseChange instead of changing state internally.
-- `onCollapseChange`: (isCollapsed: boolean) => void — Called once per collapse state change, via drag or programmatically.
+- `isCollapsed`: boolean — Controlled collapse state. collapse(), expand(), a lift or a key step past the threshold, and a drag that reopens the region then report through onCollapseChange instead of changing state internally.
+- `onCollapseChange`: (isCollapsed: boolean) => void — Called once per collapse state change: a lift or a key step that closes the region, a drag or a key that reopens it, Enter, a double-click, or a call to collapse(), expand() or resize().
 
 Returns:
 - `size`: number — Current size in pixels.
@@ -4479,10 +4500,12 @@ Import: `import {LayoutFooter} from '@astryxdesign/core/Layout';`
 
 Props:
 - `children`: ReactNode — Footer content.
-- `hasDivider`: boolean = false — Border at top edge.
+- `hasDivider`: boolean = false — Border at top edge. When unset, the parent Layout's defaultHasDividers decides.
 - `height`: SizeValue — Footer height. Numbers are treated as pixels, strings are used as-is.
 - `label`: string — Accessible label for the landmark element.
+- `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Internal padding on every edge, using the spacing scale. Replaces the inset from the layout; 0 is full bleed.
 - `role`: AriaRole — ARIA landmark role.
+- `ref`: React.Ref<HTMLDivElement> — Ref forwarded to the footer element.
 
 ### LayoutHeader (subcomponent/hook)
 
@@ -4490,11 +4513,13 @@ Import: `import {LayoutHeader} from '@astryxdesign/core/Layout';`
 
 Props:
 - `children`: ReactNode — Header content.
-- `hasDivider`: boolean = false — Border at bottom edge.
+- `hasDivider`: boolean = false — Border at bottom edge. When unset, the parent Layout's defaultHasDividers decides.
 - `height`: SizeValue — Header height. Numbers are treated as pixels, strings are used as-is.
 - `label`: string — Accessible label for the landmark element.
+- `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Internal padding on every edge, using the spacing scale. Replaces the inset from the layout; 0 is full bleed.
 - `paddingBlockEnd`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Block-end (bottom) padding, using the spacing scale. Overrides padding on that edge only; paddingBlockEnd={0} docks the last child on the header bottom edge.
 - `role`: AriaRole — ARIA landmark role.
+- `ref`: React.Ref<HTMLDivElement> — Ref forwarded to the header element.
 
 ### LayoutPanel (subcomponent/hook)
 
@@ -4913,7 +4938,7 @@ Props:
 - `heading`: ReactNode — Heading slot content (logo, brand): positioned at the left edge of the nav bar.
 - `startContent`: ReactNode — Start content slot for navigation items or breadcrumbs: positioned after the heading, left-aligned.
 - `children`: ReactNode — Alias for startContent. Prefer startContent when composing with heading, centerContent, or endContent; children keeps the common React nav-item pattern from silently dropping items.
-- `centerContent`: ReactNode — Center content slot (tabs, search bar, primary navigation): when provided, switches the layout to a three-column CSS grid for true horizontal centering.
+- `centerContent`: ReactNode — Center content slot (tabs, search bar, primary navigation): when provided, switches the layout to three regions that keep it at the middle of the bar while they fit one row; the bar wraps when they do not.
 - `endContent`: ReactNode — End content slot for search, icons, or user profile: positioned at the right edge.
 - `label`: string = 'Top navigation' — Accessible label for the navigation landmark, applied as aria-label on the <nav> element.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
@@ -5030,7 +5055,7 @@ Props:
 - `as`: LinkComponentType — Custom component to render instead of <a> for link tabs. Overrides the LinkProvider default. Only applies when href is provided.
 - `icon`: ReactNode — Icon element shown when the tab is not selected.
 - `selectedIcon`: ReactNode — Icon element shown when the tab is selected; falls back to icon if not provided.
-- `endContent`: ReactNode — Content rendered after the label, such as a badge count or status dot.
+- `endContent`: ReactNode — Content rendered after the label, such as a badge count or status dot. The tab is one button, so endContent holds only non-interactive content: no button, link, InfoTip, or other focusable control. To explain a tab, anchor a Tooltip on the Tab through its ref, render it after the TabList, and put a decorative info Icon here.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 
 ### TabMenu (subcomponent/hook)
@@ -5392,7 +5417,7 @@ Props:
 - `sheetId`: string — Deprecated with BottomSheetSwitcher: give each step its own standalone sheet with isOpen instead. Still works as released: the unique ID of this sheet inside a BottomSheetSwitcher, which opens it when activeSheet matches; omit isOpen and onOpenChange when sheetId is used.
 - `label`: string (required) — Accessible label for the sheet. Required; the sheet has no built-in heading to derive a name from.
 - `children`: ReactNode (required) — Sheet content in a scrollable area. The named body is keyboard reachable while overflowing. Forward Tab entry may move directly to the first native link or button; input controls, composite widgets, and nested scroll areas retain the body stop. Shift+Tab from a delegated first child skips the body. Fitting content adds no body stop. The internal observed content box preserves block flow and percentage heights. If it includes a text-entry control that can bring up the mobile keyboard, use height='tall' and keep the sheet fully expanded while editing.
-- `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Internal padding of the sheet content using the spacing scale, matching Dialog. When omitted, uses the theme default for bottom sheets (--spacing-4 unless the theme sets padding on bottom-sheet). A lone Section child escapes the padding, and bleed children such as Table and Divider compensate against it. Use 0 for edge-to-edge content that supplies its own inset.
+- `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Internal padding of the sheet content using the spacing scale, matching Dialog. When omitted, uses the theme default for bottom sheets (--spacing-4 unless the theme sets padding on bottom-sheet). A lone Section child escapes the padding, and bleed children such as Table and Divider compensate against it. Use 0 for edge-to-edge content that supplies its own inset. Whatever the padding, the block-start inset is never less than the grab bar's height (--spacing-6), so resting content starts below the bar.
 - `height`: 'hug' | 'capped' | 'tall' | number | string = 'capped' — How tall the sheet is. Named budgets: 'hug' fits its content up to 92% of the viewport, 'capped' is a scrolling mid-height panel (~62%), and 'tall' is a pinned near-full panel (~92%) for content that streams in. Or pass a number (px) / CSS length for a custom budget. Give snapPoints to let the user drag between heights. On shorter viewports the sheet fills the available height. Only a fully expanded 'tall' sheet provides mobile-keyboard accommodation: it stays put and scrolls each focused control above the keyboard. Hug, Capped, numeric and CSS-length heights never do, and a Tall sheet stops doing it the moment the user drags it to a shorter detent, resuming when they drag it back. Outside that state the sheet neither moves nor adds keyboard scroll space, and the browser's own focus reveal is left in place; on iOS that reveal can shift the whole page. This accommodation applies where the visual viewport shrinks for the keyboard, as in Safari on iOS, Firefox for Android and Chrome on Android, where the sheet places the focused control just above the keyboard as it comes up, and the control rides the rest of Gboard\u2019s slide up, and the slide down after it loses focus; a hide Chrome reports late, such as Back, rides down from Chrome\u2019s report (`astryx docs browser-support`).
 - `snapPoints`: ReadonlyArray<number | string> — Extra heights the sheet can rest at when dragged; its own height is always the tallest stop, and omitting this gives a sheet that only opens and closes. Each stop is the sheet's visible height: a number is a viewport fraction (0.5 is half the screen), '50%' the same in CSS, '320px' an absolute length. A stop of a quarter of the sheet or less is a peek: it slides away instead of reflowing, and thins the scrim.
 - `hasScrim`: boolean = true — For a standalone BottomSheet, whether to render a scrim, the semi-transparent overlay that covers and blocks the background. true (default) uses showModal(): top layer, native focus containment, ::backdrop scrim, body scroll lock, and tap-scrim-to-dismiss when purpose='info', with the background inert. A scrim sheet also takes part in stacking (see Stacking below). false presents the sheet in the top layer as a manual popover (below the Popover API support floor, show() in page stacking order as a reduced fallback) with no scrim, no focus trap and no scroll lock, leaving the page behind interactive and scrollable; a no-scrim sheet neither stacks nor is stacked on, but no-scrim steps replace each other with the same handoff. A no-scrim sheet shown while a modal (a scrim sheet or a Dialog) that does not contain it is open is inert under that modal and stays beneath it (show(), no page-level z-index) until that modal has gone, then enters the top layer; a modal mid-exit counts as gone, and rendered inside the modal the sheet enters the top layer at once. In a multi-step flow, set hasScrim the same on every step.
@@ -5424,7 +5449,7 @@ Props:
 - `collisionBehavior`: 'overwrite' | 'ignore' = 'overwrite' — Behavior when a toast with matching uniqueID already exists.
 - `onHide`: (reason: "auto" | "manual") => void — Callback fired when the toast is removed.
 - `onDismiss`: (reason: "auto" | "manual") => void (required) — Callback fired when the toast is dismissed.
-- `renderContent`: (toast: ToastContentRenderProps) => ReactNode — Replaces the content of this toast's card with your own layout. Astryx keeps the card, its astryx-toast theme target and auto-hide behavior (inside a ToastViewport the viewport announces the toast, and while a modal hosts the viewport the card announces itself), then hands the renderer the message, endContent, resolved toast settings and a dismiss callback. The custom renderer owns every control in its layout: compose the control you want and call dismiss from it. Astryx does not inject a fallback close into custom content. Per-toast: an app shares one layout by wrapping useToast and passing it on every call, while a toast raised by library code that never passes it renders as an ordinary Astryx toast. The argument is {body, endContent, type, isAutoHide, autoHideDuration, dismiss}, where type is 'info' | 'error'.
+- `renderContent`: (toast: ToastContentRenderProps) => ReactNode — Replaces the content of this toast's card with your own layout. Astryx keeps the card, its astryx-toast theme target and auto-hide behavior (inside a ToastViewport the viewport announces the toast, over a modal too, and the card itself is not a live region), then hands the renderer the message, endContent, resolved toast settings and a dismiss callback. The custom renderer owns every control in its layout: compose the control you want and call dismiss from it. Astryx does not inject a fallback close into custom content. Per-toast: an app shares one layout by wrapping useToast and passing it on every call, while a toast raised by library code that never passes it renders as an ordinary Astryx toast. The argument is {body, endContent, type, isAutoHide, autoHideDuration, dismiss}, where type is 'info' | 'error'.
 
 ### Tooltip surface
 
@@ -5459,7 +5484,7 @@ Props:
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when tooltip visibility changes. Called with true when shown and false when hidden.
 - `hasHoverIndication`: 'auto' | boolean = 'auto' — Shows a dashed underline on the trigger element.
 - `isDefaultOpen`: boolean — Whether the tooltip should be shown on mount. Still dismissible.
-- `isOpen`: boolean — Controlled open state for the tooltip.
+- `isOpen`: boolean — Controlled open state for the tooltip. Held closed, focus that would open it calls onOpenChange(true) and shows nothing; held open, Escape calls onOpenChange(false) and it stays.
 
 ### Viewer overlay
 
@@ -5478,7 +5503,7 @@ Don't:
 
 Props:
 - `isOpen`: boolean (required) — Whether the lightbox is open.
-- `onOpenChange`: (isOpen: boolean) => void (required) — Callback when the lightbox open state changes.
+- `onOpenChange`: (isOpen: boolean) => void (required) — Callback when the lightbox open state changes: the Close button, Escape, a tap beside the media, or, on a phone or tablet, dragging a photo down from its fitted size.
 - `media`: LightboxMedia | LightboxMedia[] (required) — Media to display. Pass a single object for one item, or an array for gallery mode with prev/next navigation (on a phone or tablet, a swipe moves between items too). Each item is {src: string, alt: string, caption?: ReactNode, type?: 'image' | 'video'}; type defaults to 'image', and zoom/pan is disabled for 'video'.
 - `index`: number — Current index in gallery mode (when media is an array).
 - `onIndexChange`: (index: number) => void — Callback when the gallery index changes: prev/next, the arrow keys, or a swipe.
@@ -5637,20 +5662,20 @@ Don't:
 
 Parameters:
 - `options`: UseComboboxOptions (required) — Configuration object.
-- `options.selectableItems`: ReadonlyArray<T extends {value: string; disabled?: boolean}> (required) — The options in the same order as they render: `SelectorOptionData`, or any option type with a string `value` and an optional `disabled`. Options with `disabled` cannot be picked and are skipped while moving through the open list; ArrowDown or ArrowUp that opens the list from `onKeyDown` still lands on the first or last option.
+- `options.selectableItems`: ReadonlyArray<T extends {value: string; disabled?: boolean}> (required) — The options in the same order as they render: `SelectorOptionData`, or any option type with a string `value` and an optional `disabled`. Options with `disabled` cannot be picked and are skipped while moving through the open list; ArrowDown or ArrowUp that opens the list from `onKeyDown` lands on the selected option when it is enabled, else on the first or last enabled option.
 - `options.isOpen`: boolean (required) — Whether the list is shown. The caller owns this state.
 - `options.onOpen`: () => unknown (required) — Called to show the list. Return `false` to refuse; the hook then leaves the highlight alone.
 - `options.onClose`: () => void (required) — Called when the hook hides the list; the hook resets the highlight first. When the caller closes the list itself (an outside press, say), it should also call `setHighlightedIndex(-1)`.
 - `options.listboxId`: string (required) — The listbox element's id. Option ids are derived from it through `getItemId`.
-- `options.value`: string — The selected value. Without search, opening by a press, Enter or Space highlights it, or the first option when nothing is selected; ArrowDown and ArrowUp open on the first and last option.
+- `options.value`: string — The selected value. Opening the list highlights it when it is enabled; otherwise ArrowUp opens on the last enabled option and ArrowDown, a press, Enter or Space on the first. A disabled option is never highlighted on opening, and with no enabled option nothing is.
 - `options.onSelect`: (value: string) => void — Called with the picked value. Picking also closes the list.
 - `options.onClear`: () => void — Clears the value. When provided, Delete or Backspace on the closed control clears it, so clearing is not pointer-only. Ignored while the list is open or with `hasSearch`.
-- `options.hasSearch`: boolean = false — Whether the list has its own search field. Space then types instead of picking, opening by a press or Enter does not pre-highlight (ArrowDown and ArrowUp still open on the first and last option), and printable keys on the closed control go to `onSearchSeed`.
+- `options.hasSearch`: boolean = false — Whether the list has its own search field. Space then types instead of picking, opening by a press or Enter does not pre-highlight (ArrowDown and ArrowUp still open on the selected or the first or last enabled option), and printable keys on the closed control go to `onSearchSeed`.
 - `options.onSearchSeed`: (char: string) => void — With `hasSearch`, receives each printable character except Space typed while the control has focus, opening the list first when it is closed, so type-to-find needs no separate open step.
 - `options.isDisabled`: boolean = false — Whether the control ignores clicks and keys.
 
 Returns:
-- `highlightedIndex`: number — Index of the active option, or -1 when none is active. With `hasSearch`, opening by a press or Enter does not set one, so it stays -1 after the hook itself closes the list; ArrowDown and ArrowUp still open on the first or last option. Render it as the active option and name it in `aria-activedescendant` only while it points at a rendered option.
+- `highlightedIndex`: number — Index of the active option, or -1 when none is active. With `hasSearch`, opening by a press or Enter does not set one, so it stays -1 after the hook itself closes the list; ArrowDown and ArrowUp still open on the selected or the first or last enabled option. Render it as the active option and name it in `aria-activedescendant` only while it points at a rendered option.
 - `setHighlightedIndex`: (index: number) => void — Sets the active option, for example from a filter that changes the options.
 - `getItemId`: (index: number) => string — The id to render on the option at `index`. Set the control's `aria-activedescendant` to `isOpen && highlightedIndex >= 0 && highlightedIndex < selectableItems.length ? getItemId(highlightedIndex) : undefined`, so it never names an option that does not exist, including in an empty list.
 - `onTriggerClick`: () => void — Toggles the list from a press on the control.
@@ -5756,7 +5781,8 @@ Props:
 - `density`: 'compact' | 'balanced' | 'spacious' = 'balanced' — Spacing density for items. Under a finger, an interactive row's hit target reaches 44px where its neighbors leave room, with no change to how rows look or lay out.
 - `hasDividers`: boolean = false — Show dividers between items.
 - `animatedLayout`: AnimatedLayout — The handle from useAnimatedLayout({containerRef}). With it, when rows are inserted, removed or reordered, an inserted row enters, a removed row collapses in place, a row that crosses rows moving the other way rides above them with the surface color behind it, and the rows after a change and the content after the list, up to that container, glide to their new places, all on one shared motion, under every pointer. Under Reduce Motion nothing travels. A row is identified by its itemKey: a row without one changes at once. Without a handle the list changes at once.
-- `edge`: 'padded' | 'flush' | 'outset' | 'bleed' = 'padded' — Where each row's text, dividers, and hover and selection backgrounds sit, relative to the list's edges and the container around it. 'padded' keeps text inside each row's padding, so it starts a little in from a heading above the list and backgrounds have room around it. 'flush' drops the rows' side padding: text starts on the heading's line, and dividers and backgrounds stop at the row's content, with no room beyond it on either side. It works anywhere and suits static rows. 'outset' puts text on the heading's line and reaches dividers and backgrounds a little past it into the container's padding; it suits interactive rows in a container. 'bleed' puts text on the heading's line and reaches dividers and backgrounds to the container's edges with square corners, like Table rows in a Card. A row's first content is what lines up with the heading: its marker, icon, or avatar when it has one, otherwise its label. 'outset' and 'bleed' reach into the padding of the nearest container that shares its padding: a Card, Section, Dialog, or BottomSheet, or a transparent container such as a Layout region with explicit padding or a padded ScrollableArea. Place the List directly in that container's padding: padding that Stack, Center, or your own styles add in between is not counted. Drawers and the automatic padding of LayoutContent and LayoutPanel aren't supported yet. With no such container, including in a Popover, they look like 'padded'. In a container with less padding than the rows' own, text starts a little after the heading's line. A theme's inline padding on `item` replaces the row padding of every value, including the zero padding of flush.
+- `reorderable`: Reorderable — Makes the rows reorderable, with the object createReorderable({onReorder, isReorderable}) makes: each ListItem with an itemKey gets a reorder handle at its end, and each committed move calls onReorder once with the row's key and its index after the move ({key, to}); render the rows in the new order to apply it. A row the object's isReorderable rejects has no handle and keeps its place; one at either end of the list also bounds the others. The object may be made on every render. On a touch screen, a finger held still on a handle for a moment picks up its row (a flick on it still scrolls): the row stays in its place, dimmed, while a copy of it follows the finger and an accent line marks where it would land; the other rows stay still, the page scrolls near the edges, and on release the rows rearrange, gliding to their new places. A mouse drags a handle at once with the same copy and line, and the rows take their places without motion; a drag reports once, at the drop, and a cancelled drag puts everything back at once. In reorder mode the line marks the row's new place after each move. Without a drag, the handle is a toggle: a click, Space or Enter turns on reorder mode for its row (aria-pressed), in which each Up or Down arrow moves the row a place at once and reports it, and Escape or another activation ends the mode, keeping the moves. Each move is announced once it renders, with the row's place and its neighbours ('Milk, position 3 of 5, after Eggs, before Bread'), and a move into a row that keeps its place is refused and announced. While the mode is on, a hint anchored to the handle shows the moves and Done as buttons that do what the keys do, so a row can also be reordered by taps alone. The object's start(key) enters the same mode from your own UI, such as a row's context menu. A disabled row's handle stays focusable but moves nothing.
+- `edge`: 'padded' | 'flush' | 'outset' | 'bleed' = 'padded' — Where each row's text, dividers, and hover and selection backgrounds sit, relative to the list's edges and the container around it. 'padded' keeps text inside each row's padding, so it starts a little in from a heading above the list and backgrounds have room around it. 'flush' drops the rows' side padding: text starts on the heading's line, and dividers and backgrounds stop at the row's content, with no room beyond it on either side. It works anywhere and suits static rows. 'outset' puts text on the heading's line and reaches dividers and backgrounds a little past it into the container's padding; it suits interactive rows in a container. 'bleed' puts text on the heading's line and reaches dividers and backgrounds to the container's edges, like Table rows in a Card. Rows are square, except that when the list is the first or last child of a rounded Card or Dialog that holds no other Table or bleeding List deeper inside, its first row (when it has no header) or last row takes the container's corner, less the container padding above or below it. A row's first content is what lines up with the heading: its marker, icon, or avatar when it has one, otherwise its label. 'outset' and 'bleed' reach into the padding of the nearest container that shares its padding: a Card, Section, Dialog, or BottomSheet, or a transparent container such as a Layout region with explicit padding or a padded ScrollableArea. Place the List directly in that container's padding: padding that Stack, Center, or your own styles add in between is not counted. Drawers and the automatic padding of LayoutContent and LayoutPanel aren't supported yet. With no such container, including in a Popover, they look like 'padded'. In a container with less padding than the rows' own, text starts a little after the heading's line. A theme's inline padding on `item` replaces the row padding of every value, including the zero padding of flush.
 - `edgeCompensation`: 'inline' — Deprecated: use edge="outset", which this sets. Still works; edge wins when both are set. `astryx upgrade` rewrites existing usage.
 - `header`: ReactNode — Header content, associated with the list via aria-labelledby.
 - `listStyle`: 'none' | 'disc' | 'decimal' | 'circle' = 'none' — List marker style. 'decimal' renders an <ol> element instead of <ul>.
@@ -5834,13 +5860,14 @@ Don't:
 Props:
 - `data`: T[] — Array of data items to render as rows. T must extend Record<string, unknown> (use `interface MyRow extends Record<string, unknown>` for custom types).
 - `columns`: TableColumn<T>[] — Column definitions: each column has {key, header, width?, align?, renderCell?}. The `header` field sets the column heading text. If omitted, columns are auto-generated from data object keys. The `width` field is typed as `ColumnWidth` (not a number); use `proportional(n)` or `pixel(n)` helpers imported from `@astryxdesign/core/Table`. Omitting `width` keeps an equal flexible share with a compact 60px readability floor. To give one column a different floor, set `width: proportional(1, {minWidth: 80})`; its `minWidth` replaces the 60px floor for that column. Example: `width: pixel(120)` for 120px fixed, `width: proportional(1)` for a flexible column with a 120px default minimum.
-- `idKey`: (keyof T & string) | ((item: T) => string | number) — Row key for React reconciliation. Pass a property name string or a function. Falls back to row index if omitted.
+- `idKey`: (keyof T & string) | ((item: T) => string | number) — Canonical row identity: a property name projects valid strings and finite numbers to strings; a function retains string/number type. Optional legacy tables fall back to index. Virtualization requires explicit unique valid keys.
 - `density`: 'compact' | 'balanced' | 'spacious' = 'balanced' — Row density controlling cell padding and font size.
 - `dividers`: 'rows' | 'columns' | 'grid' | 'none' = 'rows' — Divider style rendered between cells.
 - `isStriped`: boolean = false — Applies a background wash to even-numbered rows.
 - `hasHover`: boolean = false — Applies a hover highlight background to rows on pointer devices.
 - `verticalAlign`: 'middle' | 'top' | 'bottom' = 'middle' — Vertical alignment for body row cells. Controls `vertical-align` on the `<td>` elements.
 - `textOverflow`: 'wrap' | 'truncate' = 'wrap' — How body cell text behaves when it exceeds the column width. 'wrap' lets text wrap and the row grow taller; 'truncate' clips with an ellipsis (default-rendered cells show a tooltip on hover when truncated). Header cells always truncate.
+- `virtualization`: TableVirtualizationCapability — Geometry-only capability from useTableRowsVirtualization({rowHeight, viewportHeight}), both positive finite CSS pixels. Pass complete flat data and an explicit idKey. Default text truncates; custom renderers, wrapping, structural plugins, incompatible offsets, invalid identity or unrepresentable geometry use full rendering. Logical row positions include the header.
 - `plugins`: Record<string, TablePlugin<T>> — Named plugins that extend table behavior via the transform pipeline. Converted to an ordered array internally.
 - `rowIndexStart`: number = 1 — ARIA row index (1-based) for the first rendered body row. The row ordinal is an accessibility concern independent of any visible index column, so setting this (or rowCount) makes the table emit aria-rowindex on body rows and aria-rowcount on the table. For a paginated/windowed view, pass the offset of the first visible row (e.g. (page - 1) * pageSize + 1) so aria-rowindex reflects position in the full dataset. Data-driven mode only.
 - `rowCount`: number — Total number of body rows across all pages/windows, used for aria-rowcount so assistive tech can announce "row X of Y" against the full dataset. When omitted but rowIndexStart is set (windowed view with an unknown total), aria-rowcount is set to -1 per the ARIA unknown-count convention. Data-driven mode only.
@@ -5851,7 +5878,7 @@ Props:
 
 Import: `import {Tree list} from '@astryxdesign/core/TreeList';`
 
-An expandable tree structure for displaying hierarchical data with branch connector lines. Use it for file explorers, nested category browsers, or any interface that visualizes parent-child relationships.
+An expandable tree structure for displaying hierarchical data with branch connector lines. Use it for file explorers, nested category browsers, or any interface that visualizes parent-child relationships. Under a finger, expanding a row glides the rows below it while its children fade in on the same timing, and a collapse plays it back; pass an `animatedLayout` handle for content after the tree to glide too.
 
 Do:
 - Provide meaningful labels and icons for each node to make the hierarchy easy to scan.
@@ -5891,7 +5918,7 @@ Props:
 - `align`: 'center' | 'start' | 'first-line' = 'center' — Vertical alignment of the start and end content against the label, passed through to Item unchanged. `first-line` keeps a small mark (a status dot, an icon) level with the first line of a wrapped label. See Item.align.
 - `isDisabled`: boolean = false — Disabled state; sets aria-disabled on the item.
 - `isSelected`: boolean = false — Selected state; marks the item as the current one with aria-current="true" (a list item cannot carry aria-selected).
-- `itemKey`: string | number — The row's item key, a string or a number from the data (the shape Table's idKey returns). It is the row's identity for the list's animated layout (List animatedLayout): with a handle, the list matches rows by it to animate inserts, removals and moves, and a row without one changes at once. Separate from React's key.
+- `itemKey`: string | number — The row's item key, a string or a number from the data (the shape Table's idKey returns). It is the row's identity for the list's animated layout (List animatedLayout): with a handle, the list matches rows by it to animate inserts, removals and moves, and a row without one changes at once. In a reorderable List (List reorderable), it is the key the reorderable object's onReorder reports and isReorderable is asked about, and a row without one has no reorder handle and keeps its place. Separate from React's key.
 - `swipeActions`: {leading?: ItemSwipeAction[]; trailing?: ItemSwipeAction[]} — Swipe actions for touch, passed through to Item unchanged: the verbs a sideways drag uncovers on each side, each `{id?, label, icon?, onActivate, isDisabled?, variant?: 'neutral' | 'accent' | 'destructive', hasRemoval?}`. See Item.swipeActions; List clips its rows in the inline axis for them.
 - `swipeBehavior`: 'reveal' | 'commit' = 'reveal' — What a swipe does, passed through to Item unchanged. See Item.swipeBehavior.
 
@@ -6073,6 +6100,14 @@ Import: `import {useTableRowStatus} from '@astryxdesign/core/Table';`
 
 Props:
 - `getStatus`: (item: T) => ({ status: 'success' | 'warning' | 'error'; color?: never; icon?: never; label: string } | { status?: never; color: 'accent' | 'success' | 'error' | 'warning' | 'red' | 'orange' | 'green' | 'yellow' | 'blue' | 'gray' | string; icon?: IconName; label: string }) | null (required) — Derive either a semantic outcome or a custom marker. {status, label} accepts the closed success/error/warning vocabulary and resolves its glyph and tone through the active theme. {color, icon?, label} preserves the stable custom-marker path: color always selects paint, no icon renders an 8px dot, and icon renders the explicit caller glyph. Even color values named success/error/warning remain dots without icon. Valid icon names: close, chevronDown, chevronLeft, chevronRight, chevronsLeft, chevronsRight, check, success, error, warning, info, calendar, clock, externalLink, menu, moreHorizontal, search, upload, arrowUp, arrowDown, arrowsUpDown, funnel, eyeSlash, viewColumns, copy, checkDouble, wrench, stop, microphone. The branches are exclusive, label is required and announced via role="img", and null leaves the row status cell empty. Memoize with useCallback for a stable plugin identity.
+
+### useTableRowsVirtualization (subcomponent/hook)
+
+Import: `import {useTableRowsVirtualization} from '@astryxdesign/core/Table';`
+
+Props:
+- `rowHeight`: number (required) — Total body-row pitch in CSS pixels, including existing density padding and collapsed borders. Must fit text and supported controls without reducing their size.
+- `viewportHeight`: number (required) — Bounded Table-owned viewport height in CSS pixels. Table accounts for its headers and chrome.
 
 ### useTableSelection (subcomponent/hook)
 

@@ -1,6 +1,6 @@
 # Astryx Design System — Design Overview
 
-> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`47cad74`](https://github.com/facebook/astryx/commit/47cad741218a952cf7cc09df2e1cbdd9a2f86ed5) (2026-11-07). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
+> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`259190b`](https://github.com/facebook/astryx/commit/259190bc5bcc2dc7d3cc3b78a9c65d1c76c0cdad) (2026-11-08). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
 
 ## What Astryx is
 
@@ -52,7 +52,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 
 ## Component library
 
-`@astryxdesign/core` currently documents **255 components** across **200 component groups** and **20 categories**. Each component directory contains the implementation (`{Name}.tsx`), colocated tests, and a `{Name}.doc.mjs` structured doc (props, anatomy, best practices) consumed by the CLI and docsite.
+`@astryxdesign/core` currently documents **257 components** across **201 component groups** and **20 categories**. Each component directory contains the implementation (`{Name}.tsx`), colocated tests, and a `{Name}.doc.mjs` structured doc (props, anatomy, best practices) consumed by the CLI and docsite.
 
 ### Accessibility (1)
 
@@ -185,8 +185,9 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**SelectorOption**](https://github.com/facebook/astryx/blob/main/packages/core/src/Selector/SelectorOption.doc.mjs) *(subcomponent/hook)*
 - [**TypeaheadItem**](https://github.com/facebook/astryx/blob/main/packages/core/src/Typeahead/TypeaheadItem.doc.mjs) *(subcomponent/hook)*
 
-### Interaction (17)
+### Interaction (18)
 
+- [**createReorderable**](https://github.com/facebook/astryx/blob/main/packages/core/src/reorderable/createReorderable.doc.mjs) — Makes a collection's rows reorderable. On a touch screen a finger held still on a row's handle for a moment picks it up (a flick on the handle still scrolls): the row stays in its place, dimmed, while a copy of it follows the finger and an accent line marks where it would land; the other rows stay still, the page scrolls near its edges, and on release the rows rearrange. A pen held still on a handle where the primary pointer is coarse picks the row up as a finger does. A mouse, or a pen where the primary pointer is fine, drags a handle at once the same way, and the rows take their places without motion; a cancelled drag puts everything back at once. Without a drag, the handle toggles reorder mode for its row (a click, Space or Enter): each arrow key moves the row a place at once, and Escape or another activation ends the mode, keeping the moves; screen readers hear each move with the row's place and neighbours, and a hint shows the moves and Done as buttons, for taps alone. The reorder code ships with this function: a collection without the prop loads none of it.
 - [**useClickableContainer**](https://github.com/facebook/astryx/blob/main/packages/core/src/hooks/useClickableContainer.doc.mjs) — Makes a container element clickable while preserving nested interactive element behavior. Solves the "nested interactive elements" problem: when a card is clickable but contains buttons/links, clicking those should NOT trigger the card's action. Detects interactive ancestors between the click target and the container, and ignores text selections. Supports href navigation (including middle-click and Ctrl/Cmd+click for new tabs).
 - [**useClipboard**](https://github.com/facebook/astryx/blob/main/packages/core/src/hooks/useClipboard.doc.mjs) — Copy-to-clipboard behavior: the clipboard write, a transient isCopied flag with its own reset timer, and an optional polite screen-reader announcement. Extracted so every copy affordance is a thin control over one implementation instead of re-deriving the timer and announcement. Rapid re-copies restart the reset timer so the confirmation always lasts the full duration, and the timer is cleaned up on unmount. CodeBlock and Timestamp build their built-in copy buttons on it; reach for it directly when building a copy affordance that is not a plain icon button (a menu item, a labeled text button, a copy-on-click value chip).
 - [**useCollapsible**](https://github.com/facebook/astryx/blob/main/packages/core/src/Collapsible/useCollapsible.doc.mjs) — Reusable hook that encapsulates the collapsible state machine. Supports three modes: group-controlled (inside CollapsibleGroup), controlled (isOpen + onOpenChange), and uncontrolled (self-managed with defaultIsOpen). Used internally by Card and Section.
@@ -312,14 +313,14 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 
 - [**useStreamingText**](https://github.com/facebook/astryx/blob/main/packages/core/src/hooks/useStreamingText.doc.mjs) — Smooths bursty streamed text into a steady character-by-character reveal using requestAnimationFrame. Decouples arrival rate from display rate. Advances on word and syntax boundaries to avoid slicing mid-markdown or mid-word, preventing visual glitches with markdown renderers. Animation timing derives from Astryx motion tokens via useTheme when available, with sensible fallbacks outside a theme provider. Snaps to full text when isStreaming becomes false.
 
-### Table & List (30)
+### Table & List (31)
 
 - [**Item**](https://github.com/facebook/astryx/blob/main/packages/core/src/Item/Item.doc.mjs) — A single, flexible item primitive that unifies the "start content + label + description + end content" pattern across Astryx. Use it wherever you need a structured row: dropdown menus, selectors, contact lists, notifications, file browsers, and activity feeds.
 - [**List**](https://github.com/facebook/astryx/blob/main/packages/core/src/List/List.doc.mjs) — A vertical collection of items with consistent spacing, dividers, and optional markers. Supports headers, icons, avatars, badges, and interactive items with click or link behavior. Use it to display ordered or unordered groups of related content.
 - [**List**](https://github.com/facebook/astryx/blob/main/packages/core/src/OverflowList/OverflowList.doc.mjs) — A horizontal list that automatically hides items when they exceed the available width. Use OverflowList for breadcrumbs, toolbars, tag lists, or any row that needs to collapse gracefully at smaller sizes.
 - [**MetadataList**](https://github.com/facebook/astryx/blob/main/packages/core/src/MetadataList/MetadataList.doc.mjs) — MetadataList displays key-value pairs for object attributes like quality, condition, and status, in a structured layout. Use it for detail panels, settings summaries, and record information.
 - [**Table**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/Table.doc.mjs) — Table displays structured data in rows and columns with consistent dimensionality. It supports rich cell content, sorting, selection, pagination, and column management through a composable plugin system. Use Table for data sets with uniform structure; for simpler or inconsistent data, consider a list or card layout instead.
-- [**Tree list**](https://github.com/facebook/astryx/blob/main/packages/core/src/TreeList/TreeList.doc.mjs) — An expandable tree structure for displaying hierarchical data with branch connector lines. Use it for file explorers, nested category browsers, or any interface that visualizes parent-child relationships.
+- [**Tree list**](https://github.com/facebook/astryx/blob/main/packages/core/src/TreeList/TreeList.doc.mjs) — An expandable tree structure for displaying hierarchical data with branch connector lines. Use it for file explorers, nested category browsers, or any interface that visualizes parent-child relationships. Under a finger, expanding a row glides the rows below it while its children fade in on the same timing, and a collapse plays it back; pass an `animatedLayout` handle for content after the tree to glide too.
 - [**ListItem**](https://github.com/facebook/astryx/blob/main/packages/core/src/List/ListItem.doc.mjs) *(subcomponent/hook)*
 - [**MetadataListItem**](https://github.com/facebook/astryx/blob/main/packages/core/src/MetadataList/MetadataListItem.doc.mjs) *(subcomponent/hook)*
 - [**TableBody**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/TableBody.doc.mjs) *(subcomponent/hook)*
@@ -338,6 +339,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**useTableRowExpansion**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/useTableRowExpansion.doc.mjs) *(subcomponent/hook)*
 - [**useTableRowIndex**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/useTableRowIndex.doc.mjs) *(subcomponent/hook)*
 - [**useTableRowStatus**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/useTableRowStatus.doc.mjs) *(subcomponent/hook)*
+- [**useTableRowsVirtualization**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/useTableRowsVirtualization.doc.mjs) *(subcomponent/hook)*
 - [**useTableSelection**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/useTableSelection.doc.mjs) *(subcomponent/hook)*
 - [**useTableSelectionState**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/useTableSelectionState.doc.mjs) *(subcomponent/hook)*
 - [**useTableSortable**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/useTableSortable.doc.mjs) *(subcomponent/hook)* — Call useTableSortable with a config object containing sort state and callback. Pass the returned plugin to Table via the plugins prop.

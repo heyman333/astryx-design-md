@@ -1,8 +1,8 @@
 # Astryx
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 257 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 259 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 
-Generated from commit `259190b` (2026-11-08) of https://github.com/facebook/astryx.
+Generated from commit `3582c71` (2026-11-09) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -37,7 +37,7 @@ Key facts:
 
 ## Components
 
-257 documented components in `packages/core/src/`. Each has a `{Name}.doc.mjs` structured doc with props, anatomy, and best practices. By category:
+259 documented components in `packages/core/src/`. Each has a `{Name}.doc.mjs` structured doc with props, anatomy, and best practices. By category:
 
 - Accessibility: useAnnounce
 - Action: Button, ButtonGroup, Trigger area, ContextMenuItem, Trigger button, Checkable row, DropdownMenuDivider, DropdownMenuGroup, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSubMenu, IconButton, Link, Trigger button, Control, SegmentedControlItem, ToggleButton, ToggleButtonGroup, Outer chrome
@@ -50,6 +50,7 @@ Key facts:
 - Interaction: useCollapsible, useHoverCard, useLayer, useLightbox, useOverlay, usePopover, useToast, useTooltip, useClickableContainer, useClipboard, useContainerReveal, useHotkeys, useInputContainer, useInputStatusIcon, useInteractiveRole, useLongPress, useMenuPress, createReorderable
 - Keyboard: createAnimator, createDragToSnapPoints, createPanGesture, useAnimator, useDragToSnapPoints, usePanGesture
 - Layout: AppShell, useAppShellMobile, AspectRatio, Center, Divider group, FormLayout, Grid container, GridSpan, Layout container, LayoutContent, LayoutFooter, LayoutHeader, LayoutPanel, Handle, useResizable, ScrollableArea, Section container, Stack container, useOverflow, useScrollLock, useScrollOverflow, useScrollableArea
+- Link: useLinkify
 - Media: useImageMode, useMediaQuery
 - Motion & Gestures: useSnapPaging, useAnimatedLayout, useEntryAnimation, usePressFeedback
 - Navigation: BreadcrumbItem, Breadcrumbs, Navigation overlay, Container, Menu, Outline, useOutlineFromMarkdown, Pagination, SideNav, SideNavCollapseButton, SideNavHeading, SideNavItem, SideNavSection, Step, Stepper, Tab, TabList, TabMenu, TopNav, TopNavHeading, TopNavItem, TopNavMegaMenu, TopNavMegaMenuFeaturedCard, TopNavMegaMenuItem, TopNavMenu
@@ -57,7 +58,7 @@ Key facts:
 - Semantics: useCombobox
 - Streaming: useStreamingText
 - Table & List: Item, List, ListItem, MetadataList, MetadataListItem, List, Table, TableBody, TableCell, TableFooter, TableHeader, TableHeaderCell, TableRow, TableSelectionToolbar, useTableColumnResize, useTableColumnSettings, useTableFilterState, useTableFiltering, useTableGroupedRows, useTablePagination, useTableRowExpansion, useTableRowIndex, useTableRowStatus, useTableRowsVirtualization, useTableSelection, useTableSelectionState, useTableSortable, useTableStickyColumns, useTableTreeData, useTableTreeState, Tree list
-- Utilities: useCalendarConstraints, useCalendarDays, useCalendarNavigation, useIcon, useLinkComponent, useCollator, useLocale, useTranslator
+- Utilities: useCalendarConstraints, useCalendarDays, useCalendarNavigation, useIcon, useLinkComponent, usePowerSearchConfig, useCollator, useLocale, useTranslator
 - Utility: Layer, LinkProvider, VisuallyHidden, useDevWarning, useMergedRefs, InternationalizationProvider, MediaTheme, SyntaxTheme, Theme, useTheme
 
 ## Optional

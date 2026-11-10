@@ -1,10 +1,10 @@
 # Astryx — Full Component Reference
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 257 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 259 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `259190b` (2026-11-08) of https://github.com/facebook/astryx.
+Generated from commit `3582c71` (2026-11-09) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -724,6 +724,7 @@ Do:
 - Provide an emptyState so new conversations show a prompt instead of a blank screen.
 - Use scrollRef when the chat is embedded in a page where a parent element handles scrolling.
 - Give a full-page ChatLayout a container 100dvh tall, not 100vh: where a phone browser's toolbar collapses, 100vh is the viewport with the toolbar hidden, so the composer would start below the screen's edge.
+- Markdown prose keeps its 680px measure, while code blocks and tables span the message column. To give a reply one right edge, pass contentWidth="100%" to its Markdown.
 
 Don't:
 - Don't apply a fixed height on the layout; let it fill its container with flex: 1.
@@ -947,6 +948,7 @@ Do:
 
 Don't:
 - Use for toggling selection; use SelectableCard for that.
+- Use with a transparent variant and no padding only to borrow the press model for a surface that owns its own box. Compose the chrome-free recipe in the useClickableContainer docs instead: it adds no Card styles to the page.
 
 Props:
 - `label`: string (required) — Accessibility label.
@@ -1886,13 +1888,13 @@ Don't:
 
 Parameters:
 - `options`: UseMultiComboboxOptions (required) — Configuration object.
-- `options.selectableItems`: MultiSelectorOptionData[] (required) — The options in the same order as they render. Options with `disabled` cannot be toggled and are skipped while moving through the open list; ArrowDown or ArrowUp that opens the list still lands on the first or last option.
+- `options.selectableItems`: MultiSelectorOptionData[] (required) — The options in the same order as they render. Options with `disabled` cannot be toggled and are skipped while moving through the open list. Opening never lands on a disabled option: ArrowUp opens on the last enabled option, and ArrowDown, a press, Enter or Space on the first enabled option.
 - `options.isOpen`: boolean (required) — Whether the list is shown. The caller owns this state.
 - `options.onOpen`: () => unknown (required) — Called to show the list. Return `false` to refuse; the hook then leaves the highlight alone.
 - `options.onClose`: () => void (required) — Called to hide the list. The highlight resets first.
 - `options.onToggle`: (itemValue: string) => void (required) — Called with the value of the option to add or remove. Toggling keeps the list open.
 - `options.listboxId`: string (required) — The listbox (or grid) element's id. Option and action-cell ids are derived from it.
-- `options.hasSearch`: boolean = false — Whether the list has its own search field. Space then types instead of toggling, opening by a press or Enter does not pre-highlight (ArrowDown and ArrowUp still open on the first and last option), Delete and Backspace edit the query, and type-to-select is off. Home and End still jump to the first and last option, so a search input that keeps them for the caret should stop them before this handler and rely on PageUp and PageDown.
+- `options.hasSearch`: boolean = false — Whether the list has its own search field. Space then types instead of toggling, opening by a press or Enter does not pre-highlight (ArrowDown and ArrowUp still open on the first and last enabled option), Delete and Backspace edit the query, and type-to-select is off. Home and End still jump to the first and last option, so a search input that keeps them for the caret should stop them before this handler and rely on PageUp and PageDown.
 - `options.onClear`: () => void — Clears every selected value. When provided, Delete or Backspace on the closed control clears them, so clearing is not pointer-only. Ignored while the list is open or with `hasSearch`.
 - `options.hasValue`: boolean = false — Whether anything is selected. The Delete and Backspace clear is skipped when false.
 - `options.isGrid`: boolean = false — Whether each row pairs an option cell with an action cell. The inline-end arrow then moves the highlight to the row's action and the inline-start arrow back, following visual direction in right-to-left layouts, and Enter on the action runs `onActivateAction` instead of toggling.
@@ -3306,6 +3308,7 @@ Makes a container element clickable while preserving nested interactive element 
 Do:
 - Attach onClick, onMouseUp and onPointerDown to the container element: full click handling including middle-click, and no touch pressed state for a press on a nested control.
 - Use inside ClickableCard or SelectableCard for the standard card interaction pattern.
+- For a pressable surface without Card chrome, such as a quoted message that jumps on press, compose it yourself: this hook on the surface; `usePressFeedback()` and `interactionOverlayStyles.backgroundColor` (from `@astryxdesign/core/utils`) on the same element for the hover tint and touch press; a native `<button>` (or an `<a>` for a destination) inside `VisuallyHidden` as the named control and interactiveRef; and `focusOutlineStyles.focusWithin` (from `@astryxdesign/core/utils`) on the surface for the shared focus ring, the one ClickableCard draws. The `Core/Hooks/useClickableContainer` story has the full recipe.
 
 Don't:
 - Use when the entire container is a single interactive element; just use a <button> or <a> directly.
@@ -4136,6 +4139,7 @@ Provides a native scroll viewport and a real observed content box. The viewport 
 
 Do:
 - Give every area a concise label that identifies the content keyboard users will scroll.
+- Leave `role` unset (it renders `group`) for ordinary scroll containers. Choose `role="region"` only when the area is significant enough to appear in screen-reader landmark navigation; every `region` adds an entry to that list.
 - Choose `inline`, `block`, or `both` from content intent; the component maps the logical axes through writing mode and direction.
 - Keep the default `overscroll="allow"` for nested areas unless the interaction deliberately needs containment.
 - Use `useScrollableArea` instead when a component already owns both a viewport and a suitable content box, or when children must remain direct flex/grid items or retain a definite percentage block-size basis.
@@ -4151,7 +4155,7 @@ Don't:
 Props:
 - `axis`: 'inline' | 'block' | 'both' = 'block' — Logical axis or axes where native scrolling is allowed.
 - `label`: string (required) — Accessible name for the viewport when it becomes keyboard scrollable.
-- `role`: 'group' | 'region' = 'group' — Semantics for the named viewport.
+- `role`: 'group' | 'region' = 'group' — Semantics for the named viewport; use `region` only for areas that belong in landmark navigation.
 - `overscroll`: 'allow' | 'contain' = 'allow' — Whether effective axes continue scrolling an ancestor at their edge.
 - `width`: SizeValue — Width of the viewport; a number is interpreted as pixels, a string is used as-is.
 - `height`: SizeValue — Height of the viewport; a number is interpreted as pixels, a string is used as-is.
@@ -4167,7 +4171,7 @@ Props:
 - `paddingBlockEnd`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Logical block-end content padding; overrides broader padding values.
 - `isFullBleed`: boolean = false — Lets the viewport escape inherited container padding without changing content padding.
 - `children`: ReactNode — Content rendered inside the observed content box.
-- `xstyle`: StyleXStyles — StyleX sizing and native scrollbar presentation overrides for the viewport.
+- `xstyle`: StyleXStyles — StyleX sizing and native scrollbar presentation overrides for the viewport. Must be a `stylex.create()` value, not an inline style object.
 
 ### Section container
 
@@ -4422,16 +4426,18 @@ Do:
 - Use contentOrViewport to delegate forward Tab entry to the first sequential native link or button when it preserves native scroll keys. Inputs, composite widgets, and nested scroll areas retain the named viewport stop. Shift+Tab from the delegated first child skips the viewport; pointer and programmatic focus stay on it.
 - Use content keyboard ownership when your integration already supplies keyboard access to the full scroll range. Automatic delegation checks current content at each keyboard entry without continuously tracking its focusability.
 - Pass caller `xstyle` through `getViewportProps`; the getter composes it with fitting clip, active overflow, and Sticky containment.
+- Give a viewport-owned tab stop a visible focus indicator; compose `focusOutlineStyles.focusVisible` (or an equivalent) into the viewport `xstyle`, as ScrollableArea does.
 
 Don't:
 - Attach only the viewport getter. A real observed content box is required for live overflow changes.
+- Declare overflow through caller props on the viewport; the getter owns overflow declarations and strips conflicting inline values.
 
 Parameters:
 - `options`: UseScrollableAreaOptions (required) — Logical scroll intent, fixed or automatic keyboard owner, overscroll policy, and fitting Sticky containment.
 
 Returns:
 - `getViewportProps`: <E extends HTMLElement>(props?: ScrollableElementProps<E>) => ScrollableElementProps<E> — Consumes caller viewport props, xstyle, and refs; composes fitting/active overflow, Sticky containment, accessibility, chaining, and owner registration.
-- `getContentProps`: <E extends HTMLElement>(props?: ScrollableElementProps<E>) => ScrollableElementProps<E> — Composes caller content-box props and refs with content observation.
+- `getContentProps`: <E extends HTMLElement>(props?: ScrollableElementProps<E>) => ScrollableElementProps<E> — Composes caller content-box props, xstyle, and refs with content observation.
 - `state`: ScrollableAreaState — Stable inline and block effective-scroll and logical-edge state.
 
 ### useScrollLock
@@ -4527,13 +4533,39 @@ Import: `import {LayoutPanel} from '@astryxdesign/core/Layout';`
 
 Props:
 - `children`: ReactNode — Panel content.
-- `hasDivider`: boolean = false — Border on the appropriate edge.
-- `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Internal padding using the spacing scale. Overrides the default padding from the layout container.
+- `hasDivider`: boolean = false — Line on the edge that faces the content: the inline end in the start slot, the inline start in the end slot. Without it and without padding, the panel and the content share one gap. The Layout's defaultHasDividers does not apply. Beside a ResizeHandle that draws its own line, leave it false.
+- `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Internal padding on every edge, using the spacing scale. Replaces the automatic inset and the gap shared with the content. 0 is full bleed.
 - `isScrollable`: boolean = true — Enable scrollable overflow.
 - `label`: string — Accessible label for the landmark element. While the region scrolls, it also names the scrolling region, which otherwise takes a translated "Content".
 - `role`: AriaRole — ARIA landmark role.
 - `width`: number | string — Width of the panel. Numbers are treated as pixels, strings are used as-is. Ignored when resizable is provided; the hook controls width. Beside a ResizeHandle given a useResizable region's props, a panel at width={region.size} is inert while the region is collapsed, and focus inside it moves to the handle as it collapses.
 - `resizable`: ResizableRegion | ResizableProps — The output of useResizable(), or its props. When provided, the hook drives the panel width and a ResizeHandle should be placed adjacent to the panel. Carries the region's axis ('horizontal' | 'vertical'), which must match the adjacent ResizeHandle's direction. With the hook's own value, the panel slides closed and open from the edge facing its ResizeHandle; a hand-built object does not slide. Either way, focus inside the panel moves to its ResizeHandle as it collapses, and the panel is inert while collapsed.
+- `ref`: React.Ref<HTMLDivElement> — Ref forwarded to the panel element.
+
+## Link
+
+### useLinkify
+
+Import: `import {useLinkify} from '@astryxdesign/core';`
+
+Finds URLs, email addresses and custom patterns in plain text and returns React nodes with a Link for each match; the links respect LinkProvider for client-side routing. Use it wherever user- or tool-authored plain text should grow safe, styled links without pre-parsing it into markup: activity feeds, comment threads, description fields. Custom patterns turn project-specific references (issue numbers like #123, ticket IDs) into links by supplying a regex plus an href builder — e.g. an issue tracker pattern that maps captures onto its URL scheme. When matches overlap, the earliest one wins, and at the same start a custom pattern wins over the built-in ones, so a custom #123 pattern coexists with URL detection in the same string.
+
+Do:
+- Render the returned nodes directly inside a text container (<p>{nodes}</p>); the hook already interleaves the unmatched plain text.
+- Wrap the app (or the region) in LinkProvider so detected links route client-side instead of full-page navigating.
+- Give a custom pattern the global flag (g). Without it the scan never advances, and when the text contains a match the render never finishes.
+
+Don't:
+- Pre-parse the text into your own markup before linkifying — the hook exists so the plain string can be rendered as-is with links composed in.
+
+Parameters:
+- `text`: string (required) — The plain text to scan. Empty text returns a single-element array of itself.
+- `options`: UseLinkifyOptions — Configuration object.
+- `options.patterns`: LinkifyPattern[] — Custom patterns to detect, in addition to (or, with hasBuiltins false, replacing) the built-in URL and email detection. Each pattern is a global-flag regex plus an href builder (capture groups available) and an optional label builder and isExternal flag. When matches overlap, the earliest one wins; at the same start, custom patterns win over the built-in ones.
+- `options.hasBuiltins`: boolean = true — Include the built-in http(s) URL and email detection. Default true; set false when patterns should fully define what links.
+
+Returns:
+- `(return value)`: ReactNode[] — The text as a mix of plain strings and Link elements, one per match, ready to render inside a text container. Matched URLs open externally (isExternal), emails link as mailto:, and every link renders through Link — so a LinkProvider routes clicks client-side the same as a hand-written Link.
 
 ## Media
 
@@ -5255,6 +5287,7 @@ Don't:
 - Place critical actions or required information inside a hover card; users may miss content that only appears on hover.
 - Use a hover card when a simple Tooltip or Popover would suffice.
 - Use a HoverCard for content the user must interact with; it disappears when the cursor leaves.
+- Put the trigger inside SVG <foreignObject>. In Chromium it cannot be a CSS anchor, so the card opens at the viewport corner. Render the trigger in an HTML layer positioned over the SVG node instead, and keep the SVG for shapes, edges and labels.
 
 Props:
 - `children`: ReactNode — The trigger. Text children, a string or number or text written around an expression such as `Edited {when}`, are wrapped in a focusable inline span; holes such as `false` and `null` are ignored. With element children, HoverCard wires the first element, so that element does not need to accept a ref.
@@ -5498,7 +5531,7 @@ Do:
 - Enable hasZoom only when viewing high-resolution images that benefit from close inspection.
 
 Don't:
-- Use the lightbox for non-image content; it is specialized for images.
+- Use the lightbox for content other than images and videos; it shows one media item at a time.
 - Nest interactive content inside captions; keep them plain text.
 
 Props:
@@ -5507,7 +5540,7 @@ Props:
 - `media`: LightboxMedia | LightboxMedia[] (required) — Media to display. Pass a single object for one item, or an array for gallery mode with prev/next navigation (on a phone or tablet, a swipe moves between items too). Each item is {src: string, alt: string, caption?: ReactNode, type?: 'image' | 'video'}; type defaults to 'image', and zoom/pan is disabled for 'video'.
 - `index`: number — Current index in gallery mode (when media is an array).
 - `onIndexChange`: (index: number) => void — Callback when the gallery index changes: prev/next, the arrow keys, or a swipe.
-- `hasZoom`: boolean = false — Enable zoom (images only): pinch (or ctrl-wheel), or double-tap or double-click to zoom in at that point and back; Enter/Space/+/- zoom 2× about the centre and back. When zoomed, drag or scroll a trackpad to pan, or use arrow keys; on a phone or a tablet, the pan has momentum.
+- `hasZoom`: boolean = false — Enable zoom (images only): pinch (or ctrl-wheel), or double-tap or double-click to zoom in at that point and back; Enter/Space/+/- zoom 2× about the centre and back, and 0 returns to the fitted size. When zoomed, drag or scroll a trackpad to pan, or use arrow keys; on a phone or a tablet, the pan has momentum.
 - `defaultIndex`: number = 0 — Initial image index in gallery mode for uncontrolled usage.
 - `hasAutoPlay`: boolean = false — Automatically start video playback when a video media item is shown.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be stylex.create() value.
@@ -5980,17 +6013,17 @@ Props:
 
 Import: `import {TableSelectionToolbar} from '@astryxdesign/core/Table';`
 
-Pass both outputs of useTableSelectionState to their matching consumers: selectionConfig to useTableSelection and selectionState to TableSelectionToolbar. Render product actions through startContent. Keep fixed or floating placement in the surrounding layout.
+Pass both outputs of useTableSelectionState to their matching consumers: selectionConfig to useTableSelection and selectionState to TableSelectionToolbar. An app that keeps its own selection, such as every row matching a query across server pages, passes its own config and state instead. Render product actions through startContent. Keep fixed or floating placement in the surrounding layout.
 
 Do:
-- Pass selectionState directly from useTableSelectionState so the count and clear action stay synchronized with row selection.
+- Pass selectionState directly from useTableSelectionState so the count and clear action stay synchronized with row selection, unless the app keeps its own selection across server pages.
 - Provide product actions as startContent instead of encoding them as configuration objects.
 
 Don't:
 - Inject the toolbar through the Table plugin or its horizontal scroll wrapper.
 
 Props:
-- `selection`: TableSelectionState (required) — Shared selection state returned by useTableSelectionState: selectedKeys, selectedCount, hasSelection, and clearSelection.
+- `selection`: TableSelectionState (required) — Shared selection state: selectedKeys, selectedCount, hasSelection, and clearSelection. Usually useTableSelectionState returns it; an app that keeps its own selection builds it.
 - `startContent`: ReactNode — Product-owned action controls aligned to the logical start. Child controls inherit the toolbar size.
 - `label`: string = Bulk actions — Accessible name for the action surface.
 - `renderSelectionLabel`: (selectedCount: number) => ReactNode = count => `${count} selected` — Overrides the visible count text for localisation or domain-specific copy.
@@ -6345,6 +6378,27 @@ Don't:
 
 Returns:
 - `locale`: Locale — The active InternationalizationProvider BCP 47 locale. Falls back to 'en' when no provider is present.
+
+### usePowerSearchConfig
+
+Import: `import {usePowerSearchConfig} from '@astryxdesign/core/PowerSearch';`
+
+Memoizes a PowerSearch configuration built from typed field definitions and returns it along with an applyFilters function for client-side filtering. Automatically maps field types (string, number, boolean, date, enum, etc.) to their canonical operators and provides an efficient predicate evaluator to filter datasets.
+
+Do:
+- Declare field definitions as const outside the component or memoize them so usePowerSearchConfig only recalculates when needed.
+- Pass the returned config to PowerSearch and use applyFilters to compute the filtered data rows for a Table or List.
+
+Don't:
+- Recreate field definitions inline on every render without as const or memoization.
+
+Parameters:
+- `definitions`: ReadonlyArray<FieldDefinition> (required) — Typed field definitions (key, type, label, enumValues) used to build PowerSearch fields and operators.
+- `configName`: string — Optional name for the PowerSearchConfig object (defaults to "PowerSearchConfig").
+
+Returns:
+- `config`: PowerSearchConfig — Memoized PowerSearch configuration object with fields and type-appropriate operators.
+- `applyFilters`: <T extends InferData<D>>(filters: ReadonlyArray<PowerSearchFilter>, data: ReadonlyArray<T>) => T[] — Client-side filtering helper that filters a dataset using the active PowerSearch filter rules.
 
 ### useTranslator
 

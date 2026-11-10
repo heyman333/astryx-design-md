@@ -1,6 +1,6 @@
 # Astryx Design System — Design Overview
 
-> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`259190b`](https://github.com/facebook/astryx/commit/259190bc5bcc2dc7d3cc3b78a9c65d1c76c0cdad) (2026-11-08). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
+> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`3582c71`](https://github.com/facebook/astryx/commit/3582c71f9d841647e853f5a9952d8d4b74e2e916) (2026-11-09). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
 
 ## What Astryx is
 
@@ -52,7 +52,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 
 ## Component library
 
-`@astryxdesign/core` currently documents **257 components** across **201 component groups** and **20 categories**. Each component directory contains the implementation (`{Name}.tsx`), colocated tests, and a `{Name}.doc.mjs` structured doc (props, anatomy, best practices) consumed by the CLI and docsite.
+`@astryxdesign/core` currently documents **259 components** across **202 component groups** and **21 categories**. Each component directory contains the implementation (`{Name}.tsx`), colocated tests, and a `{Name}.doc.mjs` structured doc (props, anatomy, best practices) consumed by the CLI and docsite.
 
 ### Accessibility (1)
 
@@ -240,6 +240,10 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**LayoutHeader**](https://github.com/facebook/astryx/blob/main/packages/core/src/Layout/LayoutHeader.doc.mjs) *(subcomponent/hook)*
 - [**LayoutPanel**](https://github.com/facebook/astryx/blob/main/packages/core/src/Layout/LayoutPanel.doc.mjs) *(subcomponent/hook)*
 
+### Link (1)
+
+- [**useLinkify**](https://github.com/facebook/astryx/blob/main/packages/core/src/Link/useLinkify.doc.mjs) — Finds URLs, email addresses and custom patterns in plain text and returns React nodes with a Link for each match; the links respect LinkProvider for client-side routing. Use it wherever user- or tool-authored plain text should grow safe, styled links without pre-parsing it into markup: activity feeds, comment threads, description fields. Custom patterns turn project-specific references (issue numbers like #123, ticket IDs) into links by supplying a regex plus an href builder — e.g. an issue tracker pattern that maps captures onto its URL scheme. When matches overlap, the earliest one wins, and at the same start a custom pattern wins over the built-in ones, so a custom #123 pattern coexists with URL detection in the same string.
+
 ### Media (2)
 
 - [**useImageMode**](https://github.com/facebook/astryx/blob/main/packages/core/src/hooks/useImageMode.doc.mjs) — Detects whether an image is predominantly dark or light by sampling pixels via OffscreenCanvas. Uses APCA perceptual lightness (sRGB linearization + power curve) for accurate detection, especially on saturated colors. Runs entirely off the paint path: no visible canvas, no layout thrash. Supports regional sampling for detecting luminance where text overlays will appear. Returns null while loading and falls back gracefully on CORS or network errors.
@@ -329,7 +333,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**TableHeader**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/TableHeader.doc.mjs) *(subcomponent/hook)*
 - [**TableHeaderCell**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/TableHeaderCell.doc.mjs) *(subcomponent/hook)*
 - [**TableRow**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/TableRow.doc.mjs) *(subcomponent/hook)*
-- [**TableSelectionToolbar**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/TableSelectionToolbar.doc.mjs) *(subcomponent/hook)* — Pass both outputs of useTableSelectionState to their matching consumers: selectionConfig to useTableSelection and selectionState to TableSelectionToolbar. Render product actions through startContent. Keep fixed or floating placement in the surrounding layout.
+- [**TableSelectionToolbar**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/TableSelectionToolbar.doc.mjs) *(subcomponent/hook)* — Pass both outputs of useTableSelectionState to their matching consumers: selectionConfig to useTableSelection and selectionState to TableSelectionToolbar. An app that keeps its own selection, such as every row matching a query across server pages, passes its own config and state instead. Render product actions through startContent. Keep fixed or floating placement in the surrounding layout.
 - [**useTableColumnResize**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/useTableColumnResize.doc.mjs) *(subcomponent/hook)*
 - [**useTableColumnSettings**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/useTableColumnSettings.doc.mjs) *(subcomponent/hook)*
 - [**useTableFiltering**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/useTableFiltering.doc.mjs) *(subcomponent/hook)*
@@ -347,7 +351,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**useTableTreeData**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/useTableTreeData.doc.mjs) *(subcomponent/hook)*
 - [**useTableTreeState**](https://github.com/facebook/astryx/blob/main/packages/core/src/Table/useTableTreeState.doc.mjs) *(subcomponent/hook)*
 
-### Utilities (8)
+### Utilities (9)
 
 - [**useCalendarConstraints**](https://github.com/facebook/astryx/blob/main/packages/core/src/Calendar/useCalendarConstraints.doc.mjs) — Provides date constraint validation for calendar views and custom range pickers. It combines boundary dates, span limits measured from an in-progress range start, and custom rules (such as weekly closures or blackout dates) into an isDateDisabled predicate. Calendar uses it internally to disable day buttons; use it directly when building bespoke scheduling interfaces or range pickers.
 - [**useCalendarDays**](https://github.com/facebook/astryx/blob/main/packages/core/src/Calendar/useCalendarDays.doc.mjs) — Builds the day grid for one month: every date to show, including the previous and next months' days that fill the first and last weeks, grouped into weeks, plus localized weekday header names that start on weekStartsOn. It is the layout Calendar uses, for a custom month view such as a compact availability grid or a mini calendar. It returns data only: rendering, selection, keyboard navigation and the grid's accessibility semantics are the caller's.
@@ -356,6 +360,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**useIcon**](https://github.com/facebook/astryx/blob/main/packages/core/src/Icon/useIcon.doc.mjs) — Resolves a semantic icon name to a React node through the nearest Theme, so a custom component draws the same success, warning or error icon that Astryx components draw and follows a theme that overrides it. Resolution reads the nearest Theme's icons (outside any Theme, the registered theme the document root names), then registerIcons() overrides, then the built-in default. The node is returned as is, with no size or color wrapper: the built-in icons are 1em squares in currentColor, so they follow the surrounding text. A function entry is read at {size: 'md'}. Render <Icon icon={name} /> instead when the icon needs another size, a color or a label.
 - [**useLinkComponent**](https://github.com/facebook/astryx/blob/main/packages/core/src/Link/useLinkComponent.doc.mjs) — Resolves which component renders a link, so a custom component's links follow the app's router the same way Astryx's own links do. The order is the as argument, then the nearest LinkProvider's component, then a native anchor. Render the returned component with href (and to, for a router that reads it). Before rendering it checks both destinations under the Link href rule: a rejected destination renders an anchor with no destination, and a custom router is never invoked with it. A custom component receives to={href} unless to is passed explicitly.
 - [**useLocale**](https://github.com/facebook/astryx/blob/main/packages/core/src/i18n/useLocale.doc.mjs) — Reads the authoritative Astryx locale. Use it to thread the provider locale into pure formatting helpers and sibling-package APIs; do not derive a second locale from navigator.language or a hardcoded literal.
+- [**usePowerSearchConfig**](https://github.com/facebook/astryx/blob/main/packages/core/src/PowerSearch/usePowerSearchConfig.doc.mjs) — Memoizes a PowerSearch configuration built from typed field definitions and returns it along with an applyFilters function for client-side filtering. Automatically maps field types (string, number, boolean, date, enum, etc.) to their canonical operators and provides an efficient predicate evaluator to filter datasets.
 - [**useTranslator**](https://github.com/facebook/astryx/blob/main/packages/core/src/i18n/useTranslator.doc.mjs) — Returns a translator function that resolves keys against the current locale, provider overrides, and the shipped English fallback catalog. Call inside a component; the returned function can be used anywhere within that component's scope.
 
 ### Utility (10)

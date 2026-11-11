@@ -1,10 +1,10 @@
 # Astryx — Full Component Reference
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 259 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 261 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `3582c71` (2026-11-09) of https://github.com/facebook/astryx.
+Generated from commit `e392855` (2026-11-10) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -123,7 +123,7 @@ Props:
 
 Import: `import {Control} from '@astryxdesign/core/SegmentedControl';`
 
-A segmented button group that allows users to make a single selection from a small set of mutually exclusive options. Use SegmentedControl when all options should be visible at once and the selection controls a value or mode, not page navigation. Under a finger, on a touch device (a coarse primary pointer), the selection slides to the new segment, whether a tap, an arrow key or a new value moved it; with Reduce Motion nothing travels: the old selection fades out as the new one fades in. There, dragging the selected segment carries the selection along with the selected label’s colour following it, and the segment under the finger is chosen when it lets go (letting go outside the control selects nothing); a tap selects through the browser’s click; a pressed segment shows the shared pressed overlay, and nothing lifts or dims. With a mouse or a pen every change, a click included, slides on the theme’s duration and easing, and dragging the selected segment carries it as a finger does.
+A segmented button group that allows users to make a single selection from a small set of mutually exclusive options. Use SegmentedControl when all options should be visible at once and the selection controls a value or mode, not page navigation. Under a finger, on a touch device (a coarse primary pointer), the selection slides to the new segment, whether a tap, an arrow key or a new value moved it; with Reduce Motion nothing travels: the old selection fades out as the new one fades in. There, dragging the selected segment carries the selection along with the selected label’s colour following it, and the segment under the finger is chosen when it lets go; a tap selects through the browser’s click; a pressed segment shows the shared pressed overlay, and nothing lifts or dims. A drag that drifts off the control still chooses by its position along it. Going back to the selected segment, or Escape, changes nothing. With a mouse or a pen every change, a click included, slides on the theme’s duration and easing, and dragging the selected segment carries it as a finger does.
 
 Do:
 - Use for switching between 2–5 mutually exclusive views or modes where all options should be visible.
@@ -206,7 +206,7 @@ Props:
 - `label`: string — Accessible label (aria-label). Only use when children are not self-descriptive (e.g. icon-only links). Omit for text links; the link text is the accessible name.
 - `href`: string — Link destination URL. Astryx-owned links and clickable surfaces block javascript:, vbscript:, and data:text/html after control-character removal, outer-whitespace trimming, and case-insensitive scheme inspection. The same rule covers native anchors, custom routers, Markdown links, and every activation method. Relative paths, fragments, protocol-relative URLs, HTTP(S), mailto, tel, safe custom schemes, and accepted downloads keep their existing behavior. A rejected destination renders inertly without invoking a custom router. There is no bypass prop; exceptional behavior requires caller-owned custom rendering outside this guarantee. Images and other resource URLs have separate policies.
 - `hasUnderline`: boolean = false — Always show underline
-- `isDisabled`: boolean = false — Disables the link
+- `isDisabled`: boolean = false — Disables the link. It cannot navigate or run `onClick`, keeps its Tab stop, and is announced as disabled.
 - `isExternalLink`: boolean = false — Opens in new tab with external icon and safe rel tokens
 - `newTabLabel`: string = '(opens in new tab)' — Screen-reader text announcing that an external link opens in a new tab. Override for localization.
 - `target`: string — Where to open linked document. target="_blank" automatically adds noopener noreferrer.
@@ -216,12 +216,14 @@ Props:
 - `onClick`: MouseEventHandler — Click event handler
 - `tooltip`: string — Tooltip text displayed on hover
 - `isStandalone`: boolean = false — Applies base font sizing
+- `type`: 'body' | 'large' | 'label' | 'supporting' | 'code' | 'display-1' | 'display-2' | 'display-3' | 'inherit' = 'body' — Text type forwarded to Text, or a custom text type the theme defines. Use `inherit` for a link inside a Text, so the link takes the size and line height of the text around it.
 - `size`: '4xs' | '3xs' | '2xs' | 'xsm' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' — Explicit font size override forwarded to Text.
 - `weight`: 'normal' | 'medium' | 'semibold' | 'bold' — Font weight override forwarded to Text.
 - `color`: 'primary' | 'secondary' | 'disabled' | 'placeholder' | 'accent' | 'inherit' = 'accent' — Text color forwarded to Text.
 - `display`: 'inline' | 'block' = 'inline' — Display type for Text.
 - `maxLines`: number = 0 — Maximum lines before truncation.
 - `children`: ReactNode (required) — Link content
+- `ref`: Ref<HTMLAnchorElement | HTMLButtonElement> — Ref to the root element: the anchor, or the button when the link renders as a button.
 
 ### Outer chrome
 
@@ -1250,7 +1252,7 @@ Props:
 - `density`: 'default' | 'compact' = 'default' — Controls spacing between block-level elements.
 - `headingLevelStart`: 1 | 2 | 3 | 4 | 5 | 6 = 1 — The HTML heading level that markdown # maps to. Shifts all heading levels down to fit the surrounding page hierarchy. Levels exceeding h6 are clamped to h6.
 - `isStreaming`: boolean = false — Enables streaming mode; it uses incremental parsing and a smooth fade-in animation for chunk-by-chunk text delivery.
-- `onLinkClick`: (href: string, event: MouseEvent) => void | false — Handler for link clicks. Return false to prevent the default navigation behavior. Link destinations in the markdown follow the shared navigation rule described on the Link `href` prop: a blocked destination renders as plain text and never reaches this handler or a custom link renderer. Image URLs use a separate, stricter policy (every data: URL is rejected).
+- `onLinkClick`: (href: string, event: MouseEvent) => void | false — Handler for link clicks. Return false to prevent the default navigation behavior. Link destinations in the markdown follow the shared navigation rule described on the Link `href` prop, and Markdown also rejects every data: URL in a link or an image: a rejected destination renders as plain text and never reaches this handler or a custom link renderer.
 - `sources`: Record<string, MarkdownSource> — Citation sources keyed by ID. When provided, [id] and 【id】 markers in the markdown that match a key are rendered as citation chips.
 - `citationStyle`: 'label' | 'number' = 'label' — How citations are displayed inline. 'label' shows a chip with source title, icon, and border. 'number' shows a compact numbered badge.
 - `contentWidth`: number | string = 680 — Max width for prose content (paragraphs, headings, lists, blockquotes). Tables and code blocks are unconstrained and can expand to the full container width. Use for readable line lengths in wide layouts.
@@ -1814,7 +1816,7 @@ Returns:
 
 Import: `import {useKeyboardHint} from '@astryxdesign/core/hooks';`
 
-Shows an ephemeral "← → to navigate" hint anchored to the focused item the first time a roving-tabindex composite (Toolbar, TabList, SegmentedControl, etc.) receives keyboard focus. It teaches sighted keyboard users that arrow keys move within the group. The hint renders arrow keys with Kbd in the top layer (popover="manual") and is CSS-anchor-positioned to the focused element, so overflow containers never clip it. It auto-dismisses on the first arrow press, on timeout, or on blur, and does not re-show for that instance. Toolbar, TabList, and SegmentedControl wire this in automatically; reach for the hook directly only when building a custom roving-tabindex widget.
+Shows an ephemeral "← → to navigate" hint anchored to the focused item the first time a roving-tabindex composite (Toolbar, TabList, SegmentedControl, etc.) receives keyboard focus. It teaches sighted keyboard users that arrow keys move within the group. The hint renders arrow keys with Kbd in the top layer (popover="manual") and is CSS-anchor-positioned to the focused element, so overflow containers never clip it. It stays until the first arrow press, Escape, or blur, and does not re-show for that instance. Escape closes only the hint, through the shared layer dismissal stack, and keeps focus where it is. Toolbar, TabList, and SegmentedControl wire this in automatically; reach for the hook directly only when building a custom roving-tabindex widget.
 
 Do:
 - Compose the returned onFocus/onKeyDown with your existing focus handlers rather than replacing them: call onKeyDown first (it only dismisses, never prevents), then your navigation handler.
@@ -1827,7 +1829,7 @@ Don't:
 Parameters:
 - `options`: UseKeyboardHintOptions — Configuration object for the keyboard hint.
 - `options.orientation`: 'horizontal' | 'vertical' | 'both' = 'horizontal' — Which arrow-key axis the composite navigates, controlling which arrow icons the hint shows (← → for horizontal, ↑ ↓ for vertical, all four for both).
-- `options.dismissAfterMs`: number = 3000 — Milliseconds before the hint auto-dismisses after appearing.
+- `options.dismissAfterMs`: number = undefined (no time limit) — Milliseconds before the hint dismisses itself after appearing. Leave it unset: by default the hint stays until an arrow press, Escape, or blur. A time limit can remove the hint before someone has read it (WCAG 1.4.13).
 - `options.isEnabled`: boolean = true — Whether the hint is enabled. Set to false to suppress it for a specific instance (e.g. a disabled or read-only widget).
 
 Returns:
@@ -2522,6 +2524,8 @@ Props:
 - `debounceMs`: number = 150 — Debounce delay in ms before triggering search. Set to 0 for synchronous sources, and for a source that shows local matches through `context.update` and delays its own server request.
 - `onChangeQuery`: (query: string) => void — Callback fired when the search query text changes.
 - `onOpenChange`: (isOpen: boolean) => void — Callback when the dropdown opens or closes.
+- `menu`: BaseTypeaheadMenu — What the menu shows. role 'listbox' (default) is the result list; its optional render({listbox, query, isBusy, isEmptySearch, close}) places information such as a header or a hint around it, and anything a person acts on stays a result so the arrow keys reach it. role 'dialog' shows render({query, close}) in a dialog named by label that takes focus; Escape, an outside press or close() returns focus to where it was when the menu opened. Astryx owns the layer either way. Switching from listbox to dialog keeps the menu open: call handleRef.open() from onChange.
+- `handleRef`: React.Ref<BaseTypeaheadHandle> — Imperative handle: open() opens the menu (a dialog at once; a listbox shows or loads its results) and close() closes it. There is no controlled open state; onOpenChange reports changes.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
 - `startIcon`: IconType | ReactNode — SVG icon component displayed at the start of the input.
 - `containerXstyle`: StyleXStyles — StyleX styles for the field container (label, control, and status together). No effect inside InputGroup (style the InputGroup instead) or in a `horizontal-labels` FormLayout. Root `xstyle`, `className`, and `style` are not accepted.
@@ -3113,7 +3117,7 @@ Props:
 - `isRequired`: boolean = false — Marks the field as required.
 - `isOptional`: boolean = false — Shows an optional indicator on the label.
 - `labelTooltip`: string — Tooltip text shown on the label.
-- `hasEntriesOnFocus`: boolean = false — Show bootstrap results on focus before typing.
+- `hasEntriesOnFocus`: boolean = false — Show bootstrap results on focus before typing. After a pick from that list, the input keeps focus and the list stays open with the next choice active, while another choice remains.
 - `maxMenuItems`: number = 10 — Maximum number of search results to display. The hasCreate entry is offered on top of them, so a menu can show one more than this.
 - `menuWidth`: number — Fixed dropdown width in pixels. The menu never shrinks below its anchor width.
 - `minQueryLength`: number = 1 — Minimum query length before the search source is queried. Below it no search runs, and the menu stays closed — unless hasCreate is set, in which case the "Create ..." entry is still offered, being derived from the typed text rather than fetched for it.
@@ -3125,7 +3129,9 @@ Props:
 - `onChangeQuery`: (query: string) => void — Callback fired when the search query text changes.
 - `startIcon`: ReactNode | IconType — Icon to display at the start of the input, before any tokens. Accepts a semantic icon name, an SVG icon component, or a ReactNode directly.
 - `endContent`: ReactNode — Content to display at the end of the input row. Useful for buttons, result counts, or other controls.
-- `handleRef`: React.Ref<TokenizerHandle> — Imperative handle exposing focusInput(), focusFirstToken(), focusLastToken(), clearInput(), and selectAll().
+- `handleRef`: React.Ref<TokenizerHandle> — Imperative handle exposing focus(), blur(), open() and close(). open() and close() drive the inline menu; the sheet presentation ignores them.
+- `menu`: BaseTypeaheadMenu — What the menu shows. role 'listbox' (default) is the result list; its optional render({listbox, query, isBusy, isEmptySearch, close}) places information such as a header or a hint around it, and anything a person acts on stays a result so the arrow keys reach it. role 'dialog' shows render({query, close}) in a dialog named by label that takes focus; Escape, an outside press or close() returns focus to where it was when the menu opened. Astryx owns the layer either way. Switching from listbox to dialog keeps the menu open: call handleRef.open() from onChange. The sheet presentation keeps its own sheet and ignores it.
+- `onOpenChange`: (isOpen: boolean) => void — Called when the inline menu opens or closes. It reports changes only; drive the menu with handleRef. Not called by the sheet presentation.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
 - `tokenOverflowBehavior`: 'none' | 'unfocusedInline' | 'unfocusedLayer' = 'none' — Controls how tokens overflow when the container is too narrow.
 - `onFocus`: (e: FocusEvent<HTMLInputElement>) => void — Fires when focus enters the tokenizer input.
@@ -3136,7 +3142,7 @@ Props:
 - `controlXstyle`: StyleXStyles — StyleX styles for the visual control box: the element that paints the border and background and holds icons and end controls. Never the native input.
 - `controlClassName`: string — Class name for the visual control box.
 - `controlStyle`: CSSProperties — Inline styles for the visual control box.
-- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'adaptive' — How the field presents its choices. adaptive (the default) uses the bottom sheet on compact touch screens and the popover otherwise, resolved the same way Selector resolves it; the server render and the hydrating render are the popover. popover is the inline combobox with its anchored suggestion menu on every device. bottom-sheet replaces it on every device with a field showing the selected tokens, whose trigger opens one tall modal sheet: a search row on top, full-width checkbox rows that keep their place while the sheet is open, a Create row with hasCreate, and a footer pinned in every state with a confirmed Clear all and Save; the sheet edits a draft, so onChange fires once, when Save commits it, and a swipe, scrim or Escape close of a changed draft asks before discarding. In the sheet presentation the field box holds the trigger, the tokens and endContent, and keeps the box, theming target and focus ring of the inline field; the trigger is the control: ref, id, aria-* and data-* reach it, and ref receives the trigger button there, so type it Ref<HTMLInputElement | HTMLButtonElement>, which the component accepts (TokenizerProps keeps its released input ref type). endContent sits at the inline end of the field and renderToken renders its tokens, as in the inline field; their own controls act without opening the sheet. renderItem, hasClear (the sheet has its own Clear all), hasEntriesOnFocus, menuWidth, tokenOverflowBehavior (the field wraps its tokens) and hasAutoFocus have no surface in the sheet, and the field warns once in development when they are passed. Pass presentation="popover" to keep the inline field and those props on every device.
+- `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'adaptive' — How the field presents its choices. adaptive (the default) uses the bottom sheet on compact touch screens and the popover otherwise, resolved the same way Selector resolves it; the server render and the hydrating render are the popover. popover is the inline combobox with its anchored suggestion menu on every device. bottom-sheet replaces it on every device with a field showing the selected tokens, whose trigger opens one tall modal sheet: a search row on top, full-width checkbox rows that keep their place while the sheet is open, a Create row with hasCreate, and a footer pinned in every state with a confirmed Clear all and Save; the sheet edits a draft, so onChange fires once, when Save commits it, and a swipe, scrim or Escape close of a changed draft asks before discarding. In the sheet presentation the field box holds the trigger, the tokens and endContent, and keeps the box, theming target and focus ring of the inline field; the trigger is the control: ref, id, aria-* and data-* reach it, and ref receives the trigger button there, so type it Ref<HTMLInputElement | HTMLButtonElement>, which the component accepts (TokenizerProps keeps its released input ref type). endContent sits at the inline end of the field and renderToken renders its tokens, as in the inline field; their own controls act without opening the sheet. renderItem, hasClear (the sheet has its own Clear all), hasEntriesOnFocus, menuWidth, menu, onOpenChange, tokenOverflowBehavior (the field wraps its tokens) and hasAutoFocus have no surface in the sheet, and the field warns once in development when they are passed. Pass presentation="popover" to keep the inline field and those props on every device.
 
 ### CheckboxListItem (subcomponent/hook)
 
@@ -3215,6 +3221,8 @@ Props:
 - `onKeyDown`: (e: React.KeyboardEvent<HTMLInputElement>) => void — Additional keydown handler called before internal keyboard navigation. Call e.preventDefault() to skip internal handling.
 - `onChangeQuery`: (query: string) => void — Callback fired when the search query text changes.
 - `onOpenChange`: (isOpen: boolean) => void — Callback when the dropdown opens or closes.
+- `menu`: BaseTypeaheadMenu — What the menu shows. role 'listbox' (default) is the result list; its optional render({listbox, query, isBusy, isEmptySearch, close}) places information such as a header or a hint around it, and anything a person acts on stays a result so the arrow keys reach it. role 'dialog' shows render({query, close}) in a dialog named by label that takes focus; Escape, an outside press or close() returns focus to where it was when the menu opened. Astryx owns the layer either way. Switching from listbox to dialog keeps the menu open: call handleRef.open() from onChange.
+- `handleRef`: React.Ref<BaseTypeaheadHandle> — Imperative handle: open() opens the menu (a dialog at once; a listbox shows or loads its results) and close() closes it. There is no controlled open state; onOpenChange reports changes.
 - `inputId`: string — Legacy input-specific alias for native id. When provided, it takes precedence; otherwise native id is preserved.
 - `ariaDescribedBy`: string — Legacy input-specific alias for native aria-describedby. When provided, it takes precedence; otherwise the native attribute is preserved.
 - `ariaLabelledBy`: string — Legacy input-specific alias for native aria-labelledby. When provided, it takes precedence; otherwise the native attribute is preserved.
@@ -5900,7 +5908,7 @@ Props:
 - `hasHover`: boolean = false — Applies a hover highlight background to rows on pointer devices.
 - `verticalAlign`: 'middle' | 'top' | 'bottom' = 'middle' — Vertical alignment for body row cells. Controls `vertical-align` on the `<td>` elements.
 - `textOverflow`: 'wrap' | 'truncate' = 'wrap' — How body cell text behaves when it exceeds the column width. 'wrap' lets text wrap and the row grow taller; 'truncate' clips with an ellipsis (default-rendered cells show a tooltip on hover when truncated). Header cells always truncate.
-- `virtualization`: TableVirtualizationCapability — Geometry-only capability from useTableRowsVirtualization({rowHeight, viewportHeight}), both positive finite CSS pixels. Pass complete flat data and an explicit idKey. Default text truncates; custom renderers, wrapping, structural plugins, incompatible offsets, invalid identity or unrepresentable geometry use full rendering. Logical row positions include the header.
+- `virtualization`: TableVirtualizationCapability — Geometry-only capability from useTableRowsVirtualization({rowHeight, initialViewportHeight}), both positive finite CSS pixels; the Table scrolls inside the height its parent gives it, and initialViewportHeight only sizes the first window. Give the Table's parent a height, fixed or relative, or a flex child, so windowing can bound the rows; with no height every row renders. Pass complete flat data and an explicit idKey. Default text truncates; custom renderers, wrapping, structural plugins, incompatible offsets, invalid identity or unrepresentable geometry use full rendering. Logical row positions include the header.
 - `plugins`: Record<string, TablePlugin<T>> — Named plugins that extend table behavior via the transform pipeline. Converted to an ordered array internally.
 - `rowIndexStart`: number = 1 — ARIA row index (1-based) for the first rendered body row. The row ordinal is an accessibility concern independent of any visible index column, so setting this (or rowCount) makes the table emit aria-rowindex on body rows and aria-rowcount on the table. For a paginated/windowed view, pass the offset of the first visible row (e.g. (page - 1) * pageSize + 1) so aria-rowindex reflects position in the full dataset. Data-driven mode only.
 - `rowCount`: number — Total number of body rows across all pages/windows, used for aria-rowcount so assistive tech can announce "row X of Y" against the full dataset. When omitted but rowIndexStart is set (windowed view with an unknown total), aria-rowcount is set to -1 per the ARIA unknown-count convention. Data-driven mode only.
@@ -6139,8 +6147,8 @@ Props:
 Import: `import {useTableRowsVirtualization} from '@astryxdesign/core/Table';`
 
 Props:
-- `rowHeight`: number (required) — Total body-row pitch in CSS pixels, including existing density padding and collapsed borders. Must fit text and supported controls without reducing their size.
-- `viewportHeight`: number (required) — Bounded Table-owned viewport height in CSS pixels. Table accounts for its headers and chrome.
+- `rowHeight`: number (required) — Total body-row pitch in CSS pixels, including existing density padding and collapsed borders. Must fit text and supported controls without reducing their size. When every row measures taller, as with enlarged text or zoom, the Table windows at the measured height and warns in development; rows of unequal height render every row.
+- `initialViewportHeight`: number (required) — The viewport height in CSS pixels that the first window plans for, on the server and before the viewport is measured. It does not size the Table: the Table scrolls inside the height its parent gives it, and after mount the measured viewport sets the window. Table accounts for its headers and chrome.
 
 ### useTableSelection (subcomponent/hook)
 
@@ -6221,6 +6229,31 @@ Props:
 - `sortSiblings`: (siblings: T[]) => T[] — Sort each sibling group independently during flattening; children always stay directly under their parent. Pass applySort from useTableSortableState to compose with column sorting.
 - `indent`: 'sm' | 'md' | 'lg' = 'md' — Indent step per level (spacing-3 / spacing-4 / spacing-6), forwarded to useTableTreeData.
 - `treeColumnKey`: string — Column that carries the indent + expander, forwarded to useTableTreeData. Defaults to the first column.
+
+## Text
+
+### useTruncation
+
+Import: `import {useTruncation} from '@astryxdesign/core/Text';`
+
+Detects whether an element's text is cut off — single-line overflow or clamped to several lines — and gives back the full text, updating when the size or the content changes. Built on a shared ResizeObserver and a shared MutationObserver, so hundreds of table cells create one observer of each kind, and a first measurement runs batched in a microtask after the commit instead of forcing a layout pass per text during mount. Use it wherever a truncated cell should show its full content only when it is actually truncated: compose a Tooltip off isTruncated and fullText instead of always rendering one. Text and Heading build their truncation tooltips on it; reach for it directly when composing truncation feedback into your own component.
+
+Do:
+- Render the full-content Tooltip only when isTruncated is true, and read the tooltip text from fullText: a cell that fits shows no tooltip, and the text always matches what was measured.
+- Apply the matching clamp yourself next to the hook — white-space: nowrap for maxLines 1, -webkit-line-clamp for more — so what the user sees and what the hook measures stay the same shape.
+- Reuse one useTruncation instance per measured element; the ref callback cleans up its own observers, so swapping elements is safe.
+
+Don't:
+- Compare scrollHeight to offsetHeight yourself for clamped text: with -webkit-line-clamp active browsers report the clamped size, which is exactly the case the Range measurement exists for.
+
+Parameters:
+- `options`: UseTruncationOptions (required) — Configuration object.
+- `options.maxLines`: number (required) — Maximum number of lines before truncation. 1 detects single-line overflow (scrollWidth against offsetWidth); values above 1 detect a -webkit-line-clamp cut by measuring the real content height with a Range, bypassing the clamped scrollHeight. 0 disables detection: isTruncated stays false and fullText stays empty.
+
+Returns:
+- `ref`: RefCallback<HTMLElement> — Ref callback to attach to the text element being measured. Re-attaching to another element re-observes it and cleans up the previous observation.
+- `isTruncated`: boolean — Whether the text is currently cut off. Drives composing a Tooltip with the full text: render the tooltip only when this is true, so a cell that fits shows none.
+- `fullText`: string — The element's current text content, captured on every measurement, for the tooltip a truncated cell shows. Follows content changes that resize nothing (a fixed-width status line whose text swaps).
 
 ## Utilities
 
@@ -6325,6 +6358,22 @@ Parameters:
 
 Returns:
 - `collator`: Intl.Collator — A memoized collator bound to the active InternationalizationProvider locale.
+
+### useDirection
+
+Import: `import {useDirection} from '@astryxdesign/core';`
+
+Reads the current text direction during render. Reach for this hook as a last resort when render-time direction is strictly required (such as canvas drawing that cannot use CSS logical properties). In order of preference, always favor: CSS logical properties (margin-inline, inset-inline); shared mirror styles for directional icons (CSS scaleX); and DOM reads for keyboard or gesture logic.
+
+Do:
+- Prefer CSS logical properties and directional CSS mirroring before using useDirection.
+- Use useDirection when drawing on an HTML canvas or calculating non-CSS layout coordinates where the start edge depends on text direction.
+
+Don't:
+- Use useDirection to conditionally swap margins, paddings, or inline alignments that can be solved with CSS logical properties.
+
+Returns:
+- `direction`: 'ltr' | 'rtl' — The ambient text direction ('ltr' or 'rtl') from the enclosing InternationalizationProvider, falling back to 'ltr' when called outside a provider.
 
 ### useIcon
 
@@ -6466,7 +6515,7 @@ Wraps your app to replace the default <a> tag with a framework-specific link com
 
 Props:
 - `component`: LinkComponentType (required) — Link component to use for all link elements in the subtree (e.g. Next.js Link). It receives accepted `href` and `to` values under the shared navigation rule described on the Link `href` prop. Supported structured destinations, including their `protocol`, are checked without changing object identity. If either supplied destination is rejected, Astryx renders inert content without invoking this component; it does not pass undefined or fall back to the other destination.
-- `children`: ReactNode (required) — Content to render with the link provider.
+- `children`: ReactNode (required) — The subtree. Astryx links in it that render through `useLinkComponent`, such as Link and Button with `href`, use `component`, unless a link sets its own `as` or a nearer LinkProvider sets another component. A disabled Link does not use it.
 
 ### MediaTheme
 

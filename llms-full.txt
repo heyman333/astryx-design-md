@@ -1,10 +1,10 @@
 # Astryx — Full Component Reference
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 262 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 264 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `f980d1c` (2026-11-11) of https://github.com/facebook/astryx.
+Generated from commit `fb6a0d5` (2026-11-12) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -361,7 +361,7 @@ Props:
 
 Import: `import {Trigger button} from '@astryxdesign/core/MoreMenu';`
 
-MoreMenu is a three-dot button that opens a list of actions. Use it for secondary actions that don't need to be always visible, like in table rows, card headers, or toolbars.
+MoreMenu is a three-dot button that opens a list of actions. Use it for secondary actions that don't need to be always visible, like in table rows, card headers, or toolbars. Host `data-*` attributes reach the trigger button; its accessible name, `id`, and menu disclosure attributes stay component-owned.
 
 Do:
 - Use for overflow or secondary actions; keep primary actions visible outside the menu.
@@ -1718,7 +1718,7 @@ Props:
 
 Import: `import {Trigger button} from '@astryxdesign/core/InfoTip';`
 
-An info icon that reveals help: a small "i" button. Hover and keyboard focus preview the help, and a click, tap, Enter, or Space pins it open until Escape, a second press, a press outside, or focus leaving. Use it next to labels, values, and metrics for permission notes, metric definitions, and field help. Its value over hand-composing Icon inside Tooltip is the pre-wired accessible trigger: a real button with an aria-label, Tab-reachable, tooltip on hover AND focus AND tap, and Escape dismissal. It follows the toggletip pattern: the button reports `aria-expanded="true"` while the help is pinned, and a screen reader hears the help once when it pins.
+An info icon that reveals help: a small "i" button. Hover and keyboard focus preview the help, and a click, tap, Enter, or Space pins it open until Escape, a second press, a press outside, or focus leaving. Use it next to labels, values, and metrics for permission notes, metric definitions, and field help. Its value over hand-composing Icon inside Tooltip is the pre-wired accessible trigger: a real button with an aria-label, Tab-reachable, tooltip on hover AND focus AND tap, and Escape dismissal. It follows the toggletip pattern: the button reports `aria-expanded="true"` while the help is pinned, and a screen reader hears the help once when it pins. Host `data-*` attributes reach the button; its name and disclosure attributes stay component-owned.
 
 Do:
 - Keep tooltip content concise, plain, and non-interactive; use Popover or HoverCard for links and buttons.
@@ -2090,7 +2090,7 @@ Props:
 - `dateConstraints`: ReadonlyArray<(date: Date) => boolean> — Array of custom constraint functions that disable specific dates.
 - `placeholder`: string = 'Select a date' — Placeholder text shown in the text input. A caller placeholder replaces the calendar format hint.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size of the input control.
-- `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator object for error, warning, or success states with a message. For a typed date the field rejects, and for unfinished text that Enter or blur keeps, the field shows its own error message instead; unreadable text is announced, not shown; with onEntryErrorChange, an error status with a message shows in place of that message. A warning or success never replaces a rejection.
+- `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator object for error, warning, or success states with a message. For a date the field rejects, typed or picked in the native control, and for unreadable or unfinished text that Enter or blur keeps, the field shows its own error message instead; with onEntryErrorChange, an error status with a message shows in place of that message. A warning or success never replaces a rejection.
 - `onEntryErrorChange`: (error: {kind: 'unreadable' | 'incomplete' | 'nonexistent' | 'outOfRange' | 'unavailable', text: string, date?: ISODateString} | null) => void — Called each time the field's rejection of typed text changes, and with null when the rejection ends. kind is 'unreadable', 'incomplete' (part of a date that Enter or blur cannot finish), 'nonexistent' (a date the calendar does not have), 'outOfRange' (before min or after max), or 'unavailable' (a day dateConstraints rules out); text is the typed text; date is the Gregorian ISO date the text names, for 'outOfRange' and 'unavailable'. It also runs when a new min, max, dateConstraints, or value, a calendar pick, disabling the field, or Enter or blur changes the rejection, and never twice for the same rejection; it reports null when the typed field leaves while its rejection stands, as when a presentation or pointer change shows the native or touch picker. With it, an error status with a message replaces the field's own message, and a rejection that starts under an unchanged error message announces that message once. The native and touch pickers take no typed text, so it never reports a rejection there.
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing; tooltip hides the message box and surfaces it in a tooltip on the status icon.
 - `labelTooltip`: string — Tooltip text displayed via an info icon at the end of the label.
@@ -2203,7 +2203,7 @@ Props:
 - `timePlaceholder`: string = 'Select a time' — Placeholder text shown in the time portion when no time is selected. On touch, this appears in the closed time segment before a time is chosen.
 - `timeLabel`: string — Accessible label for the time portion. Defaults to "{label} time" so it is tied to the field label and localizable.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size of the input control.
-- `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator object for error, warning, or success states with a message. For a typed date the field rejects, and for unfinished text that Enter or blur keeps, the field shows its own error message instead; unreadable text is announced, not shown; with onEntryErrorChange, an error status with a message shows in place of that message. A warning or success never replaces a rejection.
+- `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator object for error, warning, or success states with a message. For a date the field rejects, typed or picked in the native control, and for unreadable or unfinished text that Enter or blur keeps, the field shows its own error message instead; with onEntryErrorChange, an error status with a message shows in place of that message. A warning or success never replaces a rejection.
 - `onEntryErrorChange`: (error: {kind: 'unreadable' | 'incomplete' | 'nonexistent' | 'outOfRange' | 'unavailable', text: string, date?: ISODateString} | null) => void — Called each time the date segment's rejection of typed text changes, and with null when the rejection ends. kind is 'unreadable', 'incomplete' (part of a date that Enter or blur cannot finish), 'nonexistent' (a date the calendar does not have), 'outOfRange' (before the date of min or after the date of max), or 'unavailable' (a day dateConstraints rules out); text is the typed text; date is the Gregorian ISO date the text names, for 'outOfRange' and 'unavailable'. It also runs when a new min, max, dateConstraints, or value, a calendar pick, disabling the field, or Enter or blur changes the rejection, and never twice for the same rejection; it reports null when the typed field leaves while its rejection stands, as when a presentation or pointer change shows the native or touch picker. With it, an error status with a message replaces the field's own message, and a rejection that starts under an unchanged error message announces that message once. The native and touch pickers take no typed text, so it never reports a rejection there.
 - `labelTooltip`: string — Tooltip text displayed via an info icon at the end of the label.
 - `numberOfMonths`: 1 | 2 = 1 — Number of months displayed simultaneously in Astryx's pointer calendar popover. Ignored by native date controls and the mobile touch sheet, whose Date panel always shows one swipe-paged month at a time.
@@ -2788,6 +2788,7 @@ Props:
 - `placeholder`: string — Placeholder text shown when the textarea is empty.
 - `rows`: number = 3 — Number of visible text rows.
 - `maxLength`: number — Maximum number of characters allowed, counted as user-perceived characters: an emoji or flag sequence counts as one. When set, a character counter (current/max) is displayed inside the input container, anchored to the bottom-right beneath the text. Does not enforce the limit natively; when exceeded the counter turns red and shows a warning icon (a non-color cue), and screen-reader users hear the remaining/over-limit count announced. Consumers validating the limit should count with characterCount (exported from the package) so enforcement matches the displayed count.
+- `htmlMaxLength`: number — The native `maxlength` attribute: the browser stops typing past this many UTF-16 code units (an emoji can take two or more). It is separate from `maxLength`, the soft counter of user-perceived characters: it works without the counter, and it neither shows nor changes the counter. It can stop typing before the counter reaches its limit. TextArea adds no truncation or validation of its own, so a longer controlled value stays as set. The attribute is in the server-rendered HTML, so it applies before hydration. Validate on the server too: the browser limit does not bind requests that skip the UI.
 - `status`: { type: 'warning' | 'error' | 'success'; message?: string } — Status indicator that applies a colored border and icon. An optional message is displayed in a floating box below the textarea.
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing; tooltip hides the message box and surfaces it in a tooltip on the status icon.
 - `labelTooltip`: string — Tooltip text displayed in an info icon at the end of the label.
@@ -2866,7 +2867,8 @@ Props:
 - `labelTooltip`: string — Tooltip text to display in an info icon at the end of the label.
 - `startIcon`: IconType — Icon to display at the start of the input. See `astryx docs icons` for valid semantic names.
 - `labelIcon`: IconType — Icon to display before the label text. See `astryx docs icons` for valid semantic names.
-- `status`: {type: 'error' | 'warning' | 'success', message?: string} — Validation status with optional message.
+- `status`: {type: 'error' | 'warning' | 'success', message?: string} — Validation status with optional message. Typing never shows a rejection: a typed number is complete only at commit. When Enter or blur meets text that is not a number, a fraction in an integer-only field, or any number while min is above max, the text stays in the field and the field shows its own error message in place of status. An error status with a message shows instead of that message, and the rejection is still announced and marks the field invalid. A warning or success status, or an error status without a message, never replaces it. A number outside an ordinary range clamps instead.
+- `onEntryErrorChange`: (error: {kind: 'unreadable' | 'fractional' | 'outOfRange', text: string, value?: number} | null) => void — Called each time the field's rejection of typed text changes, and with null when the rejection ends. A rejection starts only at Enter or blur. kind is 'unreadable' (text that is not a number), 'fractional' (a fraction when isIntegerOnly), or 'outOfRange' (any number while min is above max); text is the typed text; value is the number it names, for 'fractional' and 'outOfRange'. It also runs when an edit makes the text valid or empty, when a new value, min, max, or isIntegerOnly changes or ends the rejection, and when disabling the field drops the text, and never twice for the same rejection; it reports null when the field unmounts while a rejection stands. Pass an error status with a message to word the rejection yourself.
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing; tooltip hides the message box and surfaces it in a tooltip on the status icon.
 - `min`: number | null — Minimum value allowed. A smaller entry commits at this value on blur or Enter.
 - `max`: number | null — Maximum value allowed. A larger entry commits at this value on blur or Enter.
@@ -2877,7 +2879,7 @@ Props:
 - `units`: string | null — Units text to display at the end of the input (e.g., "%" or "GB").
 - `isIntegerOnly`: boolean — Only allow integer values (no floating point).
 - `hasClear`: boolean = false — Shows a clear (\u00d7) button when the input has a value. When true, the onChange callback also accepts null to signal the user cleared the input.
-- `htmlName`: string — HTML name attribute for form submissions.
+- `htmlName`: string — HTML name attribute for form submissions. While blur keeps rejected text, the form posts the committed number, until the person edits the text or a new value replaces it.
 - `autoComplete`: string — HTML autocomplete attribute.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
 - `hasAutoFocus`: boolean — Whether to focus the input on mount.
@@ -2895,7 +2897,7 @@ Props:
 
 Import: `import {PowerSearch} from '@astryxdesign/core/PowerSearch';`
 
-PowerSearch is a structured filter bar where each token represents a field, operator, and value. Use it for complex multi-dimensional filtering when users need to combine multiple search criteria. For simple single-field search, use a text input instead.
+PowerSearch is a structured filter bar where each token represents a field, operator, and value. Use it for complex multi-dimensional filtering when users need to combine multiple search criteria. For simple single-field search, use a text input instead. Host `data-*` attributes, `data-testid` included, reach the primary control: the combobox input in the popover presentation and the trigger button in the sheet presentation. The `components.Token` and `components.Editor` defaults, `PowerSearchToken` and `PowerSearchFilterEditor`, pass them to the token and the editor root.
 
 Do:
 - Define clear, descriptive field names and aliases so users can quickly find the filter they need.
@@ -5476,7 +5478,7 @@ Props:
 
 Import: `import {Toast} from '@astryxdesign/core/Toast';`
 
-Toast shows a brief, non-blocking notification to confirm an action or present temporary information. Use it for scenarios where the user needs feedback but not a decision, such as saving, deleting, or changing a status.\n\nFor production use, prefer the `useToast()` hook; it handles positioning, stacking, auto-dismiss, and deduplication via `ToastViewport`. Toasts stay within viewport and safe-area gutters, wrap long message content, and enter, exit, or swipe-dismiss toward their configured top or bottom edge. The vertical swipe uses the same spatial model as placement motion: top Toasts leave upward and bottom Toasts leave downward. Swipe waits for dominant edge-directed intent before cancelling native touch movement and reports the existing manual dismissal reason. Pen is supported as direct-contact input; mouse drag is excluded to avoid conflicting with desktop text selection, where the visible close control remains available. Set `isAutoHide: false` explicitly when an action or message must remain available. The `Toast` component renders the visual toast element inline and is useful for previews, documentation, and static showcases where the viewport lifecycle is not needed.
+Toast shows a brief, non-blocking notification to confirm an action or present temporary information. Use it for scenarios where the user needs feedback but not a decision, such as saving, deleting, or changing a status.\n\nFor production use, prefer the `useToast()` hook; it handles positioning, stacking, auto-dismiss, and deduplication via `ToastViewport`. Toasts stay within viewport and safe-area gutters, wrap long message content, and enter, exit, or swipe-dismiss toward their configured top or bottom edge. The vertical swipe uses the same spatial model as placement motion: top Toasts leave upward and bottom Toasts leave downward. Swipe waits for dominant edge-directed intent before cancelling native touch movement and reports the existing manual dismissal reason. Pen is supported as direct-contact input; mouse drag is excluded to avoid conflicting with desktop text selection, where the visible close control remains available. Set `isAutoHide: false` explicitly when an action or message must remain available. The `Toast` component renders the visual toast element inline and is useful for previews, documentation, and static showcases where the viewport lifecycle is not needed. Host `data-*` attributes on `Toast` reach the toast element; its role, live-region attributes, and theme attributes stay component-owned.
 
 Do:
 - Keep messages short: only a few words that tell the user what happened, like "Changes saved" or "Message sent".
@@ -5802,7 +5804,7 @@ Props:
 - `isSelected`: boolean = false — Selected state.
 - `isDisabled`: boolean = false — Disabled state. Interactive rows stay keyboard-reachable but cannot activate.
 - `swipeActions`: {leading?: ItemSwipeAction[]; trailing?: ItemSwipeAction[]} — Swipe actions for touch: the verbs a sideways drag uncovers on each side, outermost last, each `{id?, label, icon?, onActivate, isDisabled?, variant?: 'neutral' | 'accent' | 'destructive', hasRemoval?}`. `leading` is uncovered by a drag toward the inline end, `trailing` toward the inline start. A mouse never starts the drag and a mostly vertical drag stays the scroller's. The gesture is a touch accelerator and never a row's only path to a verb: a verb reachable only by swipe is unreachable by keyboard and by mouse, so every entry must also be reachable through the row's own content. Served on a row whose role permits interactive descendants (a listitem, a row with no role) and not on an option, a menu item, or a row that is the enlarged target of a native radio. The element containing the rows clips in the inline axis with overflow-inline: clip — List does; any other host does it once. `hasRemoval` only says the row holds out after the action fires instead of springing back. The gesture and its panels are loaded on demand the first time a row has swipe actions, so a row without them ships none of it.
-- `swipeBehavior`: 'reveal' | 'commit' = 'reveal' — What a swipe does. `reveal` rests the row open with every entry a real button and fires the outermost on a long drag or a fling; `commit` slides the row out and fires the outermost on release, with nothing resting and a presentational panel. `commit` fits one entry per side.
+- `swipeBehavior`: 'reveal' | 'commit' = 'reveal' — What a swipe does. `reveal` rests the row open with every entry a real button after a fling or a drag past half the panel. A long drag fires the outermost; on a side with two or more entries, only a drag that starts on the open row fires it. `commit` slides the row out and fires the one entry of a side on a release past the commit point. Nothing rests, and the panel is presentational. On a side with two or more entries, `commit` fires none. A fling never fires an entry.
 - `ref`: React.Ref<HTMLElement> — Ref forwarded to the root element, whose type follows `as`.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 - `className`: string — CSS class name(s) for the root element.
@@ -5917,7 +5919,7 @@ Props:
 - `hasHover`: boolean = false — Applies a hover highlight background to rows on pointer devices.
 - `verticalAlign`: 'middle' | 'top' | 'bottom' = 'middle' — Vertical alignment for body row cells. Controls `vertical-align` on the `<td>` elements.
 - `textOverflow`: 'wrap' | 'truncate' = 'wrap' — How body cell text behaves when it exceeds the column width. 'wrap' lets text wrap and the row grow taller; 'truncate' clips with an ellipsis (default-rendered cells show a tooltip on hover when truncated). Header cells always truncate.
-- `virtualization`: TableVirtualizationCapability — Geometry-only capability from useTableRowsVirtualization({rowHeight, initialViewportHeight}), both positive finite CSS pixels; the Table scrolls inside the height its parent gives it, and initialViewportHeight only sizes the first window. Give the Table's parent a height, fixed or relative, or a flex child, so windowing can bound the rows; with no height every row renders. Pass complete flat data and an explicit idKey. Default text truncates; custom renderers, wrapping, structural plugins, incompatible offsets, invalid identity or unrepresentable geometry use full rendering. Logical row positions include the header.
+- `virtualization`: TableVirtualizationCapability | TableVirtualizationCapability[] — Geometry-only capability from useTableRowsVirtualization or useTableColumnsVirtualization, or a list with at most one of each; any other list renders without windowing. useTableColumnsVirtualization({initialViewportWidth}) mounts only the unpinned columns near the viewport. useTableRowsVirtualization({rowHeight, initialViewportHeight}) takes sizes that are both positive finite CSS pixels; the Table scrolls inside the height its parent gives it, and initialViewportHeight only sizes the first window. Give the Table's parent a height, fixed or relative, or a flex child, so windowing can bound the rows; with no height every row renders. Pass complete flat data and an explicit idKey. Default text truncates; custom renderers, wrapping, structural plugins, incompatible offsets, invalid identity or unrepresentable geometry use full rendering. Logical row positions include the header.
 - `plugins`: Record<string, TablePlugin<T>> — Named plugins that extend table behavior via the transform pipeline. Converted to an ordered array internally.
 - `rowIndexStart`: number = 1 — ARIA row index (1-based) for the first rendered body row. The row ordinal is an accessibility concern independent of any visible index column, so setting this (or rowCount) makes the table emit aria-rowindex on body rows and aria-rowcount on the table. For a paginated/windowed view, pass the offset of the first visible row (e.g. (page - 1) * pageSize + 1) so aria-rowindex reflects position in the full dataset. Data-driven mode only.
 - `rowCount`: number — Total number of body rows across all pages/windows, used for aria-rowcount so assistive tech can announce "row X of Y" against the full dataset. When omitted but rowIndexStart is set (windowed view with an unknown total), aria-rowcount is set to -1 per the ARIA unknown-count convention. Data-driven mode only.
@@ -6070,6 +6072,13 @@ Props:
 - `onChangeActiveColumnKeys`: (keys: string[]) => void (required) — Called when active columns change (toggle, reorder).
 - `defaultColumnKeys`: string[] — Default column set for "Reset to default". When omitted, reset shows all columns.
 
+### useTableColumnsVirtualization (subcomponent/hook)
+
+Import: `import {useTableColumnsVirtualization} from '@astryxdesign/core/Table';`
+
+Props:
+- `initialViewportWidth`: number (required) — The inline viewport width in CSS pixels that the first window plans for, on the server and before the viewport is measured. It does not size the Table: after mount, the measured width of the Table's scroll area sets the window. Table accounts for its pinned columns.
+
 ### useTableFiltering (subcomponent/hook)
 
 Import: `import {useTableFiltering} from '@astryxdesign/core/Table';`
@@ -6098,6 +6107,17 @@ Props:
 - `renderGroupHeader`: (groupKey: string, count: number, collapsed: boolean) => ReactNode — Custom renderer for a group header's content (right of the chevron). Defaults to `<groupKey> (<count>)`.
 - `getRowKey`: (item: T) => string — Stable key for a real row. Falls back to a positional key when omitted.
 - `groupOrder`: string[] — Explicit group ordering; groups not listed keep first-seen order after these.
+
+### useTableInfiniteScroll (subcomponent/hook)
+
+Import: `import {useTableInfiniteScroll} from '@astryxdesign/core/Table';`
+
+Call useTableInfiniteScroll<T>({hasMore, isLoading, onLoadMore}) and pass the result to <Table plugins={{infiniteScroll: plugin}} />. Keep accumulated rows in your own state. onLoadMore must return a Promise<void> that settles when the batch work completes. A fulfilled request finishes after settlement and a subsequent committed isLoading=false; a true loading phase is not required. Visible short batches can automatically request again in a later task, so update hasMore when the source is exhausted. A resolved request that appends no rows must not incorrectly claim endless more data. Throws, rejections and invalid non-Promise results pause automatic loading; the manual Button can retry once controlled loading is false. The hook does not render product errors or cancel transport. For a new dataset, key and remount the component owning both the hook and its Table, not only the Table child; prevent stale responses from committing caller data yourself. Children mode and unsupported row models do not load and emit a deduplicated development warning. Body modifiers must declare compatible rowModel: flat. Observation uses the Table scroll area while the Table windows its rows, and the browser viewport otherwise, with zero look-ahead and no ancestor discovery. Without IntersectionObserver, the same manual command works.
+
+Props:
+- `hasMore`: boolean (required) — Whether the source can provide another batch. False removes loading chrome and observation. Only a focused removed command hands focus to the shared Table viewport, without scrolling.
+- `isLoading`: boolean (required) — Caller-controlled loading. Blocks requests while true. The outstanding request latch also keeps the Button busy through Promise settlement and the next false commit.
+- `onLoadMore`: () => Promise<void> (required) — Fetch and append the next batch, returning its completion Promise. Rows, cursors, errors and stale-response suppression stay caller-owned. Callback identity changes do not reset pending work or failure pause.
 
 ### useTablePagination (subcomponent/hook)
 
@@ -6258,6 +6278,7 @@ Don't:
 Parameters:
 - `options`: UseTruncationOptions (required) — Configuration object.
 - `options.maxLines`: number (required) — Maximum number of lines before truncation. 1 detects single-line overflow (scrollWidth against offsetWidth); values above 1 detect a -webkit-line-clamp cut by measuring the real content height with a Range, bypassing the clamped scrollHeight. 0 disables detection: isTruncated stays false and fullText stays empty.
+- `options.isExpanded`: boolean = false — Pass true while the text is shown in full; the hook keeps reporting whether it is cut off when clamped.
 
 Returns:
 - `ref`: RefCallback<HTMLElement> — Ref callback to attach to the text element being measured. Re-attaching to another element re-observes it and cleans up the previous observation.

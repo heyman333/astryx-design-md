@@ -1,10 +1,10 @@
 # Astryx — Full Component Reference
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 264 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 267 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `fb6a0d5` (2026-11-12) of https://github.com/facebook/astryx.
+Generated from commit `214e842` (2026-11-13) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -628,6 +628,48 @@ Props:
 - `defaultIsExpanded`: boolean = false — Default expanded state when uncontrolled.
 - `onExpandedChange`: (isExpanded: boolean) => void — Callback fired when the expanded state changes.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
+
+### useChatDictation
+
+Import: `import {useChatDictation} from '@astryxdesign/core/Chat';`
+
+Voice input for a chat composer. It wraps speech recognition with microphone level, start and stop cues, and optional interim text in a ChatComposerInput. Check isSupported before offering the control. A browser without speech recognition reports false and does not listen. Sustained loud speech turns the transcript to upper case.
+
+Do:
+- Pass inputRef when the words should appear in the composer. The hook inserts each final transcript there and still calls onResult.
+- Disable the control when isSupported is false, and say that this browser cannot take voice input.
+- Handle onError. It is the only signal that microphone permission was refused.
+
+Don't:
+- Call the browser SpeechRecognition API beside this hook. Use useSpeechRecognition only when the composer behavior is not wanted.
+
+Parameters:
+- `options`: UseChatDictationOptions — Speech and composer options. Omit them to listen in the provider locale until stop is called.
+- `options.lang`: string — BCP-47 language tag for recognition.
+- `options.continuous`: boolean = true — Whether recognition continues until stop or abort.
+- `options.interimResults`: boolean = true — Whether partial transcripts are reported before the final one.
+- `options.audioContext`: AudioContext — A shared audio context for the microphone level and cues. Omit it to use the hook's own context.
+- `options.transformTranscript`: (transcript: string) => string — Rewrites each transcript before it is reported, before the upper-case rule for loud speech.
+- `options.inputRef`: React.RefObject<ChatComposerInputHandle | null> — The composer handle. When set, the hook focuses that composer, shows each partial transcript there, and inserts each final transcript. onResult still runs, so do not insert that text again.
+- `options.hasSounds`: boolean = false — Play a short cue when recognition starts and stops.
+- `options.onResult`: (transcript: string) => void — Called with each final transcript.
+- `options.onTranscript`: (transcript: string, isFinal: boolean) => void — Called for each partial transcript and each final one.
+- `options.onError`: (error: {error: string, message?: string}) => void — Called when recognition fails, including when microphone permission is refused.
+- `options.onStart`: () => void — Called when recognition starts.
+- `options.onEnd`: () => void — Called when recognition ends.
+
+Returns:
+- `isSupported`: boolean — Whether this browser provides speech recognition.
+- `isListening`: boolean — Whether recognition is active.
+- `isSpeaking`: boolean — Whether the microphone currently hears speech.
+- `interimTranscript`: string — The partial transcript, empty when none is pending.
+- `volume`: number — Microphone level from 0 to 1 while listening.
+- `bands`: number[] — Frequency band levels from low to high, each from 0 to 1.
+- `rawBands`: number[] — The same bands before calibration.
+- `start`: () => void — Start recognition.
+- `stop`: () => void — Stop recognition and wait for the final transcript.
+- `abort`: () => void — Stop recognition immediately.
+- `toggle`: () => void — Start when idle, and stop when listening.
 
 ### ChatComposer (subcomponent/hook)
 
@@ -1425,7 +1467,7 @@ Props:
 - `onClick`: (e: React.MouseEvent) => void — Click handler. Adds button semantics and a hover overlay.
 - `isLoading`: boolean = false — Shows skeleton (no src) or upload overlay (with src).
 - `isDisabled`: boolean = false — Whether the thumbnail is disabled.
-- `showRemoveOn`: 'always' | 'hover' = 'hover' — When the remove button is visible. `hover` (the default) reveals it on hover and on keyboard focus, and keeps it visible on any touch-capable device; `always` shows it at rest. Only applies when `onRemove` is set.
+- `showRemoveOn`: 'always' | 'hover' = 'hover' — When the remove button is visible. `hover` (the default) reveals it on hover and on keyboard focus, and keeps it visible under a coarse primary pointer (a phone or tablet); `always` shows it at rest. Only applies when `onRemove` is set.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 - `className`: string — CSS class name for the root element. Prefer xstyle for styling; className is provided for integration with non-StyleX systems.
 - `style`: CSSProperties — Inline styles for the root element. Prefer xstyle for styling; inline styles bypass StyleX optimization.
@@ -2092,6 +2134,7 @@ Props:
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size of the input control.
 - `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator object for error, warning, or success states with a message. For a date the field rejects, typed or picked in the native control, and for unreadable or unfinished text that Enter or blur keeps, the field shows its own error message instead; with onEntryErrorChange, an error status with a message shows in place of that message. A warning or success never replaces a rejection.
 - `onEntryErrorChange`: (error: {kind: 'unreadable' | 'incomplete' | 'nonexistent' | 'outOfRange' | 'unavailable', text: string, date?: ISODateString} | null) => void — Called each time the field's rejection of typed text changes, and with null when the rejection ends. kind is 'unreadable', 'incomplete' (part of a date that Enter or blur cannot finish), 'nonexistent' (a date the calendar does not have), 'outOfRange' (before min or after max), or 'unavailable' (a day dateConstraints rules out); text is the typed text; date is the Gregorian ISO date the text names, for 'outOfRange' and 'unavailable'. It also runs when a new min, max, dateConstraints, or value, a calendar pick, disabling the field, or Enter or blur changes the rejection, and never twice for the same rejection; it reports null when the typed field leaves while its rejection stands, as when a presentation or pointer change shows the native or touch picker. With it, an error status with a message replaces the field's own message, and a rejection that starts under an unchanged error message announces that message once. The native and touch pickers take no typed text, so it never reports a rejection there.
+- `entryErrorBehavior`: 'complete' | 'blur-or-enter' = the nearest FormLayout's defaultEntryErrorBehavior, else 'complete' — When the field shows its own entry error: a typed date it rejects, as onEntryErrorChange reports it. It sets when the error shows, not when validation runs, so it is not React Aria's validationBehavior (native versus ARIA validation), and it never changes a caller status. 'complete' shows a date the calendar does not have, or one outside min, max, or dateConstraints, as soon as the typed date is complete, and unreadable or unfinished text at Enter or blur. 'blur-or-enter' holds every rejection until Enter or blur: the message, aria-invalid, the invalid styling, the announcement, and the onEntryErrorChange report then appear together. Under both values, an edit that makes the text a date or empties it clears the error at once; under 'blur-or-enter', an edit that leaves the text wrong keeps the shown error until the next Enter or blur. A date the native control refuses shows at Enter or blur under both values. The field's own value wins over the nearest FormLayout's defaultEntryErrorBehavior.
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing; tooltip hides the message box and surfaces it in a tooltip on the status icon.
 - `labelTooltip`: string — Tooltip text displayed via an info icon at the end of the label.
 - `hasClear`: boolean = false — Shows a clear (\u00d7) button when a date value is set. Clicking it clears the value and returns focus to the input.
@@ -2203,8 +2246,9 @@ Props:
 - `timePlaceholder`: string = 'Select a time' — Placeholder text shown in the time portion when no time is selected. On touch, this appears in the closed time segment before a time is chosen.
 - `timeLabel`: string — Accessible label for the time portion. Defaults to "{label} time" so it is tied to the field label and localizable.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size of the input control.
-- `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator object for error, warning, or success states with a message. For a date the field rejects, typed or picked in the native control, and for unreadable or unfinished text that Enter or blur keeps, the field shows its own error message instead; with onEntryErrorChange, an error status with a message shows in place of that message. A warning or success never replaces a rejection.
+- `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator object for error, warning, or success states with a message. For a date the field rejects, typed or picked in the native control, and for unreadable or unfinished text that Enter or blur keeps, the field shows its own error message instead; with onEntryErrorChange, an error status with a message shows in place of that message. A warning or success never replaces a rejection. A typed time the time segment rejects shows once it is complete, or at Enter or blur, and stays in the field; its own error message shows unless the date segment shows its message or an error status with a message shows in its place.
 - `onEntryErrorChange`: (error: {kind: 'unreadable' | 'incomplete' | 'nonexistent' | 'outOfRange' | 'unavailable', text: string, date?: ISODateString} | null) => void — Called each time the date segment's rejection of typed text changes, and with null when the rejection ends. kind is 'unreadable', 'incomplete' (part of a date that Enter or blur cannot finish), 'nonexistent' (a date the calendar does not have), 'outOfRange' (before the date of min or after the date of max), or 'unavailable' (a day dateConstraints rules out); text is the typed text; date is the Gregorian ISO date the text names, for 'outOfRange' and 'unavailable'. It also runs when a new min, max, dateConstraints, or value, a calendar pick, disabling the field, or Enter or blur changes the rejection, and never twice for the same rejection; it reports null when the typed field leaves while its rejection stands, as when a presentation or pointer change shows the native or touch picker. With it, an error status with a message replaces the field's own message, and a rejection that starts under an unchanged error message announces that message once. The native and touch pickers take no typed text, so it never reports a rejection there.
+- `entryErrorBehavior`: 'complete' | 'blur-or-enter' = the nearest FormLayout's defaultEntryErrorBehavior, else 'complete' — When both segments show their own entry errors: a typed date or time the field rejects. It sets when the error shows, not when validation runs, so it is not React Aria's validationBehavior (native versus ARIA validation), and it never changes a caller status. 'complete' shows a complete typed date the calendar does not have or that is out of range, a complete typed time outside the range, and a time the native control reports outside the range at once, and other rejected text at Enter or blur. 'blur-or-enter' holds every rejection until Enter or blur in its segment: the message, aria-invalid, the invalid styling, the announcement, and the date segment's onEntryErrorChange report then appear together. Under both values, an edit the field accepts or that empties the segment clears the error at once; under 'blur-or-enter', an edit that leaves the entry wrong keeps the shown error until the next Enter or blur. A date the native control refuses shows at Enter or blur under both values. The field's own value wins over the nearest FormLayout's defaultEntryErrorBehavior.
 - `labelTooltip`: string — Tooltip text displayed via an info icon at the end of the label.
 - `numberOfMonths`: 1 | 2 = 1 — Number of months displayed simultaneously in Astryx's pointer calendar popover. Ignored by native date controls and the mobile touch sheet, whose Date panel always shows one swipe-paged month at a time.
 - `weekStartsOn`: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' = 0 — First day of week in Astryx calendars. A number (0 = Sunday to 6 = Saturday) or a three-letter day name. Ignored by native date controls.
@@ -2869,6 +2913,7 @@ Props:
 - `labelIcon`: IconType — Icon to display before the label text. See `astryx docs icons` for valid semantic names.
 - `status`: {type: 'error' | 'warning' | 'success', message?: string} — Validation status with optional message. Typing never shows a rejection: a typed number is complete only at commit. When Enter or blur meets text that is not a number, a fraction in an integer-only field, or any number while min is above max, the text stays in the field and the field shows its own error message in place of status. An error status with a message shows instead of that message, and the rejection is still announced and marks the field invalid. A warning or success status, or an error status without a message, never replaces it. A number outside an ordinary range clamps instead.
 - `onEntryErrorChange`: (error: {kind: 'unreadable' | 'fractional' | 'outOfRange', text: string, value?: number} | null) => void — Called each time the field's rejection of typed text changes, and with null when the rejection ends. A rejection starts only at Enter or blur. kind is 'unreadable' (text that is not a number), 'fractional' (a fraction when isIntegerOnly), or 'outOfRange' (any number while min is above max); text is the typed text; value is the number it names, for 'fractional' and 'outOfRange'. It also runs when an edit makes the text valid or empty, when a new value, min, max, or isIntegerOnly changes or ends the rejection, and when disabling the field drops the text, and never twice for the same rejection; it reports null when the field unmounts while a rejection stands. Pass an error status with a message to word the rejection yourself.
+- `entryErrorBehavior`: 'complete' | 'blur-or-enter' = the nearest FormLayout's defaultEntryErrorBehavior, else 'complete' — When the field shows its own entry error: typed text it rejects, as onEntryErrorChange reports it. It sets when the error shows, not when validation runs, so it is not React Aria's validationBehavior (native versus ARIA validation), and it never changes a caller status. A typed number is complete only at Enter or blur, so 'complete' and 'blur-or-enter' behave the same: the message, aria-invalid, the invalid styling, the announcement, and the onEntryErrorChange report appear together at Enter or blur, never while a person types, and an edit that makes the text valid or empty clears the error at once. Set it to match the other fields of a form; the field's own value wins over the nearest FormLayout's defaultEntryErrorBehavior.
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing; tooltip hides the message box and surfaces it in a tooltip on the status icon.
 - `min`: number | null — Minimum value allowed. A smaller entry commits at this value on blur or Enter.
 - `max`: number | null — Maximum value allowed. A larger entry commits at this value on blur or Enter.
@@ -3081,7 +3126,9 @@ Props:
 - `nativePicker`: 'touch' | 'always' | 'never' = 'touch' — Deprecated: use presentation ('touch' = 'adaptive-native', 'always' = 'native', 'never' = 'text-input'). Still works exactly as released; presentation wins when both are set.
 - `placeholder`: string = 'Select a time' — Placeholder text shown when no time is selected. When the input is focused and empty, a format hint overrides this text.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Controls the height of the input element.
-- `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator that colors the border and displays an icon. When a message is provided it is rendered below the input.
+- `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator that colors the border and displays an icon. When a message is provided it is rendered below the input. A typed time the field rejects, and a native edit outside min or max, show the field's own error message instead; an error status with a message shows in its place, and the rejection is still announced. A warning or success never replaces a rejection.
+- `onEntryErrorChange`: (error: {kind: 'unreadable' | 'outOfRange', text: string, value?: ISOTimeString} | null) => void — Called each time the field's rejection of typed text changes, and with null when the rejection ends. kind is 'unreadable' (text that is not a time) or 'outOfRange' (a time before min or after max); text is the typed text; value is the ISO time the text names, for 'outOfRange'. Under entryErrorBehavior 'complete', a rejection shows once the typed time is complete (in 12-hour text, with its day period unless the hour reads 0 or 13–23), or at Enter or blur; under 'blur-or-enter', only at Enter or blur. Rejected text stays in the field. It also runs when a new min, max, or value, or disabling the field, changes the rejection, never twice for the same rejection, and with null when the field unmounts while a rejection stands. The native and bottom-sheet surfaces take no typed text, so they never report.
+- `entryErrorBehavior`: 'complete' | 'blur-or-enter' = the nearest FormLayout's defaultEntryErrorBehavior, else 'complete' — When the field shows its own entry error: a typed time it rejects, as onEntryErrorChange reports it, or a native edit outside min or max. It sets when the error shows, not when validation runs, so it is not React Aria's validationBehavior (native versus ARIA validation), and it never changes a caller status. 'complete' shows a complete typed time outside min or max, and a native edit outside them, at once, and other rejected text at Enter or blur. 'blur-or-enter' holds every rejection until Enter or blur: the message, aria-invalid, the invalid styling, the announcement, and the onEntryErrorChange report then appear together. Under both values, an edit the field accepts or empties clears the error at once; under 'blur-or-enter', an edit that leaves the entry wrong keeps the shown error until the next Enter or blur. The field's own value wins over the nearest FormLayout's defaultEntryErrorBehavior.
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing; tooltip hides the message box and surfaces it in a tooltip on the status icon.
 - `labelTooltip`: string — Tooltip text rendered as an info icon at the end of the label row.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
@@ -3396,7 +3443,7 @@ Returns:
 
 Import: `import {useContainerReveal} from '@astryxdesign/core/hooks';`
 
-A headless hover/focus reveal primitive. Gives a container a scoped trigger that reveals (or conceals) content inside it when the container is hovered or receives keyboard focus: the classic "row actions appear on hover" pattern. The reveal is CSS-only: no hover state lives in React and hovering never triggers a re-render. The caller authors no StyleX for the reveal itself; the hook hands out the container and content styles, and a nested container shadows its ancestor, so nested containers never leak hover/focus into one another. Accessible by construction: revealed content is visually hidden at rest with position and opacity (never display:none), so it stays mounted, keeps its place in the tab order, and is announced to assistive technology; it reveals on :focus-within so keyboard users see it when tabbing in, stays visible on touch (never gated behind hover on coarse pointers), and honors prefers-reduced-motion.
+A headless hover/focus reveal primitive. Gives a container a scoped trigger that reveals (or conceals) content inside it when the container is hovered or receives keyboard focus: the classic "row actions appear on hover" pattern. The reveal is CSS-only: no hover state lives in React and hovering never triggers a re-render. The caller authors no StyleX for the reveal itself; the hook hands out the container and content styles, and a nested container shadows its ancestor, so nested containers never leak hover/focus into one another. Accessible by construction: revealed content is visually hidden at rest with position and opacity (never display:none), so it stays mounted, keeps its place in the tab order, and is announced to assistive technology; it reveals on :focus-within so keyboard users see it when tabbing in, stays visible under a coarse primary pointer (never gated behind hover there), and honors prefers-reduced-motion.
 
 Do:
 - Destructure getContainerProps and getContentRevealProps; spread getContainerProps() on the container (via mergeProps with your own stylex.props) and getContentRevealProps() on the content to reveal.
@@ -3425,7 +3472,7 @@ Import: `import {useHotkeys} from '@astryxdesign/core/hooks';`
 Registers global keyboard shortcuts with a single window keydown listener per hook instance. Handlers live in a ref, so re-renders never re-subscribe. Skips events from typing targets (input, textarea, select, contenteditable) unless allowInInputs, skips defaultPrevented events, and calls preventDefault() on match. SSR-safe.
 
 Do:
-- Use for app-level shortcuts like command palettes (mod+k), help overlays (shift+/), and navigation keys.
+- Use for app-level shortcuts like command palettes (mod+k), help overlays ("?"), and navigation keys.
 - Pair with the Kbd component to display the same combo you register; both resolve "mod" per platform identically.
 - Use isDisabled to suspend shortcuts while a modal or wizard owns the keyboard, instead of unmounting the hook.
 
@@ -3433,7 +3480,7 @@ Don't:
 - Use for focus-scoped keyboard navigation inside a widget; use useListFocus or useGridFocus instead.
 
 Parameters:
-- `hotkeys`: Hotkey[] (required) — Shortcut registrations. Each entry: `{ keys, onPress, allowInInputs?, isDisabled? }`. `keys` is a "+"-separated combo like "mod+k", "shift+/", "escape"; "mod" is ⌘ on macOS and Ctrl elsewhere. `onPress` receives the KeyboardEvent after preventDefault(). `allowInInputs` (default false) lets the hotkey fire while typing in inputs/textareas/selects/contenteditable. `isDisabled` temporarily disables the entry.
+- `hotkeys`: Hotkey[] (required) — Shortcut registrations. Each entry: `{ keys, onPress, allowInInputs?, isDisabled? }`. `keys` is a "+"-separated combo like "mod+k", "?", "escape"; "mod" is ⌘ on macOS and Ctrl elsewhere. Register a punctuation key that shift changes as the character it produces: "?", not "shift+/", because the final key is compared against `event.key`. `onPress` receives the KeyboardEvent after preventDefault(). `allowInInputs` (default false) lets the hotkey fire while typing in inputs/textareas/selects/contenteditable. `isDisabled` temporarily disables the entry.
 
 ### useHoverCard
 
@@ -3858,6 +3905,27 @@ Parameters:
 Returns:
 - `destroy`: () => void — Removes every listener the pan added and its `touch-action`. A drag in progress is cancelled: `onPan` hears `cancelled`.
 
+### createSwipe
+
+Import: `import {createSwipe} from '@astryxdesign/core/Swipe';`
+
+Gives a list row the verbs a sideways swipe uncovers, the way a mail row reveals Archive and Delete on a phone: `const mail = createSwipe({trailing: [{id: 'archive', label: 'Archive', onActivate: ({itemKey}) => archive(itemKey)}]})`, then `<ListItem label="Inbox" itemKey={message.id} swipe={mail} />`. A finger, a pen or a trackpad’s two-finger swipe drags the row; a mouse never does. A plain function, not a hook, pure and cheap: define the swipe once at module scope, where each handler reads the row from `itemKey`, or in `useMemo` when its handlers need component state. A new value with the same ids neither closes an open row nor restarts its settle, and it does no DOM work. The swipe’s code comes with this function, so a row given `swipe` is swipeable at its first paint and an app that never imports it ships none of it.
+
+Do:
+- Give every swipe action a second home in the row, such as a menu or a button in endContent: a verb reachable only by swipe is unreachable by keyboard and by mouse.
+- Put the rows in a List, which clips them in the inline axis; any other container sets overflow-inline: clip once.
+
+Don't:
+- Give a `commit` side more than one entry: it fires none of them.
+
+Parameters:
+- `options.leading`: ReadonlyArray<SwipeAction<Id>> — The verbs a drag toward the inline end uncovers (rightward in left-to-right text), outermost last. Each is `{id, label, icon?, onActivate, isDisabled?, variant?: ItemSwipeActionVariant, hasRemoval?}`: `id` names the action, and the swipe's type carries the ids, so an id it does not have fails to compile. `label` names the state the verb reaches and is the button's accessible name. `onActivate({id, itemKey})` fires on a tap on a resting entry, on a full swipe, or on a `commit` release, once the row's content has left its box when the row slides out; `itemKey` is the `ListItem`'s, `undefined` on a plain `Item`. `hasRemoval` only says the row holds out after the action fires instead of springing back.
+- `options.trailing`: ReadonlyArray<SwipeAction<Id>> — The verbs a drag toward the inline start uncovers (leftward in left-to-right text), outermost last, in the same shape as `leading`.
+- `options.swipeBehavior`: 'reveal' | 'commit' = 'reveal' — What a swipe does, on both sides. `reveal` rests the row open with every entry a real button. As in a UIKit list, a fast release goes the way it moves, and a slow one past half the panel opens the row. A fling never fires an entry. A long drag fires the outermost: past the confirm point the row runs ahead and the outermost entry covers its place. Letting go there fires it. Backing out closes the row, and a disabled outermost entry never confirms. On a side with two or more entries, only a drag that starts on the open row fires. `commit` fires the one entry of a side on a full swipe, sliding the row out, with nothing resting and a presentational panel. On a side with two or more entries it fires none and warns in development.
+
+Returns:
+- `Swipe`: Swipe<Id> — The row’s swipe actions, with nothing in them to read; its type carries the actions’ ids. Pass the value as `swipe` on `Item` or `ListItem`; a value made any other way swipes nothing. A new value with the same ids keeps an open row as it is, and one with other ids closes it.
+
 ### useAnimator
 
 Import: `import {useAnimator} from '@astryxdesign/core/hooks';`
@@ -4056,6 +4124,7 @@ Don't:
 Props:
 - `direction`: 'vertical' | 'horizontal' | 'horizontal-labels' = 'vertical' — Controls field arrangement. Vertical stacks top-to-bottom, horizontal uses one fractional grid track per field in logical inline order, and horizontal-labels uses CSS Grid with labels beside inputs on the inline-start side (collapsing to vertical when the viewport is <=480px).
 - `defaultOptionality`: 'optional' | 'required' — The state the form treats as its default, so only the exception shows an optional/required indicator. With "optional", only fields marked isRequired show an indicator; with "required", only fields marked isOptional do. A field that restates the default shows nothing. Under "required" the unmarked fields also expose aria-required so screen readers match the visual default; aria-required only, never the native required attribute. CheckboxInput, Switch and CheckboxList are the exception: an unchecked box, an off switch or an empty group is an answer, so they take no required state from the default. A CheckboxInput or Switch is required only through its own isRequired. Leave unset for today's per-field behavior.
+- `defaultEntryErrorBehavior`: 'complete' | 'blur-or-enter' — When DateInput, DateTimeInput, TimeInput, and NumberInput fields in the layout show their own entry errors: a date, time, or number the field rejects. It sets when the error shows, not when validation runs, so it is not React Aria's validationBehavior (native versus ARIA validation), and it never changes a caller status. 'complete' shows each error at the field's own moment. 'blur-or-enter' holds the message, aria-invalid, the invalid styling, the announcement, and the onEntryErrorChange report until Enter or blur; an edit that makes the entry valid or empty still clears the error at once. NumberInput shows its errors only at Enter or blur under both values. A field's own entryErrorBehavior wins. A nested FormLayout replaces the default for its fields, and unset there means 'complete'. Content in a layer, such as a Dialog opened from the form, starts without it. Leave unset for 'complete'.
 - `children`: ReactNode — Form fields to arrange. Accepts Astryx inputs (TextInput, Selector, etc.) and Field-wrapped custom controls.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
@@ -4994,6 +5063,26 @@ Props:
 - `label`: string = 'Top navigation' — Accessible label for the navigation landmark, applied as aria-label on the <nav> element.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 
+### useOutlineFromDOM
+
+Import: `import {useOutlineFromDOM} from '@astryxdesign/core/Outline';`
+
+Builds outline items from the headings already in the page. Use it when the article is not a Markdown string, and pass the items to Outline. The list updates when headings are added, removed, renamed, or given a new id. A null ref returns an empty list.
+
+Do:
+- Put an id on every heading the outline should list. A heading with no id, or with no text, is omitted.
+- Point the ref at the article, not the page, so headings outside the article stay out of the outline.
+
+Don't:
+- Expect the hook to invent ids. It only reads the ids the headings already have.
+- Use it for a Markdown string. useOutlineFromMarkdown follows the same parser and slugs as Markdown.
+
+Parameters:
+- `containerRef`: React.RefObject<HTMLElement | null> (required) — The element that holds the headings. The hook reads h1 through h6 inside it.
+
+Returns:
+- `items`: OutlineItem[] — One item per heading that has both an id and text, in document order, ready for Outline's items prop. id is the heading's id, label is its trimmed text, and level is its depth from 1 to 6.
+
 ### useOutlineFromMarkdown
 
 Import: `import {useOutlineFromMarkdown} from '@astryxdesign/core/Outline';`
@@ -5803,8 +5892,9 @@ Props:
 - `isHighlighted`: boolean = false — Highlighted state (hover/keyboard focus appearance).
 - `isSelected`: boolean = false — Selected state.
 - `isDisabled`: boolean = false — Disabled state. Interactive rows stay keyboard-reachable but cannot activate.
-- `swipeActions`: {leading?: ItemSwipeAction[]; trailing?: ItemSwipeAction[]} — Swipe actions for touch: the verbs a sideways drag uncovers on each side, outermost last, each `{id?, label, icon?, onActivate, isDisabled?, variant?: 'neutral' | 'accent' | 'destructive', hasRemoval?}`. `leading` is uncovered by a drag toward the inline end, `trailing` toward the inline start. A mouse never starts the drag and a mostly vertical drag stays the scroller's. The gesture is a touch accelerator and never a row's only path to a verb: a verb reachable only by swipe is unreachable by keyboard and by mouse, so every entry must also be reachable through the row's own content. Served on a row whose role permits interactive descendants (a listitem, a row with no role) and not on an option, a menu item, or a row that is the enlarged target of a native radio. The element containing the rows clips in the inline axis with overflow-inline: clip — List does; any other host does it once. `hasRemoval` only says the row holds out after the action fires instead of springing back. The gesture and its panels are loaded on demand the first time a row has swipe actions, so a row without them ships none of it.
-- `swipeBehavior`: 'reveal' | 'commit' = 'reveal' — What a swipe does. `reveal` rests the row open with every entry a real button after a fling or a drag past half the panel. A long drag fires the outermost; on a side with two or more entries, only a drag that starts on the open row fires it. `commit` slides the row out and fires the one entry of a side on a release past the commit point. Nothing rests, and the panel is presentational. On a side with two or more entries, `commit` fires none. A fling never fires an entry.
+- `swipe`: Swipe — Swipe actions for touch, made by createSwipe({leading?, trailing?, swipeBehavior?}): the verbs a sideways drag uncovers on each side, outermost last, each `{id, label, icon?, onActivate({id, itemKey}), isDisabled?, variant?: ItemSwipeActionVariant, hasRemoval?}`; `itemKey` is the `ListItem`'s, `undefined` on a plain `Item`. `leading` is uncovered by a drag toward the inline end, `trailing` toward the inline start. A finger, a pen or a trackpad's two-finger swipe drags the row; a mouse drag and a mouse wheel's notches never do, and a mostly vertical drag stays the scroller's. An open row closes on a touch tap on its own content, which activates nothing and paints no press, on a press elsewhere, when the list or page scrolls with focus outside it, and on Escape. The gesture is a touch accelerator and never a row's only path to a verb: a verb reachable only by swipe is unreachable by keyboard and by mouse, so every entry must also be reachable through the row's own content. Served on a row whose role permits interactive descendants (a listitem, a row with no role) and not on an option, a menu item, or a row that is the enlarged target of a native radio. The element containing the rows clips in the inline axis with overflow-inline: clip — List does; any other host does it once. `hasRemoval` only says the row holds out after the action fires instead of springing back. The swipe is the same on every device: a finger or a pen swipes the row whatever the primary pointer, a touchscreen laptop's included, and so does a trackpad's two-finger swipe, which moves the row with the fingers and lets it go at their speed; a mouse never does. The swipe's code comes with createSwipe, so a row given swipe is swipeable at its first paint and an app that never imports createSwipe ships none of it. Define the swipe once at module scope, or in useMemo when its handlers need component state. A new value with the same ids neither closes an open row nor restarts its settle; one with other ids closes it.
+- `swipeActions`: {leading?: ItemSwipeAction[]; trailing?: ItemSwipeAction[]} — Deprecated (DEP-0017): pass swipe={createSwipe({leading, trailing})} instead. Each entry is `{id?, label, icon?, onActivate, isDisabled?, variant?: 'neutral' | 'accent' | 'destructive', hasRemoval?}`. Still works, with the swipe's current behavior, loading the swipe the first time a row has it, and is ignored when swipe is set; astryx upgrade rewrites static uses.
+- `swipeBehavior`: 'reveal' | 'commit' = 'reveal' — Deprecated (DEP-0017): pass swipeBehavior in createSwipe's options instead. Still works beside swipeActions, with the swipe's current behavior, and is ignored when swipe is set; astryx upgrade rewrites static uses.
 - `ref`: React.Ref<HTMLElement> — Ref forwarded to the root element, whose type follows `as`.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 - `className`: string — CSS class name(s) for the root element.
@@ -5877,6 +5967,8 @@ MetadataList displays key-value pairs for object attributes like quality, condit
 Do:
 - Choose label position based on content: "start" for short values, "top" for long or complex values.
 - Collapse long lists with `maxNumOfItems` to keep the page scannable.
+- Give each MetadataListItem a short label that names its value. Assistive technology reads each label with its value as a term and its definition.
+- The title does not name the list or add a heading. Pass a heading element as the title when the list needs a place in the page outline.
 
 Don't:
 - Use for extensive form input; use a form layout instead.
@@ -5890,6 +5982,8 @@ Props:
 - `orientation`: 'vertical' | 'horizontal' = 'vertical' — Layout orientation. Horizontal mode flows items in a row with flex-wrap.
 - `title`: ReactNode — Optional title or heading above the list.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization. Must be a stylex.create() value.
+- `className`: string — CSS class name for the root element. Prefer xstyle for styling; className is provided for integration with non-StyleX systems.
+- `style`: CSSProperties — Inline styles for the root element. Prefer xstyle for styling; inline styles bypass StyleX optimization.
 
 ### Table
 
@@ -5971,8 +6065,9 @@ Props:
 - `isDisabled`: boolean = false — Disabled state; interactive rows stay keyboard-reachable, expose aria-disabled, and cannot activate.
 - `isSelected`: boolean = false — Selected state; marks the item as the current one with aria-current="true" (a list item cannot carry aria-selected).
 - `itemKey`: string | number — The row's item key, a string or a number from the data (the shape Table's idKey returns). It is the row's identity for the list's animated layout (List animatedLayout): with a handle, the list matches rows by it to animate inserts, removals and moves, and a row without one changes at once. In a reorderable List (List reorderable), it is the key the reorderable object's onReorder reports and isReorderable is asked about, and a row without one has no reorder handle and keeps its place. Separate from React's key.
-- `swipeActions`: {leading?: ItemSwipeAction[]; trailing?: ItemSwipeAction[]} — Swipe actions for touch, passed through to Item unchanged: the verbs a sideways drag uncovers on each side, each `{id?, label, icon?, onActivate, isDisabled?, variant?: 'neutral' | 'accent' | 'destructive', hasRemoval?}`. See Item.swipeActions; List clips its rows in the inline axis for them.
-- `swipeBehavior`: 'reveal' | 'commit' = 'reveal' — What a swipe does, passed through to Item unchanged. See Item.swipeBehavior.
+- `swipe`: Swipe — Swipe actions for touch, made by createSwipe({leading?, trailing?, swipeBehavior?}) and passed to Item with this row's itemKey added: the verbs a sideways drag uncovers on each side, each `{id, label, icon?, onActivate({id, itemKey}), isDisabled?, variant?: ItemSwipeActionVariant, hasRemoval?}`, where `itemKey` is this row's. One definition at module scope serves every row. See Item.swipe; List clips its rows in the inline axis for them. A verb reachable only by swipe is unreachable by keyboard and by mouse, so give each entry a second home in the row.
+- `swipeActions`: {leading?: ItemSwipeAction[]; trailing?: ItemSwipeAction[]} — Deprecated (DEP-0017): pass swipe={createSwipe({leading, trailing})} instead. Each entry is `{id?, label, icon?, onActivate, isDisabled?, variant?: 'neutral' | 'accent' | 'destructive', hasRemoval?}`. Passed through to Item unchanged; astryx upgrade rewrites static uses.
+- `swipeBehavior`: 'reveal' | 'commit' = 'reveal' — Deprecated (DEP-0017): pass swipeBehavior in createSwipe's options instead. Passed through to Item unchanged; astryx upgrade rewrites static uses.
 
 ### MetadataListItem (subcomponent/hook)
 
@@ -5982,6 +6077,11 @@ Props:
 - `children`: ReactNode (required) — Content value for this metadata item.
 - `label`: string (required) — Label text for this metadata item.
 - `icon`: ReactNode — Icon rendered before the label text.
+- `xstyle`: StyleXStyles — StyleX styles for the item element: the label `dt` side by side, or the wrapper that holds the label and value when stacked. Must be a stylex.create() value.
+- `className`: string — CSS class name for the item element (the label `dt` side by side, or the stacked wrapper). Prefer xstyle for styling; className is provided for integration with non-StyleX systems.
+- `style`: CSSProperties — Inline styles for the item element (the label `dt` side by side, or the stacked wrapper). Prefer xstyle for styling; inline styles bypass StyleX optimization.
+- `ref`: React.Ref<HTMLDivElement> — Ref forwarded to the item element: the label `dt` side by side, or the stacked wrapper.
+- `data-testid`: string — Test selector. Side by side, the label gets `<id>-label` and the value gets `<id>-value`; stacked, the wrapper gets `<id>`.
 
 ### TableBody (subcomponent/hook)
 

@@ -1,8 +1,8 @@
 # Astryx
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 267 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 268 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 
-Generated from commit `214e842` (2026-11-13) of https://github.com/facebook/astryx.
+Generated from commit `93cb94b` (2026-11-14) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -37,11 +37,11 @@ Key facts:
 
 ## Components
 
-267 documented components in `packages/core/src/`. Each has a `{Name}.doc.mjs` structured doc with props, anatomy, and best practices. By category:
+268 documented components in `packages/core/src/`. Each has a `{Name}.doc.mjs` structured doc with props, anatomy, and best practices. By category:
 
 - Accessibility: useAnnounce
 - Action: Button, ButtonGroup, Trigger area, ContextMenuItem, Trigger button, Checkable row, DropdownMenuDivider, DropdownMenuGroup, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSubMenu, IconButton, Link, Trigger button, Control, SegmentedControlItem, ToggleButton, ToggleButtonGroup, Outer chrome
-- Chat: Chat, ChatComposer, ChatComposerDrawer, ChatComposerInput, ChatComposerTokenElement, ChatDictationButton, ChatLayout, ChatLayoutScrollButton, ChatMessage, ChatMessageBubble, ChatMessageList, ChatMessageMetadata, ChatSendButton, ChatSystemMessage, ChatTokenizedText, ChatToolCalls, useChatDictation
+- Chat: Chat, ChatComposer, ChatComposerDrawer, ChatComposerInput, ChatComposerTokenElement, ChatDictationButton, ChatLayout, ChatLayoutScrollButton, ChatMessage, ChatMessageBubble, ChatMessageList, ChatMessageMetadata, ChatSendButton, ChatSystemMessage, ChatTokenizedText, ChatToolCalls, useChatDictation, useSpeechRecognition
 - Container: Card, Carousel, ClickableCard, Collapsible, CollapsibleGroup, SelectableCard
 - Content: Avatar, AvatarStatusDot, AvatarGroup, AvatarGroupOverflow, Blockquote, Citation, Code, CodeBlock, EmptyState, Glyph, Shortcut, Document, Heading, Text, Thumbnail, Elapsed time, Timestamp, Token
 - Feedback & Status: Badge, Banner, Trigger button, Progress bar, Placeholder, Spinner, Dot

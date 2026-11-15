@@ -1,10 +1,10 @@
 # Astryx — Full Component Reference
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 267 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 268 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `214e842` (2026-11-13) of https://github.com/facebook/astryx.
+Generated from commit `93cb94b` (2026-11-14) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -655,6 +655,45 @@ Parameters:
 - `options.onResult`: (transcript: string) => void — Called with each final transcript.
 - `options.onTranscript`: (transcript: string, isFinal: boolean) => void — Called for each partial transcript and each final one.
 - `options.onError`: (error: {error: string, message?: string}) => void — Called when recognition fails, including when microphone permission is refused.
+- `options.onStart`: () => void — Called when recognition starts.
+- `options.onEnd`: () => void — Called when recognition ends.
+
+Returns:
+- `isSupported`: boolean — Whether this browser provides speech recognition.
+- `isListening`: boolean — Whether recognition is active.
+- `isSpeaking`: boolean — Whether the microphone currently hears speech.
+- `interimTranscript`: string — The partial transcript, empty when none is pending.
+- `volume`: number — Microphone level from 0 to 1 while listening.
+- `bands`: number[] — Frequency band levels from low to high, each from 0 to 1.
+- `rawBands`: number[] — The same bands before calibration.
+- `start`: () => void — Start recognition.
+- `stop`: () => void — Stop recognition and wait for the final transcript.
+- `abort`: () => void — Stop recognition immediately.
+- `toggle`: () => void — Start when idle, and stop when listening.
+
+### useSpeechRecognition
+
+Import: `import {useSpeechRecognition} from '@astryxdesign/core/Chat';`
+
+A headless speech-recognition control. It does not write into a composer. Read the transcript from interimTranscript and onResult, and draw your own UI from isListening and volume. Check isSupported first. useChatDictation adds composer interim text and start and stop cues on top of this hook.
+
+Do:
+- Hide or disable the control when isSupported is false.
+- Use onResult for the committed transcript. interimTranscript changes while the person is still speaking.
+
+Don't:
+- Use this hook to fill a ChatComposerInput. useChatDictation owns that interim text.
+
+Parameters:
+- `options`: UseSpeechRecognitionOptions — Recognition options. Omit them to listen in the provider locale until stop is called.
+- `options.lang`: string — BCP-47 language tag for recognition.
+- `options.continuous`: boolean = true — Whether recognition continues until stop or abort.
+- `options.interimResults`: boolean = true — Whether partial transcripts are reported before the final one.
+- `options.audioContext`: AudioContext — A shared audio context for the microphone level. Omit it to use the hook's own context.
+- `options.transformTranscript`: (text: string) => string — Rewrites each transcript before it is reported.
+- `options.onTranscript`: (transcript: string, isFinal: boolean) => void — Called for each partial transcript and each final one.
+- `options.onResult`: (transcript: string) => void — Called with each final transcript. Keep this text: interimTranscript clears when the phrase is final.
+- `options.onError`: (error: {error: string, message?: string}) => void — Called when recognition fails.
 - `options.onStart`: () => void — Called when recognition starts.
 - `options.onEnd`: () => void — Called when recognition ends.
 
@@ -4912,16 +4951,20 @@ Do:
 - Use the count variant with a page size selector when users need to control how many items they see at once.
 - Use the dots variant for carousels and walkthroughs where the total is small and position matters more than a number.
 - Pass totalItems when the total is known so users can see how much content remains.
+- Pass getPageHref when each page has its own URL, so a page opens in a new tab and its address can be copied.
 
 Don't:
 - Show pagination when all items fit on a single page; there is nothing to paginate.
 - Use the dots variant for more than about 10 pages; the dots become too small to be useful.
 - Place pagination above the content; users expect it at the bottom.
+- Navigate in onChange when getPageHref is set; the link navigates, so keep onChange for state or analytics.
 
 Props:
 - `page`: number (required) — Current page number (1-based). Page 1 is the first page.
-- `onChange`: (page: number) => void (required) — Called when the page changes.
+- `onChange`: (page: number) => void (required) — Called when the page changes. With getPageHref it also runs when a page link is activated: use it there for state or analytics, and do not navigate in it, because the link navigates.
 - `changeAction`: (page: number) => void | Promise<void> — Async action on page change. Fires after onChange and uses React transitions for built-in loading state.
+- `getPageHref`: (page: number, pageSize?: number) => string — Returns the URL of a page. When set, the page number, previous, next, first and last controls render as links to it, so a page opens in a new tab, its address can be copied, and it works before scripts load. onChange still runs when a link is activated. pageSize is the current page size when pageSize or pageSizeOptions is set. The dots, the page box and the page-size selector are not links. For a page-size choice, navigate in onPageSizeChange to the URL of page 1 with the new size, not in the onChange(1) that follows. When onChange navigates for the dots or the page box, leave getPageHref unset in the dots and input variants, or their arrow links navigate twice. In cursor pagination, map the page before or after the current one to the cursor's URL. The destination follows the shared navigation rule described on the Link `href` prop.
+- `as`: ComponentType — Custom link component for the links getPageHref makes (e.g. Next.js Link). Overrides the LinkProvider default.
 - `totalItems`: number — Total number of items. Used to calculate page count. Takes precedence over totalPages if both provided.
 - `totalPages`: number — Total number of pages. Use when you know page count but not item count.
 - `hasMore`: boolean — Whether more pages exist after the current one. Use for cursor-based pagination where total is unknown.
@@ -5290,7 +5333,7 @@ Props:
 
 Import: `import {AlertDialog} from '@astryxdesign/core/AlertDialog';`
 
-AlertDialog asks the user to confirm a destructive or irreversible action before it happens. Use it for things like deleting content, revoking access, or discarding unsaved changes.\n\nIt implements the WAI-ARIA APG [Alert Dialog pattern](https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/): `role="alertdialog"`, a title linked by `aria-labelledby`, a consequence description linked by `aria-describedby`, focus moved into the dialog on open and returned to the trigger on close, and no dismissal by clicking outside. Escape cancels.\n\nAlertDialog passes its requested width through to Dialog, which clamps the surface to the container and dynamic viewport with token gutters. Generic Dialog footers should wrap, but Dialog does not own action semantics or order; consumer composition controls that. AlertDialog owns its confirmation semantics: above 640px, actions render horizontally and may move onto another row; at 640px and below, the destructive action appears above Cancel and both buttons fill the footer width. Button labels retain their standard single-line behavior. The breakpoint follows available width, not pointer or hover capability. The body scrolls when block space is constrained.\n\nThe two actions are tracked as one group under every pointer, the way iOS tracks the actions of an alert: the action under the pointer highlights as soon as it is pressed, the highlight follows the pointer from one action to the other, and the release runs the action under it. Releasing off both actions runs nothing. The keyboard and assistive technology keep the click of each button.\n\nFor cases where you want to show an alert without managing open state, use the `useImperativeAlertDialog` hook: call `alert.show(options)` and render `alert.element` in your tree.
+AlertDialog asks the user to confirm a destructive or irreversible action before it happens. Use it for things like deleting content, revoking access, or discarding unsaved changes.\n\nIt implements the WAI-ARIA APG [Alert Dialog pattern](https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/): `role="alertdialog"`, a title linked by `aria-labelledby`, a consequence description linked by `aria-describedby`, focus moved into the dialog on open and returned to the trigger on close, and no dismissal by clicking outside. Escape cancels.\n\nAlertDialog passes its requested width through to Dialog, which clamps the surface to the container and dynamic viewport with token gutters. Generic Dialog footers should wrap, but Dialog does not own action semantics or order; consumer composition controls that. AlertDialog owns its confirmation semantics: above 640px, actions render horizontally and may move onto another row; at 640px and below, the destructive action appears above Cancel and both buttons fill the footer width. Button labels retain their standard single-line behavior. The breakpoint follows available width, not pointer or hover capability. The body scrolls when block space is constrained.\n\nOn a touch screen the two actions are tracked as one group under a finger or a pen, the way iOS tracks the actions of an alert: the action under the finger highlights as soon as it is touched, the highlight follows the finger from one action to the other, and lifting the finger runs the action under it. Lifting it off both actions runs nothing. A mouse, the keyboard and assistive technology keep the click of each button.\n\nUnder a finger, on a phone or tablet, the alert also appears and leaves the way an iOS alert does: it scales down slightly into place while it and the dimming fade in, on the entrance timing of the theme, and it fades out with the dimming when it closes, on the exit timing of the theme. While it appears a touch does nothing (keys and assistive technology still act). While it leaves nothing reaches it: a touch, a click, a key or an assistive-technology activation does nothing, and a toast it raised stays live. With reduced motion it only cross-fades. With a mouse it keeps the theme entrance and closes at once.\n\nFor cases where you want to show an alert without managing open state, use the `useImperativeAlertDialog` hook: call `alert.show(options)` and render `alert.element` in your tree.
 
 Do:
 - Make the action button label specific: "Delete project" is better than "OK" or "Confirm".
@@ -5313,7 +5356,7 @@ Props:
 - `cancelLabel`: string = 'Cancel' — Cancel button label.
 - `actionVariant`: ButtonVariant = 'destructive' — Action button variant.
 - `isActionLoading`: boolean — Shows loading spinner on the action button.
-- `width`: number | string = 400 — Requested dialog width. Dialog preserves this preferred width and clamps it to the container and dynamic viewport with token gutters.
+- `width`: number | string = 400 — Requested dialog width. Dialog preserves this preferred width and clamps it to the container and dynamic viewport with token gutters. Without one, a phone (a compact window under a coarse primary pointer) gets the iOS alert width, 320, in every theme.
 - `isInline`: boolean = false — Renders alert dialog content inline without modal behavior. For documentation previews and showcases only. Not being a modal, the inline path renders role="group" instead of role="alertdialog".
 
 ### Dialog

@@ -1,6 +1,6 @@
 # Astryx Design System — Design Overview
 
-> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`93cb94b`](https://github.com/facebook/astryx/commit/93cb94b30aa7a6e754b4f2e714b532a216cb94b5) (2026-11-14). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
+> Auto-generated from [facebook/astryx](https://github.com/facebook/astryx) — commit [`03e7dda`](https://github.com/facebook/astryx/commit/03e7dda9e24006480bda49271f60fff5970aa2f5) (2026-11-15). Do not edit by hand; run `python3 scripts/generate.py` to regenerate.
 
 ## What Astryx is
 
@@ -32,8 +32,8 @@ A pnpm monorepo (Node 22+, pnpm 11):
 | --- | --- | --- |
 | [`@astryxdesign/build`](https://github.com/facebook/astryx/blob/main/packages/build/README.md) | 0.7.17 | Build plugins for Astryx source builds — babel, PostCSS, and Vite integrations |
 | [`@astryxdesign/charts`](https://github.com/facebook/astryx/blob/main/packages/charts/README.md) | 0.1.9 (canary) | Astryx charts — a config-model data visualization library (d3-based). Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
-| [`@astryxdesign/cli`](https://github.com/facebook/astryx/blob/main/packages/cli/README.md) | 0.7.17 | Scaffold projects, browse templates, generate themes, and get agent-ready docs from the command line. |
-| [`@astryxdesign/core`](https://github.com/facebook/astryx/blob/main/packages/core/README.md) | 0.7.17 | The component library. Accessible, themeable React components with built-in spacing, dark mode, and StyleX styling. |
+| [`@astryxdesign/cli`](https://github.com/facebook/astryx/blob/main/packages/cli/README.md) | 0.7.17 | The Astryx CLI: scaffold projects, browse templates, generate themes, and get agent-ready docs from the command line. |
+| [`@astryxdesign/core`](https://github.com/facebook/astryx/blob/main/packages/core/README.md) | 0.7.17 | The Astryx component library: accessible, themeable React components with built-in spacing, dark mode, and StyleX styling. |
 | [`@astryxdesign/lab`](https://github.com/facebook/astryx/blob/main/packages/lab/README.md) | 0.1.9 (canary) | Experimental Astryx components — published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version. |
 | [`@astryxdesign/native`](https://github.com/facebook/astryx/blob/main/packages/native/README.md) | 0.1.0 (canary) | Experimental native platforms for Astryx (iOS, Android, macOS, Windows) — published to npm only under the @canary dist-tag; never released as a stable (latest) version. |
 | [`@astryxdesign/richtext`](https://github.com/facebook/astryx/blob/main/packages/richtext/README.md) | 0.7.17 | Astryx rich text — a Lexical-based rich text editor and viewer, styled with Astryx design tokens. |
@@ -52,7 +52,7 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 
 ## Component library
 
-`@astryxdesign/core` currently documents **268 components** across **209 component groups** and **22 categories**. Each component directory contains the implementation (`{Name}.tsx`), colocated tests, and a `{Name}.doc.mjs` structured doc (props, anatomy, best practices) consumed by the CLI and docsite.
+`@astryxdesign/core` currently documents **269 components** across **210 component groups** and **22 categories**. Each component directory contains the implementation (`{Name}.tsx`), colocated tests, and a `{Name}.doc.mjs` structured doc (props, anatomy, best practices) consumed by the CLI and docsite.
 
 ### Accessibility (1)
 
@@ -81,12 +81,13 @@ Notable StyleX conventions used across the codebase (see `CLAUDE.md` in the repo
 - [**SegmentedControlItem**](https://github.com/facebook/astryx/blob/main/packages/core/src/SegmentedControl/SegmentedControlItem.doc.mjs) *(subcomponent/hook)*
 - [**ToggleButtonGroup**](https://github.com/facebook/astryx/blob/main/packages/core/src/ToggleButton/ToggleButtonGroup.doc.mjs) *(subcomponent/hook)*
 
-### Chat (18)
+### Chat (19)
 
 - [**Chat**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/Chat.doc.mjs) — Chat is a family of composable primitives for building AI and human chat experiences. Combine ChatLayout, ChatMessageList, ChatMessage, bubbles, system messages, tool calls, tokenized text, and ChatComposer to assemble complete conversations without reimplementing sender-aware layout, density, scrolling, or composer behavior.
 - [**ChatDictationButton**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatDictationButton.doc.mjs) — ChatDictationButton is a toggle button that starts and stops voice dictation inside a chat composer. It pairs with useChatDictation to show a microphone icon when idle and animated frequency bars when listening. Place it in the sendActions slot of ChatComposer.
 - [**ChatToolCalls**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatToolCalls.doc.mjs) — ChatToolCalls displays tool or function call invocations from an LLM response. Pass an array of calls and the component handles the rest: a single call renders inline, while multiple calls collapse into a summary with the latest call visible at the surface. Use it anywhere an AI agent shows what actions it took.
 - [**useChatDictation**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/useChatDictation.doc.mjs) — Voice input for a chat composer. It wraps speech recognition with microphone level, start and stop cues, and optional interim text in a ChatComposerInput. Check isSupported before offering the control. A browser without speech recognition reports false and does not listen. Sustained loud speech turns the transcript to upper case.
+- [**useChatPasteAsToken**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/useChatPasteAsToken.doc.mjs) — Turns a long plain-text paste into a token chip in a ChatComposerInput. Short pastes are left for the composer to insert. Pass the returned object as pasteAsToken. The default threshold is 200 characters.
 - [**useSpeechRecognition**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/useSpeechRecognition.doc.mjs) — A headless speech-recognition control. It does not write into a composer. Read the transcript from interimTranscript and onResult, and draw your own UI from isListening and volume. Check isSupported first. useChatDictation adds composer interim text and start and stop cues on top of this hook.
 - [**ChatComposer**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatComposer.doc.mjs) *(subcomponent/hook)* — ChatComposer is the message-entry shell for a chat surface. It coordinates a controlled or uncontrolled draft, provides a default token-capable input and send/stop action, and arranges optional drawer, header, footer, and status content. Custom inputs and send controls can join the same value, submission, disabled, stop, and focus contract through useChatComposerContext().
 - [**ChatComposerDrawer**](https://github.com/facebook/astryx/blob/main/packages/core/src/Chat/ChatComposerDrawer.doc.mjs) *(subcomponent/hook)* — Use ChatComposerDrawer in the ChatComposer drawer slot for supplementary content such as attachments, context chips, or previews. Provide count only when people should be able to collapse that content.

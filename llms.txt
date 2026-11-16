@@ -1,8 +1,8 @@
 # Astryx
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 268 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 269 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 
-Generated from commit `93cb94b` (2026-11-14) of https://github.com/facebook/astryx.
+Generated from commit `03e7dda` (2026-11-15) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -28,8 +28,8 @@ Key facts:
 
 - [@astryxdesign/build](https://github.com/facebook/astryx/blob/main/packages/build/README.md): Build plugins for Astryx source builds — babel, PostCSS, and Vite integrations
 - [@astryxdesign/charts](https://github.com/facebook/astryx/blob/main/packages/charts/README.md): Astryx charts — a config-model data visualization library (d3-based). Published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version.
-- [@astryxdesign/cli](https://github.com/facebook/astryx/blob/main/packages/cli/README.md): Scaffold projects, browse templates, generate themes, and get agent-ready docs from the command line.
-- [@astryxdesign/core](https://github.com/facebook/astryx/blob/main/packages/core/README.md): The component library. Accessible, themeable React components with built-in spacing, dark mode, and StyleX styling.
+- [@astryxdesign/cli](https://github.com/facebook/astryx/blob/main/packages/cli/README.md): The Astryx CLI: scaffold projects, browse templates, generate themes, and get agent-ready docs from the command line.
+- [@astryxdesign/core](https://github.com/facebook/astryx/blob/main/packages/core/README.md): The Astryx component library: accessible, themeable React components with built-in spacing, dark mode, and StyleX styling.
 - [@astryxdesign/lab](https://github.com/facebook/astryx/blob/main/packages/lab/README.md): Experimental Astryx components — published to npm only under the @canary dist-tag for early testing; never released as a stable (latest) version.
 - [@astryxdesign/native](https://github.com/facebook/astryx/blob/main/packages/native/README.md): Experimental native platforms for Astryx (iOS, Android, macOS, Windows) — published to npm only under the @canary dist-tag; never released as a stable (latest) version.
 - [@astryxdesign/richtext](https://github.com/facebook/astryx/blob/main/packages/richtext/README.md): Astryx rich text — a Lexical-based rich text editor and viewer, styled with Astryx design tokens.
@@ -37,11 +37,11 @@ Key facts:
 
 ## Components
 
-268 documented components in `packages/core/src/`. Each has a `{Name}.doc.mjs` structured doc with props, anatomy, and best practices. By category:
+269 documented components in `packages/core/src/`. Each has a `{Name}.doc.mjs` structured doc with props, anatomy, and best practices. By category:
 
 - Accessibility: useAnnounce
 - Action: Button, ButtonGroup, Trigger area, ContextMenuItem, Trigger button, Checkable row, DropdownMenuDivider, DropdownMenuGroup, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSubMenu, IconButton, Link, Trigger button, Control, SegmentedControlItem, ToggleButton, ToggleButtonGroup, Outer chrome
-- Chat: Chat, ChatComposer, ChatComposerDrawer, ChatComposerInput, ChatComposerTokenElement, ChatDictationButton, ChatLayout, ChatLayoutScrollButton, ChatMessage, ChatMessageBubble, ChatMessageList, ChatMessageMetadata, ChatSendButton, ChatSystemMessage, ChatTokenizedText, ChatToolCalls, useChatDictation, useSpeechRecognition
+- Chat: Chat, ChatComposer, ChatComposerDrawer, ChatComposerInput, ChatComposerTokenElement, ChatDictationButton, ChatLayout, ChatLayoutScrollButton, ChatMessage, ChatMessageBubble, ChatMessageList, ChatMessageMetadata, ChatSendButton, ChatSystemMessage, ChatTokenizedText, ChatToolCalls, useChatDictation, useChatPasteAsToken, useSpeechRecognition
 - Container: Card, Carousel, ClickableCard, Collapsible, CollapsibleGroup, SelectableCard
 - Content: Avatar, AvatarStatusDot, AvatarGroup, AvatarGroupOverflow, Blockquote, Citation, Code, CodeBlock, EmptyState, Glyph, Shortcut, Document, Heading, Text, Thumbnail, Elapsed time, Timestamp, Token
 - Feedback & Status: Badge, Banner, Trigger button, Progress bar, Placeholder, Spinner, Dot

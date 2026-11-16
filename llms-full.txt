@@ -1,10 +1,10 @@
 # Astryx — Full Component Reference
 
-> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 268 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
+> Astryx is Meta's open source design system for React 19+, built on StyleX and designed for both people and AI agents. It ships 269 documented components, seven themes, page templates, and a CLI as one cohesive system. Consumers import pre-built CSS and typed React components — no build plugin required.
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `93cb94b` (2026-11-14) of https://github.com/facebook/astryx.
+Generated from commit `03e7dda` (2026-11-15) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -375,12 +375,13 @@ Props:
 - `items`: DropdownMenuOption[] (required) — Menu items: data array of actions, dividers, and sections. Same type as DropdownMenu items prop.
 - `label`: string = 'More options' — Accessible label for the trigger button (aria-label) and tooltip text.
 - `variant`: ButtonVariant = 'ghost' — Visual style variant of the trigger button.
-- `size`: ButtonSize = 'md' — Size of the trigger button.
+- `size`: ButtonSize = 'md' — Size of the trigger button. Without it, the trigger takes the surrounding size (from a SizeProvider, ButtonGroup, or Toolbar), else md.
 - `icon`: ReactNode — Override the default three-dot icon. Accepts any ReactNode.
 - `isDisabled`: boolean = false — Whether the menu trigger is disabled.
 - `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Position of the menu relative to the trigger. Logical: start/end resolve against the menu's own inherited direction (RTL mirrors).
 - `alignment`: 'start' | 'center' | 'end' = 'start' — Alignment along the placement axis. Use 'end' to align the menu with the trigger's trailing edge, which is usually what an overflow menu wants.
 - `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' — Presentation policy forwarded to DropdownMenu. `adaptive` keeps the anchored popover on pointer-based layouts and uses a BottomSheet on a compact touch screen: a coarse primary pointer, and a viewport narrower than the theme `md` breakpoint (768px by default) or shorter than 500px. Omitted, the menu is the anchored popover, and under a finger or a pen, on every device, its trigger opens as it is pressed (inside a scroll view, after the 150 ms content-touch delay), and the opening finger picks after moving 10 px. Pass 'popover' to keep the pointer behavior on every device, a 500 ms hold included.
+- `isMenuOpen`: boolean — Controlled open state of the menu. Pair it with onOpenChange; without it, the menu manages its own open state.
 - `onOpenChange`: (isOpen: boolean) => void — Callback fired when the menu opens or closes.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value, not an inline style object like style={{}}.
 
@@ -670,6 +671,27 @@ Returns:
 - `stop`: () => void — Stop recognition and wait for the final transcript.
 - `abort`: () => void — Stop recognition immediately.
 - `toggle`: () => void — Start when idle, and stop when listening.
+
+### useChatPasteAsToken
+
+Import: `import {useChatPasteAsToken} from '@astryxdesign/core/Chat';`
+
+Turns a long plain-text paste into a token chip in a ChatComposerInput. Short pastes are left for the composer to insert. Pass the returned object as pasteAsToken. The default threshold is 200 characters.
+
+Do:
+- Keep the same ref on the composer handle and on this hook, so insertToken reaches that input.
+- Pass pasteAsToken={false} when every paste should stay inline text.
+
+Don't:
+- Insert the long paste as characters and also as a token. Returning true tells the composer the paste is already handled.
+
+Parameters:
+- `inputRef`: React.RefObject<ChatComposerInputHandle | null> (required) — The composer handle. A long paste is inserted with its insertToken method.
+- `threshold`: number = 200 — Pastes longer than this many characters become a token. Shorter pastes stay inline.
+- `toToken`: (text: string) => ChatComposerToken — Builds the token from the pasted text. The default token is a neutral badge whose label is the size of the paste.
+
+Returns:
+- `onPaste`: (event, text: string) => boolean — True means the paste became a token. False means the composer should insert the text. Pass the whole object this hook returns as ChatComposerInput pasteAsToken. That prop does not take this function by itself.
 
 ### useSpeechRecognition
 
@@ -1326,6 +1348,8 @@ Do:
 
 Don't:
 - Use Markdown for hand-authored layouts; use Text and Heading directly when you control the content.
+- Do not pass plugins from a Server Component into Markdown: function-bearing plugin entries cannot cross the client boundary. Create them in client code. parseMarkdownAst can run plugins on the server, but it returns a parsed tree, and Markdown renders only a source string.
+- Do not rely on Markdown to sanitize what a custom renderer, a plugin renderer, or components.math returns. Markdown passes them inert text and parsed nodes; each renderer owns its own output and its accessible semantics.
 
 Props:
 - `children`: string (required) — The markdown string to render.
@@ -1333,7 +1357,7 @@ Props:
 - `density`: 'default' | 'compact' = 'default' — Controls spacing between block-level elements.
 - `headingLevelStart`: 1 | 2 | 3 | 4 | 5 | 6 = 1 — The HTML heading level that markdown # maps to. Shifts all heading levels down to fit the surrounding page hierarchy. Levels exceeding h6 are clamped to h6.
 - `isStreaming`: boolean = false — Enables streaming mode; it uses incremental parsing and a smooth fade-in animation for chunk-by-chunk text delivery.
-- `onLinkClick`: (href: string, event: MouseEvent) => void | false — Handler for link clicks. Return false to prevent the default navigation behavior. Link destinations in the markdown follow the shared navigation rule described on the Link `href` prop, and Markdown also rejects every data: URL in a link or an image: a rejected destination renders as plain text and never reaches this handler or a custom link renderer.
+- `onLinkClick`: (href: string, event: MouseEvent) => void | false — Handler for link clicks. Return false to prevent the default navigation behavior. Link destinations in the markdown follow the shared navigation rule described on the Link `href` prop, and Markdown also rejects every data: URL in a link or an image: a rejected destination renders as plain text and never reaches this handler or a custom link renderer. A custom link renderer replaces the default link and does not receive this handler.
 - `sources`: Record<string, MarkdownSource> — Citation sources keyed by ID. When provided, [id] and 【id】 markers in the markdown that match a key are rendered as citation chips.
 - `citationStyle`: 'label' | 'number' = 'label' — How citations are displayed inline. 'label' shows a chip with source title, icon, and border. 'number' shows a compact numbered badge.
 - `contentWidth`: number | string = 680 — Max width for prose content (paragraphs, headings, lists, blockquotes). Tables and code blocks are unconstrained and can expand to the full container width. Use for readable line lengths in wide layouts.
@@ -4901,7 +4925,7 @@ Props:
 
 #### MobileNavToggle
 
-Hamburger button that opens/closes the mobile nav drawer. Reads open state from AppShell context automatically: does NOT accept isOpen or onOpenChange props. Renders nothing above the mobile breakpoint. Host attributes and DOM handlers (id, data-*, aria-*) reach the button; its aria-expanded and aria-controls stay component-owned, and a caller onClick runs after the toggle.
+Hamburger button that opens/closes the mobile nav drawer. Reads open state from AppShell context automatically: does NOT accept isOpen or onOpenChange props. Renders nothing above the mobile breakpoint, without an AppShell mobile context (from AppShell, or an AppShellMobileContext you provide), or when AppShell has no mobile navigation (no side or top nav, mobileNav={false}, or a mobileNav node). Host attributes and DOM handlers (id, data-*, aria-*) reach the button; its aria-expanded and aria-controls stay component-owned, and a caller onClick runs after the toggle.
 
 Props:
 - `children`: ReactNode — Custom content to render instead of the default hamburger icon.

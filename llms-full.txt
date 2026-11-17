@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `03e7dda` (2026-11-15) of https://github.com/facebook/astryx.
+Generated from commit `4d42236` (2026-11-16) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -720,7 +720,7 @@ Parameters:
 - `options.onEnd`: () => void — Called when recognition ends.
 
 Returns:
-- `isSupported`: boolean — Whether this browser provides speech recognition.
+- `isSupported`: boolean — Whether this browser provides speech recognition. It is false on the server and in the render that hydrates server markup, and turns true in the next render when the browser supports it.
 - `isListening`: boolean — Whether recognition is active.
 - `isSpeaking`: boolean — Whether the microphone currently hears speech.
 - `interimTranscript`: string — The partial transcript, empty when none is pending.
@@ -1686,7 +1686,7 @@ Don't:
 
 Props:
 - `variant`: 'neutral' | 'info' | 'success' | 'warning' | 'error' | 'blue' | 'cyan' | 'green' | 'orange' | 'pink' | 'purple' | 'red' | 'teal' | 'yellow' = 'neutral' — Visual style variant. Semantic variants (neutral, info, success, warning, error) use solid backgrounds. Non-semantic color variants use tinted backgrounds with colored text for categorization and tagging.
-- `label`: ReactNode (required) — Badge text content. A badge is one line and at least as tall as that line of its label, so it grows with its text (a larger text size); a label wider than the space available is cut with an ellipsis rather than escaping its container; a string or number label is also set as the badge's title so the full text stays reachable on hover.
+- `label`: ReactNode (required) — Badge text content. A badge is one line and at least as tall as that line of its label, so it grows with its text (a larger text size); it is as wide as its label, so it does not stretch to fill a grid cell or a stack; a label wider than the space available is cut with an ellipsis rather than escaping its container; a string or number label is also set as the badge's title so the full text stays reachable on hover.
 - `icon`: ReactNode — Optional leading icon.
 
 ### Banner
@@ -3460,7 +3460,7 @@ Returns:
 
 Import: `import {useClipboard} from '@astryxdesign/core/hooks';`
 
-Copy-to-clipboard behavior: the clipboard write, a transient isCopied flag with its own reset timer, and an optional polite screen-reader announcement. Extracted so every copy affordance is a thin control over one implementation instead of re-deriving the timer and announcement. Rapid re-copies restart the reset timer so the confirmation always lasts the full duration, and the timer is cleaned up on unmount. CodeBlock and Timestamp build their built-in copy buttons on it; reach for it directly when building a copy affordance that is not a plain icon button (a menu item, a labeled text button, a copy-on-click value chip).
+Copy-to-clipboard behavior: the clipboard write, a transient isCopied flag with its own reset timer, and an optional polite screen-reader announcement. Extracted so every copy affordance is a thin control over one implementation instead of re-deriving the timer and announcement. Rapid re-copies restart the reset timer so the confirmation always lasts the full duration, and the timer is cleaned up on unmount. It also copies inside a sandboxed frame that refuses the async Clipboard API, with the browser copy command, inside the reader\u2019s click or key press. CodeBlock and Timestamp build their built-in copy buttons on it; reach for it directly when building a copy affordance that is not a plain icon button (a menu item, a labeled text button, a copy-on-click value chip).
 
 Do:
 - Drive the copied confirmation (copy → check icon, label swap) off the returned isCopied flag rather than tracking your own state.
@@ -3476,7 +3476,7 @@ Parameters:
 - `options.resetAfterMs`: number = 2000 — Milliseconds isCopied stays true after a successful copy before reverting.
 
 Returns:
-- `copy`: (text: string) => Promise<boolean> — Writes text to the clipboard. On success flips isCopied to true, announces the configured message, restarts the reset timer, and resolves true. A clipboard rejection is a silent no-op that leaves the copied state unchanged and resolves false.
+- `copy`: (text: string) => Promise<boolean> — Writes text to the clipboard. On success flips isCopied to true, announces the configured message, restarts the reset timer, and resolves true. Where the frame refuses the async Clipboard API (a sandboxed viewer or an embed whose permissions policy does not allow `clipboard-write`), the text is copied with the browser copy command instead, inside the reader\u2019s click or key press; it resolves true only when the browser copied the text. A failed write is a silent no-op that leaves the copied state unchanged and resolves false.
 - `isCopied`: boolean — True for resetAfterMs after the most recent successful copy, then reverts. Drive the copied confirmation (e.g. a copy → check icon flip) off this.
 
 ### useCollapsible
@@ -5430,7 +5430,7 @@ Do:
 
 Don't:
 - Use a dialog for simple messages that could be shown inline or as a toast notification.
-- Nest dialogs inside other dialogs; restructure the flow into steps within a single dialog instead.
+- Nest dialogs inside other dialogs; restructure the flow into steps within a single dialog instead. The one exception is an AlertDialog that confirms a destructive action: it asks one question, and Escape closes only the alert.
 - Use the fullscreen variant for simple confirmations; it is meant for complex content like editors or long forms.
 
 Props:
@@ -6766,7 +6766,7 @@ Don't:
 
 Props:
 - `theme`: DefinedTheme (required) — Theme object to apply. Prefer built theme objects for static production themes; use runtime `defineTheme()` for dynamic themes. Its `motion` can set `tempo` (0.75–1.5) and `character` (`'crisp' | 'standard' | 'expressive'`).
-- `mode`: 'light' | 'dark' | 'system' = 'system' — Color mode. System follows OS preference.
+- `mode`: 'light' | 'dark' | 'system' = 'system' — Color mode. System takes the page\u2019s light or dark scheme: the reader\u2019s preference, unless the page or its host sets the root\u2019s scheme.
 - `children`: ReactNode (required) — Content to render with the theme.
 
 ### useDevWarning

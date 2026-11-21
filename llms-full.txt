@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `ddc5dd1` (2026-11-19) of https://github.com/facebook/astryx.
+Generated from commit `7ee32e5` (2026-11-20) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -1470,7 +1470,7 @@ Props:
 
 Import: `import {Shortcut} from '@astryxdesign/core/Kbd';`
 
-Renders a keyboard shortcut as styled key badges. Use Kbd in tooltips, menus, and help text to show key combinations.
+Renders a keyboard shortcut as styled key badges. Use Kbd in menus and help text to show key combinations; in a Tooltip, write the shortcut as text.
 
 Props:
 - `keys`: string (required) — Keyboard shortcut string. Use "+" to separate keys. Special keys: mod (⌘ on Apple platforms, Ctrl elsewhere), ctrl, alt and shift (Apple symbols on Apple platforms, Ctrl, Alt and Shift text elsewhere), meta (⌘ on Apple platforms, Win elsewhere and before hydration), enter, backspace, escape, tab, up, down, left, right, plus. Aliases: esc for escape and return for enter.
@@ -3001,12 +3001,12 @@ Props:
 - `min`: number | null — Minimum value allowed. A smaller entry commits at this value on blur or Enter.
 - `max`: number | null — Maximum value allowed. A larger entry commits at this value on blur or Enter.
 - `step`: number | null = 1 — Step increment for the input.
-- `formatValue`: (value: number) => string — Formats the committed value while the input is not focused. The raw numeric value is shown on focus for editing and the formatted value is exposed through aria-valuetext.
+- `formatValue`: (value: number) => string — Formats the committed value while the input is not focused. The plain number, with the locale's decimal separator, is shown on focus for editing and the formatted value is exposed through aria-valuetext.
 - `isWheelEnabled`: boolean = true — Whether scrolling the wheel over the focused input steps the value. Disable this when page scrolling should always take priority.
 - `hasNumberSteppers`: boolean = false — Shows increment and decrement buttons at the end of the input on fine pointers. Hidden on coarse pointers (such as touch screens); text entry and keyboard stepping remain available. Holding a button with a mouse or a pen repeats the step and commits once, when the hold ends.
 - `units`: string | null — Units text to display at the end of the input (e.g., "%" or "GB").
 - `isIntegerOnly`: boolean — Only allow integer values (no floating point).
-- `hasClear`: boolean = false — Shows a clear (\u00d7) button when the input has a value. When true, the onChange callback also accepts null to signal the user cleared the input.
+- `hasClear`: boolean = false — Shows a clear (\u00d7) button while the input has a value and is editable (not disabled or read-only). When true, the onChange callback also accepts null to signal the user cleared the input.
 - `htmlName`: string — HTML name attribute for form submissions. While blur keeps rejected text, the form posts the committed number, until the person edits the text or a new value replaces it.
 - `autoComplete`: string — HTML autocomplete attribute.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
@@ -3563,7 +3563,7 @@ Don't:
 - Use for focus-scoped keyboard navigation inside a widget; use useListFocus or useGridFocus instead.
 
 Parameters:
-- `hotkeys`: Hotkey[] (required) — Shortcut registrations. Each entry: `{ keys, onPress, allowInInputs?, isDisabled? }`. `keys` is a "+"-separated combo like "mod+k", "?", "escape"; "mod" is ⌘ on macOS and Ctrl elsewhere. Register a punctuation key that shift changes as the character it produces: "?", not "shift+/", because the final key is compared against `event.key`. `onPress` receives the KeyboardEvent after preventDefault(). `allowInInputs` (default false) lets the hotkey fire while typing in inputs/textareas/selects/contenteditable. `isDisabled` temporarily disables the entry.
+- `hotkeys`: Hotkey[] (required) — Shortcut registrations. Each entry: `{ keys, onPress, allowInInputs?, isDisabled? }`. `keys` is a "+"-separated combo like "mod+k", "?", "escape"; "mod" is ⌘ on macOS and Ctrl elsewhere. Register a punctuation key that shift changes as the character it produces: "?", not "shift+/", because the final key is compared against `event.key`. On Apple platforms (macOS, and iPadOS or iOS with a hardware keyboard), where Option changes the typed character (Option+A types "å"), an "alt" combo with a letter, digit, punctuation or space key also matches that key at its US position, on every layout, when Option typed a dead key or a non-ASCII character; when Option types a plain ASCII character, the combo matches that character (a German Mac types "@" for Option+L, so it fires "alt+@"). On Apple platforms, name shifted punctuation as "alt+shift+/", not "alt+?". `onPress` receives the KeyboardEvent after preventDefault(). `allowInInputs` (default false) lets the hotkey fire while typing in inputs/textareas/selects/contenteditable. `isDisabled` temporarily disables the entry.
 
 ### useHoverCard
 
@@ -3838,13 +3838,14 @@ Parameters:
 - `onHide`: () => void — Callback fired when the popover is hidden. Focus returns on its own as the popover closes, and there is no option to turn that off; to send focus somewhere else, focus that element here.
 - `xstyle`: StyleXStyles — StyleX styles applied to the popover content wrapper, after the default surface styles.
 - `hasLightDismiss`: boolean = true — Whether clicking outside dismisses the popover.
-- `hasEscapeDismiss`: boolean = true — Whether pressing Escape dismisses the popover. Only takes full effect together with hasLightDismiss: false, since native light dismiss also closes on Escape.
+- `hasEscapeDismiss`: boolean = true — Whether pressing Escape dismisses the popover. Only takes full effect together with hasLightDismiss: false, since native light dismiss also closes on Escape. A popover with tabBehavior: 'pageOrder' does not use native light dismiss, so false always turns its Escape off.
 - `hasAutoFocus`: boolean = true — Whether to focus the first genuine content control when opened. Dialogs with none fall back to the labeled surface; the generated close control is excluded from initial focus.
 - `hasCloseButton`: boolean = true — Whether to include a hidden close button that appears for keyboard users.
 - `closeButtonLabel`: string = 'Close popover' — Accessible label for the hidden close button.
 - `dialogLabel`: string — Accessible label for the popover dialog (only applies when role is "dialog"). Provide one when there is no visible title.
 - `role`: 'dialog' | 'none' = 'dialog' — ARIA role on the content wrapper. Use "dialog" for genuine dialog content; use "none" for listbox/menu popups whose own content role should be exposed and whose trigger keeps DOM focus.
-- `isModal`: boolean = true — Whether a dialog-role popover is modal (aria-modal). Only applies when role is "dialog".
+- `isModal`: boolean = true — Whether a dialog-role popover is modal (aria-modal). Only applies when role is "dialog". Tab stays inside the popover either way; tabBehavior decides that.
+- `tabBehavior`: 'contain' | 'pageOrder' = 'contain' — Where Tab and Shift+Tab go while the popover is open. 'contain' cycles them inside the popover. 'pageOrder' holds nothing: Tab moves through the page. Where the browser supports popover invokers, the popover's controls come after its trigger, or after an anchor that can take focus when it has no trigger. When another layer opened from the same trigger or anchor closes (a menu, a hover card), the popover's controls leave the Tab order until the popover opens again. Escape closes it only while focus is inside it, or on or inside its anchor or trigger; and it never carries aria-modal. Use 'pageOrder' for a coachmark or a tour step, whose reader must reach the control it describes. isModal: true with 'pageOrder' is a type error.
 - `hasSurface`: boolean = true — Whether to apply the default popover surface background, radius, and shadow.
 - `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inner padding of the painted surface on the spacing scale (0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10). Omit it and the hook paints no padding of its own; Popover passes 3 by default and 0 for a flush surface.
 - `surfaceTarget`: string — Optional component-owned refinement target on the painted surface, without the astryx- prefix. Use and document one when a direct hook composition needs distinct theme reachability.
@@ -4897,11 +4898,12 @@ Props:
 
 Import: `import {Container} from '@astryxdesign/core/NavIcon';`
 
-NavIcon is a circular icon container with an accent-colored background. Use it in navigation headers such as TopNavHeading and PageNavHeader to visually identify a section or application.
+NavIcon is a circular icon container with an accent-colored background. Use it in navigation headers such as TopNavHeading and SideNavHeading to visually identify a section or application.
 
 Do:
 - Use in navigation headers to provide a recognizable visual anchor for the section.
 - Pass an Icon or similarly sized icon component to ensure proper proportions.
+- NavIcon adds no role or name of its own, so the icon you pass decides what assistive technology announces. An Icon is hidden from screen readers unless you give it a label.
 
 Don't:
 - Use NavIcon for interactive purposes; it is a display-only container, not a button.
@@ -5031,6 +5033,7 @@ Do:
 - Use the dots variant for carousels and walkthroughs where the total is small and position matters more than a number.
 - Pass totalItems when the total is known so users can see how much content remains.
 - Pass getPageHref when each page has its own URL, so a page opens in a new tab and its address can be copied.
+- Give each Pagination a distinct label when a page has more than one, so screen-reader users can tell the navigation landmarks apart.
 
 Don't:
 - Show pagination when all items fit on a single page; there is nothing to paginate.
@@ -5044,8 +5047,8 @@ Props:
 - `changeAction`: (page: number) => void | Promise<void> — Async action on page change. Fires after onChange and uses React transitions for built-in loading state.
 - `getPageHref`: (page: number, pageSize?: number) => string — Returns the URL of a page. When set, the page number, previous, next, first and last controls render as links to it, so a page opens in a new tab, its address can be copied, and it works before scripts load. onChange still runs when a link is activated. pageSize is the current page size when pageSize or pageSizeOptions is set. The dots, the page box and the page-size selector are not links. For a page-size choice, navigate in onPageSizeChange to the URL of page 1 with the new size, not in the onChange(1) that follows. When onChange navigates for the dots or the page box, leave getPageHref unset in the dots and input variants, or their arrow links navigate twice. In cursor pagination, map the page before or after the current one to the cursor's URL. The destination follows the shared navigation rule described on the Link `href` prop.
 - `as`: ComponentType — Custom link component for the links getPageHref makes (e.g. Next.js Link). Overrides the LinkProvider default.
-- `totalItems`: number — Total number of items. Used to calculate page count. Takes precedence over totalPages if both provided.
-- `totalPages`: number — Total number of pages. Use when you know page count but not item count.
+- `totalItems`: number — Total number of items. Used to calculate the page count when totalPages is not given.
+- `totalPages`: number — Total number of pages. Use when you know page count but not item count. Takes precedence over totalItems if both are given.
 - `hasMore`: boolean — Whether more pages exist after the current one. Use for cursor-based pagination where total is unknown.
 - `pageSize`: number = 10 — Number of items per page. Coerced to a positive integer; non-finite values fall back to the default.
 - `pageSizeOptions`: number[] — Available page size options. Shows a page size selector dropdown when provided.
@@ -6120,22 +6123,25 @@ Table displays structured data in rows and columns with consistent dimensionalit
 
 Do:
 - Use density and divider variants to match the information density and scanning needs of your data.
-- Compose rich cell content with Astryx components like Badge, StatusDot, and Avatar via renderCell.
+- Compose rich cell content with Astryx components like Text, StatusDot, and Avatar via renderCell. Pair a StatusDot with Text, and keep a solid Badge for the rare cell that needs attention.
 - In children mode, put every row inside TableHeader, TableBody, or TableFooter. <table> cannot contain a <tr> directly: the HTML parser inserts an implied <tbody> for server-rendered markup and React does not on the client, so unwrapped rows mismatch on hydration.
 - Omit width for equal flexible columns with a compact 60px readability floor. Give one column its own floor with proportional(1, {minWidth}), weight columns with proportional(n), and fix widths with pixel(); the Table scroll region activates when the combined floors no longer fit.
 - Use the data-driven API from React Server Components: proportional(), pixel(), and column definitions without function props are server-safe. Columns using renderCell (or any function prop) need the table wrapped in a "use client" component, since functions cannot cross the server-client boundary.
 - To open a row (go to a detail page, open a side panel), put a Link or a Button in the row's main cell with renderCell. Table has no row-click prop. A click handler on the <tr> cannot be reached with the keyboard or a screen reader, so do not use it as the only way to open a row. A renderCell column makes a windowed Table (virtualization) render every row.
 - When filters or a search can leave no rows, set emptyState to say so and offer a way out, for example an EmptyState with a "Clear filters" Button.
 - Keep long tokens such as code identifiers whole. When you pass `columns`, a data-driven table sizes them from their definitions, not their content, so a token that does not fit its column breaks inside the token. Give that column proportional(1, {minWidth}) or pixel() wide enough for the token, or compose the table in children mode, whose columns follow their content.
+- When you pass `columns`, floors set with `minWidth` or `pixel()` are minimums and cell content never widens a column, except that a windowed table\u2019s numbering column fits its largest number (only children mode sizes columns to content). When the floors add up to more than the screen, the table scrolls sideways on a phone: the columns past the edge stay out of sight until the reader swipes.
+- For a page read mostly on phones, show the data as a List below a breakpoint instead of a wide table. Render both the List and the Table, and switch them with a StyleX `display` rule, for example `display: {default: 'none', '@media (not (min-width: 768px))': 'block'}` on the List\u2019s wrapper and the reverse on the Table\u2019s, below the theme\u2019s `md` breakpoint (768px by default, or your theme\u2019s own `md`). CSS picks the layout in the first paint and without script; `useMediaQuery` picks it only after the page\u2019s script runs.
 
 Don't:
 - Use a table for data without consistent columns. Use a list or card layout for heterogeneous content.
+- Put a solid Badge (success, warning, error, info) in every cell of a column. The repeated fills compete with the data; pair a StatusDot with Text instead.
 - Enable every plugin at once. Add only the features your use case requires to keep the interface focused.
 - Rely on the 60px omitted-width floor when a text-heavy column needs more room; set proportional(1, {minWidth}) on that column instead.
 
 Props:
 - `data`: T[] — Array of data items to render as rows. T must extend Record<string, unknown> (use `interface MyRow extends Record<string, unknown>` for custom types).
-- `columns`: TableColumn<T>[] — Column definitions: each column has {key, header, width?, align?, renderCell?}. The `header` field sets the column heading text. If omitted, columns are auto-generated from data object keys. The `width` field is typed as `ColumnWidth` (not a number); use `proportional(n)` or `pixel(n)` helpers imported from `@astryxdesign/core/Table`. Omitting `width` keeps an equal flexible share with a compact 60px readability floor. To give one column a different floor, set `width: proportional(1, {minWidth: 80})`; its `minWidth` replaces the 60px floor for that column. Example: `width: pixel(120)` for 120px fixed, `width: proportional(1)` for a flexible column with a 120px default minimum.
+- `columns`: TableColumn<T>[] — Column definitions: each column has {key, header, width?, align?, renderCell?}, and Table has no onRowClick prop: to open a row, put a Link or Button in its main cell's renderCell; on a phone, column floors wider than the screen scroll sideways, so for a phone-first page also render a List and switch with a StyleX `display` rule under `@media` (Best practices). The `header` field sets the column heading text. If omitted, columns are auto-generated from data object keys. The `width` field is typed as `ColumnWidth` (not a number); use `proportional(n)` or `pixel(n)` helpers imported from `@astryxdesign/core/Table`. Omitting `width` keeps an equal flexible share with a compact 60px readability floor. To give one column a different floor, set `width: proportional(1, {minWidth: 80})`; its `minWidth` replaces the 60px floor for that column. Example: `width: pixel(120)` for 120px fixed, `width: proportional(1)` for a flexible column with a 120px default minimum.
 - `idKey`: (keyof T & string) | ((item: T) => string | number) — Canonical row identity: a property name projects valid strings and finite numbers to strings; a function retains string/number type. Optional legacy tables fall back to index. Virtualization requires explicit unique valid keys.
 - `density`: 'compact' | 'balanced' | 'spacious' = 'balanced' — Row density controlling cell padding and font size.
 - `dividers`: 'rows' | 'columns' | 'grid' | 'none' = 'rows' — Divider style rendered between cells.

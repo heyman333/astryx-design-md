@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `7ee32e5` (2026-11-20) of https://github.com/facebook/astryx.
+Generated from commit `4b910f2` (2026-11-21) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -163,7 +163,7 @@ Don't:
 
 Props:
 - `label`: string (required) — Accessible label. Used as aria-label (not rendered as visible text).
-- `icon`: ReactNode (required) — Icon element rendered inside the button. An Astryx Icon with no explicit size defaults to sm for sm/md buttons and md for lg buttons.
+- `icon`: ReactNode (required) — Icon element rendered inside the button: `<Icon icon="close" />` for a built-in meaning, or `<Icon icon={TrashIcon} />` for any SVG component from your icon library. An Astryx Icon with no explicit size defaults to sm for sm/md buttons and md for lg buttons.
 - `variant`: 'primary' | 'secondary' | 'ghost' | 'destructive' = 'secondary' — Visual style variant.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size variant.
 - `elevation`: 'none' | 'low' | 'med' | 'high' = 'none' — Resting shadow depth. The most common FAB shape is an icon-only button, so raise it with `low`/`med`/`high` for a floating action button. `none` is the default flat button.
@@ -396,7 +396,7 @@ An independently checkable option inside DropdownMenu. The row owns menuitemchec
 Props:
 - `label`: ReactNode — Primary label text identifying the item.
 - `description`: ReactNode — Secondary description text displayed below the label.
-- `icon`: ReactNode | IconType — Icon to display before the label; pass a semantic icon name such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
+- `icon`: ReactNode | IconType — Icon to display before the label; pass a built-in meaning such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
 - `value`: boolean — Whether the item is checked. Controlled; pair with onChange.
 - `onChange`: (checked: boolean) => void — Callback fired with the next checked state when the item is toggled.
 - `isDisabled`: boolean = false — Whether the item is disabled. A disabled item stays in the accessibility tree as disabled (aria-disabled), and the arrow keys and typeahead reach it so keyboard users find it. The pointer highlight skips it, and activation is blocked.
@@ -409,7 +409,7 @@ Props:
 Import: `import {ContextMenuItem} from '@astryxdesign/core/ContextMenu';`
 
 Props:
-- `icon`: ReactNode | IconType — Icon to display before the label; pass a semantic icon name such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
+- `icon`: ReactNode | IconType — Icon to display before the label; pass a built-in meaning such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
 - `label`: ReactNode — Primary label text.
 - `description`: ReactNode — Secondary description text displayed below the label.
 - `onClick`: (event: MouseEvent) => void — Callback when the item is selected. A keyboard activation arrives as a synthesized click carrying the key's modifiers. On a row with `href` it runs before the browser navigates and is skipped for a modified click (⌘, Ctrl, Shift, Alt, middle button), which is left to the browser.
@@ -466,7 +466,7 @@ Don't:
 - Put buttons, links, or other focusable controls inside label, description, or endContent. Each menu row is one interactive target.
 
 Props:
-- `icon`: ReactNode | IconType — Icon to display before the label; pass a semantic icon name such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
+- `icon`: ReactNode | IconType — Icon to display before the label; pass a built-in meaning such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
 - `label`: ReactNode (required) — Primary label text.
 - `description`: ReactNode — Secondary description text displayed below the label.
 - `onClick`: (event: MouseEvent) => void — Callback when the item is selected. A keyboard activation arrives as a synthesized click carrying the key's modifiers. On a row with `href` it runs before the browser navigates and is skipped for a modified click (⌘, Ctrl, Shift, Alt, middle button), which is left to the browser.
@@ -511,7 +511,7 @@ Props:
 - `value`: string (required) — The value this item represents within its group. The group's value matches against this to determine the checked state.
 - `label`: ReactNode (required) — Primary label text identifying the option.
 - `description`: ReactNode — Secondary description text displayed below the label.
-- `icon`: ReactNode | IconType — Icon to display before the label; pass a semantic icon name such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
+- `icon`: ReactNode | IconType — Icon to display before the label; pass a built-in meaning such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
 - `isDisabled`: boolean = false — Whether this individual radio item is disabled. A disabled item stays in the accessibility tree as disabled (aria-disabled), and the arrow keys and typeahead reach it so keyboard users find it. The pointer highlight skips it, and selection is blocked.
 - `endContent`: ReactNode — Content to render after the label and description, such as a badge or metadata.
 - `ref`: React.Ref<HTMLElement> — Ref forwarded to the row root, the element carrying role="menuitemradio". Register the row with an element-keyed observer or overlay.
@@ -522,7 +522,7 @@ Import: `import {DropdownMenuSubMenu} from '@astryxdesign/core/DropdownMenu';`
 
 Props:
 - `label`: ReactNode (required) — Primary label text for the trigger row.
-- `icon`: ReactNode | IconType — Icon to display before the label; pass a semantic icon name such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
+- `icon`: ReactNode | IconType — Icon to display before the label; pass a built-in meaning such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
 - `description`: ReactNode — Secondary description text displayed below the label.
 - `children`: ReactNode (required) — The flyout menu items: the same components used at the top level (DropdownMenuItem, nested DropdownMenuSubMenu, selectable items).
 - `isDisabled`: boolean = false — A disabled submenu renders its trigger row but never opens the flyout.
@@ -938,8 +938,8 @@ Props:
 - `isDisabled`: boolean — Whether the send button is disabled. Defaults to !canSend from context.
 - `onSend`: () => void — Called when the user clicks send. Defaults to context onSubmit.
 - `onStop`: () => void — Called when the user clicks stop during streaming. Defaults to context onStop.
-- `sendIcon`: ReactNode — Custom icon for the send state. Defaults to arrowUp from icon registry.
-- `stopIcon`: ReactNode — Custom icon for the stop state. Defaults to stop from icon registry.
+- `sendIcon`: ReactNode — Custom icon for the send state. Defaults to the arrowUp icon (theme icons, else a registered or built-in drawing).
+- `stopIcon`: ReactNode — Custom icon for the stop state. Defaults to the stop icon (theme icons, else a registered or built-in drawing).
 - `size`: 'sm' | 'md' = 'md' — Button size.
 - `xstyle`: StyleXStyles — StyleX styles for layout customization (margins, positioning, sizing). Must be a stylex.create() value: not an inline style object like style={{}}.
 
@@ -1010,7 +1010,7 @@ Props:
 - `height`: SizeValue — Height of the card (number = pixels, string = used as-is).
 - `maxWidth`: SizeValue — Maximum width of the card.
 - `minHeight`: SizeValue — Minimum height of the card.
-- `children`: ReactNode — Content to render inside the card.
+- `children`: ReactNode — Content to render inside the card: one discrete item; a page\u2019s people, principles or contacts are page content, so set them under headings with Dividers or in one List, not a Card each, on a phone too.
 - `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 = the theme's card padding (spacing step 4 with no theme) — Internal padding using the spacing scale. Omit it and the card takes the theme's card padding rather than a step, so passing a step is a decision to override the theme, not a way to restate the default.
 - `variant`: 'default' | 'transparent' | 'muted' | 'blue' | 'cyan' | 'gray' | 'green' | 'orange' | 'pink' | 'purple' | 'red' | 'teal' | 'yellow' = 'default' — Background color variant. `default` uses the standard card background. `transparent` drops the background entirely. `muted` uses the muted background for de-emphasised cards. The non-semantic variants use the corresponding `--color-background-<name>` token.
 - `elevation`: 'none' | 'low' | 'med' | 'high' = 'none' — Resting shadow depth. `none` is flat; `low`/`med`/`high` map to the shadow token scale. Raise a card only when it needs to float above surrounding content.
@@ -1437,10 +1437,10 @@ Props:
 
 Import: `import {Glyph} from '@astryxdesign/core/Icon';`
 
-Icons are small visual symbols that represent actions, objects, or concepts. They improve scannability and reinforce meaning alongside text. Supports both direct SVG components and semantic icon names that adapt to the active theme.
+Icons are small visual symbols that represent actions, objects, or concepts. They improve scannability and reinforce meaning alongside text. Supports both direct SVG components and built-in meanings that adapt to the active theme.
 
 Do:
-- Use semantic icon names when available; they adapt to theme changes automatically.
+- Use built-in meanings when available; they adapt to theme changes automatically.
 - Override icons through the theme, not globally: defineTheme({icons: {close: <XMarkIcon />}}) scopes the swap to the active <Theme>, and extends shallow-merges it into derived themes. registerIcons() mutates a process-wide registry and warns in dev, so keep it for app bootstrap rather than making it a library's theming seam.
 - To match artwork to the rendered size, make a theme or registered icon entry a pure, synchronous function of {size, variant}: defineTheme({icons: {info: ({size}) => <InfoIcon weight={size === 'sm' ? 'bold' : 'regular'} />}}). Icon passes the size it renders at; getIcon(), useIcon(), getIconRegistry() and theme.icons read the function at size md. A function that returns null draws nothing instead of falling back to the default icon. Do not use hooks, measure the DOM, or read browser or mutable state inside it.
 - Pair icons with text labels for accessibility; icon-only elements need an accessible label.
@@ -1456,15 +1456,15 @@ Don't:
 - Pass a `name` prop; Icon uses `icon` (not `name`) to specify which icon to render.
 
 Props:
-- `icon`: IconName | NamespacedIconName | ComponentType<SVGProps> (required) — Semantic icon name or SVG component. Valid semantic names: close, chevronDown, chevronLeft, chevronRight, chevronsLeft, chevronsRight, check, success, error, warning, info, calendar, clock, externalLink, menu, moreHorizontal, search, upload, arrowUp, arrowDown, arrowsUpDown, funnel, eyeSlash, viewColumns, copy, checkDouble, wrench, stop, microphone. A namespaced key such as `richtext:bold` names a glyph that one component or library registers, and a theme can replace it by key; a namespaced key that nothing registers renders nothing. For any icon not in this list, pass an SVG component directly (e.g. import from lucide-react or @heroicons/react). Note: this prop is called `icon`, not `name`; a call with only `name` renders that glyph and warns in development.
+- `icon`: IconName | NamespacedIconName | ComponentType<SVGProps> (required) — Built-in meaning, or any SVG component from your icon library (`icon={TrashIcon}`). Built-in meanings: close, chevronDown, chevronLeft, chevronRight, chevronsLeft, chevronsRight, check, success, error, warning, info, calendar, clock, externalLink, menu, moreHorizontal, search, upload, arrowUp, arrowDown, arrowsUpDown, funnel, eyeSlash, viewColumns, copy, checkDouble, wrench, stop, microphone. A namespaced key such as `richtext:bold` names a glyph that one component or library registers, and a theme can replace it by key; a namespaced key that nothing registers renders nothing. For any icon not in this list, pass an SVG component directly (e.g. import from lucide-react or @heroicons/react). Note: this prop is called `icon`, not `name`; a call with only `name` renders that glyph and warns in development.
 - `color`: 'primary' | 'secondary' | 'tertiary' | 'disabled' | 'accent' | 'info' | 'success' | 'error' | 'warning' | 'inherit' | 'blue' | 'red' | 'green' | 'gray' | 'cyan' | 'teal' | 'yellow' | 'orange' | 'pink' | 'purple' = 'inherit' — Color variant mapped to Astryx icon color tokens. Semantic values (primary through warning) follow the role, and inherit uses the surrounding text color. On the web, Icon also accepts the palette values blue, red, green, gray, cyan, teal, yellow, orange, pink, and purple, which pick a non-semantic hue.
 - `size`: 'xsm' | 'sm' | 'md' | 'lg' = Contextual; otherwise 'md' — Icon size. xsm, sm, md, and lg are 12, 16, 20, and 24px at a 16px root and scale with the root font size; a theme sets a size's glyph dimension with width and height, in px or rem, on components.icon['size:sm'] (and the other sizes). An explicit value wins. When omitted, Icon uses the nearest default supplied by an owning Astryx component for its icon slot, then falls back to md when no contextual default exists.
-- `variant`: IconVariant — Requests the active theme's alternate artwork for a semantic icon name, such as 'filled'. Names come from IconVariantMap, which an application augments from @astryxdesign/core/Icon; Astryx defines none. The theme's icon entry receives the variant only when the active theme lists it in iconVariants (and, for an entry the theme inherited, the theme that defined the entry lists it too); otherwise it draws its normal artwork. Ignored by an icon component passed directly. Selects artwork only: it is not written to the DOM and has no theming selector.
+- `variant`: IconVariant — Requests the active theme's alternate artwork for a built-in meaning, such as 'filled'. Names come from IconVariantMap, which an application augments from @astryxdesign/core/Icon; Astryx defines none. The theme's icon entry receives the variant only when the active theme lists it in iconVariants (and, for an entry the theme inherited, the theme that defined the entry lists it too); otherwise it draws its normal artwork. Ignored by an icon component passed directly. Selects artwork only: it is not written to the DOM and has no theming selector.
 - `label`: string — Accessible name for a MEANINGFUL, standalone icon (a status glyph or icon-only indicator with no adjacent text). Setting it exposes the icon to screen readers as role="img" with this text as the accessible name (aria-label) and removes the default aria-hidden. Omit it (default) for decorative icons and the icon stays hidden from assistive tech (aria-hidden="true"). This is the accessible-name / alt-text prop for icons: one prop instead of manually setting aria-label + role + aria-hidden. An empty string is treated as decorative. Do not set it when an interactive parent (Button, IconButton, link) already names the control.
 - `xstyle`: StyleXStyles — StyleX styles for customization (color, size, opacity). Folded into the icon's own stylex.props() call so it composes with the base color/size styles. Must be a stylex.create() value, not an inline style object like style={{}}.
 - `className`: string — Class name added to the rendered glyph, beside the astryx-icon target class.
 - `style`: CSSProperties — Inline styles merged onto the rendered glyph after Icon's own size and color styles.
-- `ref`: Ref<SVGSVGElement> — Ref to the rendered SVG element, for an icon component and for a semantic or namespaced name. For a name, it is the <svg> inside the wrapper, or null when the resolved glyph has no <svg>.
+- `ref`: Ref<SVGSVGElement> — Ref to the rendered SVG element, for an icon component and for a built-in meaning or namespaced key. For a name, it is the <svg> inside the wrapper, or null when the resolved glyph has no <svg>.
 
 ### Shortcut
 
@@ -1695,7 +1695,7 @@ Don't:
 - Make badges clickable; they are read-only indicators. Use a button or link if the user needs to take action.
 
 Props:
-- `variant`: 'neutral' | 'info' | 'success' | 'warning' | 'error' | 'blue' | 'cyan' | 'green' | 'orange' | 'pink' | 'purple' | 'red' | 'teal' | 'yellow' = 'neutral' — Visual style variant. Semantic variants (neutral, info, success, warning, error) use solid backgrounds. Non-semantic color variants use tinted backgrounds with colored text for categorization and tagging.
+- `variant`: 'neutral' | 'info' | 'success' | 'warning' | 'error' | 'blue' | 'cyan' | 'green' | 'orange' | 'pink' | 'purple' | 'red' | 'teal' | 'yellow' = 'neutral' — Visual style variant; a status repeated on every item reads quieter as a StatusDot with Text (a `neutral` dot for done states such as Resolved), so keep a solid semantic Badge for the rare item that needs attention. Semantic variants (neutral, info, success, warning, error) use solid backgrounds. Non-semantic color variants use tinted backgrounds with colored text for categorization and tagging.
 - `label`: ReactNode (required) — Badge text content. A badge is one line and at least as tall as that line of its label, so it grows with its text (a larger text size); it is as wide as its label, so it does not stretch to fill a grid cell or a stack; a label wider than the space available is cut with an ellipsis rather than escaping its container; a string or number label is also set as the badge's title so the full text stays reachable on hover.
 - `icon`: ReactNode — Optional leading icon.
 
@@ -1789,6 +1789,7 @@ Do:
 - Use a determinate bar when the total amount of work is known, and indeterminate when it's not.
 - Choose a color variant that matches the context: accent for general progress, success for completion, warning or error for alerts.
 - Always provide a label, even if hidden; screen readers need it to announce what's loading.
+- Screen readers announce the track as a progressbar: the label is its name and the value text is what they read. Pass formatValueLabel when a percentage would mislead, such as "3 of 5 files".
 
 Don't:
 - Place icons or labels inside the bar; compose them alongside it using layout components.
@@ -1802,7 +1803,7 @@ Props:
 - `isLabelHidden`: boolean = false — Visually hide the label (remains accessible).
 - `hasValueLabel`: boolean = false — Show formatted value text (ignored when indeterminate).
 - `formatValueLabel`: (value: number, max: number) => string — Custom value label formatter; defaults to a percentage string.
-- `variant`: 'accent' | 'success' | 'warning' | 'error' | 'neutral' = 'accent' — Semantic color variant.
+- `variant`: 'accent' | 'success' | 'warning' | 'error' | 'neutral' = 'accent' — Semantic color variant. A variant a theme adds paints the accent fill until the theme styles it.
 - `isIndeterminate`: boolean = false — Animated loading indicator for unknown progress. Under reduced motion it pulses in place instead of sliding.
 - `marks`: ReadonlyArray<{value: number; label: string}> — Fixed target marks drawn on the track at values in the same 0..max scale as value (e.g. a goal line). They stay visible whether progress is below or past them, and take their color from what they sit on: a mark inside the filled area uses the color that reads on the fill (on-accent on an accent fill, the surface color on the others), a mark still out on the bare track uses the primary text color (the secondary one on a disabled bar, whose track and fill dim). Each mark requires a label: it is the mark's accessible name and the text revealed via a tooltip on hover/focus. Ignored when indeterminate.
 - `isDisabled`: boolean = false — Visually disabled state: grays out the fill and text. Use for canceled or inactive operations.
@@ -2162,7 +2163,7 @@ Props:
 - `size`: 'sm' | 'md' = 'md' — The size of the checkbox. sm for compact layouts, md for default. Under a coarse pointer a labelled checkbox’s target grows toward 44 px through an invisible hit area. It never shrinks below the row and stops at half the gap to a closer neighbour; nothing changes size.
 - `onFocus`: (e: FocusEvent<HTMLInputElement>) => void — Callback fired when the checkbox receives focus.
 - `onBlur`: (e: FocusEvent<HTMLInputElement>) => void — Callback fired when the checkbox loses focus.
-- `labelIcon`: ReactNode | IconType — Semantic icon name or custom content displayed before the label text. See `astryx docs icons` for valid semantic names.
+- `labelIcon`: ReactNode | IconType — Built-in meaning or custom content displayed before the label text. See `astryx docs icons` for the built-in meanings.
 - `status`: { type: 'error' | 'warning' | 'success', message: string } — Status indicator. Displays a colored message box below the checkbox and sets aria-invalid for errors.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
 
@@ -2375,7 +2376,7 @@ Props:
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' for input selectors; 'detached' for secondary and ghost selectors — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment; detached when variant is secondary or ghost); detached floats below as a separate element with spacing; tooltip reveals the message in an info-tip button.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Exact trigger height: sm 28px, md 32px, or lg 36px.
 - `variant`: 'input' | 'secondary' | 'ghost' = 'input' — Visual trigger style. Input is the bordered form treatment; secondary matches the secondary buttons of the active theme (borderless and neutral-filled by default); ghost is borderless and transparent to match ghost buttons.
-- `startIcon`: ReactNode | IconType — Icon displayed at the start of the trigger; pass a semantic icon name such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
+- `startIcon`: ReactNode | IconType — Icon displayed at the start of the trigger; pass a built-in meaning such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
 - `width`: SizeValue — Width of the field.
 - `placement`: 'above' | 'below' | 'start' | 'end' = 'below' — Popup placement.
 - `alignment`: 'start' | 'center' | 'end' = 'start' — Popup alignment along the placement axis.
@@ -2421,7 +2422,7 @@ Props:
 - `descriptionID`: string — ID for the description element (use for aria-describedby on the input).
 - `isOptional`: boolean = false — Whether the field is optional (mutually exclusive with isRequired).
 - `isRequired`: boolean = false — Whether the field is required (mutually exclusive with isOptional).
-- `labelIcon`: ReactNode | IconType — Icon to display before the label text; pass a semantic icon name such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
+- `labelIcon`: ReactNode | IconType — Icon to display before the label text; pass a built-in meaning such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
 - `labelTooltip`: string — Help text for an info button after the label, named "About {label}". Hover and keyboard focus preview it; a tap, click, Enter, or Space opens it and never focuses or toggles the control.
 - `status`: {type: 'warning' | 'error' | 'success', message?: string, messageID?: string} — Status indicator with type and optional message. When message is set, displays a colored status box. messageID is for wiring aria-describedby on the input.
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How status feedback is placed. Attached overlaps an eligible opaque, bordered, fixed-height control; detached renders a message below custom or non-bordered controls; tooltip leaves the visible affordance to the wrapped input and announces its message without a FieldStatus box.
@@ -2489,7 +2490,7 @@ Props:
 - `indicatorPosition`: 'start' | 'end' = 'start' — Which edge of the option row carries the checkbox. end pushes it to the far edge of the row, including on the select-all row.
 - `presentation`: 'popover' | 'bottom-sheet' | 'adaptive' = 'popover' — How the option list is presented. adaptive uses a bottom sheet on compact touch screens and an anchored popover otherwise.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
-- `startIcon`: ReactNode | IconType — Icon displayed at the start of the selector trigger; pass a semantic icon name such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
+- `startIcon`: ReactNode | IconType — Icon displayed at the start of the selector trigger; pass a built-in meaning such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
 - `hasClear`: boolean = false — Shows a clear button when values are selected.
 - `isDefaultOpen`: boolean = false — Whether the dropdown starts open on mount.
 - `renderTrigger`: (props: MultiSelectorRenderTriggerProps) => ReactNode — Render the control the panel hangs off — a glyph in a list row, a chip, an icon button — instead of the selector's own field and button. Spread the given props ({ref, id, onClick, onKeyDown, onFocus, aria-haspopup, aria-expanded, aria-controls, aria-busy}) onto it; the listbox is anchored to that control and named by `label`. The field chrome (Field, status, clear, spinner) is not rendered. Pair with handleRef to open from a keystroke elsewhere.
@@ -2530,7 +2531,7 @@ Don't:
 
 Props:
 - `label`: string (required) — Label text for accessibility.
-- `options`: SelectorOption[] (required) — Array of items: strings, objects with value/label/description/icon/disabled, dividers ({type: "divider"}), or sections ({type: "section", title, options}).
+- `options`: SelectorOptionType[] (required) — Array of items: strings, objects with value/label/description/icon/disabled, dividers ({type: "divider"}), or sections ({type: "section", title, options}).
 - `value`: string | null — Currently selected value: a string, or undefined to show the placeholder; with hasClear, value is required and null means no selection. Without hasClear the type is string; with hasClear it is string | null.
 - `onChange`: (value: string | null) => void — Called with the selected option value; it receives null only when hasClear is set and the user clears the selection. Without hasClear the type is (value: string) => void; with hasClear it is (value: string | null) => void, so a useState<string | null> setter fits.
 - `changeAction`: (value: string | null) => void | Promise<void> — Async action on change. Fires after onChange; the selector shows the new value and a busy state while it runs. Receives null on clear only with hasClear.
@@ -2560,7 +2561,7 @@ Props:
 - `placement`: 'above' | 'below' | 'start' | 'end' — Position of the popup relative to the trigger. Omit it to place the selected option over the trigger, kept inside the viewport; with hasSearch, the popup then opens below the trigger. Set it for explicit layer positioning, such as placement="above" for a toolbar fixed to the bottom.
 - `isDefaultOpen`: boolean = false — Whether the dropdown starts open on mount. Useful for showcases and previews.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned. Without a width the field follows its displayed value and can shrink with its row (the value truncates) instead of overflowing it; use `<HStack wrap="wrap">` for filter bars so selectors move to a second line on phones.
-- `startIcon`: ReactNode | IconType — Icon displayed at the start of the selector trigger; pass a semantic icon name such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
+- `startIcon`: ReactNode | IconType — Icon displayed at the start of the selector trigger; pass a built-in meaning such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
 - `isLoading`: boolean = false — Shows a loading spinner in the trigger.
 - `onClick`: (event: MouseEvent) => void — Click handler on the trigger button. Runs before the selector toggles its surface; preventDefault() does not keep it closed.
 - `onFocus`: (event: FocusEvent) => void — Focus handler on the trigger button. Runs before the selector's own focus handling.
@@ -2605,7 +2606,7 @@ Props:
 - `status`: {type: 'warning' | 'error' | 'success', message?: string} — Status indicator with type and message. Displays a colored message box below the switch and sets aria-invalid when type is "error".
 - `onFocus`: (e: FocusEvent<HTMLInputElement>) => void — Callback fired when the switch receives focus.
 - `onBlur`: (e: FocusEvent<HTMLInputElement>) => void — Callback fired when the switch loses focus.
-- `labelIcon`: ReactNode | IconType — Icon displayed before the label text; pass a semantic icon name such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
+- `labelIcon`: ReactNode | IconType — Icon displayed before the label text; pass a built-in meaning such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
 - `labelTooltip`: string — Tooltip text shown in an info icon at the end of the label.
 - `labelPosition`: 'start' | 'end' = 'end' — Which side of the switch the label appears on. "start" places the label before the switch.
 - `labelSpacing`: 'hug' | 'spread' = 'hug' — Spacing behavior between label and switch. "hug" places them next to each other; "spread" pushes them to opposite ends of the container (full width).
@@ -2659,7 +2660,7 @@ Props:
 - `menu`: BaseTypeaheadMenu — What the menu shows. role 'listbox' (default) is the result list; its optional render({listbox, query, isBusy, isEmptySearch, close}) places information such as a header or a hint around it, and anything a person acts on stays a result so the arrow keys reach it. role 'dialog' shows render({query, close}) in a dialog named by label that takes focus; Escape, an outside press or close() returns focus to where it was when the menu opened. Astryx owns the layer either way. Switching from listbox to dialog keeps the menu open: call handleRef.open() from onChange.
 - `handleRef`: React.Ref<BaseTypeaheadHandle> — Imperative handle: open() opens the menu (a dialog at once; a listbox shows or loads its results) and close() closes it. There is no controlled open state; onOpenChange reports changes.
 - `width`: SizeValue — Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.
-- `startIcon`: ReactNode | IconType — Icon displayed at the start of the input; pass a semantic icon name such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
+- `startIcon`: ReactNode | IconType — Icon displayed at the start of the input; pass a built-in meaning such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
 - `containerXstyle`: StyleXStyles — StyleX styles for the field container (label, control, and status together). No effect inside InputGroup (style the InputGroup instead) or in a `horizontal-labels` FormLayout. Root `xstyle`, `className`, and `style` are not accepted.
 - `containerClassName`: string — Class name for the field container. Same targeting as `containerXstyle`.
 - `containerStyle`: CSSProperties — Inline styles for the field container. Same targeting as `containerXstyle`.
@@ -2919,7 +2920,7 @@ Props:
 - `status`: { type: 'warning' | 'error' | 'success'; message?: string } — Status indicator that applies a colored border and icon. An optional message is displayed in a floating box below the textarea.
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing; tooltip hides the message box and surfaces it in a tooltip on the status icon.
 - `labelTooltip`: string — Tooltip text displayed in an info icon at the end of the label.
-- `startIcon`: ReactNode | IconType — Icon rendered inside the leading edge of the textarea wrapper; pass a semantic icon name such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
+- `startIcon`: ReactNode | IconType — Icon rendered inside the leading edge of the textarea wrapper; pass a built-in meaning such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
 - `hasSpellCheck`: boolean = true — Enables or disables browser spell checking.
 - `hasAutoFocus`: boolean = false — Automatically focuses the textarea on mount.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size of the textarea, affecting internal padding. Height is controlled by rows, not size.
@@ -2992,8 +2993,8 @@ Props:
 - `disabledMessage`: string — Explains why the input is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the input focusable via aria-disabled (the field becomes read-only). Use this instead of wrapping a disabled NumberInput in Tooltip.
 - `placeholder`: string — Placeholder text.
 - `labelTooltip`: string — Tooltip text to display in an info icon at the end of the label.
-- `startIcon`: ReactNode | IconType — Icon to display at the start of the input; pass a semantic icon name such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
-- `labelIcon`: ReactNode | IconType — Icon to display before the label text; pass a semantic icon name such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
+- `startIcon`: ReactNode | IconType — Icon to display at the start of the input; pass a built-in meaning such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
+- `labelIcon`: ReactNode | IconType — Icon to display before the label text; pass a built-in meaning such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
 - `status`: {type: 'error' | 'warning' | 'success', message?: string} — Validation status with optional message. Typing never shows a rejection: a typed number is complete only at commit. When Enter or blur meets text that is not a number, a fraction in an integer-only field, or any number while min is above max, the text stays in the field and the field shows its own error message in place of status. An error status with a message shows instead of that message, and the rejection is still announced and marks the field invalid. A warning or success status, or an error status without a message, never replaces it. A number outside an ordinary range clamps instead.
 - `onEntryErrorChange`: (error: {kind: 'unreadable' | 'fractional' | 'outOfRange', text: string, value?: number} | null) => void — Called each time the field's rejection of typed text changes, and with null when the rejection ends. A rejection starts only at Enter or blur. kind is 'unreadable' (text that is not a number), 'fractional' (a fraction when isIntegerOnly), or 'outOfRange' (any number while min is above max); text is the typed text; value is the number it names, for 'fractional' and 'outOfRange'. It also runs when an edit makes the text valid or empty, when a new value, min, max, or isIntegerOnly changes or ends the rejection, and when disabling the field drops the text, and never twice for the same rejection; it reports null when the field unmounts while a rejection stands. Pass an error status with a message to word the rejection yourself.
 - `entryErrorBehavior`: 'complete' | 'blur-or-enter' = the nearest FormLayout's defaultEntryErrorBehavior, else 'complete' — When the field shows its own entry error: typed text it rejects, as onEntryErrorChange reports it. It sets when the error shows, not when validation runs, so it is not React Aria's validationBehavior (native versus ARIA validation), and it never changes a caller status. A typed number is complete only at Enter or blur, so 'complete' and 'blur-or-enter' behave the same: the message, aria-invalid, the invalid styling, the announcement, and the onEntryErrorChange report appear together at Enter or blur, never while a person types, and an edit that makes the text valid or empty clears the error at once. Set it to match the other fields of a form; the field's own value wins over the nearest FormLayout's defaultEntryErrorBehavior.
@@ -3048,20 +3049,19 @@ Props:
 - `isDisabled`: boolean = false — Disables the entire component.
 - `disabledMessage`: string — Explains why the search is disabled. With isDisabled, shows a tooltip on hover/keyboard focus and keeps the input focusable via aria-disabled (input stays blocked). Use this instead of wrapping a disabled PowerSearch in Tooltip. Disabled controls swallow the hover events an external Tooltip needs.
 - `status`: {type: 'warning' | 'error' | 'success', message?: string} — Validation status object with type and optional message.
-- `startIcon`: ReactNode | IconType — Icon to display at the start of the input, before any filter tokens; pass a semantic icon name such as 'search' (see `astryx docs icons`), an icon component, or an icon element. Forwarded to the internal Tokenizer.
+- `startIcon`: ReactNode | IconType — Icon to display at the start of the input, before any filter tokens; pass a built-in meaning such as 'search' (see `astryx docs icons`), an icon component, or an icon element. Forwarded to the internal Tokenizer.
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing; tooltip reveals the message in an info-tip button.
 - `maxTokenLength`: number = 40 — Max character length for filter value display in tokens.
 - `maxOperatorMenuItems`: number = 10 — Maximum suggestions shown in string and entity value typeaheads. Does not affect the main field search menu or enum value menus.
 - `maxSearchResults`: number = 10 — Max ranked results for a non-empty query. Does not affect a field value editor. Browsing with an empty query shows up to 1,000 fields.
-- `menuWidth`: number — Width in pixels for the main field/search menu. Does not affect field value editors.
+- `menuWidth`: number — Width in pixels for the main field/search menu; it never shrinks below the input width. Does not affect field value editors.
 - `popoverSaveButtonLabel`: string = 'Apply' — Label for the save button in the edit popover.
 - `timezoneID`: string — IANA zone a date-only date_absolute value, and each absolute part of a date_range, is read and written in: the day shows, edits and stores (as that midnight) in it; unset, a day is its UTC day. A date_absolute with isDateOnly: false shows and edits its date and time in it; unset, in the viewer's zone. E.g. "America/New_York". Date values are written in the InternationalizationProvider calendar, such as calendar="persian"; filter values stay Unix seconds.
 - `handleRef`: Ref<PowerSearchHandle> — Imperative handle with focusTypeahead() and blurTypeahead() methods.
 - `endContent`: ReactNode — Content to display at the end of the input row. Useful for action buttons or other controls.
 - `resultCount`: number | string — Number of results matching the current filters. When a number, formatted as "N results". When a string, displayed as-is. Changes are announced to screen readers via a polite live region.
 - `size`: 'sm' | 'md' | 'lg' = 'md' — Size of the search input and tokens.
-- `menuWidth`: number — Maximum width for the operator/value dropdown menu in pixels.
-- `maxOperatorMenuItems`: number — Maximum number of items displayed in the operator dropdown.
+- `components`: PowerSearchComponents — Per-type overrides for the filter token and the filter editor. Keys are operator value types, such as 'string', 'enum' or 'date_absolute'. An entry's Token replaces the token for filters of that type, and its Editor replaces the editor content. PowerSearchToken and PowerSearchFilterEditor are the defaults.
 - `tokenOverflowBehavior`: 'none' | 'unfocusedInline' | 'unfocusedLayer' = 'none' — Controls how tokens overflow when the container is too narrow. Forwarded to Tokenizer.
 - `onFocus`: (e: React.FocusEvent) => void — Fires when focus enters the search input.
 - `onBlur`: (e: React.FocusEvent) => void — Fires when focus leaves the search input.
@@ -3147,7 +3147,7 @@ Props:
 - `isLoading`: boolean = false — Puts the input in a loading state, showing a spinner and setting aria-busy.
 - `placeholder`: string — Placeholder text shown when the input is empty.
 - `labelTooltip`: string — Tooltip text displayed in an info icon at the end of the label.
-- `startIcon`: ReactNode | IconType — Icon displayed at the start of the input; pass a semantic icon name such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
+- `startIcon`: ReactNode | IconType — Icon displayed at the start of the input; pass a built-in meaning such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
 - `status`: {type: 'error' | 'warning' | 'success', message?: string} — Validation status: applies a colored border and status icon. If message is provided, displays a floating message below the input. Error type also sets aria-invalid.
 - `statusVariant`: 'attached' | 'detached' | 'tooltip' = 'attached' — How the status message is placed relative to the input. attached overlaps directly below the input (bordered treatment); detached floats below as a separate element with spacing; tooltip hides the message box and surfaces it in a tooltip on the status icon.
 - `hasClear`: boolean = false — Shows a clear (\u00d7) button when the input has a value. Clicking it clears the value and returns focus to the input.
@@ -3267,7 +3267,7 @@ Props:
 - `debounceMs`: number = 150 — Debounce delay in ms before triggering search. Set to 0 for synchronous sources, and for a source that shows local matches through `context.update` and delays its own server request.
 - `hasCreate`: boolean = false — Allow users to create new tokens from free-text input. When true, a "Create" option appears in the dropdown for typed text that doesn't match existing results. The onChange change type is 'create' for these items.
 - `onChangeQuery`: (query: string) => void — Callback fired when the search query text changes.
-- `startIcon`: ReactNode | IconType — Icon to display at the start of the input, before any tokens; pass a semantic icon name such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
+- `startIcon`: ReactNode | IconType — Icon to display at the start of the input, before any tokens; pass a built-in meaning such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
 - `endContent`: ReactNode — Content to display at the end of the input row. Useful for buttons, result counts, or other controls.
 - `handleRef`: React.Ref<TokenizerHandle> — Imperative handle exposing focus(), blur(), open() and close(). open() and close() drive the inline menu; the sheet presentation ignores them.
 - `menu`: BaseTypeaheadMenu — What the menu shows. role 'listbox' (default) is the result list; its optional render({listbox, query, isBusy, isEmptySearch, close}) places information such as a header or a hint around it, and anything a person acts on stays a result so the arrow keys reach it. role 'dialog' shows render({query, close}) in a dialog named by label that takes focus; Escape, an outside press or close() returns focus to where it was when the menu opened. Astryx owns the layer either way. Switching from listbox to dialog keeps the menu open: call handleRef.open() from onChange. The sheet presentation keeps its own sheet and ignores it.
@@ -3313,7 +3313,7 @@ Props:
 - `isDisabled`: boolean = false — Use disabled label presentation for the associated control.
 - `isOptional`: boolean = false — Show the localized optional indicator unless it matches FormLayout's default optionality.
 - `isRequired`: boolean = false — Show the localized required indicator unless it matches FormLayout's default optionality.
-- `labelIcon`: ReactNode | IconType — Icon before the label text; pass a semantic icon name such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
+- `labelIcon`: ReactNode | IconType — Icon before the label text; pass a built-in meaning such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
 - `labelTooltip`: string — Help text for an info button after the label, named "About {label}". Hover and keyboard focus preview it; a tap, click, Enter, or Space opens it and never focuses or toggles the control.
 - `description`: ReactNode — Supporting content displayed below the label and kept separate from the control's accessible name.
 - `descriptionID`: string — ID applied to the supporting description for caller-owned `aria-describedby` wiring.
@@ -3409,7 +3409,7 @@ Import: `import {SelectorOption} from '@astryxdesign/core/Selector';`
 
 Props:
 - `label`: ReactNode (required) — Primary label text for the item.
-- `icon`: ReactNode | IconType — Icon displayed before the label; pass a semantic icon name such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
+- `icon`: ReactNode | IconType — Icon displayed before the label; pass a built-in meaning such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
 - `description`: ReactNode — Secondary description text displayed below the label.
 - `layout`: 'stacked' | 'inline' = 'stacked' — How the label and description sit together. 'stacked' puts the description on its own line; 'inline' keeps both on one line so the row fits a fixed-height host. Inside a Selector trigger the trigger's padding sizes itself to whichever layout you pick, so both land on the 4px rhythm; an InputGroup pins the row height and forces 'inline'.
 - `endContent`: ReactNode — Additional content rendered after the label and description.
@@ -3791,15 +3791,15 @@ Returns:
 
 Import: `import {useOverlay} from '@astryxdesign/core/Overlay';`
 
-Adds overlay behavior to a container you already render, such as a Card or a custom media frame, without the wrapper Overlay adds. Spread containerRef and containerProps on the container, then render element (or renderOverlay(children)) once inside it. The scrim is absolutely positioned, so it covers the nearest positioned ancestor: the container itself, or a positioned section inside it such as an image area. Visibility is CSS-driven from the container's :hover and :focus-within, so with showOn 'hover' a keyboard user reveals the content by moving focus into the container. Hidden content is not focusable, so the container needs a focusable element before the overlay content in tab order. A revealed scrim takes pointer input over the area it covers, so put that element outside the scrim, or use a top or bottom strip and keep it in the part the strip leaves uncovered.
+Adds overlay behavior to a container you already render, such as a Card or a custom media frame, without the wrapper Overlay adds. Spread containerRef and containerProps on the container, then render element (or renderOverlay(children)) once inside it. The scrim is absolutely positioned, so it covers the nearest positioned ancestor: the container itself, or a positioned section inside it such as an image area. Visibility is CSS-driven from the container's :hover and :focus-within, so with showOn 'hover' a keyboard user reveals the content by moving focus into the container. On a device with a mouse or trackpad, content that a hover or focus reveal hides stays in the tab order, so Tab reaches an action in it and focus reveals the scrim. On a touch-primary device a hover overlay stays inert until a tap. A revealed scrim takes pointer input over the area it covers, so keep any other control in the container outside the scrim, or use a top or bottom strip and keep the control in the part the strip leaves uncovered.
 
 Do:
 - Use showOn 'hover' for actions on media cards: it also reveals on keyboard focus within the container.
-- Put a focusable element (a link or the card title) before the overlay content in the container, so Tab reveals the content and the next Tab reaches it.
+- Give an overlay action a label that names what it does. With a mouse or trackpad, Tab reaches it while the overlay is hidden, and focus reveals the overlay.
 - Use the Overlay component when you do not already have a container element to attach to.
 
 Don't:
-- Put the only way to reach an action behind hover with nothing focusable before it; keyboard users cannot focus content that is hidden.
+- Put information people need to choose the item, such as its title or price, only in a hover or focus overlay; on a touch device a hover overlay shows only after a tap, and a focus overlay does not show.
 
 Parameters:
 - `options`: UseOverlayOptions — Overlay configuration. Every field is optional.
@@ -5283,8 +5283,8 @@ Import: `import {SideNavItem} from '@astryxdesign/core/SideNav';`
 Props:
 - `label`: string (required) — Item label.
 - `as`: LinkComponentType — Custom link component.
-- `icon`: ReactNode | IconType — Icon displayed in the outline (unselected) variant; pass a semantic icon name such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
-- `selectedIcon`: ReactNode | IconType — Icon displayed when the item is selected (filled variant); pass a semantic icon name such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
+- `icon`: ReactNode | IconType — Icon displayed in the outline (unselected) variant; pass a built-in meaning such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
+- `selectedIcon`: ReactNode | IconType — Icon displayed when the item is selected (filled variant); pass a built-in meaning such as 'search' (see `astryx docs icons`), an icon component, or an icon element.
 - `isSelected`: boolean = false — Marks this item as the current page.
 - `isDisabled`: boolean = false — Disabled state.
 - `href`: string — Navigation URL.
@@ -5552,9 +5552,11 @@ Overlay layers action or supporting content over media, cards, video, or other b
 Do:
 - Use overlays for short, contextual actions or labels that belong directly to the underlying media or surface.
 - Keep overlay content compact so it remains legible over the scrim and does not obscure important visual information.
+- Give an overlay action a label that names what it does, such as "Quick view". With showOn hover or focus on a device with a mouse or trackpad, Tab reaches the action while the overlay is hidden, and focus reveals the overlay.
 
 Don't:
 - Do not use Overlay for floating content anchored outside the surface. Use Popover, Tooltip, or Dialog for those patterns.
+- Do not put information people need to choose the item, such as its title or price, only in a hover or focus overlay. On a touch device a hover overlay shows only after a tap, and a focus overlay does not show.
 
 Props:
 - `content`: ReactNode (required) — Content rendered inside the overlay scrim.
@@ -5700,7 +5702,7 @@ Toast shows a brief, non-blocking notification to confirm an action or present t
 Do:
 - Keep messages short: only a few words that tell the user what happened, like "Changes saved" or "Message sent".
 - Add a short undo action in the endContent slot for reversible operations. Set isAutoHide to false when the action must remain available.
-- Use uniqueID to deduplicate toasts that fire from repeated actions, like clicking a save button multiple times.
+- Pass useToast()'s uniqueID option to deduplicate toasts that fire from repeated actions, like clicking a save button multiple times.
 - Use error type for failures that need attention but not immediate action; it persists until dismissed so the user won't miss it.
 
 Don't:
@@ -5710,14 +5712,11 @@ Don't:
 
 Props:
 - `body`: ReactNode (required) — Primary message content.
-- `type`: 'info' | 'error' = 'info' — Toast type controlling background color. Error toasts persist until dismissed.
-- `isAutoHide`: boolean — Whether the toast auto-dismisses. Defaults to true for info, false for error.
-- `autoHideDuration`: number = 5000 — Duration in ms before auto-dismiss. Timed content must satisfy WCAG 2.2.1.
+- `type`: 'info' | 'error' = 'info' — Toast type controlling background color. useToast()'s show function sets it when it is not given.
+- `isAutoHide`: boolean (required) — Whether the toast auto-dismisses. useToast()'s show function sets it by type when it is not given.
+- `autoHideDuration`: number (required) — Duration in ms before auto-dismiss. Timed content must satisfy WCAG 2.2.1. useToast()'s show function sets it when it is not given.
 - `isExiting`: boolean = false — Whether the toast is leaving: it plays its exit motion and stops responding to swipes. The toast viewport sets it while a toast leaves; set it only when you render Toast yourself.
 - `endContent`: ReactNode — Content rendered at the trailing end (e.g. Undo button, link). Keep action labels short.
-- `uniqueID`: string — Unique identifier for deduplication.
-- `collisionBehavior`: 'overwrite' | 'ignore' = 'overwrite' — Behavior when a toast with matching uniqueID already exists.
-- `onHide`: (reason: "auto" | "manual") => void — Callback fired when the toast is removed.
 - `onDismiss`: (reason: "auto" | "manual") => void (required) — Callback fired when the toast is dismissed.
 - `renderContent`: (toast: ToastContentRenderProps) => ReactNode — Replaces the content of this toast's card with your own layout. Astryx keeps the card, its astryx-toast theme target and auto-hide behavior (inside a ToastViewport the viewport announces the toast, over a modal too, and the card itself is not a live region), then hands the renderer the message, endContent, resolved toast settings and a dismiss callback. The custom renderer owns every control in its layout: compose the control you want and call dismiss from it. Astryx does not inject a fallback close into custom content. Per-toast: an app shares one layout by wrapping useToast and passing it on every call, while a toast raised by library code that never passes it renders as an ordinary Astryx toast. The argument is {body, endContent, type, isAutoHide, autoHideDuration, dismiss}, where type is 'info' | 'error'.
 
@@ -5897,7 +5896,7 @@ Props:
 Import: `import {useImperativeAlertDialog} from '@astryxdesign/core/AlertDialog';`
 
 Props:
-- `show`: (options: AlertDialogOptions) => void — Show the alert dialog with the given options. Options are the same as AlertDialog props minus isOpen/onOpenChange.
+- `show`: (options: Omit<AlertDialogProps, 'isOpen' | 'onOpenChange'>) => void — Show the alert dialog with the given options. Options are the same as AlertDialog props minus isOpen/onOpenChange.
 - `hide`: () => void — Hide the alert dialog.
 - `isOpen`: boolean — Whether the dialog is currently open.
 - `element`: ReactNode — The dialog element: render this in your JSX tree.
@@ -5907,7 +5906,7 @@ Props:
 Import: `import {useImperativeDialog} from '@astryxdesign/core/Dialog';`
 
 Props:
-- `show`: (content: ReactNode, options?: DialogOptions) => void — Show the dialog with the given content. Options are the same as Dialog props minus isOpen/onOpenChange/children.
+- `show`: (content: ReactNode, options?: Omit<DialogProps, 'isOpen' | 'onOpenChange' | 'children'>) => void — Show the dialog with the given content. Options are the same as Dialog props minus isOpen/onOpenChange/children.
 - `hide`: () => void — Hide the dialog.
 - `isOpen`: boolean — Whether the dialog is currently open.
 - `element`: ReactNode — The dialog element: render this in your JSX tree.
@@ -6134,6 +6133,7 @@ Do:
 - For a page read mostly on phones, show the data as a List below a breakpoint instead of a wide table. Render both the List and the Table, and switch them with a StyleX `display` rule, for example `display: {default: 'none', '@media (not (min-width: 768px))': 'block'}` on the List\u2019s wrapper and the reverse on the Table\u2019s, below the theme\u2019s `md` breakpoint (768px by default, or your theme\u2019s own `md`). CSS picks the layout in the first paint and without script; `useMediaQuery` picks it only after the page\u2019s script runs.
 
 Don't:
+- Do not put a control (a button, link, or input) in the header of a sortable column. The Sort control wraps the whole header, so the control nests inside it and assistive technology cannot operate it. Keep header controls on columns that are not sortable.
 - Use a table for data without consistent columns. Use a list or card layout for heterogeneous content.
 - Put a solid Badge (success, warning, error, info) in every cell of a column. The repeated fills compete with the data; pair a StatusDot with Text instead.
 - Enable every plugin at once. Add only the features your use case requires to keep the interface focused.
@@ -6141,7 +6141,7 @@ Don't:
 
 Props:
 - `data`: T[] — Array of data items to render as rows. T must extend Record<string, unknown> (use `interface MyRow extends Record<string, unknown>` for custom types).
-- `columns`: TableColumn<T>[] — Column definitions: each column has {key, header, width?, align?, renderCell?}, and Table has no onRowClick prop: to open a row, put a Link or Button in its main cell's renderCell; on a phone, column floors wider than the screen scroll sideways, so for a phone-first page also render a List and switch with a StyleX `display` rule under `@media` (Best practices). The `header` field sets the column heading text. If omitted, columns are auto-generated from data object keys. The `width` field is typed as `ColumnWidth` (not a number); use `proportional(n)` or `pixel(n)` helpers imported from `@astryxdesign/core/Table`. Omitting `width` keeps an equal flexible share with a compact 60px readability floor. To give one column a different floor, set `width: proportional(1, {minWidth: 80})`; its `minWidth` replaces the 60px floor for that column. Example: `width: pixel(120)` for 120px fixed, `width: proportional(1)` for a flexible column with a 120px default minimum.
+- `columns`: TableColumn<T>[] — Column definitions: each column has {key, header, width?, align?, renderCell?}, and Table has no onRowClick prop; the supported way to open a dialog, side panel or detail page from a row is a Link or Button in the row's main cell (renderCell) that opens it, and to show a row's details inline on a click anywhere on it, use useTableRowExpansion with hasRowClickExpansion; on a phone, column floors wider than the screen scroll sideways, so for a phone-first page also render one List with `hasDividers` (not a Card per item) and switch with a StyleX `display` rule under `@media` (Best practices). The `header` field sets the column heading text. If omitted, columns are auto-generated from data object keys. The `width` field is typed as `ColumnWidth` (not a number); use `proportional(n)` or `pixel(n)` helpers imported from `@astryxdesign/core/Table`. Omitting `width` keeps an equal flexible share with a compact 60px readability floor. To give one column a different floor, set `width: proportional(1, {minWidth: 80})`; its `minWidth` replaces the 60px floor for that column. Example: `width: pixel(120)` for 120px fixed, `width: proportional(1)` for a flexible column with a 120px default minimum.
 - `idKey`: (keyof T & string) | ((item: T) => string | number) — Canonical row identity: a property name projects valid strings and finite numbers to strings; a function retains string/number type. Optional legacy tables fall back to index. Virtualization requires explicit unique valid keys.
 - `density`: 'compact' | 'balanced' | 'spacious' = 'balanced' — Row density controlling cell padding and font size.
 - `dividers`: 'rows' | 'columns' | 'grid' | 'none' = 'rows' — Divider style rendered between cells.
@@ -6650,14 +6650,14 @@ Import: `import {useIcon} from '@astryxdesign/core/Icon';`
 Resolves a semantic icon name to a React node through the nearest Theme, so a custom component draws the same success, warning or error icon that Astryx components draw and follows a theme that overrides it. Resolution reads the nearest Theme's icons (outside any Theme, the registered theme the document root names), then registerIcons() overrides, then the built-in default. The node is returned as is, with no size or color wrapper: the built-in icons are 1em squares in currentColor, so they follow the surrounding text. A function entry is read at {size: 'md'}. Render <Icon icon={name} /> instead when the icon needs another size, a color or a label.
 
 Do:
-- Use it in a custom component that places a semantic icon itself, so a Theme that overrides the icon changes the component too.
+- Use it in a custom component that places the icon for a built-in meaning itself, so a Theme that overrides the icon changes the component too.
 - Render <Icon icon={name} /> when the icon needs a size other than md, a color, or an accessible label.
 
 Don't:
-- Import a specific icon library glyph for a semantic purpose that a theme should control, such as a success or error state.
+- Import a specific icon library glyph for a meaning that a theme should control, such as a success or error state.
 
 Parameters:
-- `name`: IconName | NamespacedIconName (required) — Semantic icon name, such as 'success', 'warning' or 'close', or a namespaced extension key such as 'richtext:bold'. Both resolve through the same registry.
+- `name`: IconName | NamespacedIconName (required) — A built-in meaning, such as 'success', 'warning' or 'close', or a namespaced extension key such as 'richtext:bold'. Both resolve through the theme icons, else a registered or built-in drawing.
 
 Returns:
 - `icon`: ReactNode — The icon for that name from the nearest Theme's icons (or, outside any Theme, from the registered theme the document root names), else from registerIcons() overrides, else the built-in default. A function entry is read at {size: 'md'}.
@@ -6818,7 +6818,7 @@ Do:
 - For a single CodeBlock, pass the syntaxTheme prop directly: it is shorthand for wrapping that block in SyntaxTheme. Use the SyntaxTheme wrapper when theming a whole region of code components.
 
 Props:
-- `theme`: SyntaxTheme (required) — Syntax highlighting theme: a preset from @astryxdesign/core/theme/syntax or a custom theme created with defineSyntaxTheme().
+- `theme`: SyntaxThemeDefinition (required) — Syntax highlighting theme: a preset from @astryxdesign/core/theme/syntax or a custom theme created with defineSyntaxTheme().
 - `children`: ReactNode (required) — Content subtree. All CodeBlock components within will use this syntax theme.
 
 ### Theme
@@ -6905,7 +6905,7 @@ Import: `import {useThemeName} from '@astryxdesign/core/theme';`
 Reads only the active theme name. Use it when code needs to know which theme is on, and does not need tokens or the color mode. It reads ThemeContext when a Theme is above the caller, and otherwise the root theme name on the document element.
 
 Do:
-- Use this hook for theme identity, such as picking a semantic icon for the active theme.
+- Use this hook for theme identity, such as picking which icon to show for the active theme.
 - Use useTheme when the caller also needs token values or the resolved light or dark mode.
 
 Don't:

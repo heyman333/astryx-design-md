@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `4b910f2` (2026-11-21) of https://github.com/facebook/astryx.
+Generated from commit `7032abf` (2026-11-22) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -3105,9 +3105,10 @@ Props:
 - `containerXstyle`: StyleXStyles — StyleX styles for the field container (label, control, and status together). No effect inside InputGroup (style the InputGroup instead) or in a `horizontal-labels` FormLayout. Root `xstyle`, `className`, and `style` are not accepted.
 - `containerClassName`: string — Class name for the field container. Same targeting as `containerXstyle`.
 - `containerStyle`: CSSProperties — Inline styles for the field container. Same targeting as `containerXstyle`.
-- `controlXstyle`: StyleXStyles — StyleX styles for the visual control box: the element that paints the border and background and holds icons and end controls. Never the native input.
-- `controlClassName`: string — Class name for the visual control box.
-- `controlStyle`: CSSProperties — Inline styles for the visual control box.
+- `controlXstyle`: StyleXStyles — StyleX styles for the role="radiogroup" element that lays out the options. Never a native radio.
+- `controlClassName`: string — Class name for the role="radiogroup" element.
+- `controlStyle`: CSSProperties — Inline styles for the role="radiogroup" element.
+- `ref`: React.Ref<HTMLDivElement> — Ref forwarded to the role="radiogroup" element.
 
 ### TextInput
 
@@ -6647,7 +6648,7 @@ Returns:
 
 Import: `import {useIcon} from '@astryxdesign/core/Icon';`
 
-Resolves a semantic icon name to a React node through the nearest Theme, so a custom component draws the same success, warning or error icon that Astryx components draw and follows a theme that overrides it. Resolution reads the nearest Theme's icons (outside any Theme, the registered theme the document root names), then registerIcons() overrides, then the built-in default. The node is returned as is, with no size or color wrapper: the built-in icons are 1em squares in currentColor, so they follow the surrounding text. A function entry is read at {size: 'md'}. Render <Icon icon={name} /> instead when the icon needs another size, a color or a label.
+Resolves a built-in meaning to a React node through the nearest Theme, so a custom component draws the same success, warning or error icon that Astryx components draw and follows a theme that overrides it. Resolution reads the nearest Theme's icons (outside any Theme, the registered theme the document root names), then registerIcons() overrides, then the built-in default. The node is returned as is, with no size or color wrapper: the built-in icons are 1em squares in currentColor, so they follow the surrounding text. A function entry is read at {size: 'md'}. Render <Icon icon={name} /> instead when the icon needs another size, a color or a label.
 
 Do:
 - Use it in a custom component that places the icon for a built-in meaning itself, so a Theme that overrides the icon changes the component too.

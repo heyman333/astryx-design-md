@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `6b4ecb5` (2026-11-24) of https://github.com/facebook/astryx.
+Generated from commit `4dd9b9b` (2026-11-25) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -81,7 +81,7 @@ Props:
 - `width`: SizeValue — Width of the button. Numbers are treated as pixels, strings are used as-is (e.g., '100%' for a full-width button). By default the button sizes to its content, never grows past its container, and truncates its label with an ellipsis when a row is too narrow, showing the full label in a tooltip on keyboard focus; icon-only buttons stay square.
 - `children`: ReactNode — Optional override for visible text. When provided, displayed instead of label, but label is still required (it provides the accessible name). For most cases, just use label alone: <Button label="Save" />.
 - `endContent`: ReactElement<IconProps> | ReactElement<BadgeProps> — Trailing icon or badge rendered after the label. Ignored when isIconOnly is true. Color is inherited from the button variant.
-- `tooltip`: string — Tooltip text shown on hover.
+- `tooltip`: string — Tooltip text shown on hover. The text shows above the button; for another side, rich content, or control over when it shows, wrap the button in `Tooltip` instead (`placement`, `content`, `isOpen`).
 - `onClick`: (e: MouseEvent) => void — Standard click handler (passed through from ButtonHTMLAttributes).
 - `clickAction`: (e: MouseEvent) => void | Promise<void> — Async click handler. Shows loading state while the returned promise is pending.
 - `href`: string — When provided, renders the button as a link element (<a> or custom link component). The destination follows the shared navigation rule described on the Link `href` prop.
@@ -169,7 +169,7 @@ Props:
 - `elevation`: 'none' | 'low' | 'med' | 'high' = 'none' — Resting shadow depth. The most common FAB shape is an icon-only button, so raise it with `low`/`med`/`high` for a floating action button. `none` is the default flat button.
 - `isLoading`: boolean = false — Shows a loading spinner and blocks re-activation while staying focusable (aria-busy + aria-disabled, not native disabled).
 - `isDisabled`: boolean = false — Disables the button. Uses aria-disabled instead of native disabled so the button stays focusable.
-- `tooltip`: string — Tooltip text shown on hover and keyboard focus. It also describes the button, unless it repeats the button's accessible name.
+- `tooltip`: string — Tooltip text shown on hover and keyboard focus. It also describes the button, unless it repeats the button's accessible name. The text shows above the button; for another side, rich content, or control over when it shows, wrap the button in `Tooltip` instead (`placement`, `content`, `isOpen`).
 - `onClick`: (e: MouseEvent) => void — Standard click handler.
 - `clickAction`: (e: MouseEvent) => void | Promise<void> — Async click handler with automatic loading state.
 - `isInterruptible`: boolean = false — Keep the button clickable while a clickAction is pending: the spinner and aria-busy still show, but the button is not disabled and the action is not deduped, so a re-click lands and interrupts the in-flight action with a fresh one. Use it for interruptible actions, not fire-once actions (submit, save, pay).

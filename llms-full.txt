@@ -4,7 +4,7 @@
 >
 > This llms-full.txt adds the complete per-component reference — import path, usage guidance, and every prop with its type, default, and description — so agents can write correct Astryx code without repository access or CLI calls. For the short index, see llms.txt.
 
-Generated from commit `378ca30` (2026-11-26) of https://github.com/facebook/astryx.
+Generated from commit `653ffa0` (2026-11-27) of https://github.com/facebook/astryx.
 
 Key facts:
 
@@ -2446,6 +2446,7 @@ Do:
 - Use inside InputGroup only when the control needs a short prefix or suffix addon as part of one decorated input surface; prefer count or labels trigger display so the group stays single-line.
 - Use variant="secondary" when a multi-selector sits beside secondary buttons or segmented controls, and variant="ghost" when it sits beside ghost buttons. If validation status is needed there, prefer statusVariant="tooltip" so the toolbar height stays compact.
 - Use presentation="adaptive" when the multi-selector should become a bottom sheet on compact touch screens.
+- MultiSelector implements the WAI-ARIA APG Combobox pattern (https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) with a multi-select listbox, or a grid once an option carries an action. ArrowDown on the trigger opens the list, the arrows move the highlight, Enter toggles an option and keeps the list open, and Escape closes it and returns focus to the trigger. Give it a label even when isLabelHidden hides it.
 
 Don't:
 - Use for single-value selection; use Selector instead.
@@ -2481,6 +2482,7 @@ Props:
 - `disabledMessage`: string — Explains why the selector is disabled. With isDisabled, shows the reason as a tooltip on hover and keyboard focus of the trigger, which stays focusable (aria-disabled) like every disabled selector; activation stays blocked. Use this instead of wrapping a disabled MultiSelector in Tooltip.
 - `isLabelHidden`: boolean — Visually hides the label while keeping it accessible.
 - `description`: string — Helper text displayed below the label.
+- `labelTooltip`: string — Tooltip text for an info icon at the end of the label; it has no effect inside an InputGroup (set the group's labelTooltip) or with renderTrigger, where MultiSelector renders no label of its own.
 - `isOptional`: boolean — Marks the field as optional.
 - `isRequired`: boolean — Marks the field as required.
 - `isLoading`: boolean — Shows a loading spinner in the trigger.
@@ -2499,6 +2501,7 @@ Props:
 - `onClick`: (event: MouseEvent) => void — Click handler on the trigger (or the renderTrigger control). Runs after the built-in toggle and cannot cancel it.
 - `onFocus`: (event: FocusEvent) => void — Focus handler on the trigger. Runs before the selector's own focus handling.
 - `onKeyDown`: (event: KeyboardEvent) => void — Key handler on the trigger button. Runs after the built-in keyboard model and is skipped for keys it handles and cancels.
+- `ref`: Ref<HTMLElement> — Ref to the trigger button, or with renderTrigger to the caller's control. The trigger shows the value and carries the combobox role, except with hasSearch on a field that is not read-only, where the search input is the combobox.
 - `containerXstyle`: StyleXStyles — StyleX styles for the field container (label, control, and status together). No effect inside InputGroup (style the InputGroup instead) or in a `horizontal-labels` FormLayout. Root `xstyle`, `className`, and `style` are not accepted.
 - `containerClassName`: string — Class name for the field container. Same targeting as `containerXstyle`.
 - `containerStyle`: CSSProperties — Inline styles for the field container. Same targeting as `containerXstyle`.
@@ -3850,7 +3853,7 @@ Parameters:
 - `role`: 'dialog' | 'none' = 'dialog' — ARIA role on the content wrapper. Use "dialog" for genuine dialog content; use "none" for listbox/menu popups whose own content role should be exposed and whose trigger keeps DOM focus.
 - `isModal`: boolean = true — Whether a dialog-role popover is modal (aria-modal). Only applies when role is "dialog". Tab stays inside the popover either way; tabBehavior decides that.
 - `tabBehavior`: 'contain' | 'pageOrder' = 'contain' — Where Tab and Shift+Tab go while the popover is open. 'contain' cycles them inside the popover. 'pageOrder' holds nothing: Tab moves through the page. Where the browser supports popover invokers, the popover's controls come after its trigger, or after an anchor that can take focus when it has no trigger. When another layer opened from the same trigger or anchor closes (a menu, a hover card), the popover's controls leave the Tab order until the popover opens again. Escape closes it only while focus is inside it, or on or inside its anchor or trigger; and it never carries aria-modal. Use 'pageOrder' for a coachmark or a tour step, whose reader must reach the control it describes. isModal: true with 'pageOrder' is a type error.
-- `hasSurface`: boolean = true — Whether to apply the default popover surface background, radius, and shadow.
+- `hasSurface`: boolean = true — Whether to apply the default popover surface background, text color, radius, and shadow.
 - `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inner padding of the painted surface on the spacing scale (0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10). Omit it and the hook paints no padding of its own; Popover passes 3 by default and 0 for a flush surface.
 - `surfaceTarget`: string — Optional component-owned refinement target on the painted surface, without the astryx- prefix. Use and document one when a direct hook composition needs distinct theme reachability.
 
@@ -4377,7 +4380,7 @@ Props:
 - `minHeight`: SizeValue — Minimum height of the section.
 - `children`: ReactNode — Content rendered inside the section.
 - `dividers`: Array<'top' | 'bottom' | 'start' | 'end'> — Which sides of the section have divider borders.
-- `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 = 4 — Internal padding using the spacing scale (0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10). Use padding={0} for edge-to-edge content.
+- `padding`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 = 4 — Internal padding using the spacing scale (0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10). Use padding={0} for edge-to-edge content. When omitted, each edge takes the theme's per-edge or per-axis section padding, then the nearest ancestor Section's explicit padding (not across an overlay or a layout root such as AppShell), then the theme's section padding, then 4.
 - `paddingInline`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline (horizontal) padding override. Overrides only the inline-axis padding while preserving block padding from `padding` or the container theme default. Accepts the spacing scale (0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10).
 - `paddingInlineStart`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline-start padding override (left in LTR, right in RTL). Overrides paddingInline and padding on that edge only.
 - `paddingInlineEnd`: 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10 — Inline-end padding override (right in LTR, left in RTL). Overrides paddingInline and padding on that edge only.
